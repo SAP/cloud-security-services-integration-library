@@ -1,11 +1,10 @@
 package testservice.api;
 
-import java.io.IOException;
-
+import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.test.context.TestPropertySource;
 
-import okhttp3.mockwebserver.MockWebServer;
+import java.io.IOException;
 
 @TestPropertySource(properties = { "xsuaa.xsappname=java-hello-world", "xsuaa.clientid=sb-java-hello-world",
 		"xsuaa.url=http://localhost:33195", "xsuaa.uaadomain=localhost" })

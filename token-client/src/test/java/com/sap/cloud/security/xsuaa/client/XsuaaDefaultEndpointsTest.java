@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.client;
@@ -12,7 +12,8 @@ import org.mockito.Mockito;
 
 import java.net.URI;
 
-import static com.sap.cloud.security.config.CredentialType.*;
+import static com.sap.cloud.security.config.CredentialType.INSTANCE_SECRET;
+import static com.sap.cloud.security.config.CredentialType.X509;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 

@@ -1,20 +1,20 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.test.extension;
 
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.test.*;
+import com.sap.cloud.security.test.ApplicationServerOptions;
+import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.api.ServiceMockConfiguration;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.junit.jupiter.api.extension.*;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.junit.jupiter.api.extension.*;
 
 /**
  * This class creates a

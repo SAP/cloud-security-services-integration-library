@@ -1,16 +1,9 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.test;
-
-import static com.sap.cloud.security.xsuaa.test.TestConstants.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
-import java.io.IOException;
-import java.util.*;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenClaims;
@@ -19,6 +12,15 @@ import org.json.JSONArray;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.sap.cloud.security.xsuaa.test.TestConstants.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class JwtGeneratorTest {
 	private JwtGenerator jwtGenerator;

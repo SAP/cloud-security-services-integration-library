@@ -1,11 +1,12 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token;
 
 import com.sap.cloud.security.token.InvalidTokenException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,6 @@ import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
 import static org.springframework.util.StringUtils.hasText;
-
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 
 /**
  * Custom XSUAA token implementation.

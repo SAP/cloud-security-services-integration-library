@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.test.api;
@@ -8,10 +8,9 @@ package com.sap.cloud.security.test.api;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.SecurityTestRule;
-import org.eclipse.jetty.servlet.ServletHolder;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 public interface ApplicationServerConfiguration {
 

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token;
@@ -10,10 +10,10 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.security.Principal;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.ISSUER;
+import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_USER_ID;
 
 /**
  * You can get further token claims from here: {@link TokenClaims}.

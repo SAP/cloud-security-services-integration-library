@@ -1,20 +1,16 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package testservice.api.nohttp;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.time.Instant;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
+import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
+import com.sap.cloud.security.xsuaa.token.Token;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +24,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtValidationException;
 import org.springframework.test.context.ActiveProfiles;
-
-import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
-import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
-import com.sap.cloud.security.xsuaa.extractor.LocalAuthoritiesExtractor;
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.SpringSecurityContext;
-import com.sap.cloud.security.xsuaa.token.Token;
-
 import testservice.api.MockXsuaaServerConfiguration;
 import testservice.api.XsuaaRequestDispatcher;
+
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = { MyEventHandler.class,
 		XsuaaAutoConfiguration.class,
