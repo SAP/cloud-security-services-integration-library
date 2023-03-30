@@ -68,12 +68,12 @@ public class ServiceBindingEnvironment implements Environment {
      * Gets the configuration of the primary XSUAA service binding.
      * The primary binding is determined based on the service plan.
      * The priority of the service plans used for this, is (from high to low priority):
-     * <p><ul>
+     * <ul>
      *     <li>APPLICATION</li>
      *     <li>BROKER</li>
      *     <li>SPACE</li>
      *     <li>DEFAULT</li>
-     * </ul></p>
+     * </ul>
      */
     @Nullable
     @Override
