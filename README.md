@@ -74,8 +74,9 @@ Developers seeking OAuth2 token validation and access to token information for t
 This library streamlines the process of handling token validation for tokens issued by Xsuaa or Identity services and obtaining token details, such as principal and audiences from the security context.
 
 :exclamation: For backward compatibility there is [spring-xsuaa](/spring-xsuaa) library available that supports only Xsuaa service integration, but with the next major release it will be removed. 
-- If you're already using [spring-xsuaa](/spring-xsuaa) you in your project you should plan the time to migrate to the [spring-security](/spring-security), see [migration guide](/spring-xsuaa/Migration_JavaContainerSecurityProjects.md). 
+- If you're already using [spring-xsuaa](/spring-xsuaa) in your project you should plan the time to migrate to the [spring-security](/spring-security), see [migration guide](/spring-xsuaa/Migration_JavaContainerSecurityProjects.md). 
 - If you're just setting up your project you should use [spring-security](/spring-security) library.
+
 
 In the table below you'll find links to detailed information.
 
