@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.0.0
+### Baseline changes
+- `cloud-security-xsuaa-integration` library requires JDK 17
+
+### Breaking Changes
+* Removed packages
+  * `spring-xsuaa-mock` use `java-security-test` instead
+* Removed deprecated classes and interfaces
+  * `class` use instead `xxx`
+* Removed deprecated methods
+  * `method` use instead `xxx`
+
+
 ## 2.13.5
 - [spring-xsuaa] improved logging for JwtAudienceValidator
 - [java-security] enables token validation without zones
