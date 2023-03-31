@@ -8,7 +8,7 @@
 # SAP BTP Security Services Integration Libraries
 This repository offers a comprehensive set of libraries designed to simplify the integration of [SAP Business Technology Platform](https://www.sap.com/products/technology-platform.html) (SAP BTP) security services (XSUAA and Identity Services).
 Tailored to support Java EE and Spring Boot applications running on Cloud Foundry or Kubernetes environments.
-The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token validation for tokens issued by XSUAA and Identity Services, in addition, it offers a token-client library to easily fetch tokens without cumbersome setup for http requests and offers also a testing utility that mocks Xsuaa and Identity service behaviour and makes it easy to write integration and unit tests.
+The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token validation for tokens issued by XSUAA and Identity Services. In addition, it offers a token-client library to easily fetch tokens without cumbersome setup for http requests. Finally, it offers testing utility that mocks Xsuaa and Identity service behaviour and makes it easy to write integration and unit tests.
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
@@ -35,20 +35,20 @@ Before you can use the SAP Cloud Security Services Integration libraries, you mu
 
 
 ## Usage
-Typical applications consist of a server providing the HTML content and one or more application serving REST APIs used by the application. Web application use the OAuth Authorization Code Flow for interactive authentication:
-1. A user accesses the web application using a browser or mobile device
-2. The web application (in typical SAP Business Technology Platform scenario, this is an application router) acts as OAuth client and redirects requests to the OAuth server for authentication
-3. Upon authentication, the web application uses the code issued by the authorization server to request an access token
-4. The web application uses the access token to request data from the OAuth resource server. The OAuth resource server validates the token using online or offline validation.
+Typical web applications consist of a gateway server serving HTML content to the user client and one or more servers behind the gateway providing REST APIs. The gateway server acts as OAuth2 client executing an OAuth2 Authorization Code Flow to retrieve an access token when a new user client session is created. Requests from the user client are correlated with a session id on the gateway server which appends the access token to subsequent requests and forwards them to the REST APIs. The session flow looks as follows:
+1. A user accesses the web application using a browser or mobile device which begins a new server session.
+2. The web application redirects the user client to the OAuth2 server for authentication. In typical SAP Business Technology Platform scenarios, this is handled by an application router. Upon authentication, the web application receives an authorization code from the user client issued by the OAuth2 server.
+3. An access token is retrieved from the OAuth2 server in exchange for the authorization code.
+4. The web application uses the access token to access resources on an OAuth2 resource server via a REST API. The OAuth2 resource server validates the token using online or offline validation to restrict access to the API.
 
 ![OAuth 2.0 Authorization code flow](docs/oauth.png)
 
-OAuth resource servers (as the one in step 4) require libraries for validating access tokens.
+OAuth2 resource servers (as the one in step 4) require libraries for validating access tokens.
 
 ### 2.1. Token Validation
 Key features:
-* Automatic OAuth2 service configuration based on BTP service bindings found in environment
-* OAuth2 Token Validation based on the SAP BTP service binding attributes
+* Automatic OAuth2 service configuration based on SAP BTP service bindings found in the environment
+* OAuth2 Token Validation based on these service configurations
 * Easy access to principal and token claims within request handlers
 * Automatic or sample integrations for common web application frameworks (i.e. Java EE / Spring Security)
 
@@ -100,13 +100,13 @@ In the table below you'll find links to detailed information.
 
 ### 2.3 Testing utilities
 For authentication/authorization flow testing purposes there is [java-security-test](/java-security-test) library at your disposal that can be used for unit and integration tests to test the Xsuaa or Identity service client functionality in the application. 
-It provides [JwtGenerator](/java-security-test/src/main/java/com/sap/cloud/security/test/JwtGenerator.java) to generate custom JWT tokens that work together with pre-configures [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the Identity or Xsuaa service to fetch JWKS.
+It provides a [JwtGenerator](/java-security-test/src/main/java/com/sap/cloud/security/test/JwtGenerator.java) to generate custom JWT tokens that work together with a pre-configured [WireMock](http://wiremock.org/docs/getting-started/) web server that stubs outgoing calls to the Identity or Xsuaa service, e.g to fetch the JWKS used to check the validity of the token signature.
 With this library you can test end to end all your secured endpoints or app logic that is dependant on information from the tokens.
 
 Key features:
 * Generates and signs tokens with user provided attributes
-* Provides pre-configured local authorization server that mocks communication with BTP security service to validate self-generated tokens
-* For Java EE application sets up local application server that is pre-configured with security filter matching self-generated tokens and which you can configure with the servlets you want to test
+* Provides a pre-configured local authorization server that mocks communication with the BTP security services to validate self-generated tokens
+* For Java EE application sets up a local application server that is pre-configured with a security filter matching self-generated tokens. It can be configured to serve the servlets you want to test with mocked authorization
 
 
 In the table below you'll find links to detailed information.
