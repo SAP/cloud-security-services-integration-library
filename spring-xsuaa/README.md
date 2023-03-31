@@ -220,7 +220,7 @@ In case you have implemented a central Exception Handler as described with [Bael
 Alternativly there are also various options provided with `Spring.io`. For example, you can integrate SAP audit log service with Spring Boot Actuator audit framework as described [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-auditing).
 
 
-## Troubleshoot
+## Troubleshooting
 
 In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
 and provide these details:

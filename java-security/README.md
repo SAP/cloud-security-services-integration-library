@@ -222,7 +222,7 @@ Now you can test the service manually in the browser using a REST client such as
 A detailed step-by-step description and a sample can be found [here](https://github.com/SAP-samples/cloud-bulletinboard-ads/blob/Documentation/Security/Exercise_24_MakeYourApplicationSecure.md#step-5-run-and-test-the-service-locally).
 
 
-## Troubleshoot
+## Troubleshooting
 
 In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
 and provide these details:
