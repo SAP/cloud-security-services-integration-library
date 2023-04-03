@@ -87,9 +87,22 @@ public class XsuaaTokenFlows implements Serializable {
 	 * endpoints will be derived relative to the base URI.
 	 * 
 	 * @return the {@link UserTokenFlow} builder object.
+	 * @deprecated Please use {@link #jwtBearerTokenFlow()} instead
 	 */
+	@Deprecated
 	public UserTokenFlow userTokenFlow() {
 		return new UserTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
+	}
+
+	/**
+	 * Creates a new JWT Bearer Token Flow builder object.<br>
+	 * Token, authorize and key set endpoints will be derived relative to the base
+	 * URI.
+	 *
+	 * @return the {@link JwtBearerTokenFlow} builder object.
+	 */
+	public JwtBearerTokenFlow jwtBearerTokenFlow() {
+		return new JwtBearerTokenFlow(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
 	/**

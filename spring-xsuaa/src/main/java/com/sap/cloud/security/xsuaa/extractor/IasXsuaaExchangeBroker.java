@@ -92,7 +92,7 @@ public class IasXsuaaExchangeBroker implements BearerTokenResolver {
 	@Nullable
 	String doIasXsuaaXchange(DecodedJwt decodedJwt) {
 		try {
-			return xsuaaTokenFlows.userTokenFlow().token(createToken(decodedJwt)).execute().getAccessToken();
+			return xsuaaTokenFlows.jwtBearerTokenFlow().token(decodedJwt.getEncodedToken()).execute().getAccessToken();
 		} catch (TokenFlowException e) {
 			logger.error("Xsuaa token request failed {}", e.getMessage());
 		}
