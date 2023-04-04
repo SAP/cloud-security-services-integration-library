@@ -57,7 +57,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	void autoConfigurationActive() {
 		runner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class)).run(context -> {
 			assertThat(context).hasSingleBean(CloseableHttpClient.class);
-			assertThat(context).hasBean("httpClient");
+			assertThat(context).hasBean("defaultHttpClient");
 			assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));
 		});
 	}
@@ -79,7 +79,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 				.withPropertyValues("sap.security.services.xsuaa.key:" + key)
 				.run((context) -> {
 					assertThat(context).hasSingleBean(CloseableHttpClient.class);
-					assertThat(context).hasBean("httpClient");
+					assertThat(context).hasBean("defaultHttpClient");
 				});
 	}
 
