@@ -5,33 +5,33 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.servlet.MDCHelper;
-import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
-import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static org.apache.hc.core5.http.HttpHeaders.USER_AGENT;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
-import static org.apache.hc.core5.http.HttpHeaders.USER_AGENT;
+import com.sap.cloud.security.servlet.MDCHelper;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
@@ -66,7 +66,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 					}
 					return e;
 				})
-				.collect(Collectors.toList()));
+				.toList());
 
 		try {
 			return executeRequest(httpPost);
@@ -80,12 +80,12 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 	private OAuth2TokenResponse executeRequest(HttpPost httpPost) throws IOException, URISyntaxException {
 		httpPost.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
 
-		URI requestUri = httpPost.getUri();
+		URI requestUri = httpPost.getURI();
 		LOGGER.debug("Requesting access token from url {} with headers {}", requestUri,
-				httpPost.getHeaders());
+				httpPost.getAllHeaders());
 
 		String responseBody = httpClient.execute(httpPost, response -> {
-			int statusCode = response.getCode();
+			int statusCode = response.getStatusLine().getStatusCode();
 			LOGGER.debug("Received statusCode {}", statusCode);
 			String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
@@ -128,13 +128,17 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		return String.valueOf(accessTokenMap.get(key));
 	}
 
-	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters) {
+	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters) throws OAuth2ServiceException {
 		HttpPost httpPost = new HttpPost(uri);
 		headers.getHeaders().forEach(header -> httpPost.setHeader(header.getName(), header.getValue()));
 		List<BasicNameValuePair> basicNameValuePairs = parameters.entrySet().stream()
 				.map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
-				.collect(Collectors.toList());
-		httpPost.setEntity(new UrlEncodedFormEntity(basicNameValuePairs));
+				.toList();
+		try {
+			httpPost.setEntity(new UrlEncodedFormEntity(basicNameValuePairs));
+		} catch (UnsupportedEncodingException e) {
+			throw new OAuth2ServiceException("Unexpected error parsing URI: " + e.getMessage());
+		}
 		return httpPost;
 	}
 

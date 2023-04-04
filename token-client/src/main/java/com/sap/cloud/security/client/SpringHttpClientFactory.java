@@ -1,5 +1,5 @@
 /**
- * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * SPDX-FileCopyrightText: 2018-2021 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -13,24 +13,22 @@ import java.util.ServiceLoader;
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.token.ProviderNotFoundException;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
 
-/**
- * Represents a {@link CloseableHttpClient} creation interface.
- */
-public interface HttpClientFactory {
+public interface SpringHttpClientFactory {
+
 
 	@SuppressWarnings("unchecked")
-	List<HttpClientFactory> services = new ArrayList() {
+	List<SpringHttpClientFactory> services = new ArrayList() {
 		{
-			ServiceLoader.load(HttpClientFactory.class).forEach(this::add);
-			LoggerFactory.getLogger(HttpClientFactory.class).info("loaded HttpClientFactory service providers: {}",
+			ServiceLoader.load(SpringHttpClientFactory.class).forEach(this::add);
+			LoggerFactory.getLogger(SpringHttpClientFactory.class).info("loaded SpringHttpClientFactory service providers: {}",
 					this);
 		}
 	};
 
-	String DEFAULT_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.client.DefaultHttpClientFactory";
+	String DEFAULT_SPRING_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.client.DefaultSpringHttpClientFactory";
 
 	/**
 	 * Provides CloseableHttpClient based on ClientIdentity details. For
@@ -46,18 +44,11 @@ public interface HttpClientFactory {
 	 * @throws HttpClientException
 	 *             in case HTTPS Client could not be setup
 	 */
-	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException;
+	default RestTemplate createRestTemplateClient(ClientIdentity clientIdentity) {
+		return new RestTemplate();
+	}
 
-	/**
-	 * Don't close the HTTPClient when you've provided it to
-	 * {@code TokenAuthenticator} or {@code XsuaaTokenFlows} instance.
-	 *
-	 * @param clientIdentity
-	 *            to identify the identity provider client.
-	 * @return HTTP or HTTPS client
-	 * @throws HttpClientException
-	 */
-	static CloseableHttpClient create(ClientIdentity clientIdentity) throws HttpClientException {
+	static RestTemplate createRestTemplate(ClientIdentity clientIdentity){
 		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No HttpClientFactory service could be found in the classpath");
 		}
@@ -68,10 +59,9 @@ public interface HttpClientFactory {
 		if (services.size() == 2) {
 			return services.stream()
 					.filter(httpClientFactory -> !httpClientFactory.getClass().getName()
-							.equals(DEFAULT_HTTP_CLIENT_FACTORY))
-					.findFirst().get().createClient(clientIdentity);
+							.equals(DEFAULT_SPRING_HTTP_CLIENT_FACTORY))
+					.findFirst().get().createRestTemplateClient(clientIdentity);
 		}
-		return services.get(0).createClient(clientIdentity);
+		return services.get(0).createRestTemplateClient(clientIdentity);
 	}
-
 }

@@ -5,6 +5,11 @@
  */
 package com.sap.cloud.security.test.integration.ssrf;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+
+import java.io.IOException;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
@@ -13,21 +18,14 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
 
 /**
  * Test cases for <a href=
@@ -35,9 +33,9 @@ import static org.mockito.Mockito.times;
  * (Server Side Request Forgery)</a> attacks.
  *
  */
-public class JavaSSRFAttackTest {
+class JavaSSRFAttackTest {
 
-	private CloseableHttpClient httpClient = Mockito.spy(HttpClients.createDefault());
+	private final CloseableHttpClient httpClient = Mockito.spy(HttpClients.createDefault());
 
 	@RegisterExtension
 	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA).setPort(4242);
@@ -60,7 +58,7 @@ public class JavaSSRFAttackTest {
 			"http://user@localhost:4242/token_keys,										false", // user info in URI is deprecated by apache http client 5
 			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
 	})
-	public void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException, URISyntaxException {
+	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException {
 		OAuth2ServiceConfigurationBuilder configuration = extension.getContext()
 				.getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json");
 		Token token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
@@ -74,10 +72,10 @@ public class JavaSSRFAttackTest {
 		ValidationResult result = tokenValidator.validate(token);
 
 		assertThat(result.isValid()).isEqualTo(isValid);
-		ArgumentCaptor<ClassicHttpRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(ClassicHttpRequest.class);
-		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), ArgumentCaptor.forClass(HttpClientResponseHandler.class).capture());
-		ClassicHttpRequest request = httpUriRequestCaptor.getValue();
-		assertThat(request.getUri().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
+		ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture());
+		HttpUriRequest request = httpUriRequestCaptor.getValue();
+		assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
 	}
 
 }

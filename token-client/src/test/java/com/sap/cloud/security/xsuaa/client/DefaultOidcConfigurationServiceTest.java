@@ -5,24 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
-import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentMatcher;
-import org.mockito.Mockito;
-import org.springframework.http.HttpMethod;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,6 +12,23 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+
+import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentMatcher;
+import org.mockito.Mockito;
+import org.springframework.http.HttpMethod;
 
 public class DefaultOidcConfigurationServiceTest {
 	public static final URI CONFIG_ENDPOINT_URI = URI.create("https://sub.myauth.com" + DISCOVERY_ENDPOINT_DEFAULT);
@@ -66,8 +65,8 @@ public class DefaultOidcConfigurationServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
-			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+		when(httpClientMock.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
 			return responseHandler.handleResponse(response);
 		});
 
@@ -82,13 +81,13 @@ public class DefaultOidcConfigurationServiceTest {
 
 		retrieveEndpoints();
 
-		Mockito.verify(httpClientMock, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()), any(HttpClientResponseHandler.class));
+		Mockito.verify(httpClientMock, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()), any(ResponseHandler.class));
 	}
 
 	@Test
 	public void retrieveEndpoints_errorOccurs_throwsServiceException() throws IOException {
 		String errorMessage = "useful error message";
-		when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class))).thenThrow(new IOException(errorMessage));
+		when(httpClientMock.execute(any(), any(ResponseHandler.class))).thenThrow(new IOException(errorMessage));
 
 		assertThatThrownBy(this::retrieveEndpoints)
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -97,7 +96,7 @@ public class DefaultOidcConfigurationServiceTest {
 	}
 
 	@Test
-	public void retrieveIssuerEndpoints_executesHttpGetRequestWithCorrectURI() throws IOException {
+	public void retrieveIssuerEndpoints_executesHttpGetRequestWithCorrectURI() {
 		URI discoveryEndpoint1 = DefaultOidcConfigurationService
 				.getDiscoveryEndpointUri("https://sub.myauth.com");
 		URI discoveryEndpoint2 = DefaultOidcConfigurationService
@@ -109,14 +108,11 @@ public class DefaultOidcConfigurationServiceTest {
 		URI discoveryEndpoint5 = DefaultOidcConfigurationService
 				.getDiscoveryEndpointUri("sub.myauth.com/path");
 
-		assertThat(discoveryEndpoint1.toString()).isEqualTo("https://sub.myauth.com/.well-known/openid-configuration");
-		assertThat(discoveryEndpoint2.toString()).isEqualTo("https://sub.myauth.com/.well-known/openid-configuration");
-		assertThat(discoveryEndpoint3.toString())
-				.isEqualTo("https://sub.myauth.com/path/.well-known/openid-configuration");
-		assertThat(discoveryEndpoint4.toString())
-				.isEqualTo("https://sub.myauth.com/path/.well-known/openid-configuration");
-		assertThat(discoveryEndpoint5.toString())
-				.isEqualTo("https://sub.myauth.com/path/.well-known/openid-configuration");
+		assertThat(discoveryEndpoint1).hasToString("https://sub.myauth.com/.well-known/openid-configuration");
+		assertThat(discoveryEndpoint2).hasToString("https://sub.myauth.com/.well-known/openid-configuration");
+		assertThat(discoveryEndpoint3).hasToString("https://sub.myauth.com/path/.well-known/openid-configuration");
+		assertThat(discoveryEndpoint4).hasToString("https://sub.myauth.com/path/.well-known/openid-configuration");
+		assertThat(discoveryEndpoint5).hasToString("https://sub.myauth.com/path/.well-known/openid-configuration");
 	}
 
 	@Test
@@ -125,15 +121,15 @@ public class DefaultOidcConfigurationServiceTest {
 
 		OAuth2ServiceEndpointsProvider result = retrieveEndpoints();
 
-		assertThat(result.getTokenEndpoint().toString()).isEqualTo("http://localhost/oauth/token");
-		assertThat(result.getJwksUri().toString()).isEqualTo("http://localhost/token_keys");
-		assertThat(result.getAuthorizeEndpoint().toString()).isEqualTo("http://localhost/oauth/authorize");
+		assertThat(result.getTokenEndpoint()).hasToString("http://localhost/oauth/token");
+		assertThat(result.getJwksUri()).hasToString("http://localhost/token_keys");
+		assertThat(result.getAuthorizeEndpoint()).hasToString("http://localhost/oauth/authorize");
 	}
 
 	private void mockResponse() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonOidcConfiguration);
-		when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class))).thenAnswer(invocation -> {
-			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+		when(httpClientMock.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
 			return responseHandler.handleResponse(response);
 		});
 	}
@@ -144,11 +140,8 @@ public class DefaultOidcConfigurationServiceTest {
 
 	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
 		return (httpGet) -> {
-			boolean hasCorrectURI = false;
-			try {
-				hasCorrectURI = httpGet.getUri().equals(CONFIG_ENDPOINT_URI);
-			} catch (URISyntaxException e) {
-			}
+			boolean hasCorrectURI;
+			hasCorrectURI = httpGet.getURI().equals(CONFIG_ENDPOINT_URI);
 			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
 			return hasCorrectURI && correctMethod;
 		};

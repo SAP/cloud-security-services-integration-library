@@ -1,11 +1,10 @@
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
-import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.config.ClientIdentity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.web.client.RestTemplate;
-
 import javax.annotation.Nullable;
+
+import com.sap.cloud.security.client.SpringHttpClientFactory;
+import com.sap.cloud.security.config.ClientIdentity;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * SpringHttpClient provides factory method to initialize RestTemplate for
@@ -30,8 +29,6 @@ class SpringHttpClient {
 	 * @return RestTemplate instance
 	 */
 	public RestTemplate create(@Nullable ClientIdentity clientIdentity) {
-		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-		requestFactory.setHttpClient(HttpClientFactory.create(clientIdentity));
-		return new RestTemplate(requestFactory);
+		return SpringHttpClientFactory.createRestTemplate(clientIdentity);
 	}
 }

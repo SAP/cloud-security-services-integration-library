@@ -5,6 +5,16 @@
  */
 package com.sap.cloud.security.servlet;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.logging.log4j.ThreadContext.isEmpty;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -15,25 +25,15 @@ import com.sap.cloud.security.util.HttpClientTestFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import java.io.IOException;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.logging.log4j.ThreadContext.isEmpty;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
 class XsuaaTokenAuthenticatorTest {
 
@@ -62,9 +62,9 @@ class XsuaaTokenAuthenticatorTest {
 
 		CloseableHttpResponse xsuaaTokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
-		when(mockHttpClient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class)))
+		when(mockHttpClient.execute(any(HttpGet.class), any(ResponseHandler.class)))
 				.thenAnswer(invocation -> {
-			HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+			ResponseHandler responseHandler = invocation.getArgument(1);
 			return responseHandler.handleResponse(xsuaaTokenKeysResponse);
 		});
 

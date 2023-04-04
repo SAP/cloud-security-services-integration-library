@@ -5,6 +5,14 @@
  */
 package com.sap.cloud.security.servlet;
 
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
@@ -20,17 +28,9 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 
 public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 

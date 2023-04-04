@@ -5,29 +5,28 @@
  */
 package com.sap.cloud.security.samples;
 
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.GRANT_TYPE;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+
 import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.io.IOException;
-
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.GRANT_TYPE;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
 
@@ -55,14 +54,14 @@ public class HelloJavaServletIntegrationTest {
 	@Test
 	void requestWithoutAuthorizationHeader_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest(null);
-		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		int statusCode = httpClient.execute(request, r -> r.getStatusLine().getStatusCode());
 		assertThat(statusCode).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 	}
 
 	@Test
 	void requestWithEmptyAuthorizationHeader_unauthenticated() throws Exception {
 		HttpGet request = createGetRequest("");
-		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		int statusCode = httpClient.execute(request, r -> r.getStatusLine().getStatusCode());
 		assertThat(statusCode).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 	}
 
@@ -73,7 +72,7 @@ public class HelloJavaServletIntegrationTest {
 				.createToken()
 				.getTokenValue();
 		HttpGet request = createGetRequest(jwt, HelloJavaServletScopeProtected.ENDPOINT);
-		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		int statusCode = httpClient.execute(request, r -> r.getStatusLine().getStatusCode());
 		assertThat(statusCode).isEqualTo(HttpStatus.SC_FORBIDDEN); // 403
 	}
 
@@ -88,14 +87,13 @@ public class HelloJavaServletIntegrationTest {
 		HttpGet request = createGetRequest(jwt);
 
 		String responseBody = httpClient.execute(request, response -> {
-			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK); // 200
+			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK); // 200
 
 			return EntityUtils.toString(response.getEntity());
 		});
 
 		assertThat(responseBody)
-				.contains("You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.");
-		assertThat(responseBody)
+				.contains("You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.")
 				.contains("Having scope '$XSAPPNAME.Read'? true");
 	}
 

@@ -14,6 +14,7 @@
 
 	<artifactId>spring-xsuaa-it</artifactId>
 	<name>spring-xsuaa-it</name>
+	<version>3.0.0</version>
 
 	<properties>
 		<mockwebserver.version>4.10.0</mockwebserver.version>

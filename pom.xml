@@ -67,7 +67,8 @@
 		<slf4j.api.version>2.0.7</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20230227</org.json.version>
 		<sap.cloud.env.servicebinding.version>0.5.2</sap.cloud.env.servicebinding.version>
-		<apache.httpclient.version>5.2.1</apache.httpclient.version>
+		<apache.httpclient5.version>5.2.1</apache.httpclient5.version>
+		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.1.5</caffeine.version>
 		<commons.io.version>2.11.0</commons.io.version>
 		<jakarta.servlet.api.version>6.0.0</jakarta.servlet.api.version>
@@ -230,9 +231,14 @@
 				<optional>true</optional>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>${apache.httpclient.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.httpcomponents.client5</groupId>
 				<artifactId>httpclient5</artifactId>
-				<version>${apache.httpclient.version}</version>
+				<version>${apache.httpclient5.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.ben-manes.caffeine</groupId>
