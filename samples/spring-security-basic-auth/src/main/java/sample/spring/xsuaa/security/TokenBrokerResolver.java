@@ -68,9 +68,9 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		String zoneId = getZoneId(request).orElse(null);
 		String cacheKey;
 		if (zoneId != null) {
-			cacheKey = createSecureHash(credentials.toString(), zoneId);
+			cacheKey = createSecureHash(credentials.userName(), credentials.password, zoneId);
 		} else {
-			cacheKey = createSecureHash(credentials.toString());
+			cacheKey = createSecureHash(credentials.userName(), credentials.password);
 		}
 
 		String cachedToken = tokenCache.get(cacheKey, String.class);
@@ -92,7 +92,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 	@Nullable
 	private UserCredentials decodeCredentials(String encodedCredentials) {
-//		byte[] decodedBytes = Base64.getDecoder().decode(encodedCredentials.getBytes(StandardCharsets.UTF_8));
 		final String decoded = new String(Base64.getDecoder().decode(encodedCredentials), StandardCharsets.UTF_8);
 		final String[] parts = decoded.split(":", 2);
 
