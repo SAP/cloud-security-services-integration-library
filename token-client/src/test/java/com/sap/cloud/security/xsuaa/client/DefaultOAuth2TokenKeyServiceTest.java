@@ -5,16 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
@@ -28,6 +18,16 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.http.HttpMethod;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 public class DefaultOAuth2TokenKeyServiceTest {
 
@@ -116,7 +116,8 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID);
 
-		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()), any(ResponseHandler.class));
+		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()),
+				any(ResponseHandler.class));
 	}
 
 	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {

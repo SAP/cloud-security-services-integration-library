@@ -4,14 +4,6 @@
  */
 package com.sap.cloud.security.client;
 
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.mtls.SSLContextFactory;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
@@ -23,6 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
+
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DefaultSpringHttpClientFactory implements SpringHttpClientFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSpringHttpClientFactory.class);
@@ -40,7 +40,8 @@ public class DefaultSpringHttpClientFactory implements SpringHttpClientFactory {
 		return new RestTemplate(requestFactory);
 	}
 
-	private org.apache.hc.client5.http.impl.classic.CloseableHttpClient createClient5(ClientIdentity clientIdentity) throws HttpClientException {
+	private org.apache.hc.client5.http.impl.classic.CloseableHttpClient createClient5(ClientIdentity clientIdentity)
+			throws HttpClientException {
 		String clientId = clientIdentity != null ? clientIdentity.getId() : null;
 		if (httpClientsCreated.contains(clientId)) {
 			LOGGER.warn("Application has already created HttpClient for clientId = {}, please check.", clientId);
@@ -55,7 +56,9 @@ public class DefaultSpringHttpClientFactory implements SpringHttpClientFactory {
 			return createTLSClient5(clientIdentity);
 		}
 	}
-	private org.apache.hc.client5.http.impl.classic.CloseableHttpClient createTLSClient5(ClientIdentity clientIdentity) {
+
+	private org.apache.hc.client5.http.impl.classic.CloseableHttpClient createTLSClient5(
+			ClientIdentity clientIdentity) {
 		final org.apache.hc.client5.http.config.RequestConfig defaultRequestConfig5;
 		final org.apache.hc.client5.http.config.ConnectionConfig defaultConnectionConfig5;
 		defaultRequestConfig5 = org.apache.hc.client5.http.config.RequestConfig.custom()

@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
-
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
  * the XSUAA client library.
@@ -69,14 +68,16 @@ public class XsuaaTokenFlowAutoConfiguration {
 	}
 
 	/**
-	 * Creates a {@link CloseableHttpClient} instance configured with the ClientIdentity provided. Conditional on missing CloseableHttpClient Bean.
+	 * Creates a {@link CloseableHttpClient} instance configured with the
+	 * ClientIdentity provided. Conditional on missing CloseableHttpClient Bean.
 	 *
 	 * @return the {@link CloseableHttpClient} instance.
 	 */
 	@Bean
 	@ConditionalOnMissingBean(type = "org.apache.http.impl.client.CloseableHttpClient")
 	public CloseableHttpClient defaultHttpClient(XsuaaServiceConfiguration xsuaaConfig) {
-		logger.info("If the performance for token validation is degrading provide your own well configured HttpClientFactory implementation");
+		logger.info(
+				"If the performance for the token validation is degrading provide your own well configured HttpClientFactory implementation");
 		return HttpClientFactory.create(xsuaaConfig.getClientIdentity());
 	}
 

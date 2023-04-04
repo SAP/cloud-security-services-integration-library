@@ -5,14 +5,6 @@
  */
 package com.sap.cloud.security.client;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
@@ -30,10 +22,19 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
 class DefaultHttpClientFactoryTest {
 
 	private static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/index.html"));
-	private static final ResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getStatusLine().getStatusCode();
+	private static final ResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getStatusLine()
+			.getStatusCode();
 	private static final ClientIdentity config = Mockito.mock(ClientIdentity.class);
 	private static final ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
 	private final DefaultHttpClientFactory cut = new DefaultHttpClientFactory();

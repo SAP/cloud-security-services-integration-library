@@ -5,29 +5,30 @@
  */
 package com.sap.cloud.security.client;
 
-import java.security.ProviderException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
-
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.token.ProviderNotFoundException;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.ProviderException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
+
 /**
- * @deprecated Used only by deprecated spring-xsuaa library for backward compatibility reasons
+ * @deprecated Used only by deprecated spring-xsuaa library for backward
+ *             compatibility reasons
  */
 @Deprecated(forRemoval = true)
 public interface SpringHttpClientFactory {
-
 
 	@SuppressWarnings("unchecked")
 	List<SpringHttpClientFactory> services = new ArrayList() {
 		{
 			ServiceLoader.load(SpringHttpClientFactory.class).forEach(this::add);
-			LoggerFactory.getLogger(SpringHttpClientFactory.class).info("loaded SpringHttpClientFactory service providers: {}",
+			LoggerFactory.getLogger(SpringHttpClientFactory.class).info(
+					"loaded SpringHttpClientFactory service providers: {}",
 					this);
 		}
 	};
@@ -52,7 +53,7 @@ public interface SpringHttpClientFactory {
 		return new RestTemplate();
 	}
 
-	static RestTemplate createRestTemplate(ClientIdentity clientIdentity){
+	static RestTemplate createRestTemplate(ClientIdentity clientIdentity) {
 		if (services.isEmpty()) {
 			throw new ProviderNotFoundException("No HttpClientFactory service could be found in the classpath");
 		}
