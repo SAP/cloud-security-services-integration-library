@@ -16,6 +16,10 @@ import com.sap.cloud.security.token.ProviderNotFoundException;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * @deprecated Used only by deprecated spring-xsuaa library for backward compatibility reasons
+ */
+@Deprecated(forRemoval = true)
 public interface SpringHttpClientFactory {
 
 
