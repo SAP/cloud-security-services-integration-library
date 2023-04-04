@@ -495,7 +495,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 			userToken = xsuaaTokenFlows.jwtBearerTokenFlow()
 					.subdomain(getSubdomain())
 					.token(getAppToken())
-					.optionalParameters(additionalAuthAttributes)
+					.attributes(additionalAuthAttributes)
 					.execute().getAccessToken();
 		} catch (TokenFlowException e) {
 			throw new XSUserInfoException("Error performing User Token Flow.", e);

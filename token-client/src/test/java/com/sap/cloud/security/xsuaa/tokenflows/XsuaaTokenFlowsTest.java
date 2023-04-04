@@ -5,8 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.config.CacheConfiguration;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.*;
 import org.junit.Before;
@@ -21,7 +20,6 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,6 +84,12 @@ public class XsuaaTokenFlowsTest {
 	public void startUserTokenFlow() {
 		UserTokenFlow flow = cut.userTokenFlow();
 		assertNotNull("UserTokenFlow must not be null.", flow);
+	}
+
+	@Test
+	public void startJwtBearerTokenFlow() {
+		JwtBearerTokenFlow flow = cut.jwtBearerTokenFlow();
+		assertNotNull("JwtBearerTokenFlow must not be null.", flow);
 	}
 
 	@Test

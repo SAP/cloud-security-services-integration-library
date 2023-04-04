@@ -14,14 +14,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
@@ -31,7 +29,6 @@ import static org.mockito.Mockito.*;
 public class JwtBearerTokenFlowTest {
 
 	private OAuth2TokenService mockTokenService;
-
 	private final String exchangeToken = "exchange token";
 	private final ClientIdentity clientIdentity = new ClientCredentials("clientId", "clientSecret");
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
@@ -40,8 +37,8 @@ public class JwtBearerTokenFlowTest {
 
 	@Before
 	public void setup() {
-		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
-		Mockito.when(oAuth2ServiceConfiguration.getUrl()).thenReturn(XSUAA_BASE_URI);
+		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = mock(OAuth2ServiceConfiguration.class);
+		when(oAuth2ServiceConfiguration.getUrl()).thenReturn(XSUAA_BASE_URI);
 
 		this.endpointsProvider = new XsuaaDefaultEndpoints(oAuth2ServiceConfiguration);
 		this.mockTokenService = mock(OAuth2TokenService.class);
@@ -50,17 +47,11 @@ public class JwtBearerTokenFlowTest {
 
 	@Test
 	public void constructor_throwsOnNullValues() {
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(null, endpointsProvider, clientIdentity);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
+		assertThatThrownBy(() -> new JwtBearerTokenFlow(null, endpointsProvider, clientIdentity)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2TokenService");
 
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, null, clientIdentity);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
+		assertThatThrownBy(() -> new JwtBearerTokenFlow(mockTokenService, null, clientIdentity)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("OAuth2ServiceEndpointsProvider");
 
-		assertThatThrownBy(() -> {
-			new UserTokenFlow(mockTokenService, endpointsProvider, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
+		assertThatThrownBy(() -> new JwtBearerTokenFlow(mockTokenService, endpointsProvider, null)).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("ClientIdentity");
 	}
 
 	@Test
@@ -95,7 +86,7 @@ public class JwtBearerTokenFlowTest {
 		verify(mockTokenService, times(1))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(eq(endpointsProvider.getTokenEndpoint()),
 						eq(clientIdentity), eq(exchangeToken), isNull(),
-						isNull(), eq(false));
+						anyMap(), eq(false));
 	}
 
 	@Test
@@ -124,8 +115,7 @@ public class JwtBearerTokenFlowTest {
 						optionalParametersCaptor.capture(), anyBoolean());
 
 		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
-		assertThat(optionalParameters).containsKey("scope");
-		assertThat(optionalParameters.get("scope")).isEqualTo("scope1 scope2");
+		assertThat(optionalParameters).containsEntry("scope", "scope1 scope2");
 	}
 
 	@Test
@@ -149,18 +139,17 @@ public class JwtBearerTokenFlowTest {
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(), any(), eq(false));
 	}
 
-	// @Test
-	// TODO: fix
+	 @Test
 	public void execute_withAdditionalAuthorities() throws TokenFlowException, OAuth2ServiceException {
 		OAuth2TokenResponse mockedResponse = mockRetrieveAccessToken();
 
-		Map<String, String> additionalAuthorities = new HashMap<String, String>();
+		Map<String, String> additionalAuthorities = new HashMap<>();
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
 		Map<String, String> additionalAuthoritiesParam = new HashMap<>();
 		additionalAuthoritiesParam.put("authorities", "{\"az_attr\":{\"DummyAttribute\":\"DummyAttributeValue\"}}");
 
 		OAuth2TokenResponse actualResponse = cut.token(exchangeToken)
-				.optionalParameters(additionalAuthorities)
+				.attributes(additionalAuthorities)
 				.execute();
 
 		assertThat(actualResponse.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
@@ -171,20 +160,27 @@ public class JwtBearerTokenFlowTest {
 	}
 
 	@Test
-	public void execute_withXzidHeader() throws TokenFlowException, OAuth2ServiceException {
-		OAuth2TokenResponse mockedResponse = new OAuth2TokenResponse("4bfad399ca10490da95c2b5eb4451d53",
-				441231, REFRESH_TOKEN);
+	public void execute_withZoneId() throws OAuth2ServiceException, TokenFlowException {
+		String zoneId = "zone";
+		OAuth2TokenResponse mockedResponse = mockRetrieveAccessTokenWithZoneId(zoneId);
 
-		when(mockTokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-				eq(TOKEN_ENDPOINT_URI),
-				eq(clientIdentity),
-				eq("encoded.Token.Value"),
-				isNull(),
-				isNull(),
-				eq(false))
-		).thenReturn(mockedResponse);
+		OAuth2TokenResponse response = cut.zoneId(zoneId).token(exchangeToken).execute();
 
-		OAuth2TokenResponse actualResponse = cut.token("encoded.Token.Value")
+		assertThat(response.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
+
+		verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), eq(exchangeToken), anyMap(), eq(false), eq(zoneId));
+	}
+
+	@Test
+	public void execute_withZoneId_fromToken() throws TokenFlowException, OAuth2ServiceException {
+		String zoneId = "zone-x";
+		Token mockedToken = mock(Token.class);
+		when(mockedToken.getTokenValue()).thenReturn(exchangeToken);
+		when(mockedToken.getZoneId()).thenReturn(zoneId);
+		OAuth2TokenResponse mockedResponse = mockRetrieveAccessTokenWithZoneId(zoneId);
+
+		OAuth2TokenResponse actualResponse = cut.token(mockedToken)
 				.execute();
 
 		assertThat(actualResponse.getAccessToken()).isSameAs(mockedResponse.getAccessToken());
@@ -192,10 +188,23 @@ public class JwtBearerTokenFlowTest {
 				.retrieveAccessTokenViaJwtBearerTokenGrant(
 						eq(TOKEN_ENDPOINT_URI),
 						eq(clientIdentity),
-						eq("encoded.Token.Value"),
-						isNull(),
-						isNull(),
-						eq(false));
+						eq(exchangeToken),
+						anyMap(), anyBoolean(), eq(zoneId));
+	}
+
+	private OAuth2TokenResponse mockRetrieveAccessTokenWithZoneId(String zoneId) throws OAuth2ServiceException {
+		OAuth2TokenResponse mockedResponse = new OAuth2TokenResponse("4bfad399ca10490da95c2b5eb4451d53",
+				441231, REFRESH_TOKEN);
+		when(mockTokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+				eq(TOKEN_ENDPOINT_URI),
+				eq(clientIdentity),
+				eq(exchangeToken),
+				anyMap(),
+				eq(false),
+				eq(zoneId))
+		).thenReturn(mockedResponse);
+
+		return mockedResponse;
 	}
 
 	private OAuth2TokenResponse mockRetrieveAccessToken() throws OAuth2ServiceException {

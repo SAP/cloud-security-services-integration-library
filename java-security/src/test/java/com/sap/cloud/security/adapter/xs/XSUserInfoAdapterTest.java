@@ -611,7 +611,7 @@ class XSUserInfoAdapterTest {
 	private JwtBearerTokenFlow jwtBearerTokenFlowMock() throws TokenFlowException {
 		JwtBearerTokenFlow userTokenFlowMock = mock(JwtBearerTokenFlow.class);
 		when(userTokenFlowMock.subdomain(any())).thenReturn(userTokenFlowMock);
-		when(userTokenFlowMock.optionalParameters(any())).thenReturn(userTokenFlowMock);
+		when(userTokenFlowMock.attributes(any())).thenReturn(userTokenFlowMock);
 		when(userTokenFlowMock.token(anyString())).thenReturn(userTokenFlowMock);
 		when(userTokenFlowMock.execute()).thenReturn(Mockito.mock(OAuth2TokenResponse.class));
 		return userTokenFlowMock;
