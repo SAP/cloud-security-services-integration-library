@@ -350,7 +350,7 @@ class XSUserInfoAdapterTest {
 		verify(cut, times(1)).getXsuaaTokenFlows(eq(uaaBaseUrl), eq(new ClientCredentials(clientId, clientSecret)));
 		verify(cut, times(1)).getAppToken();
 		verify(userTokenFlowMock, times(1)).token(token);
-		verify(xsuaaTokenFlowsMock, times(1)).userTokenFlow();
+		verify(xsuaaTokenFlowsMock, times(1)).jwtBearerTokenFlow();
 	}
 
 	@Test
