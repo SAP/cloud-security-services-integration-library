@@ -18,6 +18,7 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -55,7 +56,7 @@ class JavaSSRFAttackTest {
 	@CsvSource({
 			"http://localhost:4242/token_keys,											true",
 			"http://localhost:4242/token_keys@malicious.ondemand.com/token_keys,		false",
-			"http://user@localhost:4242/token_keys,										false", // user info in URI is deprecated by apache http client 5
+			"http://user@localhost:4242/token_keys,										true", // user info in URI is deprecated by Apache HttpClient 5, but working in HttpClient 4.x.x
 			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
 	})
 	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException {
@@ -73,7 +74,9 @@ class JavaSSRFAttackTest {
 
 		assertThat(result.isValid()).isEqualTo(isValid);
 		ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture());
+		ArgumentCaptor<ResponseHandler> responseHandlerCaptor = ArgumentCaptor.forClass(ResponseHandler.class);
+
+		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), responseHandlerCaptor.capture());
 		HttpUriRequest request = httpUriRequestCaptor.getValue();
 		assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
 	}
