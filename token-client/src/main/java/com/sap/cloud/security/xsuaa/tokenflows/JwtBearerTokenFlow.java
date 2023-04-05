@@ -53,7 +53,7 @@ public class JwtBearerTokenFlow {
      *            - the bearer token.
      * @return this builder.
      */
-    public JwtBearerTokenFlow token(String bearerToken) {
+    public JwtBearerTokenFlow token(@Nonnull String bearerToken) {
         assertNotNull(bearerToken, "Bearer token must not be null.");
         this.bearerToken = bearerToken;
         return this;
@@ -61,13 +61,15 @@ public class JwtBearerTokenFlow {
 
     /**
      * Sets the JWT token that should be exchanged for another JWT token.
-     * Use this setter if you want zid claim  from the token to be explicitly set in the X-zid header.
+     * This setter also extracts the zid(zone id) claim from the token and
+     * sets it in the X-zid header, therefore {@link JwtBearerTokenFlow#zoneId(String)}} is not required to be used.
      *
      * @param token
      *            - the Token.
      * @return this builder.
      */
-    public JwtBearerTokenFlow token(Token token) {
+    public JwtBearerTokenFlow token(@Nonnull Token token) {
+        assertNotNull(token, "Token must not be null.");
         this.bearerToken = token.getTokenValue();
         this.xZid = token.getZoneId();
         return this;
