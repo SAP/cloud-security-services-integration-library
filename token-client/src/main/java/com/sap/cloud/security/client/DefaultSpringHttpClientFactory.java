@@ -6,6 +6,10 @@ package com.sap.cloud.security.client;
 
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.mtls.SSLContextFactory;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
@@ -36,11 +40,11 @@ public class DefaultSpringHttpClientFactory implements SpringHttpClientFactory {
 	@Override
 	public RestTemplate createRestTemplateClient(ClientIdentity clientIdentity) {
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-		requestFactory.setHttpClient(createClient5(clientIdentity));
+		requestFactory.setHttpClient(createClient(clientIdentity));
 		return new RestTemplate(requestFactory);
 	}
 
-	private org.apache.hc.client5.http.impl.classic.CloseableHttpClient createClient5(ClientIdentity clientIdentity)
+	private CloseableHttpClient createClient(ClientIdentity clientIdentity)
 			throws HttpClientException {
 		String clientId = clientIdentity != null ? clientIdentity.getId() : null;
 		if (httpClientsCreated.contains(clientId)) {
@@ -49,24 +53,22 @@ public class DefaultSpringHttpClientFactory implements SpringHttpClientFactory {
 		httpClientsCreated.add(clientId);
 
 		if (clientId == null || !clientIdentity.isCertificateBased()) {
-			LOGGER.warn(
-					"In productive environment provide well configured HttpClientFactory service, don't use default http client");
 			return org.apache.hc.client5.http.impl.classic.HttpClients.custom().disableRedirectHandling().build();
 		} else {
-			return createTLSClient5(clientIdentity);
+			return createTLSClient(clientIdentity);
 		}
 	}
 
-	private org.apache.hc.client5.http.impl.classic.CloseableHttpClient createTLSClient5(
+	private org.apache.hc.client5.http.impl.classic.CloseableHttpClient createTLSClient(
 			ClientIdentity clientIdentity) {
-		final org.apache.hc.client5.http.config.RequestConfig defaultRequestConfig5;
-		final org.apache.hc.client5.http.config.ConnectionConfig defaultConnectionConfig5;
-		defaultRequestConfig5 = org.apache.hc.client5.http.config.RequestConfig.custom()
+		final RequestConfig defaultRequestConfig;
+		final ConnectionConfig defaultConnectionConfig;
+		defaultRequestConfig = org.apache.hc.client5.http.config.RequestConfig.custom()
 				.setConnectionRequestTimeout(DEFAULT_TIMEOUT)
 				.setRedirectsEnabled(false)
 				.build();
 
-		defaultConnectionConfig5 = org.apache.hc.client5.http.config.ConnectionConfig.custom()
+		defaultConnectionConfig = org.apache.hc.client5.http.config.ConnectionConfig.custom()
 				.setSocketTimeout(DEFAULT_SOCKET_TIMEOUT)
 				.setConnectTimeout(DEFAULT_TIMEOUT)
 				.build();
@@ -81,7 +83,7 @@ public class DefaultSpringHttpClientFactory implements SpringHttpClientFactory {
 
 		HttpClientConnectionManager connectionManager = sslConnectionManagers.computeIfAbsent(clientIdentity.getId(),
 				cid -> PoolingHttpClientConnectionManagerBuilder.create()
-						.setDefaultConnectionConfig(defaultConnectionConfig5)
+						.setDefaultConnectionConfig(defaultConnectionConfig)
 						.setMaxConnPerRoute(MAX_CONNECTIONS_PER_ROUTE)
 						.setMaxConnTotal(MAX_CONNECTIONS)
 						.setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
@@ -90,8 +92,8 @@ public class DefaultSpringHttpClientFactory implements SpringHttpClientFactory {
 								.build())
 						.build());
 
-		return org.apache.hc.client5.http.impl.classic.HttpClients.custom()
-				.setDefaultRequestConfig(defaultRequestConfig5)
+		return HttpClients.custom()
+				.setDefaultRequestConfig(defaultRequestConfig)
 				.setConnectionManager(connectionManager)
 				.build();
 	}
