@@ -13,8 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
+	/**
+	 * Returns the access token to the caller that was fetched by {@link sample.spring.xsuaa.security.TokenBrokerResolver}
+	 * using the Basic auth information from the request header with a
+	 * {@link com.sap.cloud.security.token.GrantType#PASSWORD} grant type flow.
+	 *
+	 * @param token validated and processed access token
+	 * @return the access token
+	 */
 	@GetMapping("/mirror-token")
-	public Token message(@AuthenticationPrincipal Token token) {
+	public Token returnToken(@AuthenticationPrincipal Token token) {
+		/* access to token claims is available via token object, e.g.
+				String userName = token.getPrincipal().getName();
+				String zoneId = token.getZoneId()
+				List<String> scopes = token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES);
+		 */
+
 		return token;
 	}
 
