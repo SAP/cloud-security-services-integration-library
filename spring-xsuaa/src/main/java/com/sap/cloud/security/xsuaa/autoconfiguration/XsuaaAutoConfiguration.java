@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
+import com.sap.cloud.security.client.SpringHttpClientFactory;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
@@ -101,7 +102,7 @@ public class XsuaaAutoConfiguration {
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		LOGGER.warn("In productive environment provide a well configured certificate based RestOperations bean");
-		return SpringHttpClient.getInstance().create(xsuaaServiceConfiguration.getClientIdentity());
+		return SpringHttpClientFactory.createRestTemplate(xsuaaServiceConfiguration.getClientIdentity());
 	}
 
 	private static class OnSecretCredentialTypeCondition implements Condition {
