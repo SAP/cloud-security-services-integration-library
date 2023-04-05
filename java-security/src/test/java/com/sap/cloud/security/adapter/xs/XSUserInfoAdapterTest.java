@@ -15,8 +15,8 @@ import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.tokenflows.ClientCredentialsTokenFlow;
+import com.sap.cloud.security.xsuaa.tokenflows.JwtBearerTokenFlow;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
-import com.sap.cloud.security.xsuaa.tokenflows.UserTokenFlow;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.xsa.security.container.XSUserInfoException;
 import org.apache.commons.io.IOUtils;
@@ -339,8 +339,8 @@ class XSUserInfoAdapterTest {
 		String token = "token";
 
 		XsuaaTokenFlows xsuaaTokenFlowsMock = Mockito.mock(XsuaaTokenFlows.class);
-		UserTokenFlow userTokenFlowMock = userTokenFlowMock();
-		doReturn(userTokenFlowMock).when(xsuaaTokenFlowsMock).userTokenFlow();
+		JwtBearerTokenFlow userTokenFlowMock = jwtBearerTokenFlowMock();
+		doReturn(userTokenFlowMock).when(xsuaaTokenFlowsMock).jwtBearerTokenFlow();
 		cut = createComponentUnderTestSpy();
 		doReturn(xsuaaTokenFlowsMock).when(cut).getXsuaaTokenFlows(anyString(), any(ClientCredentials.class));
 		doReturn(token).when(cut).getAppToken();
@@ -350,7 +350,7 @@ class XSUserInfoAdapterTest {
 		verify(cut, times(1)).getXsuaaTokenFlows(eq(uaaBaseUrl), eq(new ClientCredentials(clientId, clientSecret)));
 		verify(cut, times(1)).getAppToken();
 		verify(userTokenFlowMock, times(1)).token(token);
-		verify(xsuaaTokenFlowsMock, times(1)).userTokenFlow();
+		verify(xsuaaTokenFlowsMock, times(1)).jwtBearerTokenFlow();
 	}
 
 	@Test
@@ -608,8 +608,8 @@ class XSUserInfoAdapterTest {
 		return mockToken;
 	}
 
-	private UserTokenFlow userTokenFlowMock() throws TokenFlowException {
-		UserTokenFlow userTokenFlowMock = mock(UserTokenFlow.class);
+	private JwtBearerTokenFlow jwtBearerTokenFlowMock() throws TokenFlowException {
+		JwtBearerTokenFlow userTokenFlowMock = mock(JwtBearerTokenFlow.class);
 		when(userTokenFlowMock.subdomain(any())).thenReturn(userTokenFlowMock);
 		when(userTokenFlowMock.attributes(any())).thenReturn(userTokenFlowMock);
 		when(userTokenFlowMock.token(anyString())).thenReturn(userTokenFlowMock);

@@ -52,7 +52,7 @@ class IasXsuaaExchangeBroker {
 	 */
 	@Nullable
 	public String resolve(Token token) throws TokenFlowException, HttpClientException {
-		OAuth2TokenResponse tokenResponse = xsuaaTokenFlows.userTokenFlow().token(token).execute();
+		OAuth2TokenResponse tokenResponse = xsuaaTokenFlows.jwtBearerTokenFlow().token(token).execute();
 		LOGGER.debug("Response token from Ias to Xsuaa token exchange {}", tokenResponse.getDecodedAccessToken().getPayload());
 		return tokenResponse.getAccessToken();
 	}

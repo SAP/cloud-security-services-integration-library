@@ -492,7 +492,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 	private String performUserTokenFlow(XsuaaTokenFlows xsuaaTokenFlows, Map<String, String> additionalAuthAttributes) {
 		String userToken;
 		try {
-			userToken = xsuaaTokenFlows.userTokenFlow()
+			userToken = xsuaaTokenFlows.jwtBearerTokenFlow()
 					.subdomain(getSubdomain())
 					.token(getAppToken())
 					.attributes(additionalAuthAttributes)

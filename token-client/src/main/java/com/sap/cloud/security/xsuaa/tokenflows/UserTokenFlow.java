@@ -25,7 +25,10 @@ import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.build
  * Applications retrieve an instance of this builder from
  * {@link XsuaaTokenFlows} and then create the flow request using a builder
  * pattern.
+ *
+ * @deprecated Please use {@link JwtBearerTokenFlow} instead.
  */
+@Deprecated
 public class UserTokenFlow {
 
 	private final XsuaaTokenFlowRequest request;
