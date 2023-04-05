@@ -5,17 +5,18 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
@@ -66,7 +67,15 @@ public class JwtBearerTokenFlowTest {
     public void execute_bearerTokenIsMissing_throwsException() {
         assertThatThrownBy(() -> new JwtBearerTokenFlow(tokenService, endpointsProvider, CLIENT_CREDENTIALS).execute())
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("bearerToken");
+                .hasMessageContaining("A bearer token must be set before executing the flow");
+
+        assertThatThrownBy(() -> new JwtBearerTokenFlow(tokenService, endpointsProvider, CLIENT_CREDENTIALS).token((String) null).execute())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Bearer token must not be null");
+
+        assertThatThrownBy(() -> new JwtBearerTokenFlow(tokenService, endpointsProvider, CLIENT_CREDENTIALS).token((Token) null).execute())
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Token must");
     }
 
     @Test
@@ -116,16 +125,18 @@ public class JwtBearerTokenFlowTest {
     }
 
     @Test
-    public void additionalParametersAreUsed() throws Exception {
-        String key = "aKey";
-        String value = "aValue";
-        Map<String, String> givenParameters = Maps.newHashMap(key, value);
-        Map<String, String> equalParameters = Maps.newHashMap(key, value);
+    public void execute_withAdditionalAuthorities() throws TokenFlowException, OAuth2ServiceException {
+        Map<String, String> additionalAuthorities = new HashMap<>();
+        additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
+        Map<String, String> additionalAuthoritiesParam = new HashMap<>();
+        additionalAuthoritiesParam.put("authorities", "{\"az_attr\":{\"DummyAttribute\":\"DummyAttributeValue\"}}");
 
-        cut.optionalParameters(givenParameters).execute();
+        cut.attributes(additionalAuthorities).execute();
 
         verify(tokenService, times(1))
-                .retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(), eq(equalParameters), anyBoolean());
+                .retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(CLIENT_CREDENTIALS),
+                        eq(ACCESS_TOKEN),
+                        isNull(), eq(additionalAuthoritiesParam), anyBoolean());
     }
     @Test
     public void execute_withScopes() throws TokenFlowException, OAuth2ServiceException {
@@ -140,8 +151,7 @@ public class JwtBearerTokenFlowTest {
                         optionalParametersCaptor.capture(), anyBoolean());
 
         Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
-        assertThat(optionalParameters).containsKey("scope");
-        assertThat(optionalParameters.get("scope")).isEqualTo("scope1 scope2");
+        assertThat(optionalParameters).containsEntry("scope", "scope1 scope2");
     }
 
     @Test
@@ -149,11 +159,53 @@ public class JwtBearerTokenFlowTest {
         assertThatThrownBy(() -> cut.scopes(null)).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    public void execute_withZoneId() throws OAuth2ServiceException, TokenFlowException {
+        String zoneId = "zone";
+        mockResponseWithZoneId(zoneId);
+
+        cut.zoneId(zoneId).execute();
+
+        verify(tokenService, times(1))
+                .retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), eq(ACCESS_TOKEN), anyMap(), eq(false), eq(zoneId));
+    }
+
+    @Test
+    public void execute_withZoneId_fromToken() throws TokenFlowException, OAuth2ServiceException {
+        String zoneId = "zone-x";
+        Token mockedToken = mock(Token.class);
+        when(mockedToken.getTokenValue()).thenReturn(ACCESS_TOKEN);
+        when(mockedToken.getZoneId()).thenReturn(zoneId);
+        mockResponseWithZoneId(zoneId);
+
+        cut.token(mockedToken).execute();
+
+        verify(tokenService, times(1))
+                .retrieveAccessTokenViaJwtBearerTokenGrant(
+                        eq(TOKEN_ENDPOINT_URI),
+                        eq(CLIENT_CREDENTIALS),
+                        eq(ACCESS_TOKEN),
+                        anyMap(), anyBoolean(), eq(zoneId));
+    }
+
     private void mockValidResponse() throws OAuth2ServiceException {
         OAuth2TokenResponse validResponse = new OAuth2TokenResponse(JWT_BEARER_TOKEN, EXPIRED_IN, REFRESH_TOKEN);
         when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(eq(TOKEN_ENDPOINT_URI), eq(CLIENT_CREDENTIALS),
-                eq(ACCESS_TOKEN), any(), any() , eq(false)))
+                eq(ACCESS_TOKEN), any(), any(), eq(false)))
                 .thenReturn(validResponse);
+    }
+
+    private void mockResponseWithZoneId(String zoneId) throws OAuth2ServiceException {
+        OAuth2TokenResponse mockedResponse = new OAuth2TokenResponse(ACCESS_TOKEN,
+                EXPIRED_IN, REFRESH_TOKEN);
+        when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+                eq(TOKEN_ENDPOINT_URI),
+                eq(CLIENT_CREDENTIALS),
+                eq(ACCESS_TOKEN),
+                anyMap(),
+                eq(false),
+                eq(zoneId))
+        ).thenReturn(mockedResponse);
     }
 
     private void verifyThatDisableCacheIs(boolean disableCache) throws OAuth2ServiceException {
