@@ -7,10 +7,11 @@ import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.springframework.context.annotation.Bean;
+import sample.spring.xsuaa.TokenBrokerResolver;
 
 public class TokenBrokerTestConfiguration {
 
-    /** Makes {@link sample.spring.xsuaa.security.TokenBrokerResolver} use the stubbed XsuaaOAuth2TokenService
+    /** Makes {@link TokenBrokerResolver} use the stubbed XsuaaOAuth2TokenService
      *  prepared in {@link sample.spring.xsuaa.SecurityConfigurationTest} for testing. */
     @Bean
     public XsuaaTokenFlows tokenFlows(XsuaaServiceConfiguration xsuaaConfig, XsuaaOAuth2TokenService tokenService) {

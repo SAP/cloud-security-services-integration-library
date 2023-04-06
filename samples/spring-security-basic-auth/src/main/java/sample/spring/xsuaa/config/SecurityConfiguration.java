@@ -18,7 +18,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
-import sample.spring.xsuaa.security.TokenBrokerResolver;
+import sample.spring.xsuaa.TokenBrokerResolver;
 
 @Configuration
 @EnableWebSecurity

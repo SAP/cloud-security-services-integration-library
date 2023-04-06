@@ -3,7 +3,7 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package sample.spring.xsuaa.security;
+package sample.spring.xsuaa;
 
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;

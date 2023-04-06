@@ -7,7 +7,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sample.spring.xsuaa.security.TokenBrokerResolver;
+import sample.spring.xsuaa.TokenBrokerResolver;
 
 import java.util.concurrent.TimeUnit;
 

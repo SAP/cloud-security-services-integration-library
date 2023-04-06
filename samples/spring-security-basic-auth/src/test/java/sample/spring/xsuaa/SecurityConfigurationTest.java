@@ -23,8 +23,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import sample.spring.xsuaa.config.TokenBrokerTestConfiguration;
-import sample.spring.xsuaa.controller.TestController;
-import sample.spring.xsuaa.security.TokenBrokerResolver;
 
 import java.net.URI;
 import java.util.Collection;

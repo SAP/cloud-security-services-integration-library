@@ -3,7 +3,7 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package sample.spring.xsuaa.controller;
+package sample.spring.xsuaa;
 
 import com.sap.cloud.security.token.Token;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
 	/**
-	 * Returns the access token to the caller that was fetched by {@link sample.spring.xsuaa.security.TokenBrokerResolver}
+	 * Returns the access token to the caller that was fetched by {@link TokenBrokerResolver}
 	 * using the Basic auth information from the request header with a
 	 * {@link com.sap.cloud.security.token.GrantType#PASSWORD} grant type flow.
 	 *
