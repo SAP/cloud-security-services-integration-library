@@ -5,19 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
-import static org.apache.hc.core5.http.HttpHeaders.USER_AGENT;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-
 import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -32,6 +19,19 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static org.apache.http.HttpHeaders.USER_AGENT;
 
 public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
