@@ -5,14 +5,6 @@
  */
 package com.sap.cloud.security.spring.autoconfig;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -27,6 +19,14 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class XsuaaTokenFlowAutoConfigurationTest {
 
@@ -57,7 +57,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	void autoConfigurationActive() {
 		runner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class)).run(context -> {
 			assertThat(context).hasSingleBean(CloseableHttpClient.class);
-			assertThat(context).hasBean("defaultHttpClient");
+			assertThat(context).hasBean("tokenFlowHttpClient");
 			assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));
 		});
 	}
@@ -79,7 +79,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 				.withPropertyValues("sap.security.services.xsuaa.key:" + key)
 				.run((context) -> {
 					assertThat(context).hasSingleBean(CloseableHttpClient.class);
-					assertThat(context).hasBean("defaultHttpClient");
+					assertThat(context).hasBean("tokenFlowHttpClient");
 				});
 	}
 
@@ -124,7 +124,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 				.run((context) -> {
 					assertFalse(context.containsBean("xsuaaTokenFlows"));
 					assertNotNull(context.getBean("customTokenFlows", XsuaaTokenFlows.class));
-					assertThat(context).doesNotHaveBean("defaultHttpClient");
+					assertThat(context).doesNotHaveBean("tokenFlowHttpClient");
 					assertThat(context).hasBean("customHttpClient");
 					assertThat(context).hasSingleBean(CloseableHttpClient.class);
 				});

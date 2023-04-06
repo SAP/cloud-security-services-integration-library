@@ -17,6 +17,7 @@ import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.AnyNestedCondition;
@@ -58,7 +59,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 
 	@Bean
 	@Conditional(PropertyConditions.class)
-	public XsuaaTokenFlows xsuaaTokenFlows(CloseableHttpClient httpClient) {
+	public XsuaaTokenFlows xsuaaTokenFlows(@Qualifier("tokenFlowHttpClient") CloseableHttpClient httpClient) {
 		logger.debug("auto-configures XsuaaTokenFlows using {} based restOperations",
 				xsuaaConfig.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
@@ -74,8 +75,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 * @return the {@link CloseableHttpClient} instance.
 	 */
 	@Bean
-	@ConditionalOnMissingBean(type = "org.apache.http.impl.client.CloseableHttpClient")
-	public CloseableHttpClient defaultHttpClient(XsuaaServiceConfiguration xsuaaConfig) {
+	public CloseableHttpClient tokenFlowHttpClient(XsuaaServiceConfiguration xsuaaConfig) {
 		logger.info(
 				"If the performance for the token validation is degrading provide your own well configured HttpClientFactory implementation");
 		return HttpClientFactory.create(xsuaaConfig.getClientIdentity());
