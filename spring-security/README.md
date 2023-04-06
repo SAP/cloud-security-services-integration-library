@@ -1,5 +1,5 @@
-### :warning: Deprecation Notice**
-In alignment with the end of support for [Spring Boot 2.x](https://spring.io/projects/spring-boot#support) and [Spring Framework 5.x](https://spring.io/projects/spring-framework#support), we will also discontinue support for this library by the end of 2025 and for the corresponding Spring Boot library [spring-security-starter](../spring-security-starter) by Nov, 2023.
+### :warning: Deprecation Notice
+In alignment with the end of support for [Spring Boot 2.x](https://spring.io/projects/spring-boot#support) and [Spring Framework 5.x](https://spring.io/projects/spring-framework#support), we will also discontinue support for this library by the **end of 2025** and for the corresponding Spring Boot library [spring-security-starter](../spring-security-starter) by **Nov, 2023**.
 Consequently, no bug fixes nor security patches will be provided beyond the designated end-of-support date.
 We recommend upgrading to our [3.x major release](https://github.com/SAP/cloud-security-services-integration-library/blob/main/spring-security/), which supports Spring Boot 3.x, Spring Framework 6.x, and Java 17.
 
