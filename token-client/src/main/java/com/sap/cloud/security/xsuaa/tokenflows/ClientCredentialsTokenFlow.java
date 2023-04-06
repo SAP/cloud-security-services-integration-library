@@ -11,7 +11,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,6 +19,7 @@ import java.util.*;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 
 /**
  * A client credentials flow builder class. Applications retrieve an instance of
@@ -141,7 +141,7 @@ public class ClientCredentialsTokenFlow {
 	@Nullable
 	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
 		Map<String, String> requestParameter = new HashMap<>();
-		String authorities = buildAuthorities();
+		String authorities = buildAdditionalAuthoritiesJson(authzAttributes);
 
 		if (authorities != null) {
 			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI
@@ -163,28 +163,4 @@ public class ClientCredentialsTokenFlow {
 		}
 	}
 
-	/**
-	 * Builds the additional authorities claim of the JWT. Returns null, if the
-	 * request does not have any additional authorities set.
-	 *
-	 * @return the additional authorities claims or null, if the request has no
-	 * additional authorities set.
-	 * @throws IllegalArgumentException in case authorization attributes couldn't be mapped
-	 */
-	@Nullable
-	private String buildAuthorities() throws IllegalArgumentException {
-		if (authzAttributes== null) {
-			return null;
-		}
-		try {
-			Map<String, Object> additionalAuthorizationAttributes = new HashMap<>();
-			additionalAuthorizationAttributes.put(CLAIM_ADDITIONAL_AZ_ATTR, authzAttributes);
-
-			JSONObject additionalAuthorizationAttributesJson = new JSONObject(additionalAuthorizationAttributes);
-			return additionalAuthorizationAttributesJson.toString();
-		} catch (RuntimeException e) {
-			throw new IllegalArgumentException(
-					"Error mapping additional authorization attributes to JSON. See root cause exception. ", e);
-		}
-	}
 }

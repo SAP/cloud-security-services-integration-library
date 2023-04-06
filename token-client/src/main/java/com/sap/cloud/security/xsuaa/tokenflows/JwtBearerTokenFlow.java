@@ -1,16 +1,16 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.*;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 
 /**
  * A JWT bearer token flow builder. <br>
@@ -21,18 +21,19 @@ public class JwtBearerTokenFlow {
     private final OAuth2TokenService tokenService;
     private final OAuth2ServiceEndpointsProvider endpointsProvider;
     private final ClientIdentity clientIdentity;
+    private final Map<String, String> optionalParameters = new HashMap<>();
     private String bearerToken;
+    private String xZid;
     private List<String> scopes = new ArrayList<>();
     private String subdomain;
-    private Map<String, String> optionalParameters;
     private boolean disableCache;
 
     public JwtBearerTokenFlow(@Nonnull OAuth2TokenService tokenService,
                               @Nonnull OAuth2ServiceEndpointsProvider endpointsProvider,
                               @Nonnull ClientIdentity clientIdentity) {
-        Assertions.assertNotNull(tokenService, "OAuth2TokenService must not be null!");
-        Assertions.assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null!");
-        Assertions.assertNotNull(clientIdentity, "ClientIdentity must not be null!");
+        assertNotNull(tokenService, "OAuth2TokenService must not be null!");
+        assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null!");
+        assertNotNull(clientIdentity, "ClientIdentity must not be null!");
 
         this.tokenService = tokenService;
         this.endpointsProvider = endpointsProvider;
@@ -40,14 +41,43 @@ public class JwtBearerTokenFlow {
     }
 
     /**
-     * Sets the bearer token for the next execution.
+     * Sets the bearer token that should be exchanged for another JWT token.
      *
      * @param bearerToken
      *            - the bearer token.
      * @return this builder.
      */
-    public JwtBearerTokenFlow token(String bearerToken) {
+    public JwtBearerTokenFlow token(@Nonnull String bearerToken) {
+        assertNotNull(bearerToken, "Bearer token must not be null.");
         this.bearerToken = bearerToken;
+        return this;
+    }
+
+    /**
+     * Sets the JWT token that should be exchanged for another JWT token.
+     * This setter also extracts the zid(zone id) claim from the token and
+     * sets it in the X-zid header, therefore {@link JwtBearerTokenFlow#zoneId(String)}} is not required to be used.
+     *
+     * @param token
+     *            - the Token.
+     * @return this builder.
+     */
+    public JwtBearerTokenFlow token(@Nonnull Token token) {
+        assertNotNull(token, "Token must not be null.");
+        this.bearerToken = token.getTokenValue();
+        this.xZid = token.getZoneId();
+        return this;
+    }
+
+    /**
+     * Sets the zid(zone id) of the tenant<br>
+     *
+     * @param zoneId
+     *            - the zoneId.
+     * @return this builder.
+     */
+    public JwtBearerTokenFlow zoneId(String zoneId) {
+        this.xZid = zoneId;
         return this;
     }
 
@@ -64,7 +94,7 @@ public class JwtBearerTokenFlow {
      * @return this builder.
      */
     public JwtBearerTokenFlow scopes(@Nonnull String... scopes) {
-        Assertions.assertNotNull(scopes, "Scopes must not be null!");
+        assertNotNull(scopes, "Scopes must not be null!");
         this.scopes = Arrays.asList(scopes);
         return this;
     }
@@ -82,14 +112,16 @@ public class JwtBearerTokenFlow {
     }
 
     /**
-     * Adds additional authorization attributes to the request.
+     * Adds additional authorization attributes to the request. <br>
+     * Clients can use this to request additional attributes in the
+     * 'az_attr' claim of the returned token.
      *
-     * @param optionalParameters
-     *            - the optional parameters.
+     * @param additionalAuthorizationAttributes
+     *            - the additional attributes.
      * @return this builder.
      */
-    public JwtBearerTokenFlow optionalParameters(Map<String, String> optionalParameters) {
-        this.optionalParameters = optionalParameters;
+    public JwtBearerTokenFlow attributes(Map<String, String> additionalAuthorizationAttributes) {
+        optionalParameters.put(AUTHORITIES, buildAdditionalAuthoritiesJson(additionalAuthorizationAttributes));
         return this;
     }
 
@@ -119,26 +151,28 @@ public class JwtBearerTokenFlow {
      */
     public OAuth2TokenResponse execute() throws TokenFlowException {
         if (bearerToken == null) {
-            throw new IllegalStateException("A bearerToken must be set before executing the flow.");
+            throw new IllegalStateException("A bearer token must be set before executing the flow");
         }
 
         String scopesParameter = String.join(" ", scopes);
         if (!scopesParameter.isEmpty()) {
-            if(optionalParameters == null) {
-                optionalParameters(Map.of(SCOPE, scopesParameter));
-            } else {
-                optionalParameters.put(SCOPE, scopesParameter);
-            }
+            optionalParameters.put(SCOPE, scopesParameter);
         }
 
         try {
+            if (xZid == null) {
+                return tokenService
+                        .retrieveAccessTokenViaJwtBearerTokenGrant(endpointsProvider.getTokenEndpoint(), clientIdentity,
+                                bearerToken, subdomain, optionalParameters, disableCache);
+            }
             return tokenService
                     .retrieveAccessTokenViaJwtBearerTokenGrant(endpointsProvider.getTokenEndpoint(), clientIdentity,
-                            bearerToken, subdomain, optionalParameters, disableCache);
+                            bearerToken, optionalParameters, disableCache, xZid);
         } catch (OAuth2ServiceException e) {
             throw new TokenFlowException(
                     String.format("Error requesting user token with grant_type '%s': %s",
                             OAuth2TokenServiceConstants.GRANT_TYPE_JWT_BEARER, e.getMessage()), e);
         }
     }
+
 }
