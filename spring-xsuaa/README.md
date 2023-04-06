@@ -3,9 +3,7 @@ In alignment with the end of support for [Spring Boot 2.x](https://spring.io/pro
 Consequently, no bug fixes nor security patches will be provided beyond the designated end-of-support date.
 We recommend upgrading to our 3.x major release and to [spring-security library](https://github.com/SAP/cloud-security-services-integration-library/blob/main/spring-security/Migration_SpringXsuaaProjects.md), which supports Spring Boot 3.x, Spring Framework 6.x, and Java 17.
 
-# SAP BTP Spring XSUAA Security Library 
-
-# SAP CP Spring XSUAA Security Library 
+# SAP BTP Spring XSUAA Security Library
 
 ## Integrate in a OAuth resource server
 
