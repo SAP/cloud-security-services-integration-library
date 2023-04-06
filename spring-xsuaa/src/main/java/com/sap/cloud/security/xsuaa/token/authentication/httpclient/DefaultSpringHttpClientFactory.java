@@ -2,8 +2,9 @@
  * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.client;
+package com.sap.cloud.security.xsuaa.token.authentication.httpclient;
 
+import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.mtls.SSLContextFactory;
 import org.apache.hc.client5.http.config.ConnectionConfig;

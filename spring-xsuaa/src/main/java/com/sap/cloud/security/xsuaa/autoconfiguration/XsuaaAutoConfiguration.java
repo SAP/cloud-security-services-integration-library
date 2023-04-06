@@ -5,12 +5,12 @@
  */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
 
-import com.sap.cloud.security.client.SpringHttpClientFactory;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.extractor.TokenUtil;
+import com.sap.cloud.security.xsuaa.token.authentication.httpclient.SpringHttpClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;

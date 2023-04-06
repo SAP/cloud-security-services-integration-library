@@ -3,8 +3,9 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.client;
+package com.sap.cloud.security.xsuaa.token.authentication.httpclient;
 
+import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.token.ProviderNotFoundException;
@@ -33,7 +34,7 @@ public interface SpringHttpClientFactory {
 		}
 	};
 
-	String DEFAULT_SPRING_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.client.DefaultSpringHttpClientFactory";
+	String DEFAULT_SPRING_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.xsuaa.token.authentication.httpclient.DefaultSpringHttpClientFactory";
 
 	/**
 	 * Provides RestTemplate based on ClientIdentity details. For
@@ -55,11 +56,11 @@ public interface SpringHttpClientFactory {
 
 	static RestTemplate createRestTemplate(ClientIdentity clientIdentity) {
 		if (services.isEmpty()) {
-			throw new ProviderNotFoundException("No HttpClientFactory service could be found in the classpath");
+			throw new ProviderNotFoundException("No SpringHttpClientFactory service could be found in the classpath");
 		}
 		if (services.size() > 2) {
 			throw new ProviderException(
-					"More than 1 Custom HttpClientFactory service provider found. There should be only one");
+					"More than 1 Custom SpringHttpClientFactory service provider found. There should be only one");
 		}
 		if (services.size() == 2) {
 			return services.stream()
