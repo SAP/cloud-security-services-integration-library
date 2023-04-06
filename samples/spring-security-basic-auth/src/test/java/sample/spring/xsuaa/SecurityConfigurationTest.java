@@ -31,6 +31,8 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -51,10 +53,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(XsuaaExtension.class)
 public class SecurityConfigurationTest {
 	/** users for which the TokenBrokerResolver returns stubbed results. */
-	private enum User {NOT_EXISTING, MISSING_SCOPES, WRONG_SCOPE, VALID_SCOPE, VALID_SCOPE_ON_OTHER_ZONE}
+	private enum User {MISSING_SCOPES, WRONG_SCOPE, VALID_SCOPE, VALID_SCOPE_ON_OTHER_ZONE}
 	private Collection<Token> tokens;
-	private static final String OTHER_ZONE_ID = "ZONE_2"; // arbitrary value to identify a tenant zone
-	private static final String CORRECT_PASSWORD = "password"; // arbitrary value used for all users
+	private static final String OTHER_ZONE_ID = "OTHER_ZONE"; // arbitrary value to identify a tenant zone
+	private static final String CORRECT_PASSWORD = "CORRECT"; // arbitrary value used for all users
 	@Autowired
 	private MockMvc mockMvc;
 	@MockBean
@@ -91,7 +93,8 @@ public class SecurityConfigurationTest {
 			}
 
 			when(xsuaaTokenService.retrieveAccessTokenViaPasswordGrant(any(URI.class), any(ClientIdentity.class),
-					eq(User.NOT_EXISTING.name()), any(), any(), any(), anyBoolean()
+					argThat(userName -> Stream.of(User.values()).noneMatch(u -> u.name().equals(userName))),
+					any(), any(), any(), anyBoolean()
 			)).thenThrow(new OAuth2ServiceException("User does not exist."));
 		}
 	}
@@ -111,9 +114,21 @@ public class SecurityConfigurationTest {
 	}
 
 	@Test
+	void rejectsNonExistingUsers() throws Exception {
+		String userName = "MADE_UP_USER";
+		assertThatThrownBy(() -> User.valueOf(userName)).isInstanceOf(IllegalArgumentException.class);
+
+		mockMvc.perform(get("/fetchToken").with(httpBasic(userName, CORRECT_PASSWORD)))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
 	void rejectsWrongPasswords() throws Exception {
+		final String WRONG_PASSWORD = "NOT " + CORRECT_PASSWORD;
+		assertNotEquals(WRONG_PASSWORD, CORRECT_PASSWORD);
+
 		for(User u: User.values()) {
-			mockMvc.perform(get("/fetchToken").with(httpBasic(u.name(), "WRONG_PASSWORD")))
+			mockMvc.perform(get("/fetchToken").with(httpBasic(u.name(), WRONG_PASSWORD)))
 					.andExpect(status().isUnauthorized());
 		}
 	}
