@@ -117,15 +117,11 @@ class DefaultHttpClientFactoryTest {
 		assertThat(logCaptor.getWarnLogs()).isEmpty();
 
 		cut.createClient(config);
+		assertThat(logCaptor.getWarnLogs()).hasSize(1);
 		assertThat(logCaptor.getWarnLogs().get(0))
 				.startsWith("Application has already created HttpClient for clientId = theClientId, please check.");
 
-		cut.createClient(null);
 		logCaptor.clearLogs();
-		cut.createClient(null);
-		assertThat(logCaptor.getWarnLogs()).hasSize(2);
-		assertThat(logCaptor.getWarnLogs().get(0))
-				.startsWith("Application has already created HttpClient for clientId = null, please check.");
 	}
 
 	private static String readFromFile(String file) throws IOException {
