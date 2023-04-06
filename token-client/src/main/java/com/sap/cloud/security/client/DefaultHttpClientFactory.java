@@ -5,15 +5,6 @@
  */
 package com.sap.cloud.security.client;
 
-import javax.net.ssl.SSLContext;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.mtls.SSLContextFactory;
 import org.apache.http.config.Registry;
@@ -26,6 +17,15 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.SSLContext;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Creates a {@link CloseableHttpClient} instance. Supports certificate based
@@ -59,7 +59,6 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 		}
 		httpClientsCreated.add(clientId);
 		if (clientId != null && clientIdentity.isCertificateBased()) {
-			LOGGER.info("In productive environment provide well configured HttpClientFactory service");
 			SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientId,
 					s -> new SslConnection(clientIdentity));
 			return HttpClients.custom()
