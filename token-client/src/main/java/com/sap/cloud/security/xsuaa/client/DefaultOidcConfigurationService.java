@@ -5,21 +5,21 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
-import com.sap.cloud.security.xsuaa.util.UriUtil;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.json.JSONObject;
-
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import com.sap.cloud.security.xsuaa.util.UriUtil;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 /**
  * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest
@@ -55,7 +55,7 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 		try {
 			endpointsJson = httpClient.execute(request, response -> {
 				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-				int statusCode = response.getCode();
+				int statusCode = response.getStatusLine().getStatusCode();
 				if(statusCode != HttpStatus.SC_OK) {
 					throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
 							.withUri(discoveryEndpointUri)
@@ -80,7 +80,7 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 		static final String TOKEN_ENDPOINT = "token_endpoint";
 		static final String JWKS_ENDPOINT = "jwks_uri";
 
-		private JSONObject jsonObject;
+		private final JSONObject jsonObject;
 
 		OidcEndpointsProvider(String jsonString) {
 			jsonObject = new JSONObject(jsonString);

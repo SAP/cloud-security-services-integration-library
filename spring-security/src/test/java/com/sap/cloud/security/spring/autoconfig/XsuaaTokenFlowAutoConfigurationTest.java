@@ -7,7 +7,8 @@ package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +19,6 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestOperations;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -57,8 +56,8 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	@Test
 	void autoConfigurationActive() {
 		runner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class)).run(context -> {
-			assertThat(context).hasSingleBean(RestOperations.class);
-			assertThat(context).hasBean("restOperations");
+			assertThat(context).hasSingleBean(CloseableHttpClient.class);
+			assertThat(context).hasBean("tokenFlowHttpClient");
 			assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));
 		});
 	}
@@ -70,7 +69,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	}
 
 	@Test
-	void configures_xsuaaMtlsRestTemplate() {
+	void configures_singleXsuaa_httpClient() {
 		runner = new ApplicationContextRunner()
 				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
 						XsuaaTokenFlowAutoConfiguration.class))
@@ -79,8 +78,8 @@ class XsuaaTokenFlowAutoConfigurationTest {
 				.withPropertyValues("sap.security.services.xsuaa.certificate:" + cert)
 				.withPropertyValues("sap.security.services.xsuaa.key:" + key)
 				.run((context) -> {
-					assertThat(context).hasSingleBean(RestOperations.class);
-					assertThat(context).hasBean("mtlsRestOperations");
+					assertThat(context).hasSingleBean(CloseableHttpClient.class);
+					assertThat(context).hasBean("tokenFlowHttpClient");
 				});
 	}
 
@@ -120,33 +119,14 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	}
 
 	@Test
-	void configures_xsuaaMtlsRestTemplateForMultipleXsuaaServicesAsPrimary() {
-		WebApplicationContextRunner mt_runner;
-
-		List<String> mt_properties = new ArrayList<>(properties);
-		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
-		mt_properties.add("sap.security.services.xsuaa[0].clientid:cid");
-		mt_properties.add("sap.security.services.xsuaa[0].certificate:cert");
-		mt_properties.add("sap.security.services.xsuaa[0].key:key");
-		mt_properties.add("sap.security.services.xsuaa[1].clientid:cid");
-
-		mt_runner = new WebApplicationContextRunner()
-				.withPropertyValues(mt_properties.toArray(new String[0]))
-				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
-						XsuaaTokenFlowAutoConfiguration.class));
-
-		mt_runner.run(context -> assertTrue(context.containsBean("xsuaaTokenFlows")));
-		mt_runner.run(context -> assertTrue(context.containsBean("mtlsRestOperations")));
-	}
-
-	@Test
 	void userConfigurationCanOverrideDefaultBeans() {
 		runner.withUserConfiguration(UserConfiguration.class)
 				.run((context) -> {
 					assertFalse(context.containsBean("xsuaaTokenFlows"));
 					assertNotNull(context.getBean("customTokenFlows", XsuaaTokenFlows.class));
-					assertThat(context).hasBean("customRestOperations");
-					assertThat(context).hasSingleBean(RestOperations.class);
+					assertThat(context).doesNotHaveBean("tokenFlowHttpClient");
+					assertThat(context).hasBean("customHttpClient");
+					assertThat(context).hasSingleBean(CloseableHttpClient.class);
 				});
 	}
 
@@ -154,8 +134,8 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	static class UserConfiguration {
 
 		@Bean
-		public RestOperations customRestOperations() {
-			return new RestTemplate();
+		public CloseableHttpClient customHttpClient() {
+			return HttpClients.createDefault();
 		}
 
 		@Bean

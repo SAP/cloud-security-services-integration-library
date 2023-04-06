@@ -13,7 +13,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <sap.cloud.security.version>3.0.0</sap.cloud.security.version>
-        <apache.httpclient.version>5.2.1</apache.httpclient.version>
+        <apache.httpclient.version>4.5.14</apache.httpclient.version>
         <jakarta.servlet.api.version>6.0.0</jakarta.servlet.api.version>
         <slf4j.api.version>2.0.5</slf4j.api.version>
     </properties>
@@ -40,8 +40,8 @@
             <artifactId>java-security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents.client5</groupId>
-            <artifactId>httpclient5</artifactId>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
             <version>${apache.httpclient.version}</version>
         </dependency>
         <dependency>

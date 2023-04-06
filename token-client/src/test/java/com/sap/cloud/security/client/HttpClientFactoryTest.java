@@ -5,11 +5,11 @@
  */
 package com.sap.cloud.security.client;
 
-import com.sap.cloud.security.config.ClientCredentials;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.junit.Test;
-
 import static org.junit.Assert.*;
+
+import com.sap.cloud.security.config.ClientCredentials;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.junit.Test;
 
 public class HttpClientFactoryTest {
 

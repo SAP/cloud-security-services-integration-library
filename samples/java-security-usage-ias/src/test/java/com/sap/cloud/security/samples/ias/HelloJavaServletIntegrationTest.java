@@ -5,6 +5,12 @@
  */
 package com.sap.cloud.security.samples.ias;
 
+import static com.sap.cloud.security.config.Service.IAS;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.SecurityContext;
@@ -12,24 +18,17 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import static com.sap.cloud.security.config.Service.IAS;
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class HelloJavaServletIntegrationTest {
+class HelloJavaServletIntegrationTest {
 
 	@RegisterExtension
 	static SecurityTestExtension extension = SecurityTestExtension.forService(IAS)
@@ -58,14 +57,14 @@ public class HelloJavaServletIntegrationTest {
 	@Test
 	void requestWithoutAuthorizationHeader_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest(null);
-		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		int statusCode = httpClient.execute(request, r -> r.getStatusLine().getStatusCode());
 		assertThat(statusCode).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 	}
 
 	@Test
 	void requestWithEmptyAuthorizationHeader_unauthenticated() throws IOException {
 		HttpGet request = createGetRequest("");
-		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		int statusCode = httpClient.execute(request, r -> r.getStatusLine().getStatusCode());
 		assertThat(statusCode).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 	}
 
@@ -77,7 +76,7 @@ public class HelloJavaServletIntegrationTest {
 		HttpGet request = createGetRequest(token.getTokenValue());
 
 		String responseBody = httpClient.execute(request, response -> {
-			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
 			return IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 		});
 
@@ -89,7 +88,7 @@ public class HelloJavaServletIntegrationTest {
 		HttpGet request = createGetRequest(rule.getPreconfiguredJwtGenerator()
 				.withClaimValue(TokenClaims.ISSUER, "INVALID Issuer")
 				.createToken().getTokenValue());
-		int statusCode = httpClient.execute(request, HttpResponse::getCode);
+		int statusCode = httpClient.execute(request, r -> r.getStatusLine().getStatusCode());
 		assertThat(statusCode).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 	}
 

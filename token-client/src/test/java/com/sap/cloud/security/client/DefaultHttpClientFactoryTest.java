@@ -10,12 +10,12 @@ import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import nl.altindag.log.LogCaptor;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.classic.HttpClient;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -33,7 +33,8 @@ import static org.mockito.Mockito.when;
 class DefaultHttpClientFactoryTest {
 
 	private static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/index.html"));
-	private static final HttpClientResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getCode();
+	private static final ResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getStatusLine()
+			.getStatusCode();
 	private static final ClientIdentity config = Mockito.mock(ClientIdentity.class);
 	private static final ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
 	private final DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
@@ -66,7 +67,7 @@ class DefaultHttpClientFactoryTest {
 
 		assertNotSame(client1, client2);
 
-		assertEquals(1, cut.sslConnectionManagers.size());
+		assertEquals(1, cut.httpClientsCreated.size());
 	}
 
 	@Test
@@ -76,7 +77,7 @@ class DefaultHttpClientFactoryTest {
 
 		assertNotSame(client1, client2);
 
-		assertEquals(2, cut.sslConnectionManagers.size());
+		assertEquals(2, cut.httpClientsCreated.size());
 	}
 
 	@Test
@@ -95,7 +96,7 @@ class DefaultHttpClientFactoryTest {
 		statusCode = client2.execute(HTTP_GET, STATUS_CODE_EXTRACTOR);
 		assertEquals(HttpStatus.SC_OK, statusCode);
 
-		assertEquals(2, cut.sslConnectionManagers.size());
+		assertEquals(2, cut.httpClientsCreated.size());
 	}
 
 	@Test
@@ -116,15 +117,11 @@ class DefaultHttpClientFactoryTest {
 		assertThat(logCaptor.getWarnLogs()).isEmpty();
 
 		cut.createClient(config);
+		assertThat(logCaptor.getWarnLogs()).hasSize(1);
 		assertThat(logCaptor.getWarnLogs().get(0))
 				.startsWith("Application has already created HttpClient for clientId = theClientId, please check.");
 
-		cut.createClient(null);
 		logCaptor.clearLogs();
-		cut.createClient(null);
-		assertThat(logCaptor.getWarnLogs()).hasSize(2);
-		assertThat(logCaptor.getWarnLogs().get(0))
-				.startsWith("Application has already created HttpClient for clientId = null, please check.");
 	}
 
 	private static String readFromFile(String file) throws IOException {

@@ -5,16 +5,16 @@
  */
 package com.sap.cloud.security.client;
 
-import com.sap.cloud.security.config.ClientCertificate;
-import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.token.ProviderNotFoundException;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.slf4j.LoggerFactory;
-
 import java.security.ProviderException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
+
+import com.sap.cloud.security.config.ClientCertificate;
+import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.token.ProviderNotFoundException;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a {@link CloseableHttpClient} creation interface.

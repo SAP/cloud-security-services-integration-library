@@ -5,17 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_ZONE_UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -23,7 +13,17 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_ZONE_UUID;
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.xsuaa.Assertions;
+import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
@@ -51,10 +51,10 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
 		LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} ", tokenKeysEndpointUri,
-				request.getHeaders());
+				request.getAllHeaders());
 		try {
-			String jwksJson = httpClient.execute(request, response -> {
-				int statusCode = response.getCode();
+			return httpClient.execute(request, response -> {
+				int statusCode = response.getStatusLine().getStatusCode();
 				LOGGER.debug("Received statusCode {}", statusCode);
 				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 				if (statusCode != HttpStatus.SC_OK) {
@@ -69,8 +69,6 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				LOGGER.debug("Successfully retrieved token keys from {} for zone '{}'", tokenKeysEndpointUri, zoneId);
 				return body;
 			});
-
-			return jwksJson;
 		} catch (IOException e) {
 			throw new OAuth2ServiceException("Error retrieving token keys: " + e.getMessage());
 		}
