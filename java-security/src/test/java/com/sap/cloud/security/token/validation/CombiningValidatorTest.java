@@ -5,15 +5,15 @@
  */
 package com.sap.cloud.security.token.validation;
 
-import com.sap.cloud.security.token.Token;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.ArrayList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
+
+import java.util.ArrayList;
+
+import com.sap.cloud.security.token.Token;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class CombiningValidatorTest {
 
@@ -97,7 +97,7 @@ public class CombiningValidatorTest {
 
 		combiningValidator.validate(TOKEN);
 
-		Mockito.verifyZeroInteractions(validationListenerMock);
+		Mockito.verifyNoMoreInteractions(validationListenerMock);
 	}
 
 	@Test

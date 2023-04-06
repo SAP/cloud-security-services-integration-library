@@ -3,8 +3,9 @@ In alignment with the end of support for [Spring Boot 2.x](https://spring.io/pro
 Consequently, no bug fixes nor security patches will be provided beyond the designated end-of-support date.
 We recommend upgrading to our 3.x major release and to [spring-security library](https://github.com/SAP/cloud-security-services-integration-library/blob/main/spring-security/Migration_SpringXsuaaProjects.md), which supports Spring Boot 3.x, Spring Framework 6.x, and Java 17.
 
-# SAP CP Spring XSUAA Security Library 
+# SAP BTP Spring XSUAA Security Library 
 
+# SAP CP Spring XSUAA Security Library 
 
 ## Integrate in a OAuth resource server
 
@@ -42,7 +43,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>2.13.7</version>
+    <version>2.13.8</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -56,7 +57,7 @@ These (spring) dependencies needs to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>2.13.7</version>
+    <version>2.13.8</version>
 </dependency>
 ```
 

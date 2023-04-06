@@ -3,7 +3,7 @@
 
 **This document is only applicable for J2EE web applications securing their application with SAP Java Buildpack.** The SAP Java Buildpack version `1.26.1` and the SAP Java Buildpack for XSA version `1.8.18` does not any longer provide deprecated SAP-internal security libraries and does not longer depend on Spring security.
 
-This migration document is a step-by-step guide explaining how to replace your dependencies to the deprecated SAP-internal security libraries with the open-sourced [SAP CP Java Security client library](/java-security).
+This migration document is a step-by-step guide explaining how to replace your dependencies to the deprecated SAP-internal security libraries with the open-sourced [SAP BTP Java Security client library](/java-security).
 
 ## Prerequisites
 
