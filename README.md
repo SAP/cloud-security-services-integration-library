@@ -6,7 +6,7 @@
 # :warning: Announcement of End of Support for our Spring Libraries
 As support for [Spring Boot 2.x](https://spring.io/projects/spring-boot#support) and [Spring Framework 5.x](https://spring.io/projects/spring-framework#support) comes to an end, we will also discontinue support for our Spring-dependent artifacts. This means that, beyond the end of support date for affected libraries, we will not provide any bug fixes nor security patches.
 
-We recommend upgrading to our [3.x major release](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main), which supports Spring Boot 3.x, Spring Framework 6.x, and Java 17. For assistance with the migration process, please refer to our migration guide.
+We recommend upgrading to our [3.x major release](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main), which supports Spring Boot 3.x, Spring Framework 6.x, and Java 17. For assistance with the migration process, please refer to our [migration guide](./MIGRATION_TO_3.x.md).
 
 | ArtifactId                                  | End of Support |
 |---------------------------------------------|----------------|
