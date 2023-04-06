@@ -58,6 +58,8 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 			LOGGER.warn("Application has already created HttpClient for clientId = {}, please check.", clientId);
 		}
 		httpClientsCreated.add(clientId);
+		LOGGER.warn(
+				"In productive environment provide well configured HttpClientFactory service, don't use default http client");
 		if (clientId != null && clientIdentity.isCertificateBased()) {
 			SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientId,
 					s -> new SslConnection(clientIdentity));
@@ -68,8 +70,6 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 					.setSSLSocketFactory(connectionPool.sslSocketFactory)
 					.build();
 		}
-		LOGGER.warn(
-				"In productive environment provide well configured HttpClientFactory service, don't use default http client");
 		return HttpClients.custom().disableRedirectHandling().build();
 	}
 
