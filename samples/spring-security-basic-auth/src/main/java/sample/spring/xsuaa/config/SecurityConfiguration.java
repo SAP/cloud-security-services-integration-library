@@ -37,7 +37,7 @@ public class SecurityConfiguration {
 
 		// @formatter:off
 		http.authorizeHttpRequests()
-				.requestMatchers("/mirror-token").hasAuthority("Display")
+				.requestMatchers("/fetchToken").hasAuthority("Display")
 				.requestMatchers("/health").permitAll()
 				.anyRequest().denyAll()
 			.and()

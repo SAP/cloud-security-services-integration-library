@@ -113,45 +113,45 @@ public class SecurityConfigurationTest {
 	@Test
 	void rejectsWrongPasswords() throws Exception {
 		for(User u: User.values()) {
-			mockMvc.perform(get("/mirror-token").with(httpBasic(u.name(), "WRONG_PASSWORD")))
+			mockMvc.perform(get("/fetchToken").with(httpBasic(u.name(), "WRONG_PASSWORD")))
 					.andExpect(status().isUnauthorized());
 		}
 	}
 
 	@Test
 	void rejectsTokenWithoutScopes() throws Exception {
-		mockMvc.perform(get("/mirror-token").with(httpBasic(User.MISSING_SCOPES.name(), CORRECT_PASSWORD)))
+		mockMvc.perform(get("/fetchToken").with(httpBasic(User.MISSING_SCOPES.name(), CORRECT_PASSWORD)))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	void rejectsTokenWithWrongScope() throws Exception {
-		mockMvc.perform(get("/mirror-token").with(httpBasic(User.WRONG_SCOPE.name(), CORRECT_PASSWORD)))
+		mockMvc.perform(get("/fetchToken").with(httpBasic(User.WRONG_SCOPE.name(), CORRECT_PASSWORD)))
 				.andExpect(status().isForbidden());
 	}
 
 	@Test
 	void acceptsTokenWithValidScope() throws Exception {
-		mockMvc.perform(get("/mirror-token").with(httpBasic(User.VALID_SCOPE.name(), CORRECT_PASSWORD)))
+		mockMvc.perform(get("/fetchToken").with(httpBasic(User.VALID_SCOPE.name(), CORRECT_PASSWORD)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("claims." + TokenClaims.USER_NAME).value(User.VALID_SCOPE.name()));
 	}
 
 	@Test
 	void respectsZoneId() throws Exception {
-		mockMvc.perform(get("/mirror-token")
+		mockMvc.perform(get("/fetchToken")
 						.with(httpBasic(User.VALID_SCOPE_ON_OTHER_ZONE.name(), CORRECT_PASSWORD))
 						.header(TokenBrokerResolver.ZONE_ID_HEADER, OTHER_ZONE_ID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("claims." + TokenClaims.USER_NAME).value(User.VALID_SCOPE_ON_OTHER_ZONE.name()))
 				.andExpect(jsonPath("claims." + TokenClaims.XSUAA.ZONE_ID).value(OTHER_ZONE_ID));
 
-		mockMvc.perform(get("/mirror-token")
+		mockMvc.perform(get("/fetchToken")
 						.with(httpBasic(User.VALID_SCOPE.name(), CORRECT_PASSWORD))
 						.header(TokenBrokerResolver.ZONE_ID_HEADER, OTHER_ZONE_ID))
 				.andExpect(status().isUnauthorized()); // user does not exist on this zone
 
-		mockMvc.perform(get("/mirror-token")
+		mockMvc.perform(get("/fetchToken")
 						.with(httpBasic(User.VALID_SCOPE_ON_OTHER_ZONE.name(), CORRECT_PASSWORD)))
 				.andExpect(status().isUnauthorized()); // zone id for this user is missing in header
 	}

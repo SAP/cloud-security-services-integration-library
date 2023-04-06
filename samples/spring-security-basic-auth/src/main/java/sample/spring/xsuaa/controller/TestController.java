@@ -21,7 +21,7 @@ public class TestController {
 	 * @param token validated and processed access token
 	 * @return the access token
 	 */
-	@GetMapping("/mirror-token")
+	@GetMapping("/fetchToken")
 	public Token returnToken(@AuthenticationPrincipal Token token) {
 		/* access to token claims is available via token object, e.g.
 				String userName = token.getPrincipal().getName();
