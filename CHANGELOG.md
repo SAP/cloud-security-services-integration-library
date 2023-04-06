@@ -6,12 +6,39 @@ All notable changes to this project will be documented in this file.
 - `cloud-security-xsuaa-integration` library requires JDK 17
 
 ### Breaking Changes
-* Removed packages
-  * `spring-xsuaa-mock` use `java-security-test` instead
+* Removed modules
+  * `spring-xsuaa-mock` &rarr; use [java-security-test](/java-security-test) instead
 * Removed deprecated classes and interfaces
-  * `class` use instead `xxx`
+  * `UserTokenFlow` &rarr; use instead `JwtBearerTokenFlow`
+  * `XSTokenRequest`, `TokenBroker`, `UaaTokenBroker` &rarr; use instead [token-client](/token-client) module to fetch XSUAA tokens via XSUAATokenFlows
+  * `XSUserInfo`, `XSUserInfoAdapter` &rarr; use instead `Token` interface and `Token#getClaimAsString` with `TokenClaims.XSUAA` constants to access XSUAA-specific claims.
+  * `CFEnvironment`, `K8sEnvironment` &rarr; use instead `ServiceBindingEnvironment`
+  * `CFConstants`, `K8sConstants` &rarr; use instead `ServiceConstants`
+  * `TokenBrokerResolver` &rarr; No longer provided. See `spring-security-basic-auth` sample how to write your own implementation. 
+  * `IasXsuaaExchangeBroker` &rarr; Exchange is not supported by XSUAA service anymore.
+  * `TokenUrlUtils` &rarr; use instead `OAuth2ServiceEndpointsProvider`
+  * `XsuaaServicesParser` &rarr; use instead `Environments#getCurrent` or `new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> xsuaaConfigJson))`
+  * `OAuth2AuthenticationConverter` &rarr; Not supported anymore because deprecated by Spring Security: https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide
 * Removed deprecated methods
-  * `method` use instead `xxx`
+  * `Token#getExpirationDate` &rarr; use instead `Token#getExpiration`
+  * `OAuth2TokenResponse#getExpiredAtDate` &rarr; use instead `OAuth2TokenResponse#getExpiredAt`
+  * `XSUAATokenFlows#userTokenFlow` &rarr; use instead `XSUAATokenFlows#jwtBearerTokenFlow`
+  * `OAuth2TokenService#retrieveAccessTokenViaUserTokenGrant` &rarr; use instead `OAuth2TokenService#retrieveAccessTokenViaJwtBearerTokenGrant`
+  * `OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientIdentity, String, Map, boolean)` &rarr; use instead `OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientIdentity, null, String, Map, boolean)`
+  * `DefaultOAuth2TokenService#DefaultOAuth2TokenService` &rarr; use instead `DefaultOAuth2TokenService#DefaultOAuth2TokenService(CloseableHttpClient)`
+  * `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService` &rarr; use instead `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService(CloseableHttpClient)`
+  * `DefaultOAuth2TokenService#DefaultOAuth2TokenService(TokenCacheConfiguration)` &rarr; use instead `DefaultOAuth2TokenService#DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
+  * `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService(TokenCacheConfiguration)` &rarr; use instead `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
+  * `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(URI)`, `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(String)` &rarr; use instead `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(String, String)`
+  * `SecurityTestRule#getConfigurationBuilderFromFile` &rarr; use instead `SecurityTestRule#getOAuth2ServiceConfigurationBuilderFromFile`
+  * `SecurityTestRule#getWireMockRule` &rarr; use instead `SecurityTestRule#getWireMockServer`
+  * `OAuth2TokenKeyServiceWithCache#withCacheTime`, `OAuth2TokenKeyServiceWithCache#withCacheSize` &rarr; use instead `OAuth2TokenKeyServiceWithCache#withCacheConfiguration`
+  * `Base64JwtDecoder#Base64JwtDecoder`  &rarr; use instead `Base64JwtDecoder#getInstance`
+  * `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration)` &rarr; use instead `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration, RestOperations)`
+* Removed deprecated fields
+  * `GrantType#USER_TOKEN` &rarr; use instead `GrantType#JWT_BEARER`
+  * `OAuth2TokenServiceConstants#GRANT_TYPE_USER_TOKEN` &rarr; use instead `GrantType#JWT_BEARER`
+  * `Token#GRANTTYPE_CLIENTCREDENTIAL` &rarr; use instead `GrantType#CLIENT_CREDENTIALS`
 
 
 ## 2.13.5
