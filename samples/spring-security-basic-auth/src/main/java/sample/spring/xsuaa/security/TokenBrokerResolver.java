@@ -5,7 +5,6 @@
  */
 package sample.spring.xsuaa.security;
 
-import com.sap.cloud.security.xsuaa.tokenflows.PasswordTokenFlow;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,16 +22,16 @@ import java.util.Base64;
 import java.util.Optional;
 
 /**
- * Resolves with an XSUAA user token from the configured service instance using the Basic HTTP credentials
- * in the request header to execute a {@link com.sap.cloud.security.token.GrantType#PASSWORD} grant type flow.
+ * Resolves an user token from the configured XSUAA service instance via password grant flow using the
+ * Basic HTTP credentials from the request header.
  * <p>
- * The user crendentials are expected to be contained in the {@link HttpHeaders#AUTHORIZATION} header field as BASE64-encoded username/password combination.
+ * The user credentials are expected to be contained in the {@link HttpHeaders#AUTHORIZATION} header field as BASE64-encoded username/password combination.
  * Optionally, a zone id may be specified via the 'X-Identity-Zone-Subdomain' header field.
  * <p>
  * For performance improvements, a pre-configured {@link Cache} may be supplied to limit the time between two token requests for the same principal.
  */
 public class TokenBrokerResolver implements BearerTokenResolver {
-	private static final Logger logger = LoggerFactory.getLogger(TokenBrokerResolver.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TokenBrokerResolver.class);
 	public static final String BASIC_AUTHENTICATION_SCHEME = "Basic"; // prefix before BASE64 encoded username:password in Authorization header
 	public static final String ZONE_ID_HEADER = "X-Identity-Zone-Subdomain"; // header for zone id
 	private final XsuaaTokenFlows tokenFlows;
@@ -48,7 +47,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		try {
 			return fetchToken(request);
 		} catch (TokenFlowException e) {
-			logger.warn("Error obtaining token: " + e.getMessage(), e);
+			LOGGER.warn("Error obtaining token: " + e.getMessage(), e);
 			return null;
 		}
 	}
@@ -75,16 +74,15 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 
 		String cachedToken = tokenCache.get(cacheKey, String.class);
 		if (cachedToken != null) {
-			logger.debug("returning access token for {} from cache.", cacheKey);
+			LOGGER.debug("returning access token for {} from cache.", cacheKey);
 			return cachedToken;
 		}
 
-		PasswordTokenFlow tokenFlow = tokenFlows
-				.passwordTokenFlow()
+		String token = tokenFlows.passwordTokenFlow()
 				.username(credentials.userName())
 				.password(credentials.password)
-				.subdomain(zoneId);
-		String token = tokenFlow.execute().getAccessToken();
+				.subdomain(zoneId)
+				.execute().getAccessToken();
 
 		tokenCache.put(cacheKey, token);
 		return token;
