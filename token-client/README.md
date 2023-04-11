@@ -58,7 +58,7 @@ OAuth2ServiceConfiguration config = builder.withClientId(...)
                                            .withCertUrl(...).build();
 ```
 
-#### In case of externally managed certificate
+#### Externally managed certificate
 To utilize an **externally managed certificate** in 
 - Java EE application, you need to modify the `OAuth2ServiceConfiguration` instance with the external key:
     ```java
@@ -67,9 +67,7 @@ To utilize an **externally managed certificate** in
     ```
 - Spring Boot applications
   `ClientCertificate` class needs to be instantiated with the external key and `XsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. <br>Alternatively you can provide the certificate key property programmatically by defining default property.
-
-  - Default property
-      ```java
+   ```java
     @SpringBootApplication
     public class Application {
         public static void main(String[] args) {
@@ -85,10 +83,10 @@ To utilize an **externally managed certificate** in
           
         }
     }
-      ```
+   ```
 
-  - For **testing purposes only** `key` can be overwritten in `application.yml` properties file.
-      ```yaml
+  :information_source: For **testing purposes only** `key` can be overwritten in `application.yml` properties file.
+   ```yaml
       # spring-xsuaa
       xsuaa:
         key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
@@ -261,11 +259,10 @@ To troubleshoot problems with the token client, you can set the logging level fo
 `com.sap.cloud.security` package to `DEBUG`. 
 Have a look at the [Logging](/java-security/README.md#logging) section for more information on logging for Java EE applications.
 
-If you need more detailed network data in your logs, you can also enable debugging for your HTTP client.
-:exclamation: Note that this might leak encoded tokens into your logs. Use with caution! 
-For more information see
+If you need more detailed network data in your logs, you can also enable debugging for your HTTP client. For more information see
 [Apache HTTP Client logging documentation](https://hc.apache.org/httpcomponents-client-4.5.x/logging.html).
 
+:exclamation:Note that this might leak encoded tokens into your logs. Use with caution!
 
 ### Insufficient performance for token validations or token flows
 
