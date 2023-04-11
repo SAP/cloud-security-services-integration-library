@@ -21,7 +21,6 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
 		<sap.cloud.security.version>3.0.0</sap.cloud.security.version>
-		<apache.httpclient.version>5.2.1</apache.httpclient.version>
 	</properties>
 
 	<dependencyManagement>
@@ -52,11 +51,6 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>resourceserver-security-spring-boot-starter</artifactId>
-		</dependency>
-		<dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
-			<groupId>org.apache.httpcomponents.client5</groupId>
-			<artifactId>httpclient5</artifactId>
-			<version>${apache.httpclient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
