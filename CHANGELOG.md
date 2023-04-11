@@ -6,22 +6,37 @@ All notable changes to this project will be documented in this file.
 - `cloud-security-xsuaa-integration` library requires JDK 17
 
 ### Breaking Changes
-* Removed modules
-  * `spring-xsuaa-mock` &rarr; use [java-security-test](./java-security-test) instead
-* Removed deprecated classes and interfaces
-  * `UserTokenFlow` &rarr; use instead `JwtBearerTokenFlow`
-  * `XSTokenRequest`, `TokenBroker`, `UaaTokenBroker` &rarr; use instead [token-client](./token-client) module to fetch XSUAA tokens via XsuaaTokenFlows
-  * `XSUserInfo`, `XSUserInfoAdapter` &rarr; use instead [Token](./java-api/src/main/java/com/sap/cloud/security/token/Token.java) interface and `Token#getClaimAsString` with [TokenClaims.XSUAA](./java-api/src/main/java/com/sap/cloud/security/token/TokenClaims.java) constants to access XSUAA-specific claims.
+#### Removed modules
+* `spring-xsuaa-mock` &rarr; use [java-security-test](./java-security-test) instead
+
+#### Removed deprecated classes and interfaces
+* [env]
   * `CFEnvironment`, `K8sEnvironment` &rarr; use instead `ServiceBindingEnvironment`
   * `CFConstants`, `K8sConstants` &rarr; use instead `ServiceConstants`
+* [java-security]
+  * `XSUserInfo`, `XSUserInfoAdapter` &rarr; use instead [Token](./java-api/src/main/java/com/sap/cloud/security/token/Token.java) interface and `Token#getClaimAsString` with [TokenClaims.XSUAA](./java-api/src/main/java/com/sap/cloud/security/token/TokenClaims.java) constants to access XSUAA-specific claims.
+* [spring-xsuaa]
+  * `XSTokenRequest`, `TokenBroker`, `UaaTokenBroker` &rarr; use instead [token-client](./token-client) module to fetch XSUAA tokens via XsuaaTokenFlows
   * `TokenBrokerResolver` &rarr; No longer provided. See `spring-security-basic-auth` sample how to write your own implementation.
   * `IasXsuaaExchangeBroker` &rarr; Exchange is not supported by XSUAA service anymore. You can use [token-client](./token-client) to do the exchange yourself.
   * `TokenUrlUtils` &rarr; use instead `OAuth2ServiceEndpointsProvider`
   * `XsuaaServicesParser` &rarr; use instead `Environments#getCurrent` or `new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> xsuaaConfigJson))`
   * `OAuth2AuthenticationConverter` &rarr; Not supported anymore because deprecated by Spring Security: https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide
-* Removed deprecated methods
+* [token-client]
+  * `UserTokenFlow` &rarr; use instead `JwtBearerTokenFlow`
+
+#### Removed deprecated methods
+* [java-security]
+  * `OAuth2TokenKeyServiceWithCache#withCacheTime`, `OAuth2TokenKeyServiceWithCache#withCacheSize` &rarr; use instead `OAuth2TokenKeyServiceWithCache#withCacheConfiguration`
+  * `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration)` &rarr; use instead `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration, RestOperations)`
+* [java-security-test]
+  * `SecurityTestRule#getConfigurationBuilderFromFile` &rarr; use instead `SecurityTestRule#getOAuth2ServiceConfigurationBuilderFromFile`
+  * `SecurityTestRule#getWireMockRule` &rarr; use instead `SecurityTestRule#getWireMockServer`
+* [spring-xsuaa]
   * `Token#getExpirationDate` &rarr; use instead `Token#getExpiration`
-  * `OAuth2TokenResponse#getExpiredAtDate` &rarr; use instead `OAuth2TokenResponse#getExpiredAt`
+* [spring-xsuaa-test]
+  * `Base64JwtDecoder#Base64JwtDecoder`  &rarr; use instead `Base64JwtDecoder#getInstance`
+* [token-client]
   * `XsuaaTokenFlows#userTokenFlow` &rarr; use instead `XsuaaTokenFlows#jwtBearerTokenFlow`
   * `OAuth2TokenService#retrieveAccessTokenViaUserTokenGrant` &rarr; use instead `OAuth2TokenService#retrieveAccessTokenViaJwtBearerTokenGrant`
   * `OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientIdentity, String, Map, boolean)` &rarr; use instead [OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant](./token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OAuth2TokenService.java) with null for argument `subdomain`
@@ -30,14 +45,14 @@ All notable changes to this project will be documented in this file.
   * `DefaultOAuth2TokenService#DefaultOAuth2TokenService(TokenCacheConfiguration)` &rarr; use instead `DefaultOAuth2TokenService#DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
   * `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService(TokenCacheConfiguration)` &rarr; use instead `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
   * `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(URI)`, `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(String)` &rarr; use instead `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(String, String)`
-  * `SecurityTestRule#getConfigurationBuilderFromFile` &rarr; use instead `SecurityTestRule#getOAuth2ServiceConfigurationBuilderFromFile`
-  * `SecurityTestRule#getWireMockRule` &rarr; use instead `SecurityTestRule#getWireMockServer`
-  * `OAuth2TokenKeyServiceWithCache#withCacheTime`, `OAuth2TokenKeyServiceWithCache#withCacheSize` &rarr; use instead `OAuth2TokenKeyServiceWithCache#withCacheConfiguration`
+  * `OAuth2TokenResponse#getExpiredAtDate` &rarr; use instead `OAuth2TokenResponse#getExpiredAt`
   * `Base64JwtDecoder#Base64JwtDecoder`  &rarr; use instead `Base64JwtDecoder#getInstance`
-  * `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration)` &rarr; use instead `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration, RestOperations)`
-* Removed deprecated fields
+#### Removed deprecated fields
+* [java-api]
   * `GrantType#USER_TOKEN` &rarr; use instead `GrantType#JWT_BEARER`
+* [token-client]
   * `OAuth2TokenServiceConstants#GRANT_TYPE_USER_TOKEN` &rarr; use instead `GrantType#JWT_BEARER`
+* [spring-xsuaa]
   * `Token#GRANTTYPE_CLIENTCREDENTIAL` &rarr; use instead `GrantType#CLIENT_CREDENTIALS`
 
 
