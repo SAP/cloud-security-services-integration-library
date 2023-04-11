@@ -8,13 +8,13 @@ As support for [Spring Boot 2.x](https://spring.io/projects/spring-boot#support)
 
 We recommend upgrading to our [3.x major release](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main), which supports Spring Boot 3.x, Spring Framework 6.x, and Java 17. For assistance with the migration process, please refer to our [migration guide](./MIGRATION_TO_3.x.md).
 
-| ArtifactId                                  | End of Support |
-|---------------------------------------------|----------------|
-| spring-xsuaa                                | Dec, 2025      |
-| spring-xsuaa-test                           | Dec, 2025      |
-| xsuaa-spring-boot-starter                   | Nov, 2023      |
-| spring-security                             | Dec, 2025      |
-| resourceserver-security-spring-boot-starter | Nov, 2023      |
+| ArtifactId                                  | Version | End of Support |
+|---------------------------------------------|---------|----------------|
+| spring-xsuaa                                | 2.x     | Dec, 2025      |
+| spring-xsuaa-test                           | 2.x     | Dec, 2025      |
+| xsuaa-spring-boot-starter                   | 2.x     | Nov, 2023      |
+| spring-security                             | 2.x     | Dec, 2025      |
+| resourceserver-security-spring-boot-starter | 2.x     | Nov, 2023      |
 
 # Description
 Authentication services provided by the xsuaa service on [SAP Cloud Platform](https://cloudplatform.sap.com) or [SAP HANA XS Advanced](https://help.sap.com/viewer/4505d0bdaf4948449b7f7379d24d0f0d/2.0.00/en-US) rely on usage of the [OAuth 2.0](https://oauth.net) protocol and OAuth 2.0 access tokens.

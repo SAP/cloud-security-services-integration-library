@@ -30,7 +30,7 @@ To migrate your Java web application to Java 17 on Kubernetes, you'll need to up
 4. Migrate deprecated classes and methods, review the [Spring Boot Release Notes](https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-3.0-Release-Notes#deprecations-in-spring-boot-30) for detailed information
 
 ## Step 3: Upgrade Cloud Security Services Integration library
-1. **Update dependencies**: Update your project's dependencies to the latest versions of `3.0.0` of the SAP Cloud Security Services Integration Library. See each library's README for detailed information on required dependencies.
+1. **Update dependencies**: Update your project's dependencies to the latest versions of `3.x` of the SAP Cloud Security Services Integration Library. See each library's README for detailed information on required dependencies.
 2. **Review deprecated or removed features**: see the [release notes](https://github.com/SAP/cloud-security-services-integration-library/releases/tag/3.0.0) for detailed information about breaking changes and deprecations
 
 
