@@ -96,7 +96,7 @@ To utilize an **externally managed certificate** in
       sap.security.services.xsuaa:
         key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
     ```
-    :exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in github.com
+    :exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in GitHub.com
 
 :bulb: Note that if you are only using the `token-client` library without the [java-security](../java-security/README.md) or [spring-security](../spring-security/README.md), you will need to define the `env` dependency in your pom.xml:
 ```xml
@@ -183,7 +183,7 @@ tokenService.clearCache();
 ### 1.2. Configuration for Spring Boot Applications
 
 #### Maven Dependencies
-In context of a Spring Boot application you can leverage auto-configuration:
+In context of a Spring Boot application you can leverage autoconfiguration:
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
@@ -193,8 +193,8 @@ In context of a Spring Boot application you can leverage auto-configuration:
 ```
 
 #### XsuaaTokenFlows Initialization
-As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `resourceserver-security-spring-boot-starter` Spring Boot Starter. 
-Then `spring-security` library auto-configures beans, that are required to initialize the Token Flows API.
+As autoconfiguration requires Spring Boot specific dependencies, it is enabled when using `resourceserver-security-spring-boot-starter` Spring Boot Starter. 
+Then `spring-security` library autoconfigures beans, that are required to initialize the Token Flows API.
 
 | Auto-configuration class                                                                                                                          | Description                                                                          |
 |---------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
@@ -228,7 +228,7 @@ Obtain a client credentials token:
 
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.clientCredentialsTokenFlow()
-                                                    .zoneId()                           // optinoal
+                                                    .zoneId()                           // optional
                                                     .disableCache(true)                 // optionally disables token cache for the request
                                                     .execute();
 ```
@@ -276,9 +276,9 @@ If you observe performance degradation for token validation or token flows, Http
 
 To adjust the Http Client parameters you will need to provide your own implementation of `HttpClientFactory` interface.
 
-To overwrite [`DefaultHttpClientFactory`](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you have to register your own implementation of `HttpClientFactory` interface as follows:
+To overwrite [`DefaultHttpClientFactory`](./src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you have to register your own implementation of `HttpClientFactory` interface as follows:
 
-- Create a SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.
+- Create an SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.
 - Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.
 - The implementation could look like:
 ````java
@@ -295,7 +295,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 ### Common Pitfalls
 #### This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library
 If you have classpath related  issues involving JSON you should take a look at the
-[Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
+[Troubleshooting JSON class path issues](../docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 #### Token exchange `Unable to map issuer`
 ```bash
