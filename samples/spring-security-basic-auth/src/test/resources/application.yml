@@ -1,0 +1,11 @@
+sap:
+  security:
+    services:
+      xsuaa: # default configuration of the test XSUAA server from SecurityTest
+        xsappname: xsapp!t0815
+        uaadomain: localhost
+        clientid: sb-clientId!t0815
+        url: http://localhost
+spring:
+  main:
+    allow-bean-definition-overriding: true
