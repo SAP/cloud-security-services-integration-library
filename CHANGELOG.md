@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file.
 * [spring-xsuaa]
   * `XSTokenRequest`, `TokenBroker`, `UaaTokenBroker` &rarr; use instead [token-client](./token-client) module to fetch XSUAA tokens via XsuaaTokenFlows
   * `TokenBrokerResolver` &rarr; No longer provided. See `spring-security-basic-auth` sample how to write your own implementation.
-  * `IasXsuaaExchangeBroker` &rarr; Exchange is not supported by XSUAA service anymore. You can use [token-client](./token-client) to do the exchange yourself.
+  * `IasXsuaaExchangeBroker` &rarr; Exchange is not supported by XSUAA service anymore.
   * `TokenUrlUtils` &rarr; use instead `OAuth2ServiceEndpointsProvider`
   * `XsuaaServicesParser` &rarr; use instead `Environments#getCurrent` or `new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> xsuaaConfigJson))`
   * `OAuth2AuthenticationConverter` &rarr; Not supported anymore because deprecated by Spring Security: https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide
