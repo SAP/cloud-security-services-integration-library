@@ -1,13 +1,14 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Cloud Security Client Java
-Upstream-Contact: SAP SE <cas@sap.com, nena.raab@sap.com>
-Source: https://github.com/SAP/cloud-security-xsuaa-integration
+Upstream-Contact: SAP SE <cas@sap.com, liga.ozolina@sap.com>
+Source: https://github.com/SAP/cloud-security-services-integration-library
 
 Files:
     README.md
     CHANGELOG.md
     CONTRIBUTING.md
     **/*.md
+    *.md
     docs/*
     .gitignore
     **/.gitignore
@@ -21,5 +22,5 @@ Files:
     samples/**/Dockerfile
     samples/**/deployment.yml
     .github/*
-Copyright: 2020-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+Copyright: 2020-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
 License: Apache-2.0
