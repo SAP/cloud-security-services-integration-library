@@ -14,6 +14,8 @@ applications:
   path: target/java-security-usage.war
   buildpacks:
     - java_buildpack
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
   services:
     - xsuaa-java-security
 ...
