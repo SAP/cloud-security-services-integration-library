@@ -241,7 +241,7 @@ class TestTokenClient(SampleTest):
     def test_hello_token_client(self):
         logging.info(RUN_TEST.format("TestTokenClient.test_hello_token_client"))
         response = self.perform_get_request('/hello-token-client')
-        self.assertEqual(response.status, 200, EXPECT_200)
+        self.assertEqual(200, response.status, EXPECT_200)
         body = response.body
         self.assertIsNotNone(body)
         self.assertRegex(body, "Access-Token: ")
@@ -259,20 +259,20 @@ class TestJavaSecurity(SampleTest):
     def test_hello_java_security(self):
         logging.info(RUN_TEST.format("TestJavaSecurity.test_hello_java_security"))
         resp = self.perform_get_request('/hello-java-security')
-        self.assertEqual(resp.status, 401, EXPECT_401)
+        self.assertEqual(401, resp.status, EXPECT_401)
 
         resp = self.perform_get_request('/hello-java-security-authz')
-        self.assertEqual(resp.status, 401, EXPECT_401)
+        self.assertEqual(401, resp.status, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/hello-java-security-authz')
-        self.assertEqual(resp.status, 403, EXPECT_403)
+        self.assertEqual(403, resp.status, EXPECT_403)
 
         self.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
         resp = self.perform_get_request_with_token('/hello-java-security-authz')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
 
         resp = self.perform_get_request_with_token('/hello-java-security')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
 
         xsappname = self.get_deployed_app().get_credentials_property('xsappname')
         expected_scope = xsappname + '.Read'
@@ -292,24 +292,24 @@ class TestSpringSecurityHybrid(SampleTest):
 
     def test_sayHello_xsuaa(self):
         resp = self.perform_get_request('/sayHello')
-        self.assertEqual(resp.status, 401, EXPECT_401)
+        self.assertEqual(401, resp.status, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/sayHello')
-        self.assertEqual(resp.status, 403, EXPECT_403)
+        self.assertEqual(403, resp.status, EXPECT_403)
 
         self.add_user_to_role('XSUAA-Viewer')
         resp = self.perform_get_request_with_token('/sayHello')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         clientid = self.get_deployed_app().get_credentials_property('clientid')
         self.assertRegex(resp.body, clientid, 'Expected to find clientid in response')
 
         resp = self.perform_get_request_with_token('/method')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         self.assertRegex(resp.body, 'You got the sensitive data for zone', 'Expected another response.')
 
     def test_sayHello_ias(self):
         resp = self.perform_get_request_with_ias_token('/sayHello', self.get_id_token())
-        self.assertEqual(resp.status, 403, EXPECT_403)
+        self.assertEqual(403, resp.status, EXPECT_403)
 
 
 class TestJavaSecurityIas(SampleTest):
@@ -321,10 +321,10 @@ class TestJavaSecurityIas(SampleTest):
 
     def test_sayHello_ias(self):
         resp = self.perform_get_request('/hello-java-security-ias')
-        self.assertEqual(resp.status, 401, EXPECT_401)
+        self.assertEqual(401, resp.status, EXPECT_401)
 
         resp = self.perform_get_request_with_ias_token('/hello-java-security-ias', self.get_id_token())
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         self.assertIsNotNone(resp.body)
         self.assertRegex(resp.body, "are authenticated and can access the application.")
 
@@ -372,7 +372,7 @@ class TestSpringSecurity(SampleTest):
         ias_service = self.get_ias_access("ias-spring-sec")
 
         resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
-        self.assertEqual(resp.status, 403, EXPECT_403)
+        self.assertEqual(403, resp.status, EXPECT_403)
         if self.prompt_user_role_assignment():
             resp = self.perform_get_request_with_ias_token('/v1/sayHello', ias_service.fetch_ias_token(self))
             if resp.status != 200:
@@ -380,7 +380,7 @@ class TestSpringSecurity(SampleTest):
                                 "Check in IAS admin panel that the application's '{}' Subject Name Identifier is set to email. "
                                 "Bug: NGPBUG-139441 "
                                 .format(ias_service.ias_service_name))
-            self.assertEqual(resp.status, 200, EXPECT_200)
+            self.assertEqual(200, resp.status, EXPECT_200)
             xsappname = self.get_deployed_app().get_credentials_property('xsappname')
             self.assertRegex(resp.body, xsappname, 'Expected to find xsappname in response')
         else:
@@ -388,7 +388,7 @@ class TestSpringSecurity(SampleTest):
 
     def test_open_endpoint(self):
         resp = self.perform_get_request('/health')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
 
 
 class TestSpringSecurityNonMtls(SampleTest):
@@ -405,15 +405,15 @@ class TestSpringSecurityNonMtls(SampleTest):
         logging.info(RUN_TEST.format("TestSpringSecurity.test_tokenFlows"))
         self.add_user_to_role('Viewer')
         resp = self.perform_get_request_with_token('/v2/sayHello')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         resp = self.perform_get_request_with_token('/v3/requestUserToken')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         token = self.get_token()
         path_with_refresh_token = '/v3/requestRefreshToken/' + token.get('refresh_token')
         resp = self.perform_get_request_with_token(path_with_refresh_token)
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
 
 
 class TestJavaBuildpackApiUsage(SampleTest):
@@ -428,14 +428,14 @@ class TestJavaBuildpackApiUsage(SampleTest):
     def test_hello_token_servlet(self):
         logging.info(RUN_TEST.format("TestJavaBuildpackApiUsage.test_hello_token_servlet"))
         resp = self.perform_get_request('/hello-token')
-        self.assertEqual(resp.status, 401, EXPECT_401)
+        self.assertEqual(401, resp.status, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/hello-token')
-        self.assertEqual(resp.status, 403, EXPECT_403)
+        self.assertEqual(403, resp.status, EXPECT_403)
 
         self.add_user_to_role('Buildpack_API_Viewer')
         resp = self.perform_get_request_with_token('/hello-token')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
@@ -449,11 +449,11 @@ class SpringSecurityBasicAuthTest(SampleTest):
     def test_fetch_token(self):
         logging.info(RUN_TEST.format("SpringSecurityBasicAuthTest.test_fetch_token"))
         resp = self.perform_get_request('/fetchToken')
-        self.assertEqual(resp.status, 401, EXPECT_401)
+        self.assertEqual(401, resp.status, EXPECT_401)
 
         resp = self.perform_get_request('/fetchToken', username=self.credentials.username,
                                         password=self.credentials.password)
-        self.assertEqual(resp.status, 403, EXPECT_403)
+        self.assertEqual(403, resp.status, EXPECT_403)
 
     def test_fetch_token_status_ok(self):
         # app restart needed because tokens are cached in application
@@ -462,7 +462,7 @@ class SpringSecurityBasicAuthTest(SampleTest):
         self.add_user_to_role('BASIC_AUTH_API_Viewer')
         resp = self.perform_get_request('/fetchToken', username=self.credentials.username,
                                         password=self.credentials.password)
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
@@ -478,14 +478,14 @@ class SpringWebfluxSecurityXsuaaUsage(SampleTest):
     def test_say_hello(self):
         logging.info(RUN_TEST.format("SpringWebfluxSecurityXsuaaUsage.test_say_hello"))
         resp = self.perform_get_request('/v1/sayHello')
-        self.assertEqual(resp.status, 401, EXPECT_401)
+        self.assertEqual(401, resp.status, EXPECT_401)
 
         resp = self.perform_get_request_with_token('/v1/sayHello')
-        self.assertEqual(resp.status, 403, EXPECT_403)
+        self.assertEqual(403, resp.status, EXPECT_403)
 
         self.add_user_to_role('Webflux_API_Viewer')
         resp = self.perform_get_request_with_token('/v1/sayHello')
-        self.assertEqual(resp.status, 200, EXPECT_200)
+        self.assertEqual(200, resp.status, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
@@ -538,7 +538,7 @@ class HttpUtil:
         if additional_headers is not None:
             headers.update(additional_headers)
 
-        context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)  # PROTOCOL_SSLV3 doesn't work
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS)  # Deprecated but PROTOCOL_TLS_CLIENT doesn't work
         context.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
 
         connection = http.client.HTTPSConnection(host, port=443, context=context, timeout=500)
@@ -767,8 +767,8 @@ class ApiAccessService:
     def __get_access_token(self):
         token = self.http_util.get_token(
             xsuaa_service_url=self.xsuaa_service_url,
-            clientid=self.data.get('clientid'),
-            clientsecret=self.data.get('clientsecret'),
+            clientid=self.data.get('credentials').get('clientid'),
+            clientsecret=self.data.get('credentials').get('clientsecret'),
             grant_type='client_credentials')
         return token.get('access_token')
 
@@ -859,7 +859,7 @@ class VarsParser:
     def __strip_comments(self, content):
         result = ''
         for line in content.split('\n'):
-            commented_line = re.search(r'\w*#', line)
+            commented_line = re.search(r'^#', line)
             if commented_line is None:
                 result += line + '\n'
         return result
