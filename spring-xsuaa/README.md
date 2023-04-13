@@ -1,6 +1,7 @@
-# SAP CP Spring XSUAA Security Library 
+# SAP BTP Spring XSUAA Security Library 
 
-## Integrate in a OAuth resource server
+## :warning: Deprecation Notice
+This library is deprecated and will be removed with the next major release 4.x, do not use it for new projects. Follow the [migration guide](../spring-security/Migration_SpringXsuaaProjects.md) to switch to the successor [spring-security](../spring-security) library.
 
 This library enhances the [spring-security](https://github.com/spring-projects/spring-security/) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. A Spring boot application needs a security configuration class that enables the resource server and configures authentication using JWT tokens.
 
@@ -15,11 +16,9 @@ Library supports services provisioned by [SAP BTP service-operator](https://gith
    - `SERVICE_BINDING_ROOT` environment variable needs to be defined with value that points to volume mount's directory (`mounthPath`) where service binding secret will be stored.
       e.g. like [here](/samples/spring-security-basic-auth/k8s/deployment.yml#L59)
 
-
-Detailed information on how to use ``spring-xsuaa`` library in Kubernetes/Kyma environment can be found in [spring-security-basic-auth](/samples/spring-security-basic-auth/README.md#deployment-on-kymakubernetes) sample README.
-
+     
 ### Maven Dependencies
-These (spring) dependencies needs to be provided:
+These (spring) dependencies need to be provided:
 ```xml
 <dependency> <!-- includes spring-security-oauth2 -->
     <groupId>org.springframework.security</groupId>
@@ -44,7 +43,7 @@ These (spring) dependencies needs to be provided:
 </dependency>
 ```
 
-**Or, if you like to leverage auto-configuration:**
+**Or for Spring Boot applications you can leverage autoconfiguration:**
 
 ```xml
 <dependency>
@@ -55,24 +54,24 @@ These (spring) dependencies needs to be provided:
 ```
 
 ### Auto-configuration
-As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
-Then, xsuaa integration libraries auto-configures beans, that are required to initialize the Spring Boot application as OAuth resource server.
+As autoconfiguration requires Spring Boot specific dependencies, autoconfiguration is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
+Then Xsuaa integration libraries autoconfigures beans, that are required to initialize the Spring Boot application as OAuth resource server.
 
-Auto-configuration class | Description
----- | --------
-[XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.xsappname` e.g. for testing purposes. Furthermore it exposes a `XsuaaServiceConfiguration` bean that can be used to access xsuaa service information.  Alternatively you can access them with `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`.
-[XsuaaResourceServerJwkAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaResourceServerJwkAutoConfiguration.java) | Configures a `JwtDecoder` bean with a JWK (JSON Web Keys) endpoint from where to download the tenant (subdomain) specific public key.
-[XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean for a given `RestOperations` and `XsuaaServiceConfiguration` bean to fetch the XSUAA service binding information. Starting with `2.10.0` version it supports X.509 based authentication.
+| Auto-configuration class                                                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+ | [XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java)                                   | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.xsappname` e.g. for testing purposes. Furthermore, it exposes an `XsuaaServiceConfiguration` bean that can be used to access Xsuaa service information.  Alternatively, you can access them with `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`. |
+ | [XsuaaResourceServerJwkAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaResourceServerJwkAutoConfiguration.java) | Configures a `JwtDecoder` bean with a JWK (JSON Web Keys) endpoint from where to download the tenant (subdomain) specific public key.                                                                                                                                                                                                                                                                                                                                 |
+ | [XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java)                 | Configures an `XsuaaTokenFlows` bean using the provided `RestOperations` and `XsuaaServiceConfiguration` beans to obtain the Xsuaa service binding information. Starting from version `2.10.0`, it also supports X.509-based authentication.                                                                                                                                                                                                                          |
 
-You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
+You can gradually replace autoconfigurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
 #### RestTemplate / RestOperations
 
-Please note, in case your application exposes already one or more Spring beans of type `RestOperations` (or its subclasses such as `RestTemplate`), `XsuaaAutoConfiguration` will not create a bean, but reuses the existing one. 
+Please note, in case your application exposes already one or more Spring beans of type `RestOperations` (or its subclasses such as `RestTemplate`), `XsuaaAutoConfiguration` will not create a bean, but reuse the existing one. 
 
 In case there are multiple ones the auto-configurations do not know, which `RestOperations` bean to select. In this case you can annotate the preferred `RestOperations` bean with `@Primary`.
 
-In case you do not want to use the `RestOperations` bean, that is specified in your Spring application context but still like to leverage the auto-configuration of `spring-xsuaa` you can also provide a dedicated bean with name `xsuaaRestOperations`:
+In case you do not want to use the `RestOperations` bean, that is specified in your Spring application context but still like to leverage the autoconfiguration of `spring-xsuaa` you can also provide a dedicated bean with name `xsuaaRestOperations`:
 
 ```java
 @Configuration
@@ -88,16 +87,15 @@ public static class RestClientConfiguration {
     public RestTemplate xsuaaRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
         // Example that supports both: client secret and client certificate based authentication.
         // This is especially relevant if you want to leverage token exchange with XsuaaTokenFlows.
-        HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-        requestFactory.setHttpClient(HttpClientFactory.create(clientIdentity)); // default implementation logs warning 
-        RestOperations restOperations = new RestTemplate(requestFactory);         
+        return SpringHttpClientFactory.createRestTemplate(xsuaaServiceConfiguration.getClientIdentity());
     }
 
 }
 ```
+The `spring-xsuaa` includes a default implementation called [DefaultSpringHttpClientFactory](./src/main/java/com/sap/cloud/security/xsuaa/token/authentication/httpclient/DefaultSpringHttpClientFactory.java) for the `SpringHttpClientFactory`. If you encounter performance issues related to token signature validations or token flows, you may want to create your own implementation using an HttpClient customized for your application's workload. Refer to this [section](#insufficient-performance-for-token-validations-or-token-flows) for instructions on how to achieve this.
 
 ### Setup Security Context for HTTP requests
-Configure the OAuth resource server
+Configure the OAuth Resource Server
 
 ```java
 @Configuration
@@ -111,13 +109,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         // @formatter:off
         http
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-            .authorizeRequests()
-            .requestMatchers("/hello-token/**").hasAuthority("Read") // checks whether it has scope "<xsappId>.Read"
-            .requestMatchers("/actuator/**").authenticated()
-            .anyRequest().denyAll()
-        .and()
+            .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and()
+				.authorizeHttpRequests(authz ->
+						authz.requestMatchers("/hello-token/**").hasAuthority("Read")
+								.requestMatchers("/actuator/**").authenticated()
+                                .anyRequest().denyAll()
+				)
             .oauth2ResourceServer()
             .jwt()
             .jwtAuthenticationConverter(getJwtAuthoritiesConverter());
@@ -126,7 +125,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     Converter<Jwt, AbstractAuthenticationToken> getJwtAuthoritiesConverter() {
         TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
-        converter.setLocalScopeAsAuthorities(true); // not applicable in case of multiple xsuaa bindings!
+        converter.setLocalScopeAsAuthorities(true); // not applicable in case of multiple Xsuaa bindings!
         return converter;
     }
 
@@ -134,7 +133,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 ```
 
 ### Setup Security Context for non-HTTP requests
-In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message / event or you've requested from XSUAA directly:
+In case of non-HTTP requests, you may need to initialize the Spring Security Context with a JWT token you've received from a message / event or you've requested from Xsuaa directly:
 
 ```java
 @Autowired 
@@ -204,7 +203,7 @@ class NotAuthorizedException extends RuntimeException {
 ```
 
 ### Check authorization on method level
-Spring Security supports authorization semantics at the method level. As prerequisite you need to enable global Method Security as explained in [Baeldung tutorial: Introduction to Spring Method Security](https://www.baeldung.com/spring-security-method-security).
+Spring Security supports authorization semantics at the method level. As a prerequisite you need to enable global Method Security as explained in [Baeldung tutorial: Introduction to Spring Method Security](https://www.baeldung.com/spring-security-method-security).
 
 ```java
 @GetMapping("/hello-token")
@@ -217,12 +216,12 @@ public Map<String, String> message() {
 ### [Optional] Audit Logging
 In case you have implemented a central Exception Handler as described with [Baeldung Tutorial: Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring) you may want to emit logs to the audit log service in case of `AccessDeniedException`s.
 
-Alternativly there are also various options provided with `Spring.io`. For example, you can integrate SAP audit log service with Spring Boot Actuator audit framework as described [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-auditing).
+Alternatively, there are also various options provided with `Spring.io`. For example, you can integrate SAP audit log service with Spring Boot Actuator audit framework as described [here](https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-features.html#production-ready-auditing).
 
 
 ## Troubleshooting
 
-In case you face issues, [file an issue on Github](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new)
+In case you face issues, [file an issue on GitHub](https://github.com/SAP/cloud-security-services-integration-library/issues/new/choose)
 and provide these details:
 - security related dependencies, get maven dependency tree with `mvn dependency:tree`
 - [debug logs](#increase-log-level-to-debug)
@@ -241,7 +240,7 @@ logging.level:
   org.springframework.web: DEBUG      # set to ERROR for production setups.
 ```
 
-Then, in case you like to see what different filters are applied to particular request then set the debug flag to true in `@EnableWebSecurity` annotation:
+Then, in case you like to see what kind of filters are applied to a particular request set the debug flag to true in the `@EnableWebSecurity` annotation:
 ```java
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
@@ -250,7 +249,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ```
 
-Finally you need do re-deploy your application for the changes to take effect.
+Finally, you need do re-deploy your application for the changes to take effect.
+
+### Insufficient performance for token validations or token flows
+If you observe performance degradation for token validation or token flows, `HtpClient` configuration should be adjusted according to your platform's requirements, infrastructure, and anticipated load. You should monitor the performance of your `HtpClient` under various loads and adjust these parameters accordingly to achieve optimal performance.
+
+> You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management](https://www.baeldung.com/httpclient-connection-management).<br>
+To adjust the `HtpClient` parameters you will need to provide your own implementation of `HttpClientFactory` interface.
+
+- Create an SPI configuration file with name `com.sap.cloud.security.xsuaa.token.authentication.httpclient.SpringHttpClientFactory` in ``src/main/resources/META-INF/services`` directory
+- Enter the fully qualified name of your `SpringHttpClientFactory` implementation class, e.g. `com.mypackage.CustomSpringHttpClientFactory`
+- The implementation could look like this:
+````java
+public class CustomSpringHttpClientFactory implements SpringHttpClientFactory {
+    public RestTemplate createRestTemplateClient(ClientIdentity clientIdentity) throws HttpClientException {
+        // here comes your implementation
+    }
+}
+````
+:bangbang: For your custom `RestTemplate` always disable redirects :bangbang:
 
 ### Common Pitfalls
 #### Compile error when upgrading from version `1.5.0` to `1.6.0`:  
@@ -258,20 +275,20 @@ Finally you need do re-deploy your application for the changes to take effect.
   java.lang.IllegalStateException: Failed to load ApplicationContext
      Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'springSecurityFilterChain' defined in class path resource [org/springframework/security/config/annotation/web/configuration/WebSecurityConfiguration.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [javax.servlet.Filter]: Factory method 'springSecurityFilterChain' threw exception; nested exception is org.springframework.beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type 'org.springframework.security.oauth2.jwt.JwtDecoder' available
    ```  
-   As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration.
+   As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage autoconfiguration.
    Make use of the Xsuaa Spring Boot Starter dependency as explained [here](README.md#maven-dependencies).     
 
 #### NoUniqueBeanDefinitionException, APPLICATION FAILED TO START
 ```
     Parameter 1 of method xsuaaJwtDecoder in com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration required a single bean, but 2 were found...
 ```
-  In case you use the `xsuaa-spring-boot-starter`, read the [auto-configuration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.
+  In case you use the `xsuaa-spring-boot-starter`, read the [autoconfiguration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.
 
 #### Multiple XSUAA Bindings (broker & application)  
 If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
 
 ```
-IllegalStateException: Found more than one xsuaa bindings. Please consider unified broker plan or use com.sap.cloud.security:spring-security client library.
+IllegalStateException: Found more than one Xsuaa bindings. Please consider unified broker plan or use com.sap.cloud.security:spring-security client library.
 ```
 Or,
 ```
@@ -309,12 +326,12 @@ org.springframework.web.client.ResourceAccessException: I/O error on POST reques
 Find further information [here](/token-client) and [here](#resttemplate--restoperations).
 
 #### Application crashes when no XsuaaTokenFlows could be found
-If you have switched to X.509 credential type and your application crashes during start, then you may need to add a dependency to ``org.apache.httpcomponents:httpclient`` in order to auto-configure a default ``RestOperations`` bean ([XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) ).
+If you have switched to X.509 credential type and your application crashes during start, then you may need to add a dependency to ``org.apache.httpcomponents.client5:httpclient5`` in order to autoconfigure a default ``RestOperations`` bean ([XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) ).
 ```
 Field xsuaaTokenFlows in sample.spring.xsuaa.SecurityConfiguration required a bean of type 'com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows' that could not be found.
 ```   
 #### JWT verification failed ... no suitable HttpMessageConverter found
-In case `RestTemplate` is not configured with an appropriate `HttpMessageConverter` the Jwt signature validator can not handle the token keys (JWK set) response from xsuaa. Consequently the JWT signature can not be validated and it may fail with the following error:
+In case `RestTemplate` is not configured with an appropriate `HttpMessageConverter` the Jwt signature validator can not handle the token keys (JWK set) response from Xsuaa. Consequently, the JWT signature can not be validated and it may fail with the following error:
 
 ```
 JWT verification failed: An error occurred while attempting to decode the Jwt: Couldn't retrieve remote JWK set: org.springframework.web.client.RestClientException: Could not extract response: no suitable HttpMessageConverter found for response type [class java.lang.String] and content type [application/octet-stream]
@@ -328,7 +345,7 @@ In case you use
 </dependency>
 
 ```
-You can configure your xsuaa `RestTemplate` like that, e.g. as part of your `SecurityConfiguration` configuration class:
+You can configure your Xsuaa `RestTemplate` like that, e.g. as part of your `SecurityConfiguration` configuration class:
 ```java
 @Bean
 public RestOperations xsuaaRestOperations() {
@@ -345,8 +362,7 @@ public RestOperations xsuaaRestOperations() {
 
 ## Samples
 - [Sample](/samples/spring-security-xsuaa-usage)    
-demonstrating how to leverage xsuaa and spring security library to secure a Spring Boot web application including token exchange (user, client-credentials, refresh, ...). Furthermore it documents how to implement SpringWebMvcTests using `java-security-test` library.
-- [Basic Auth Sample](/samples/spring-security-basic-auth)  
-demonstrating how a user can access Rest API via basic authentication (user/password).
+demonstrating how to leverage Xsuaa and Spring Security library to secure a Spring Boot web application including token exchange (user, client-credentials, refresh, ...). Furthermore, it documents how to implement SpringWebMvcTests using `java-security-test` library.
+
 
 
