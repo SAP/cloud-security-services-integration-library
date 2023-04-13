@@ -2,14 +2,11 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.environment.servicebinding.api.TypedMapView;
-import com.sap.cloud.environment.servicebinding.api.exception.KeyNotFoundException;
-import com.sap.cloud.environment.servicebinding.api.exception.ValueCastException;
 import com.sap.cloud.security.config.k8s.K8sConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.List;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -51,25 +48,19 @@ public class ServiceBindingMapper {
 
 	/**
 	 * Parses the 'domains' key in the credentials of an IAS configuration and configures the given builder with them if present.
-	 * For backward compatibility, it also accepts single String values instead of String arrays.
-	 * Single String values may also be provided via key 'domain'.
+	 * For backward compatibility, domains may also be provided via key 'domain'.
+	 *
 	 * @param credentials value of JSON key 'credentials' in an IAS service configuration
 	 */
 	private static void parseDomains(OAuth2ServiceConfigurationBuilder builder, TypedMapView credentials) {
 		List<String> domains;
-		try {
-			try {
-				domains = credentials.getListView(DOMAINS).getItems(String.class);
-			} catch (ValueCastException e) {
-				domains = Collections.singletonList(credentials.getString(DOMAINS));
-			}
-		} catch (KeyNotFoundException e) {
-			try {
-				domains = Collections.singletonList(credentials.getString(DOMAIN));
-			} catch (KeyNotFoundException e2) {
-				LOGGER.warn("Neither 'domains' nor 'domain' found in IAS credentials.");
-				return;
-			}
+		if(credentials.getKeys().contains(DOMAINS)) {
+			domains = credentials.getListView(DOMAINS).getItems(String.class);
+		} else if (credentials.getKeys().contains(DOMAIN)) {
+			domains = credentials.getListView(DOMAIN).getItems(String.class);
+		} else {
+			LOGGER.warn("Neither 'domains' nor 'domain' found in IAS credentials.");
+			return;
 		}
 
 		LOGGER.info("Domains {} found in IAS credentials.", domains);

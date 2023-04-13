@@ -22,16 +22,15 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ServiceBindingMapperDomainsTest {
     private static ServiceBinding xsuaaBinding;
-    private static ServiceBinding iasBinding, iasBindingDomainsMissing, iasBindingDomainsAsString, iasBindingDomainAsString;
+    private static ServiceBinding iasBinding, iasBindingDomain, iasBindingDomainsMissing;
     private LogCaptor logCaptor;
 
     @BeforeAll
     static void setupClass() throws IOException {
         xsuaaBinding = readServiceBindingFromJson(Service.XSUAA, "/vcapXsuaaServiceSingleBinding.json");
         iasBinding = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceSingleBinding.json");
+        iasBindingDomain = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceDomain.json");
         iasBindingDomainsMissing = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceDomainsMissing.json");
-        iasBindingDomainsAsString = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceDomainsAsString.json");
-        iasBindingDomainAsString = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceDomainAsString.json");
     }
 
     private static ServiceBinding readServiceBindingFromJson(Service service, String jsonPath) throws IOException {
@@ -61,15 +60,9 @@ class ServiceBindingMapperDomainsTest {
     }
 
     @Test
-    void getIasConfigurationWithDomainsAsString() {
-        OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBindingDomainsAsString).build();
-        assertThat(config.getDomains()).contains("domain1");
-    }
-
-    @Test
-    void getIasConfigurationWithDomainAsString() {
-        OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBindingDomainAsString).build();
-        assertThat(config.getDomains()).contains("domain1");
+    void getIasConfigurationWithDomain() {
+        OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBindingDomain).build();
+        assertThat(config.getDomains()).contains("domain1", "domain2");
     }
 
     @Test

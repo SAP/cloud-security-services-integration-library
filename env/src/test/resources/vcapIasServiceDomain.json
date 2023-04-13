@@ -6,7 +6,7 @@
         "clientsecret": "clientsecret",
         "clientid": "clientid",
         "url": "https://myauth.com",
-        "domain" : "domain1"
+        "domain" : ["domain1", "domain2"]
       },
       "instance_name": "myservice",
       "label": "identity",
