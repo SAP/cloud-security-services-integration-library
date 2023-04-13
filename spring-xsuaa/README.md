@@ -110,13 +110,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         // @formatter:off
         http
             .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and()
-				.authorizeHttpRequests(authz ->
-						authz.requestMatchers("/hello-token/**").hasAuthority("Read")
-								.requestMatchers("/actuator/**").authenticated()
-                                .anyRequest().denyAll()
-				)
+	    	.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	    .and()
+		.authorizeHttpRequests(authz ->
+			authz
+				.requestMatchers("/hello-token/**").hasAuthority("Read")	
+				.requestMatchers("/actuator/**").authenticated()
+		                .anyRequest().denyAll())
             .oauth2ResourceServer()
             .jwt()
             .jwtAuthenticationConverter(getJwtAuthoritiesConverter());
