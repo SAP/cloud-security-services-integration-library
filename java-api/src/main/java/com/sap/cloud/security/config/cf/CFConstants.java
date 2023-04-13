@@ -49,6 +49,10 @@ public class CFConstants {
 		private IAS() {
 		}
 
+		/**
+		 * @deprecated in favor of {@link IAS#DOMAINS}
+		 */
+		public static final String DOMAIN = "domain";
 		public static final String DOMAINS = "domains";
 	}
 
