@@ -3,7 +3,7 @@
 ## :warning: Deprecation Notice
 This library is deprecated and will be removed with the next major release 4.x, do not use it for new projects. Follow the [migration guide](../spring-security/Migration_SpringXsuaaProjects.md) to switch to the successor [spring-security](../spring-security) library.
 
-This library enhances the [spring-security](https://github.com/spring-projects/spring-security/) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. A Spring boot application needs a security configuration class that enables the resource server and configures authentication using JWT tokens.
+This library enhances the [Springframework spring-security](https://github.com/spring-projects/spring-security/) project. As of version 5 of Springframework spring-security, this includes the OAuth resource-server functionality. A Spring Boot application needs a security configuration class that enables the resource server and configures authentication using JWT tokens.
 
 ## Configuration
 
@@ -357,11 +357,11 @@ public RestOperations xsuaaRestOperations() {
 }
 ```
 
-## Additional (test) utilities
+## Test utilities
 - [java-security-test](./java-security-test) offers test utilities to generate custom JWT tokens for the purpose of tests. It pre-configures a [WireMock](http://wiremock.org/docs/getting-started/) web server to stub outgoing calls to the identity service (OAuth resource-server), e.g. to provide token keys for offline token validation. Its use is only intended for JUnit tests.
 
 ## Samples
-- [Sample](/samples/spring-security-xsuaa-usage)    
+- [spring-security-xsuaa-usage](/samples/spring-security-xsuaa-usage)    
 demonstrating how to leverage Xsuaa and Spring Security library to secure a Spring Boot web application including token exchange (user, client-credentials, refresh, ...). Furthermore, it documents how to implement SpringWebMvcTests using `java-security-test` library.
 
 
