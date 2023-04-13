@@ -22,14 +22,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class ServiceBindingMapperDomainsTest {
     private static ServiceBinding xsuaaBinding;
-    private static ServiceBinding iasBinding, iasBindingDomain, iasBindingDomainsMissing;
+    private static ServiceBinding iasBinding, iasBindingSingleDomain, iasBindingDomainsMissing;
     private LogCaptor logCaptor;
 
     @BeforeAll
     static void setupClass() throws IOException {
         xsuaaBinding = readServiceBindingFromJson(Service.XSUAA, "/vcapXsuaaServiceSingleBinding.json");
         iasBinding = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceSingleBinding.json");
-        iasBindingDomain = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceDomain.json");
+        iasBindingSingleDomain = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceSingleDomain.json");
         iasBindingDomainsMissing = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceDomainsMissing.json");
     }
 
@@ -56,13 +56,13 @@ class ServiceBindingMapperDomainsTest {
     @Test
     void getIasConfiguration() {
         OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBinding).build();
-        assertThat(config.getDomains()).contains("myauth.com", "my.auth.com");
+        assertThat(config.getDomains()).containsExactly("myauth.com", "my.auth.com");
     }
 
     @Test
-    void getIasConfigurationWithDomain() {
-        OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBindingDomain).build();
-        assertThat(config.getDomains()).contains("domain1", "domain2");
+    void getIasConfigurationWithSingleDomain() {
+        OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBindingSingleDomain).build();
+        assertThat(config.getDomains()).containsExactly("domain1");
     }
 
     @Test

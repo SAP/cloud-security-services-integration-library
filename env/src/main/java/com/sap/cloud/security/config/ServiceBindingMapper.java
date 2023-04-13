@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 
 import static com.sap.cloud.security.config.Service.IAS;
@@ -57,7 +58,7 @@ public class ServiceBindingMapper {
 		if(credentials.getKeys().contains(DOMAINS)) {
 			domains = credentials.getListView(DOMAINS).getItems(String.class);
 		} else if (credentials.getKeys().contains(DOMAIN)) {
-			domains = credentials.getListView(DOMAIN).getItems(String.class);
+			domains = Collections.singletonList(credentials.getString(DOMAIN));
 		} else {
 			LOGGER.warn("Neither 'domains' nor 'domain' found in IAS credentials.");
 			return;
