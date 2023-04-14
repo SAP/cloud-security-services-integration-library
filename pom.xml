@@ -106,6 +106,12 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!--		To be removed once spring boot updates spring-core dependencies to 5.3.27-->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-expression</artifactId>
+				<version>${spring.core.version}</version>
+			</dependency>
 			<!-- Project BOM -->
 			<dependency>
 				<groupId>com.sap.cloud.security</groupId>
