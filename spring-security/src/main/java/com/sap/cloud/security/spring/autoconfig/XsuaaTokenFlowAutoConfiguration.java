@@ -79,7 +79,6 @@ public class XsuaaTokenFlowAutoConfiguration {
 	@Conditional({ OnSecretCredentialTypeCondition.class, NoClientCertificateCondition.class })
 	@ConditionalOnMissingBean
 	public RestOperations restOperations() {
-		logger.warn("In productive environment provide a well configured client secret based RestOperations bean");
 		return new RestTemplate();
 	}
 
@@ -93,7 +92,6 @@ public class XsuaaTokenFlowAutoConfiguration {
 	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
 	@ConditionalOnMissingBean
 	public RestOperations mtlsRestOperations(XsuaaServiceConfiguration xsuaaConfig) {
-		logger.warn("In productive environment provide a well configured certificate based RestOperations bean");
 		return SpringHttpClient.getInstance().create(xsuaaConfig.getClientIdentity());
 	}
 
