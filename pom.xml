@@ -63,7 +63,7 @@
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.4.24</reactor.version>
-		<log4j2.version>2.19.0</log4j2.version>
+		<log4j2.version>2.20.0</log4j2.version>
 		<slf4j.api.version>1.7.36</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20230227</org.json.version>
 		<sap.cloud.env.servicebinding.version>0.5.2</sap.cloud.env.servicebinding.version>
@@ -71,7 +71,6 @@
 		<caffeine.version>2.9.3</caffeine.version>
 		<commons.io.version>2.11.0</commons.io.version>
 		<javax.servlet.api.version>4.0.1</javax.servlet.api.version>
-		<junit.version>4.13.2</junit.version>
 		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>5.9.2</junit-jupiter.version>
 		<maven-surefire-plugin>3.0.0</maven-surefire-plugin>
@@ -382,7 +381,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>8.1.2</version>
+							<version>8.2.1</version>
 							<executions>
 								<execution>
 									<goals>
@@ -428,7 +427,7 @@
 						<plugin>
 							<groupId>net.revelc.code</groupId>
 							<artifactId>impsort-maven-plugin</artifactId>
-							<version>1.6.2</version>
+							<version>1.8.0</version>
 							<configuration>
 								<groups>java.,javax.,org.,com.</groups>
 								<staticGroups>java,*</staticGroups>
