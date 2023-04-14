@@ -252,10 +252,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 Finally, you need do re-deploy your application for the changes to take effect.
 
 ### Insufficient performance for token validations or token flows
-If you observe performance degradation for token validation or token flows, `HtpClient` configuration should be adjusted according to your platform's requirements, infrastructure, and anticipated load. You should monitor the performance of your `HtpClient` under various loads and adjust these parameters accordingly to achieve optimal performance.
+If you observe performance degradation for token validation or token flows, `HttpClient` configuration should be adjusted according to your platform's requirements, infrastructure, and anticipated load. You should monitor the performance of your `HttpClient` under various loads and adjust these parameters accordingly to achieve optimal performance.
 
 > You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management](https://www.baeldung.com/httpclient-connection-management).<br>
-To adjust the `HtpClient` parameters you will need to provide your own implementation of `HttpClientFactory` interface.
+To adjust the `HttpClient` parameters you will need to provide your own implementation of `SpringHttpClientFactory` interface.
 
 - Create an SPI configuration file with name `com.sap.cloud.security.xsuaa.token.authentication.httpclient.SpringHttpClientFactory` in ``src/main/resources/META-INF/services`` directory
 - Enter the fully qualified name of your `SpringHttpClientFactory` implementation class, e.g. `com.mypackage.CustomSpringHttpClientFactory`
