@@ -328,20 +328,6 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 
 
 ### Common Pitfalls
-
-In case you like to overwrite [`DefaultHttpClientFactory`](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you can register your own implementation of `HttpClientFactory` interface as following:
-
-- Create an SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.  
-- Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.
-- The implementation could look like:  
-````java
-public class DefaultHttpClientFactory implements HttpClientFactory {
-
-    public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
-        // here comes your implementation
-    }
-}
-````
 #### This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library
 If you have classpath related  issues involving JSON you should take a look at the
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
