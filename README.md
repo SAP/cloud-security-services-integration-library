@@ -1,5 +1,5 @@
 [![REUSE status](https://api.reuse.software/badge/github.com/SAP/cloud-security-xsuaa-integration)](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration)
-[![Java CI with Maven](https://github.com/SAP/cloud-security-services-integration-library/actions/workflows/maven.yml/badge.svg)](https://github.com/SAP/cloud-security-services-integration-library/actions/workflows/maven-build-2.x.yml)
+[![Maven Build main-2.x](https://github.com/SAP/cloud-security-services-integration-library/actions/workflows/maven-build-2.x.yml/badge.svg)](https://github.com/SAP/cloud-security-services-integration-library/actions/workflows/maven-build-2.x.yml)
 [![Fosstars security rating](https://raw.githubusercontent.com/SAP/cloud-security-services-integration-library/fosstars-report/fosstars_badge.svg)](https://github.com/SAP/cloud-security-services-integration-library/blob/fosstars-report/fosstars_report.md)
 [![CodeQL](https://github.com/SAP/cloud-security-services-integration-library/workflows/CodeQL/badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/actions?query=workflow%3ACodeQL)
 
