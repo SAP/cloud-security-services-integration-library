@@ -220,7 +220,7 @@ To utilize an **externally managed certificate** in
 `HttpClientFactory` creates an HTTP client that will make the requests to the corresponding Identity service.
 
 #### Autoconfigured tokenFlowHttpClient
-When using `spring-security` client library, a readily configured `CloseableHttpClient` is accessible via `tokenFlowHttpClient` Bean that uses the `HttpClientFactory` internally to set up the HTTP Client for token flows.
+When using `resourceserver-security-spring-boot-starter` Spring Boot Starter client library, a readily configured `CloseableHttpClient` is accessible via `tokenFlowHttpClient` Bean that uses the `HttpClientFactory` internally to set up the HTTP Client for token flows.
 
 #### Default HttpClientFactory
 The Token Client library includes a default implementation [DefaultHttpClientFactory](./src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java), of the [HttpClientFactory](./src/main/java/com/sap/cloud/security/client/HttpClientFactory.java) interface. 
@@ -245,7 +245,7 @@ For more information, refer to the [Troubleshooting](#insufficient-performance-f
 
 By default, the `OAuth2TokenService` implementations (`DefaultOAuth2TokenService` and `XsuaaOAuth2TokenService`) are caching tokens internally.
 By default up to 1000 tokens are cached for 10 minutes and the statistics are disabled.
-The Cache can be individually configured by configuring `TokenCacheConfiguration` class and providing it as a constructor parameter to `DefaultOAuth2TokenService` or `XsuaaOAuth2TokenService`.
+The Cache can be individually configured by configuring `TokenCacheConfiguration` class. `XsuaaTokenFlows` need to be then initialized with the `DefaultOAuth2TokenService` or `XsuaaOAuth2TokenService` that takes `TokenCacheConfiguration` as a constructor parameter.
 
 #### Cache configuration options:
 ```java
@@ -255,11 +255,13 @@ TokenCacheConfiguration tokenCache = TokenCacheConfiguration.getInstance(
                 Duration tokenExpirationDelta,
 		boolean cacheStatisticsEnabled);
 OAuth2TokenService tokenService = new DefaultOAuth2TokenService(CloseableHttpClient, tokenCache);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
 ```
 #### Disable Cache
 The cache can be disabled by using the `TokenCacheConfiguration.cacheDisabled()` configuration as follows:
 ```java
 OAuth2TokenService tokenService = new DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration.cacheDisabled());
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
 ```
 :exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService` implementation or to the `XsuaaTokenFlows`.
 
