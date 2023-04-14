@@ -53,11 +53,11 @@ These (spring) dependencies need to be provided:
 </dependency>
 ```
 
-### Auto-configuration
+### Autoconfiguration
 As autoconfiguration requires Spring Boot specific dependencies, autoconfiguration is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
 Then Xsuaa integration libraries autoconfigures beans, that are required to initialize the Spring Boot application as OAuth resource server.
 
-| Auto-configuration class                                                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Autoconfiguration class                                                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
  | [XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java)                                   | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.xsappname` e.g. for testing purposes. Furthermore, it exposes an `XsuaaServiceConfiguration` bean that can be used to access Xsuaa service information.  Alternatively, you can access them with `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`. |
  | [XsuaaResourceServerJwkAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaResourceServerJwkAutoConfiguration.java) | Configures a `JwtDecoder` bean with a JWK (JSON Web Keys) endpoint from where to download the tenant (subdomain) specific public key.                                                                                                                                                                                                                                                                                                                                 |
@@ -69,7 +69,7 @@ You can gradually replace autoconfigurations as explained [here](https://docs.sp
 
 Please note, in case your application exposes already one or more Spring beans of type `RestOperations` (or its subclasses such as `RestTemplate`), `XsuaaAutoConfiguration` will not create a bean, but reuse the existing one. 
 
-In case there are multiple ones the auto-configurations do not know, which `RestOperations` bean to select. In this case you can annotate the preferred `RestOperations` bean with `@Primary`.
+In case there are multiple ones the autoconfigurations do not know, which `RestOperations` bean to select. In this case you can annotate the preferred `RestOperations` bean with `@Primary`.
 
 In case you do not want to use the `RestOperations` bean, that is specified in your Spring application context but still like to leverage the autoconfiguration of `spring-xsuaa` you can also provide a dedicated bean with name `xsuaaRestOperations`:
 
@@ -235,7 +235,7 @@ First, configure the Debug log level for Spring Framework Web and all Security r
 ```yaml
 logging.level:
   com.sap: DEBUG                      # set SAP-class loggers to DEBUG. Set to ERROR for production setups.
-  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met.
+  org.springframework: ERROR          # set to DEBUG to see all beans loaded and autoconfig conditions met.
   org.springframework.security: DEBUG # set to ERROR for production setups. 
   org.springframework.web: DEBUG      # set to ERROR for production setups.
 ```
@@ -282,7 +282,7 @@ public class CustomSpringHttpClientFactory implements SpringHttpClientFactory {
 ```
     Parameter 1 of method xsuaaJwtDecoder in com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration required a single bean, but 2 were found...
 ```
-  In case you use the `xsuaa-spring-boot-starter`, read the [autoconfiguration](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-xsuaa#auto-configuration) section.
+  In case you use the `xsuaa-spring-boot-starter`, read the [autoconfiguration](#autoconfiguration) section.
 
 #### Multiple XSUAA Bindings (broker & application)  
 If your application is bound to two XSUAA service instances (one of plan `application` and another one of plan `broker`), you run into the following issue:
