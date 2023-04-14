@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.13.9
+Patches [CVE-2023-20863](https://nvd.nist.gov/vuln/detail/CVE-2023-20863)
+- [env]
+  - for backward compatibility `domain` is also supported along with the `domains` attribute for Identity service configuration #1153
+- [token-client]
+  - warning messages has been removed when using `DefaultHttpClientFactory`, HTTP client settings have been updated see [README](./token-client/README.md#httpclientfactory) for more information
+  - `UserTokenFlow` is deprecated, use [jwtBearerTokenFlow](./token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/JwtBearerTokenFlow.java) instead #1135
+
+#### Dependency upgrades
+* Bump spring.core.version from 5.3.26 to 5.3.27
+* Bump log4j2.version from 2.19.0 to 2.20.0
+
 ## 2.13.8
 - [spring-xsuaa]  
   - Synchronizes `XsuaaJwtDecoder` cache configuration with internal `NimbusJwtDecoder` cache
