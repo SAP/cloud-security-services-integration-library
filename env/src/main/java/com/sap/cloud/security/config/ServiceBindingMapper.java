@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.List;
 
 import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 
@@ -33,17 +35,36 @@ public class ServiceBindingMapper {
 			return null;
 		}
 
+		TypedMapView credentials = TypedMapView.ofCredentials(b);
 		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
-				.withProperties(TypedMapView.ofCredentials(b).getEntries(String.class))
-				.withProperty(SERVICE_PLAN,
-						b.getServicePlan().orElse(K8sConstants.Plan.APPLICATION.name()).toUpperCase());
+				.withProperties(credentials.getEntries(String.class))
+				.withProperty(SERVICE_PLAN, b.getServicePlan().orElse(K8sConstants.Plan.APPLICATION.name()).toUpperCase());
 
 		if (IAS.equals(service)) {
-			List<String> domains = TypedMapView.ofCredentials(b).getListView(DOMAINS).getItems(String.class);
-			LOGGER.info("first domain : {}", domains.get(0));
-			builder.withDomains(domains.toArray(new String[] {}));
+			parseDomains(builder, credentials);
 		}
 
 		return builder;
+	}
+
+	/**
+	 * Parses the 'domains' key in the credentials of an IAS configuration and configures the given builder with them if present.
+	 * For backward compatibility, domains may also be provided via key 'domain'.
+	 *
+	 * @param credentials value of JSON key 'credentials' in an IAS service configuration
+	 */
+	private static void parseDomains(OAuth2ServiceConfigurationBuilder builder, TypedMapView credentials) {
+		List<String> domains;
+		if(credentials.getKeys().contains(DOMAINS)) {
+			domains = credentials.getListView(DOMAINS).getItems(String.class);
+		} else if (credentials.getKeys().contains(DOMAIN)) {
+			domains = Collections.singletonList(credentials.getString(DOMAIN));
+		} else {
+			LOGGER.warn("Neither 'domains' nor 'domain' found in IAS credentials.");
+			return;
+		}
+
+		LOGGER.info("Domains {} found in IAS credentials.", domains);
+		builder.withDomains(domains.toArray(new String[]{}));
 	}
 }
