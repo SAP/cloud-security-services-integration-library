@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 - `cloud-security-xsuaa-integration` library requires JDK 17
 
 ### Breaking Changes
+* IAS configurations need to provide domains via String array in JSON key 'identity.credentials.domains'. Providing String values under key 'identity.credentials.domain' is not supported anymore. IAS configurations from service bindings have been generated like this for a long time already. This should only affect old configuration files manually written for testing.
+
 #### Removed modules
 * `spring-xsuaa-mock` &rarr; use [java-security-test](./java-security-test) instead
 
