@@ -54,7 +54,7 @@ cf push --vars-file ../vars.yml
    :bulb: If you call the same endpoint without `Authorization` header you should get a `401`.
 
 ## Clean-Up
-Finally delete your application and your service instances using the following commands:
+Finally, delete your application and your service instances using the following commands:
 ```
 cf us java-security-usage-ias ias-java-security
 cf delete -f java-security-usage-ias
