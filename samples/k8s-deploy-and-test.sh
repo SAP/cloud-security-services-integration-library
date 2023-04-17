@@ -60,13 +60,13 @@ prepare_image() {
 
 #prepare deployment file and deploy the app, first argument is sample name
 deploy_app() {
-  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-repo-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
+  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
   sleep 20
 }
 
 #delete the deployed app, first argument is sample name
 delete_deployment() {
-  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-repo-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl delete -f - -n "$NAMESPACE"
+  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl delete -f - -n "$NAMESPACE"
   sleep 7
 }
 
@@ -174,9 +174,10 @@ for sample in "${SAMPLES[@]}"; do
   prepare_image "$sample"
   deploy_app "$sample"
 
-  bindings=($(awk '/serviceBindingRef/{getline;print $2}' ./k8s/deployment.yml))
+  readarray -t bindings <<<  $(awk '/^kind: ServiceBinding/{flag=1; next} flag && /name:/ {print $2; flag=0}'  ./k8s/deployment.yml)
 
-  host=$(kubectl get virtualservices -n "$NAMESPACE" -o jsonpath='{.items[*].spec.hosts[0]}')
+  host=$(kubectl get virtualservices -n "$NAMESPACE" -o jsonpath='{.items[*].spec.hosts[0]}' | tr ' ' '\n' | grep "^${sample%-usage}")
+
   serviceConfig[clientid]=$(kubectl get secret "${bindings[0]}" -o jsonpath='{.data.clientid}' -n "$NAMESPACE" | base64 --decode)
   serviceConfig[clientsecret]=$(kubectl get secret "${bindings[0]}" -o jsonpath='{.data.clientsecret}' -n "$NAMESPACE" | base64 --decode)
   serviceConfig[url]=$(kubectl get secret "${bindings[0]}" -o jsonpath='{.data.url}' -n "$NAMESPACE" | base64 --decode)
@@ -211,7 +212,7 @@ for sample in "${SAMPLES[@]}"; do
   "spring-security-basic-auth")
     resultList[0]=$(execute_test "$host" "hello-token" 401)
 
-    credentials=$(echo  "$USER:$PASSWORD" | base64)
+    credentials=$(echo -n "$USER:$PASSWORD" | base64)
     resultList[1]=$(execute_test "$host" "hello-token" 403 "Basic $credentials")
 
     add_user_to_role "$(declare -p serviceConfig)" BASIC_AUTH_API_Viewer
