@@ -643,7 +643,7 @@ class IasAccess:
 
     @staticmethod
     def __extract_json_values(output, key):
-        return output.get(key)
+        return output.get("credentials").get(key)
 
     def __create_ias_service(self):
         logging.info("Creating IAS service '{}'".format(self.ias_service_name))
