@@ -29,15 +29,12 @@ public class HelloJavaServlet extends HttpServlet {
 		// same like SecurityContext.getToken() but more XSUAA specific methods
 		AccessToken token = SecurityContext.getAccessToken();
 		try {
-			StringBuilder message = new StringBuilder();
-			message.append("You ('");
-			message.append(token.getClaimAsString(TokenClaims.EMAIL));
-			message.append("') can access the application with the following scopes: '");
-			message.append(token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
-			message.append("'. ");
-			// for authorization check you need the AccessToken interface (instead of Token)
-			message.append("Having scope '$XSAPPNAME.Read'? " + token.hasLocalScope("Read"));
-			response.getWriter().write(message.toString());
+			String message = "You ('" + token.getClaimAsString(TokenClaims.EMAIL) +
+					"') can access the application with the following scopes: '" +
+					token.getClaimAsStringList(TokenClaims.XSUAA.SCOPES) + "'. " +
+					// for authorization check you need the AccessToken interface (instead of Token)
+					"Having scope '$XSAPPNAME.Read'? " + token.hasLocalScope("Read");
+			response.getWriter().write(message);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} catch (final IOException e) {
 			LOGGER.error("Failed to write error response: {}.", e.getMessage(), e);
