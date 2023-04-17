@@ -244,9 +244,9 @@
         }
       }
     },
-    "value" : 6.655473860261093,
+    "value" : 6.646690445094699,
     "weight" : 1.0,
-    "confidence" : 9.645390070921986,
+    "confidence" : 10.0,
     "usedValues" : [ {
       "type" : "ScoreValue",
       "score" : {
@@ -482,7 +482,7 @@
         "type" : "ProjectActivityScore",
         "name" : "Open-source project activity score"
       },
-      "value" : 8.461538461538462,
+      "value" : 8.292307692307693,
       "weight" : 0.5,
       "confidence" : 10.0,
       "usedValues" : [ {
@@ -491,7 +491,7 @@
           "type" : "PositiveIntegerFeature",
           "name" : "Number of commits in the last three months"
         },
-        "number" : 50,
+        "number" : 49,
         "explanation" : [ ]
       }, {
         "type" : "IntegerValue",
@@ -502,7 +502,7 @@
         "number" : 3,
         "explanation" : [ ]
       } ],
-      "explanation" : [ "50 commits in the last 3 months results to 7.69 points", "3 contributors increase the score value from 7.69 to 8.46" ],
+      "explanation" : [ "49 commits in the last 3 months results to 7.54 points", "3 contributors increase the score value from 7.54 to 8.29" ],
       "isUnknown" : false,
       "isNotApplicable" : false,
       "feature" : {
@@ -2445,9 +2445,9 @@
         "type" : "ProjectPopularityScore",
         "name" : "Open-source project popularity score"
       },
-      "value" : 0.175,
+      "value" : 0.26166666666666666,
       "weight" : 0.5,
-      "confidence" : 6.666666666666667,
+      "confidence" : 10.0,
       "usedValues" : [ {
         "type" : "IntegerValue",
         "feature" : {
@@ -2465,11 +2465,12 @@
         "number" : 15,
         "explanation" : [ ]
       }, {
-        "type" : "UnknownValue",
+        "type" : "IntegerValue",
         "feature" : {
           "type" : "PositiveIntegerFeature",
           "name" : "Number of projects on GitHub that use an open source project"
         },
+        "number" : 130,
         "explanation" : [ ]
       } ],
       "explanation" : [ ],
