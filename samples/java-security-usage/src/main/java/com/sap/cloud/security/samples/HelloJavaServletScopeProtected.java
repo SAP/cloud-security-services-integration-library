@@ -6,14 +6,12 @@
 package com.sap.cloud.security.samples;
 
 import com.sap.cloud.security.token.SecurityContext;
-import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebServlet(HelloJavaServletScopeProtected.ENDPOINT)
 public class HelloJavaServletScopeProtected extends HttpServlet {
 	static final String ENDPOINT = "/hello-java-security-authz";
 
