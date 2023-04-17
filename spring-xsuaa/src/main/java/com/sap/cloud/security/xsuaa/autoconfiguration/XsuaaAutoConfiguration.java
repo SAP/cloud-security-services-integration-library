@@ -86,7 +86,6 @@ public class XsuaaAutoConfiguration {
 	@ConditionalOnMissingBean
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaRestOperations() {
-		LOGGER.warn("In productive environment provide a well configured client secret based RestOperations bean");
 		return new RestTemplate();
 	}
 
@@ -101,7 +100,6 @@ public class XsuaaAutoConfiguration {
 	@ConditionalOnClass(name = "org.apache.hc.client5.http.impl.classic.CloseableHttpClient")
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		LOGGER.warn("In productive environment provide a well configured certificate based RestOperations bean");
 		return SpringHttpClientFactory.createRestTemplate(xsuaaServiceConfiguration.getClientIdentity());
 	}
 

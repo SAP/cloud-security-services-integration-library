@@ -19,8 +19,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests multiple bindings which is not supported by {@link com.sap.cloud.security.config.cf.VcapServicesParser}
- * and {@link com.sap.cloud.security.test.SecurityTest}.
+ * Tests validation with multiple bindings present which is not supported by {@link com.sap.cloud.security.test.SecurityTest}.
  */
 public class XsuaaMultipleBindingsIntegrationTest {
 
