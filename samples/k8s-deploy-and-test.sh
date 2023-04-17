@@ -212,7 +212,7 @@ for sample in "${SAMPLES[@]}"; do
   "spring-security-basic-auth")
     resultList[0]=$(execute_test "$host" "fetchToken" 401)
 
-    credentials=$(echo  "$USER:$PASSWORD" | base64)
+    credentials=$(echo -n "$USER:$PASSWORD" | base64)
     resultList[1]=$(execute_test "$host" "fetchToken" 403 "Basic $credentials")
 
     add_user_to_role "$(declare -p serviceConfig)" BASIC_AUTH_API_Viewer
