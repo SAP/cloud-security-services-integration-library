@@ -9,7 +9,10 @@
 #   - In case they are missing you will prompted to enter these values at the runtime.
 # The user and password to execute the test with can be provided as environment variables 'USER' and 'PASSWORD' - export USER=myUser export PASSWORD=myPassword.
 #   - In case environment variables are not provided you will be prompted to enter username and password at the runtime.
-# API access credentials need to be provided as the following environment variables: 'API_CLIENTID', 'API_CLIENTSECRET' and 'USER_ID' is the xsuaa ID of the test user
+# API access credentials need to be provided as the following environment variables: 'API_CLIENTID', 'API_CLIENTSECRET' and 'USER_ID'.
+# USER_ID is the xsuaa ID of the test user (it can be found in the BTP cockpit Security->Users->Test User-> ID ).
+# Note: For API access, xsuaa instance with the plan apiaccess need to be created in the same subaccount,
+# but not necessarily in the k8s environment.
 #-------------------------------------------------
 # Required libs jq -> if missing brew install jq
 
@@ -202,12 +205,12 @@ for sample in "${SAMPLES[@]}"; do
     resultList[1]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 401)
 
     token=$(get_token "$(declare -p serviceConfig)")
-    resultList[2]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 403 "Bearer $token")
+    resultList[2]=$(execute_test "$host" "java-security-usage/hello-java-security" 200 "Bearer $token")
+    resultList[3]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 403 "Bearer $token")
 
     add_user_to_role "$(declare -p serviceConfig)" JAVA_SECURITY_SAMPLE_Viewer
     token=$(get_token "$(declare -p serviceConfig)")
-    resultList[3]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 200 "Bearer $token")
-    resultList[4]=$(execute_test "$host" "java-security-usage/hello-java-security" 200 "Bearer $token")
+    resultList[4]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 200 "Bearer $token")
     ;;
   "spring-security-basic-auth")
     resultList[0]=$(execute_test "$host" "fetchToken" 401)
