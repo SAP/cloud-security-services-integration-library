@@ -14,7 +14,8 @@
 # Note: For API access, xsuaa instance with the plan apiaccess need to be created in the same subaccount,
 # but not necessarily in the k8s environment.
 #-------------------------------------------------
-# Required libs jq -> if missing brew install jq
+# Required BASH 5.x or higher
+# libs: jq -> if missing brew install jq
 
 # Colors
 RED='\033[0;31m'
@@ -64,7 +65,7 @@ prepare_image() {
 #prepare deployment file and deploy the app, first argument is sample name
 deploy_app() {
   sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
-  sleep 20
+  sleep 30
 }
 
 #delete the deployed app, first argument is sample name
