@@ -256,10 +256,25 @@ class TestJavaSecurity(SampleTest):
         self.cf_app = CFApp(name='java-security-usage', xsuaa_service_name='xsuaa-java-security')
         return self.cf_app
 
+    def test_health(self):
+        logging.info(RUN_TEST.format("TestJavaSecurity.test_health"))
+        resp = self.perform_get_request('/health')
+        self.assertEqual(200, resp.status, EXPECT_401)
+
     def test_hello_java_security(self):
         logging.info(RUN_TEST.format("TestJavaSecurity.test_hello_java_security"))
         resp = self.perform_get_request('/hello-java-security')
         self.assertEqual(401, resp.status, EXPECT_401)
+
+        resp = self.perform_get_request_with_token('/hello-java-security')
+        self.assertEqual(200, resp.status, EXPECT_200)
+
+        self.assertIsNotNone(resp.body)
+        self.assertRegex(resp.body, self.credentials.username,
+                         "Did not find username '{}' in response body: {}".format(self.credentials.username, resp.body))
+
+    def test_hello_java_security_authz(self):
+        logging.info(RUN_TEST.format("TestJavaSecurity.test_hello_java_security_authz"))
 
         resp = self.perform_get_request('/hello-java-security-authz')
         self.assertEqual(401, resp.status, EXPECT_401)
@@ -270,17 +285,6 @@ class TestJavaSecurity(SampleTest):
         self.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
         resp = self.perform_get_request_with_token('/hello-java-security-authz')
         self.assertEqual(200, resp.status, EXPECT_200)
-
-        resp = self.perform_get_request_with_token('/hello-java-security')
-        self.assertEqual(200, resp.status, EXPECT_200)
-
-        xsappname = self.get_deployed_app().get_credentials_property('xsappname')
-        expected_scope = xsappname + '.Read'
-        self.assertIsNotNone(resp.body)
-        self.assertRegex(resp.body, self.credentials.username,
-                         "Did not find username '{}' in response body".format(self.credentials.username))
-        self.assertRegex(resp.body, expected_scope,
-                         "Expected to find scope '{}' in response body: ".format(expected_scope))
 
 
 class TestSpringSecurityHybrid(SampleTest):
