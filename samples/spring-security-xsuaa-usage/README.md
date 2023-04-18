@@ -75,7 +75,7 @@ cf logs approuter-spring-security-xsuaa-usage --recent
 
 ## Clean-Up
 
-Finally delete your application and your service instances using the following commands:
+Finally, delete your application and your service instances using the following commands:
 ```
 cf delete -f spring-security-xsuaa-usage
 cf delete -f approuter-spring-security-xsuaa-usage
