@@ -259,7 +259,7 @@ class TestJavaSecurity(SampleTest):
     def test_health(self):
         logging.info(RUN_TEST.format("TestJavaSecurity.test_health"))
         resp = self.perform_get_request('/health')
-        self.assertEqual(200, resp.status, EXPECT_401)
+        self.assertEqual(200, resp.status, EXPECT_200)
 
     def test_hello_java_security(self):
         logging.info(RUN_TEST.format("TestJavaSecurity.test_hello_java_security"))
