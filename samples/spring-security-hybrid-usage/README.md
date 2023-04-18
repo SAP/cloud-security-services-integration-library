@@ -2,13 +2,13 @@
 This sample is a Spring Boot application that utilizes the `spring-security` client library to authenticate JWT tokens issued by either the `xsuaa` service or the `identity` service. 
 The `xsuaa` service generates an access token, while the `identity` service produces an OIDC token. 
 The tokens differ in the details they provide through token claims. In both instances, 
-the validated token is accessible as a [`Token`](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the Spring`org.springframework.security.core.context.SecurityContextHolder`.
+the validated token is accessible as a [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the Spring`org.springframework.security.core.context.SecurityContextHolder`.
 
 Additionally, this sample showcases the use of the `CorrelationIdFilter`, which appends a correlation_id to the MDC context. 
 This is then used to augment subsequent/outgoing requests with an `X-CorrelationID` header. 
 For more information about the logging filter library employed, please visit [this link](https://github.com/SAP/cf-java-logging-support/wiki/Instrumenting-Servlets).
 
-Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) or [Cloud Foundry](#Deployment-on-Cloud-Foundry).
+Follow the deployment steps for [Kyma/Kubernetes](#deployment-on-kymakubernetes) or [Cloud Foundry](#deployment-on-cloud-foundry).
 
 # Deployment on Kyma/Kubernetes
 <details>
