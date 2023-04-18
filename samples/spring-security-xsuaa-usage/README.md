@@ -1,11 +1,11 @@
+## :warning: Deprecation Notice
+This Sample is deprecated and will be removed with the next major release 4.x See [Migration guide](/spring-security/Migration_SpringXsuaaProjects.md) and use [spring-security-hybrid-usage](../spring-security-hybrid-usage) sample instead.
+
 # Description
-This sample uses the SAP application router as OAuth client and forwards as reverse proxy the requests to a Java Spring back-end application running on Cloud Foundry.
+This sample is a Spring Boot application that utilizes the [`spring-xsuaa`](/spring-xsuaa/) client library uses the SAP application router as OAuth client and forwards as reverse proxy the requests to a Java Spring back-end application.
 In a typical UI5 application, the application router serves HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
-# Coding
-This sample is using the [`spring-xsuaa`](/spring-xsuaa/) library which bases on [spring-security](https://github.com/spring-projects/spring-security) project. As of version 5 of spring-security, this includes the OAuth resource-server functionality. The security configuration needs to configure JWT for authentication.
-
-Furthermore, it demonstrates how to leverage the token flows provided by the [Token Client](/token-client/) library to request / exchange access tokens.
+Furthermore, it demonstrates how to leverage the token flows provided by the [Token Client](/token-client/) library to request exchange access tokens.
 
 # Deployment To Cloud Foundry
 To deploy the application, the following steps are required:
