@@ -59,7 +59,7 @@
 		<!-- make sure that spring core and spring boot versions are compatible-->
 		<spring.boot.version>3.0.5</spring.boot.version>
 		<spring.core.version>6.0.8</spring.core.version>
-		<spring.security.version>6.0.2</spring.security.version>
+		<spring.security.version>6.0.3</spring.security.version>
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.5.5</reactor.version>
@@ -106,6 +106,12 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!--		To be removed once spring boot updates spring-core dependencies to 6.0.8-->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-expression</artifactId>
+				<version>${spring.core.version}</version>
+			</dependency>
 			<!-- Project BOM -->
 			<dependency>
 				<groupId>com.sap.cloud.security</groupId>

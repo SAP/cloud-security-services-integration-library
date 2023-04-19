@@ -6,9 +6,12 @@
 package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
+import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.VcapServicesParser;
+import com.sap.cloud.security.config.ServiceBindingMapper;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.api.ServiceMockConfiguration;
@@ -162,10 +165,33 @@ public class SecurityTest
 	@Override
 	public OAuth2ServiceConfigurationBuilder getOAuth2ServiceConfigurationBuilderFromFile(
 			String configurationResourceName) {
-		return VcapServicesParser.fromFile(configurationResourceName)
-				.getConfigurationBuilder()
-				.withDomains(URI.create(issuerUrl).getHost())
-				.withUrl(issuerUrl);
+		String vcapJson;
+		try {
+			vcapJson = IOUtils.resourceToString(configurationResourceName, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Error reading configuration file: " + e.getMessage());
+		}
+
+		List<ServiceBinding> serviceBindings = new SapVcapServicesServiceBindingAccessor(any -> vcapJson)
+				.getServiceBindings().stream()
+				// extract only service bindings for supported OAuth2 services from JSON
+				.filter(b -> b.getServiceName().isPresent() && Service.from(b.getServiceName().get()) != null)
+				.limit(2)
+				.toList();
+
+		if (serviceBindings.isEmpty()) {
+			throw new JsonParsingException("No supported binding found in VCAP_SERVICES!");
+		} else if (serviceBindings.size() > 1) {
+			LOGGER.warn("More than one OAuth2 service binding found in resource. Using configuration of first one!");
+		}
+
+		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(serviceBindings.get(0));
+		if(builder != null) {
+			// adjust domain and URL of the config to fit the mocked service instance
+			builder = builder.withDomains(URI.create(issuerUrl).getHost()).withUrl(issuerUrl);
+		}
+
+		return builder;
 	}
 
 	@Override

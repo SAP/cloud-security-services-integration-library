@@ -48,14 +48,10 @@ These (spring) dependencies needs to be provided:
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
     <version>3.0.0</version>
 </dependency>
-<dependency>
-    <groupId>org.apache.httpcomponents.client5</groupId>
-    <artifactId>httpclient5</artifactId>
-</dependency>
 ```
 
 #### Auto-configuration
-As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
+As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `resourceserver-security-spring-boot-starter` Spring Boot Starter. 
 Then it auto-configures beans, that are required to initialize the Spring Boot application as OAuth resource server.
 
 | Auto-configuration class                                                                                                                                         | Descriptio                                                                                                                                                                                                                                                                                                                                                                                                                                 |

@@ -1,0 +1,20 @@
+{
+  "identity": [
+    {
+      "binding_name": null,
+      "credentials": {
+        "clientsecret": "clientsecret",
+        "clientid": "clientid",
+        "url": "https://myauth.com"
+      },
+      "instance_name": "myservice",
+      "label": "identity",
+      "name": "myservice",
+      "plan": "application",
+      "provider": null,
+      "syslog_drain_url": null,
+      "tags": [],
+      "volume_mounts": []
+    }
+  ]
+}
