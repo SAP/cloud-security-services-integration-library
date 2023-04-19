@@ -412,7 +412,7 @@ class TestSpringXsuaaNonMtls(SampleTest):
         self.assertEqual(200, resp.status, EXPECT_200)
         resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
         self.assertEqual(200, resp.status, EXPECT_200)
-        resp = self.perform_get_request_with_token('/v3/requestUserToken')
+        resp = self.perform_get_request_with_token('/v3/requestJwtBearerToken')
         self.assertEqual(200, resp.status, EXPECT_200)
         token = self.get_token()
         path_with_refresh_token = '/v3/requestRefreshToken/' + token.get('refresh_token')
