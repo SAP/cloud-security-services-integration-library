@@ -682,8 +682,7 @@ class IasAccess:
     def __get_ias_service_key(self):
         logging.info("Fetching service-key '{}' for '{}' IAS service"
                      .format(self.ias_service_name, self.ias_service_key_name))
-        service_key_output = subprocess.run(
-            ['cf', 'service-key', self.ias_service_name, self.ias_service_key_name], capture_output=True)
+        service_key_output = self.wait_service_key_created()
         lines = service_key_output.stdout.decode().split('\n')
         if lines is not None:
             json_output = json.loads(''.join(lines[1:]))
@@ -692,6 +691,21 @@ class IasAccess:
             self.ias_service_url = self.__extract_json_values(json_output, 'url')
             self.ias_certificate = self.__extract_json_values(json_output, 'certificate')
             self.ias_key = self.__extract_json_values(json_output, 'key')
+
+    def wait_service_key_created(self):
+        service_key_output = subprocess.run(
+            ['cf', 'service-key', self.ias_service_name, self.ias_service_key_name], capture_output=True)
+        timer = 0
+        while "FAILED" in service_key_output.stdout.decode() and timer < 70:
+            time.sleep(7)
+            timer += 7
+            logging.info("{} waiting for {}s".format(service_key_output.stdout.decode(), timer))
+            service_key_output = subprocess.run(
+                ['cf', 'service-key', self.ias_service_name, self.ias_service_key_name], capture_output=True)
+        if "FAILED" in service_key_output.stdout.decode():
+            logging.error("Couldn't create a service-key, service key creation timed out after {}s".format(timer))
+            return None
+        return service_key_output
 
     def fetch_ias_token(self, user):
         logging.info("Fetching IAS token for '{}' IAS service".format(self.ias_service_name))
