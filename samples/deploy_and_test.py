@@ -333,7 +333,7 @@ class TestJavaSecurityIas(SampleTest):
         self.assertRegex(resp.body, "are authenticated and can access the application.")
 
 
-class TestSpringSecurity(SampleTest):
+class TestSpringXsuaa(SampleTest):
 
     def get_app(self):
         logging.info(RUN_TESTS.format("SpringSecurityUsageMtls"))
@@ -395,7 +395,7 @@ class TestSpringSecurity(SampleTest):
         self.assertEqual(200, resp.status, EXPECT_200)
 
 
-class TestSpringSecurityNonMtls(SampleTest):
+class TestSpringXsuaaNonMtls(SampleTest):
 
     def get_app(self):
         logging.info(RUN_TESTS.format("SpringSecurityUsageNonMtls"))
@@ -420,7 +420,7 @@ class TestSpringSecurityNonMtls(SampleTest):
         self.assertEqual(200, resp.status, EXPECT_200)
 
 
-class TestJavaBuildpackApiUsage(SampleTest):
+class TestJavaBuildpackApi(SampleTest):
 
     def get_app(self):
         logging.info(RUN_TESTS.format("JavaBuildpackApiUsage"))
@@ -443,7 +443,7 @@ class TestJavaBuildpackApiUsage(SampleTest):
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
-class SpringSecurityBasicAuthTest(SampleTest):
+class SpringSecurityBasicAuth(SampleTest):
 
     def get_app(self):
         logging.info(RUN_TESTS.format("SpringSecurityBasicAuthTest"))
@@ -470,7 +470,7 @@ class SpringSecurityBasicAuthTest(SampleTest):
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
 
 
-class SpringWebfluxSecurityXsuaaUsage(SampleTest):
+class SpringWebfluxSecurityXsuaa(SampleTest):
 
     def get_app(self):
         logging.info(RUN_TESTS.format("SpringWebfluxSecurityXsuaaUsage"))
