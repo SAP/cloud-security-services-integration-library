@@ -13,7 +13,7 @@ Secondly, it is important in an application like this, to cache the users' acces
 
 ## Implementation Notes
 Spring's `BearerTokenResolver` interface is implemented in [TokenBrokerResolver](./src/main/java/sample/spring/xsuaa/TokenBrokerResolver.java) which uses the [token-client](../../token-client) module to fetch the access tokens.
-Thanks to the auto-configuration of [spring-security-starter](../../spring-security-starter), a bean of type `XsuaaTokenFlows` is available for injection which is used by the TokenBrokerResolver to perform the `Password` token flow.
+Thanks to the autoconfiguration of [spring-security-starter](../../spring-security-starter), a bean of type `XsuaaTokenFlows` is available for injection which is used by the TokenBrokerResolver to perform the `Password` token flow.
 
 In the JUnit tests of this application, a mocked `XsuaaOAuth2TokenService` is used with stubbed responses to provide access tokens for pre-defined user credentials.
 To use this service, the TokenBrokerResolver bean is overridden in [TokenBrokerTestConfiguration](./src/test/java/sample/spring/xsuaa/config/TokenBrokerTestConfiguration.java) to make use of it.
@@ -54,7 +54,7 @@ Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the depl
 
 ![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
 
-Further up-to-date information you can get on sap.help.com:
+Further up-to-date information you can get on https://help.sap.com:
 - [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
 - [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
 
@@ -78,7 +78,7 @@ Finally, delete your application and your service instances using the following 
 <summary>Expand this to see the deployment steps</summary>
 
 - Compile the Java application
-- Create a XSUAA service instance
+- Create an XSUAA service instance
 - Configure the manifest.yml
 - Deploy the application
 - Assign Role Collection to your user
@@ -114,7 +114,7 @@ Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the depl
 
 ![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
 
-Further up-to-date information you can get on sap.help.com:
+Further up-to-date information you can get on https://help.sap.com:
 - [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
 - [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
 
@@ -128,7 +128,7 @@ As response, you will get a description of the access token as JSON that was fet
 
 ## Clean-Up
 
-Finally delete your application and your service instances using the following commands:
+Finally, delete your application and your service instances using the following commands:
 ```
 cf delete -f spring-security-basic-auth
 cf delete-service -f xsuaa-basic
