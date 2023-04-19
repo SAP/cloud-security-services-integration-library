@@ -13,7 +13,10 @@ applications:
   host: 
   path: target/java-security-usage.war
   buildpacks:
-    - java_buildpack
+    - https://github.com/cloudfoundry/java-buildpack.git
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.0.+ } }'
+    JBP_CONFIG_TOMCAT: '{ tomcat: { version: 10.0.+ } }'
   services:
     - xsuaa-java-security
 ...
