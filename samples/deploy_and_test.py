@@ -412,7 +412,7 @@ class TestSpringXsuaaNonMtls(SampleTest):
         self.assertEqual(200, resp.status, EXPECT_200)
         resp = self.perform_get_request_with_token('/v3/requestClientCredentialsToken')
         self.assertEqual(200, resp.status, EXPECT_200)
-        resp = self.perform_get_request_with_token('/v3/requestJwtBearerToken')
+        resp = self.perform_get_request_with_token('/v3/requestUserToken')
         self.assertEqual(200, resp.status, EXPECT_200)
         token = self.get_token()
         path_with_refresh_token = '/v3/requestRefreshToken/' + token.get('refresh_token')
@@ -450,21 +450,21 @@ class SpringSecurityBasicAuth(SampleTest):
         self.cf_app = CFApp(name='spring-security-basic-auth', xsuaa_service_name='xsuaa-basic')
         return self.cf_app
 
-    def test_fetch_token(self):
-        logging.info(RUN_TEST.format("SpringSecurityBasicAuthTest.test_fetch_token"))
-        resp = self.perform_get_request('/fetchToken')
+    def test_hello_token(self):
+        logging.info(RUN_TEST.format("SpringSecurityBasicAuthTest.test_hello_token"))
+        resp = self.perform_get_request('/hello-token')
         self.assertEqual(401, resp.status, EXPECT_401)
 
-        resp = self.perform_get_request('/fetchToken', username=self.credentials.username,
+        resp = self.perform_get_request('/hello-token', username=self.credentials.username,
                                         password=self.credentials.password)
         self.assertEqual(403, resp.status, EXPECT_403)
 
-    def test_fetch_token_status_ok(self):
+    def test_hello_token_status_ok(self):
         # app restart needed because tokens are cached in application
         self.cf_app.restart()
-        logging.info(RUN_TEST.format("SpringSecurityBasicAuthTest.test_fetch_token_status_ok"))
+        logging.info(RUN_TEST.format("SpringSecurityBasicAuthTest.test_hello_token_status_ok"))
         self.add_user_to_role('BASIC_AUTH_API_Viewer')
-        resp = self.perform_get_request('/fetchToken', username=self.credentials.username,
+        resp = self.perform_get_request('/hello-token', username=self.credentials.username,
                                         password=self.credentials.password)
         self.assertEqual(200, resp.status, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
