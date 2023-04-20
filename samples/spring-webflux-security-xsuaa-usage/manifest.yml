@@ -12,7 +12,10 @@ applications:
     routes:
       - route: spring-webflux-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
     path: target/spring-webflux-security-xsuaa-usage.jar
+    buildpacks:
+      - java_buildpack
     env:
+      JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
       JBP_CONFIG_DEBUG: '{enabled: true}'
     services:
       - xsuaa-webflux

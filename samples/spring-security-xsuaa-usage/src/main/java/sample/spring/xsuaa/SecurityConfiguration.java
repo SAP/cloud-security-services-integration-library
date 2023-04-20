@@ -7,7 +7,6 @@ package sample.spring.xsuaa;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenAuthenticationConverter;
-import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,9 +26,6 @@ public class SecurityConfiguration {
 
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
-
-	@Autowired
-	XsuaaTokenFlows xsuaaTokenFlows;
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
