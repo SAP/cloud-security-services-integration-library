@@ -188,7 +188,7 @@ CombiningValidator<Token> validators = JwtValidatorBuilder
         .withValidatorListener(ValidationListener) // for audit logging purpose
         .withAudienceValidator(Validator<Token> audienceValidator) // overwrites the default AudienceValidator
         .configureAnotherServiceInstance(OAuth2ServiceConfiguration) // in case you want to add another service configuration for which you want to accept tokens too
-		.build();
+        .build();
 ```
 :bulb: Keep in mind that `JwtValidatorBuilder` automatically constructs a `CombiningValidator` as a singleton, ensuring that only one CombiningValidator is initialized for each OAuth2ServiceConfiguration.
 
@@ -207,29 +207,29 @@ To override the cache, use `JwtValidatorBuilder.withCacheConfiguration(customCac
 implementation of the [token key cache](/java-api/src/main/java/com/sap/cloud/security/config/CacheConfiguration.java) interface as shown below:
 ```java
 CacheConfiguration customCacheConfiguration = new CacheConfiguration(){
-	  @Override
+	@Override
         public Duration getCacheDuration() {
 		    return Duration.ofMinutes(30);
 	    }
 	    
-	  @Override
+	@Override
         public int getCacheSize() {
 		    return 1000;
 	    }
 	    
-	    @Override
+	@Override
         public boolean isCacheDisabled() {
 		    return false;
 	    }
 	    
-	    @Override
+	@Override
         public boolean isCacheStatisticsEnabled() {
 		    return true;
 	    }
 };
 ```
 
-### Validation listener usage
+### 'ValidationListener' usage
 You can add validation listener to the validators, which will be invoked whenever a token is validated. 
 This can be useful for tasks such as logging to an audit log service. To receive callbacks for successful or failed validations, 
 the validation listener must implement the [ValidationListener](src/main/java/com/sap/cloud/security/token/validation/ValidationListener.java) interface.
