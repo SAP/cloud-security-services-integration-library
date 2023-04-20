@@ -20,7 +20,7 @@ To be able to validate tokens it performs the following tasks:
         src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java) -  checks if the JWT is signed with the public key of a trustworthy identity service. With that it also makes sure that the payload and the header of the JWT is unchanged.
 - Stores the decoded and validated token in thread-local cache ([`SecurityContext`](/java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java).
 
-:bulb: This library is also integrated in the [SAP Java Buildpack](https://help.sap.com/docs/btp/sap-business-technology-platform/developing-java-in-cloud-foundry-environment), but as of now SAP Java Buildpack currently **does not support** Tomcat 10 runtime, which is required for the Jakarta API used by this library.
+:bulb: This library is also integrated in the [SAP Java Buildpack](https://help.sap.com/docs/btp/sap-business-technology-platform/developing-java-in-cloud-foundry-environment), but as of now SAP Java Buildpack does **not** support Tomcat 10 runtime, which is required for the Jakarta API used by this library.
 
 ![](images/TokenAuthenticator.png)
 
@@ -31,7 +31,7 @@ To be able to validate tokens it performs the following tasks:
 
 ## Requirements
 - Java 17
-- 
+
 ## Table of Contents
 1. [Setup](#setup)
     - [Maven Dependencies](#maven-dependencies)
@@ -43,9 +43,9 @@ To be able to validate tokens it performs the following tasks:
     - [Validation listener usage](#validation-listener-usage)
     - [ProofOfPossession validation](#proofofpossession-validation)
 3. [Test Utilities](#test-utilities)
-    + [Local testing for XSUAA Identity Service](#local-testing-for-xsuaa-identity-service)
+    + [Local testing](#local-testing)
 4. [Troubleshooting](#troubleshooting)
-   - [Logging](#logging)
+   - [Set debug log level](#set-debug-log-level)
    - [Get buildpack version](#get-buildpack-version)
    - [Common Pitfalls](#common-pitfalls)
 5. [Specification und References](#specification-und-references)
@@ -130,7 +130,7 @@ Access the OAuth2 Service configuration bound to the application:
   ```
 * For Identity service
   ```java
-     OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getIasConfiguration(); 
+  OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getIasConfiguration(); 
   ```
 :bulb: `Environments` auto-detects the environment(Cloud Foundry or Kubernetes) the app is deployed in. 
 
@@ -155,7 +155,7 @@ XsuaaTokenAuthenticator authenticator = new XsuaaTokenAuthenticator()
 implementation will resolve `ClientCredentials` or `ClientCertificate` implementations of `ClientIdentity` interface based on the `credential-type` from the Xsuaa or Identity service binding
 and with that providing the correct implementation for the configured authentication type e.g. X.509 or client secret based.
  
-##### :mega: Service configuration in Kubernetes/Kyma environment 
+#### :mega: Service configuration in Kubernetes/Kyma environment 
 Library supports services provisioned by [SAP BTP service-operator](https://github.com/SAP/sap-btp-service-operator) To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container.
 - BTP Service-operator up to v0.2.2 - Library will look up the configuration files in the following paths:
   - XSUAA: `/etc/secrets/sapbtp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
@@ -167,7 +167,7 @@ Library supports services provisioned by [SAP BTP service-operator](https://gith
 
 Detailed information on how to use ``java-security`` library in Kubernetes/Kyma environment can be found in [java-security-usage](/samples/java-security-usage/README.md#deployment-on-kymakubernetes) sample README.
 
-##### Get additional information from `VCAP_SERVICES`
+#### Get additional information from `VCAP_SERVICES`
 In case you need further details from `VCAP_SERVICES` system environment variable, which are not exposed by `OAuth2ServiceConfiguration` interface you can use the `DefaultJsonObject` class for Json parsing.
 
 Example:
@@ -178,7 +178,7 @@ Map<String, String> xsuaaConfigMap = serviceJsonObject.getKeyValueMap();
 Map<String, String> credentialsMap = serviceJsonObject.getJsonObject(CFConstants.CREDENTIALS).getKeyValueMap();
 ```
 
-### JwtValidatorBuilder usage 
+### `JwtValidatorBuilder` usage 
 Configure the `JwtValidatorBuilder` with the [service configuration](#oauth2serviceserviceconfiguration-usage) and other customizable options like in the example below.
 ```java
 CombiningValidator<Token> validators = JwtValidatorBuilder
@@ -192,7 +192,7 @@ CombiningValidator<Token> validators = JwtValidatorBuilder
 ```
 :bulb: Keep in mind that `JwtValidatorBuilder` automatically constructs a `CombiningValidator` as a singleton, ensuring that only one CombiningValidator is initialized for each OAuth2ServiceConfiguration.
 
-Validate Token
+Validate Token:
 ```java
 ValidationResult result = validators.validate(token);
 
@@ -207,12 +207,12 @@ To override the cache, use `JwtValidatorBuilder.withCacheConfiguration(customCac
 implementation of the [token key cache](/java-api/src/main/java/com/sap/cloud/security/config/CacheConfiguration.java) interface as shown below:
 ```java
 CacheConfiguration customCacheConfiguration = new CacheConfiguration(){
-	    @Override
+	  @Override
         public Duration getCacheDuration() {
 		    return Duration.ofMinutes(30);
 	    }
 	    
-	    @Override
+	  @Override
         public int getCacheSize() {
 		    return 1000;
 	    }
@@ -267,14 +267,14 @@ ValidationResult result = validator.validate(token);
 
 ### `Token` usage
 #### Create a Token Object 
-This decodes an encoded JSON Web Token (JWT) and parses its json header and payload. The `Token` interface provides simple access to its JWT header parameters and its claims. You can find the claim constants in the [`TokenClaims`](/java-api/src/main/java/com/sap/cloud/security/token/TokenClaims.java) class.
+This code snippet decodes a given JSON Web Token (JWT) and extracts its JSON header and payload. The `Token` interface allows for easy access to JWT header parameters and claims. The claim constants can be found in the [`TokenClaims`](/java-api/src/main/java/com/sap/cloud/security/token/TokenClaims.java) class.
 
 ```java
 String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
-Token token = Token.create(authorizationHeader); // supports tokens issued by xsuaa and ias
+		Token token = Token.create(authorizationHeader); // compatible with tokens issued by xsuaa and ias
 ```
 
-#### Get additional information from Token
+#### Retrieve additional information from Token
 ```java
 Token token = SecurityContext.getToken();
 
@@ -294,7 +294,7 @@ SecurityContext.setToken(token);
 ## Test Utilities
 You can use [java-security-test](/java-security-test) library for testing the security layer. See the [README.md](/java-security-test/README.md) for more information.
 
-### Local testing for XSUAA Identity Service
+### Local testing 
 When you like to test/debug your secured application rest API locally (offline) you need to provide the `VCAP_SERVICES` before you run the application. The security library requires the following key value pairs in the `VCAP_SERVICES`
 - For Xsuaa under `xsuaa/credentials` for jwt validation
   - `"uaadomain" : "localhost"`
@@ -433,9 +433,8 @@ In case you use the **SAP Java Buildpack** `java-security` is provided. To keep 
 3. [OpenID Connect Core 1.0 incorporating errata set 1 - ID Token Validation](https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation)
 
 ## Samples
-- [Xsuaa Sample](/samples/java-security-usage)    
-demonstrating how to leverage ``java-security`` library to perform authentication and authorization checks within a Java application when bound to a xsuaa service. Furthermore it documents how to implement JUnit Tests using `java-security-test` library.
-- [Ias Sample](/samples/java-security-usage-ias)    
-demonstrating how to leverage ``java-security`` library to perform authentication checks within a Java application when bound to a ias identity service. Furthermore it documents how to implement JUnit Tests using `java-security-test` library.
-- [SAP Java Buildpack Sample](../samples/sap-java-buildpack-api-usage) demonstrates how to use `java-security` library with SAP Java Buildpack
-
+- [Xsuaa Sample](/samples/java-security-usage)
+  This sample demonstrates the use of the ``java-security`` library to perform authentication and authorization checks within a Java application when bound to an Xsuaa service. Furthermore, it documents how to implement JUnit Tests using `java-security-test` library.
+- [Identity Sample](/samples/java-security-usage-ias)    
+  This sample demonstrates the use of the``java-security`` library to perform authentication checks within a Java application when bound to Identity service. Furthermore, it documents how to implement JUnit Tests using `java-security-test` library.
+- [SAP Java Buildpack Sample](../samples/sap-java-buildpack-api-usage) this sample showcases the use of the `java-security` library in conjunction with the SAP Java Buildpack.
