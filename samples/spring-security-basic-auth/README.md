@@ -9,7 +9,7 @@ As a result, the application has access to the user's scopes configured via XSUA
 
 :grey_exclamation: However, securing the application this way comes with several costs.\
 Firstly, using `Password` grant type is discouraged because it gives up many of the advantages for which OAuth2 is intended. For example, the user's credentials are available in clear-text to this application.\
-Secondly, it is important in an application like this, to cache the users' access tokens for subsequent requests to reduce HTTP traffic and latency. The [Caffeine](https://github.com/ben-manes/caffeine) cache shown in this example is a simple in-memory cache that might be too simple for production. 
+Secondly, it is important in an application like this, to cache the users' access tokens for subsequent requests to reduce HTTP traffic and latency. The [Caffeine](https://github.com/ben-manes/caffeine) cache shown in this example is a simple in-memory cache that might be too simple for production. Furthermore, due to caching, administrative changes of a user's privileges, e.g. roles and/or scopes, will not be respected by subsequent requests until the cache has timed out and a new token is fetched for that user. 
 
 ## Implementation Notes
 Spring's `BearerTokenResolver` interface is implemented in [TokenBrokerResolver](./src/main/java/sample/spring/xsuaa/TokenBrokerResolver.java) which uses the [token-client](../../token-client) module to fetch the access tokens.
