@@ -27,7 +27,6 @@ import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.build
  * using a builder pattern.
  */
 public class ClientCredentialsTokenFlow {
-	private static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	private final OAuth2TokenService tokenService;
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
 	private final ClientIdentity clientIdentity;

@@ -101,23 +101,16 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 
 	@Override
 	public Set<String> getScopes() {
-		LinkedHashSet<String> scopes = new LinkedHashSet<>();
-		scopes.addAll(getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
+		LinkedHashSet<String> scopes = new LinkedHashSet<>(getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
 		return scopes;
 	}
 
 	@Override
 	public Principal getPrincipal() {
-		String principalName;
-		switch (getGrantType()) {
-		case CLIENT_CREDENTIALS:
-		case CLIENT_X509:
-			principalName = String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
-			break;
-		default:
-			principalName = getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
-			break;
-		}
+		String principalName = switch (getGrantType()) {
+			case CLIENT_CREDENTIALS, CLIENT_X509 -> String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
+			default -> getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
+		};
 		return createPrincipalByName(principalName);
 	}
 

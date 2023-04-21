@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 
-	protected String appId;
+	protected final String appId;
 
 	public LocalAuthoritiesExtractor(String appId) {
 		this.appId = appId;
@@ -26,9 +26,8 @@ public class LocalAuthoritiesExtractor implements AuthoritiesExtractor {
 
 	@Override
 	public Collection<GrantedAuthority> getAuthorities(XsuaaToken jwt) {
-		Set<String> scopeAuthorities = new HashSet<>();
 
-		scopeAuthorities.addAll(getScopes(jwt, appId));
+		Set<String> scopeAuthorities = new HashSet<>(getScopes(jwt, appId));
 
 		Stream<String> authorities = Stream.of(scopeAuthorities).flatMap(Collection::stream);
 

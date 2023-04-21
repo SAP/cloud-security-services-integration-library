@@ -22,13 +22,13 @@ import javax.annotation.Nullable;
  * {@code java-security} client library.<br>
  * In case of successful validation, the token gets parsed and returned as
  * {@link Jwt}.
- *
+ * <p>
  * Supports tokens issued by ias or xsuaa identity service.
  */
 public class HybridJwtDecoder implements JwtDecoder {
-	CombiningValidator<Token> xsuaaTokenValidators;
-	CombiningValidator<Token> iasTokenValidators;
-	Logger logger = LoggerFactory.getLogger(getClass());
+	final CombiningValidator<Token> xsuaaTokenValidators;
+	final CombiningValidator<Token> iasTokenValidators;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Creates instance with a set of validators for validating the access / oidc
@@ -60,17 +60,14 @@ public class HybridJwtDecoder implements JwtDecoder {
 		}
 		ValidationResult validationResult;
 		switch (token.getService()) {
-		case IAS:
+		case IAS -> {
 			if (iasTokenValidators == null) {
 				throw new BadJwtException("Tokens issued by IAS service aren't accepted");
 			}
 			validationResult = iasTokenValidators.validate(token);
-			break;
-		case XSUAA:
-			validationResult = xsuaaTokenValidators.validate(token);
-			break;
-		default:
-			throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
+		}
+		case XSUAA -> validationResult = xsuaaTokenValidators.validate(token);
+		default -> throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
 		}
 		if (validationResult.isErroneous()) {
 			throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());

@@ -31,7 +31,7 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 
-	Cache<String, ReactiveJwtDecoder> cache;
+	final Cache<String, ReactiveJwtDecoder> cache;
 	private final List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
 	private final Collection<PostValidationAction> postValidationActions;
 	private final TokenInfoExtractor tokenInfoExtractor;

@@ -74,9 +74,9 @@ public class SecurityTest
 	// mock server
 	protected WireMockServer wireMockServer;
 	protected RSAKeys keys;
-	protected Service service;
+	protected final Service service;
 
-	protected String clientId = DEFAULT_CLIENT_ID;
+	protected static final String clientId = DEFAULT_CLIENT_ID;
 	protected String jwksUrl;
 	private String issuerUrl;
 
@@ -226,7 +226,7 @@ public class SecurityTest
 
 		applicationServletsByPath
 				.forEach((path, servletHolder) -> context.addServlet(servletHolder, path));
-		applicationServletFilters.forEach((filterHolder) -> context
+		applicationServletFilters.forEach(filterHolder -> context
 				.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
 
 		context.addFilter(new FilterHolder(new SecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));

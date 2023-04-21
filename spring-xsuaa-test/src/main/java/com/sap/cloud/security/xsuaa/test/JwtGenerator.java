@@ -33,14 +33,14 @@ public class JwtGenerator {
 	 * Do not want to introduce circular reference to spring-xsuaa. duplicate of
 	 * com.sap.cloud.security.xsuaa.token.TokenClaims
 	 */
-	public final class TokenClaims {
+	public static final class TokenClaims {
 		private TokenClaims() {
 			throw new IllegalStateException("Utility class");
 		}
 
 		static final String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
 		static final String CLAIM_SCOPES = "scope";
-		static final String CLAIM_CLIENT_ID = "cid"; // Client Id left for backward compatibility
+		static final String CLAIM_CLIENT_ID = "cid"; // clientid left for backward compatibility
 		static final String CLAIM_AUTHORIZATION_PARTY = "azp";
 		static final String CLAIM_USER_NAME = "user_name";
 		static final String CLAIM_EMAIL = "email";
@@ -51,7 +51,7 @@ public class JwtGenerator {
 		static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	}
 
-	public final class TokenHeaders {
+	public static final class TokenHeaders {
 		private TokenHeaders() {
 			throw new IllegalStateException("Utility class");
 		}
@@ -81,7 +81,7 @@ public class JwtGenerator {
 	private String jwtHeaderKeyId = "legacy-token-key";
 	private int port;
 	private final Map<String, List<String>> attributes = new HashMap<>();
-	private final Map<String, Object> customClaims = new LinkedHashMap();
+	private final Map<String, Object> customClaims = new LinkedHashMap<>();
 	private boolean deriveAudiences = false;
 
 	/**
@@ -360,7 +360,7 @@ public class JwtGenerator {
 	 * @return a jwt
 	 */
 	public static Jwt createFromClaims(JWTClaimsSet claimsSet) {
-		return createFromClaims(claimsSet.toString(), Collections.EMPTY_MAP);
+		return createFromClaims(claimsSet.toString(), Collections.emptyMap());
 	}
 
 	/**
