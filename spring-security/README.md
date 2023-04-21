@@ -157,7 +157,7 @@ Starting with version 3.0.0, the service bindings are read with [btp-environment
 Please follow the instructions there how to provide the service configurations to your application.
 An example how to use ``spring-security`` library in Kubernetes/Kyma environment can be found in [spring-security-hybrid-usage](../samples/spring-security-hybrid-usage/README.md).
 
-Genereally, the library supports services provisioned by [SAP BTP service-operator](https://github.com/SAP/sap-btp-service-operator).
+Generally, the library supports services provisioned by [SAP BTP service-operator](https://github.com/SAP/sap-btp-service-operator).
 To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container.
 
 - BTP Service-operator up to v0.2.2 - Library will look up the configuration files in the following paths:
