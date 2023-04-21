@@ -30,7 +30,7 @@ import java.util.Objects;
  * {@code @ConfigurationProperties("vcap.services.<your service instance name>.credentials")}
  */
 public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfiguration {
-	OAuth2ServiceConfigurationBuilder builder;
+	final OAuth2ServiceConfigurationBuilder builder;
 	OAuth2ServiceConfiguration configuration;
 
 	/**
@@ -70,7 +70,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	/**
 	 * Sets private key of identity service instance.
-	 * 
+	 *
 	 * @param key
 	 *            PEM encoded private key
 	 */

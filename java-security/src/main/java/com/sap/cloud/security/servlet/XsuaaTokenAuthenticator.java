@@ -5,11 +5,6 @@
  */
 package com.sap.cloud.security.servlet;
 
-import static com.sap.cloud.security.servlet.TokenAuthenticatorResult.createUnauthenticated;
-
-import javax.annotation.Nullable;
-import java.util.Collection;
-
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -23,8 +18,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 
-public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
+import javax.annotation.Nullable;
+import java.util.Collection;
 
+import static com.sap.cloud.security.servlet.TokenAuthenticatorResult.createUnauthenticated;
+
+public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	public XsuaaTokenAuthenticator() {
 		serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
@@ -75,8 +74,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
-		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
-			HttpServletRequest httpRequest = (HttpServletRequest) request;
+		if (request instanceof HttpServletRequest httpRequest && response instanceof HttpServletResponse) {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {

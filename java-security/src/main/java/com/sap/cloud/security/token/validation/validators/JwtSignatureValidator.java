@@ -58,10 +58,10 @@ class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	/**
-	 * This method disables the tenant id check. In case Jwt issuer `iss` claim doesn't
-	 * match with the `url` attribute from {@link OAuth2ServiceConfiguration)},
-	 * tenant-id (zid) claim needs to be present in token to ensure that the tenant belongs to
-	 * this issuer.
+	 * This method disables the tenant id check. In case Jwt issuer `iss` claim
+	 * doesn't match with the `url` attribute from
+	 * {@link OAuth2ServiceConfiguration)}, tenant-id (zid) claim needs to be
+	 * present in token to ensure that the tenant belongs to this issuer.
 	 * <p>
 	 * Use with caution as it relaxes the validation rules! It is not recommended to
 	 * disable this check for standard Identity service setup.
@@ -255,8 +255,8 @@ class JwtSignatureValidator implements Validator<Token> {
 			if (tokenHeaderPayloadSignature.length != 3) {
 				return createInvalid("Jwt token does not consist of 'header'.'payload'.'signature'.");
 			}
-			String headerAndPayload = new StringBuilder(tokenHeaderPayloadSignature[0]).append(".")
-					.append(tokenHeaderPayloadSignature[1]).toString();
+			String headerAndPayload = tokenHeaderPayloadSignature[0] + "." +
+					tokenHeaderPayloadSignature[1];
 			try {
 				publicSignature.initVerify(publicKey);
 				publicSignature.update(headerAndPayload.getBytes(UTF_8)); // provide data

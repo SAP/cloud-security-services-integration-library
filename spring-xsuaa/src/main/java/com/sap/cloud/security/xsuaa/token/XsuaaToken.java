@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
 
+import java.io.Serial;
 import java.time.Instant;
 import java.util.*;
 
@@ -41,6 +42,7 @@ public class XsuaaToken extends Jwt implements Token {
 	// new with SECAUTH-806
 	static final String CLAIM_SUBACCOUNT_ID = "subaccountid";
 	//
+	@Serial
 	private static final long serialVersionUID = -836947635254353927L;
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();

@@ -25,7 +25,7 @@ public class DefaultJsonObject implements JsonObject {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultJsonObject.class);
 
-	private JSONObject jsonObject;
+	private final JSONObject jsonObject;
 
 	/**
 	 * Create an instance

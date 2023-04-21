@@ -1,16 +1,16 @@
 @startuml
 -> SecurityFilter: new()
-SecurityFilter -> XsuaaTokenAuthenticator: new()
-XsuaaTokenAuthenticator --> SecurityFilter
+SecurityFilter --> XsuaaTokenAuthenticator: new()
+XsuaaTokenAuthenticator -> SecurityFilter: XsuaaTokenAuthenticator
 
 -> SecurityFilter: doFilter()
-SecurityFilter -> XsuaaTokenAuthenticator: validateRequest()
-XsuaaTokenAuthenticator --> SecurityFilter: TokenAuthenticationResult
+SecurityFilter --> XsuaaTokenAuthenticator: validateRequest()
+XsuaaTokenAuthenticator -> SecurityFilter: TokenAuthenticationResult
 
 XsuaaTokenAuthenticator -> SecurityContext: if XsuaaTokenAuthenticator.isAuthenticated() setToken(Token)
 
-WebServlet -> SecurityContext: getToken()
-SecurityContext --> WebServlet: Token
+WebServlet --> SecurityContext: getToken()
+SecurityContext -> WebServlet: Token
 @enduml
 
 

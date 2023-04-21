@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 class JsonWebKeySet {
 
 	private final Set<JsonWebKey> jsonWebKeys = new HashSet<>();
-	private Map<String, Boolean> zoneIdAccepted = new HashMap<>();
+	private final Map<String, Boolean> zoneIdAccepted = new HashMap<>();
 
 	@Nullable
 	public JsonWebKey getKeyByAlgorithmAndId(JwtSignatureAlgorithm keyAlgorithm, String keyId) {

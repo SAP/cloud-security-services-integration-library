@@ -163,14 +163,14 @@ public class PasswordTokenFlowTest {
 		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME,
 				PASSWORD,
 				null, null, false))
-						.thenReturn(validResponse);
+				.thenReturn(validResponse);
 	}
 
 	private void mockValidResponse(String accessToken) throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(accessToken, EXPIRED_IN, REFRESH_TOKEN);
 		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME,
 				PASSWORD, null, null, false))
-						.thenReturn(validResponse);
+				.thenReturn(validResponse);
 	}
 
 	private void verifyThatDisableCacheIs(boolean disableCache) throws OAuth2ServiceException {

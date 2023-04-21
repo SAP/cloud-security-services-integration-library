@@ -104,7 +104,7 @@ public class HelloJavaServlet extends HttpServlet {
 If your application is requesting tokens using `requestToken`, `requestTokenForUser` or `requestTokenForClient` methods of the `(XS)UserInfo` object, you can migrate this to the new `token-client` library. You can find the migration guide [here](/token-client/Migration_XSUserInfoRequestToken.md).
 
 ### Sample using new API
-- [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/sap-java-buildpack-api-usage)
+- [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-services-integration-library/tree/main/samples/sap-java-buildpack-api-usage)
 
 ## Issues
 In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.

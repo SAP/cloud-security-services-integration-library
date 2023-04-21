@@ -15,52 +15,56 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests whether ServiceBindingMapper correctly handles 'domains' key in service configurations.
- * Asserts that a warning is printed when no domains are found in an IAS configuration.
+ * Tests whether ServiceBindingMapper correctly handles 'domains' key in service
+ * configurations. Asserts that a warning is printed when no domains are found
+ * in an IAS configuration.
  */
 class ServiceBindingMapperDomainsTest {
-    private static ServiceBinding xsuaaBinding;
-    private static ServiceBinding iasBinding, iasBindingDomainsMissing;
-    private LogCaptor logCaptor;
+	private static ServiceBinding xsuaaBinding;
+	private static ServiceBinding iasBinding, iasBindingDomainsMissing;
+	private LogCaptor logCaptor;
 
-    @BeforeAll
-    static void setupClass() throws IOException {
-        xsuaaBinding = readServiceBindingFromJson(Service.XSUAA, "/vcapXsuaaServiceSingleBinding.json");
-        iasBinding = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceSingleBinding.json");
-        iasBindingDomainsMissing = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceDomainsMissing.json");
-    }
+	@BeforeAll
+	static void setupClass() throws IOException {
+		xsuaaBinding = readServiceBindingFromJson(Service.XSUAA, "/vcapXsuaaServiceSingleBinding.json");
+		iasBinding = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceSingleBinding.json");
+		iasBindingDomainsMissing = readServiceBindingFromJson(Service.IAS, "/vcapIasServiceDomainsMissing.json");
+	}
 
-    private static ServiceBinding readServiceBindingFromJson(Service service, String jsonPath) throws IOException {
-        String vcapJson = IOUtils.resourceToString(jsonPath, UTF_8);
-        ServiceBindingAccessor sba = new SapVcapServicesServiceBindingAccessor(any -> vcapJson);
+	private static ServiceBinding readServiceBindingFromJson(Service service, String jsonPath) throws IOException {
+		String vcapJson = IOUtils.resourceToString(jsonPath, UTF_8);
+		ServiceBindingAccessor sba = new SapVcapServicesServiceBindingAccessor(any -> vcapJson);
 
-        return sba.getServiceBindings().stream()
-                .filter(b -> service.equals(Service.from(b.getServiceName().orElse(""))))
-                .findFirst().get();
-    }
+		return sba.getServiceBindings().stream()
+				.filter(b -> service.equals(Service.from(b.getServiceName().orElse(""))))
+				.findFirst().get();
+	}
 
-    @BeforeEach
-    void setup() {
-        logCaptor = LogCaptor.forClass(ServiceBindingMapper.class);
-    }
+	@BeforeEach
+	void setup() {
+		logCaptor = LogCaptor.forClass(ServiceBindingMapper.class);
+	}
 
-    @Test
-    void getXsuaaConfiguration() {
-        OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(xsuaaBinding).build();
-        assertThat(config.getDomains()).isEmpty();
-    }
+	@Test
+	void getXsuaaConfiguration() {
+		OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(xsuaaBinding)
+				.build();
+		assertThat(config.getDomains()).isEmpty();
+	}
 
-    @Test
-    void getIasConfiguration() {
-        OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBinding).build();
-        assertThat(config.getDomains()).containsExactly("myauth.com", "my.auth.com");
-    }
+	@Test
+	void getIasConfiguration() {
+		OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBinding)
+				.build();
+		assertThat(config.getDomains()).containsExactly("myauth.com", "my.auth.com");
+	}
 
-    @Test
-    void getIasConfigurationWithDomainsMissing() {
-        OAuth2ServiceConfiguration config = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(iasBindingDomainsMissing).build();
-        assertThat(config.getDomains()).isEmpty();
+	@Test
+	void getIasConfigurationWithDomainsMissing() {
+		OAuth2ServiceConfiguration config = ServiceBindingMapper
+				.mapToOAuth2ServiceConfigurationBuilder(iasBindingDomainsMissing).build();
+		assertThat(config.getDomains()).isEmpty();
 
-        assertThat(logCaptor.getWarnLogs()).contains("No domains found in IAS credentials.");
-    }
+		assertThat(logCaptor.getWarnLogs()).contains("No domains found in IAS credentials.");
+	}
 }

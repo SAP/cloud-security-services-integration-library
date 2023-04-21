@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
+import java.io.Serial;
 import java.util.Collection;
 
 /**
@@ -19,9 +20,11 @@ import java.util.Collection;
  * @see XsuaaToken
  */
 public class AuthenticationToken extends JwtAuthenticationToken {
+
+	@Serial
 	private static final long serialVersionUID = -3779129534612771294L;
 
-	private Token token;
+	private final Token token;
 
 	public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> authorities) {
 		super(jwt, authorities);

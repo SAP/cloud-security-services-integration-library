@@ -38,7 +38,7 @@ public interface Token extends UserDetails {
 	 *
 	 * @return the subdomain of the tenant the JWT belongs to.
 	 */
-	public String getSubdomain();
+	String getSubdomain();
 
 	/**
 	 * Returns the OAuth2 client identifier of the authentication token if present.

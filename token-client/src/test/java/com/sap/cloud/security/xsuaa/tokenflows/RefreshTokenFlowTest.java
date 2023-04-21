@@ -111,7 +111,7 @@ public class RefreshTokenFlowTest {
 		when(mockTokenService
 				.retrieveAccessTokenViaRefreshToken(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
 						eq(REFRESH_TOKEN), isNull(), anyBoolean()))
-								.thenReturn(accessToken);
+				.thenReturn(accessToken);
 		return accessToken;
 	}
 

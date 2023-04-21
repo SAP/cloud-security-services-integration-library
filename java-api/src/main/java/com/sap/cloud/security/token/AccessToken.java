@@ -19,9 +19,9 @@ import java.util.Set;
 public interface AccessToken extends Token {
 
 	/**
-	 * Returns the list of the claim "scope".
+	 * Returns the set of the claim "scope".
 	 *
-	 * @return the list of the claim scope or empty list.
+	 * @return the set of the claim scope or empty list.
 	 */
 	Set<String> getScopes();
 
@@ -76,7 +76,7 @@ public interface AccessToken extends Token {
 	 *
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
-	 * 
+	 *
 	 * @return the String value of a claim attribute or null if claim or its
 	 *         attribute does not exist.
 	 **/

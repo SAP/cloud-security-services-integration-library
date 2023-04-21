@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## 3.0.0
 ### Baseline changes
-`cloud-security-xsuaa-integration` library requires
+`cloud-security-services-integration-library` requires
 - Java 17
 - Spring Boot 3.0.x
 - Spring security 6.0.x
@@ -133,7 +133,7 @@ All notable changes to this project will be documented in this file.
 * Bump [reactor-core](https://github.com/reactor/reactor-core) from 3.4.19 to 3.4.21.
 
 
-**Full Changelog**: https://github.com/SAP/cloud-security-xsuaa-integration/compare/2.12.3...2.13.0
+**Full Changelog**: https://github.com/SAP/cloud-security-services-integration-library/compare/2.12.3...2.13.0
 
 ## 2.12.3
 - [spring-xsuaa][spring-security-compatibility]

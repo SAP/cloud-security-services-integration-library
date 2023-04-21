@@ -18,7 +18,7 @@ public interface XsuaaServiceConfiguration extends OAuth2ServiceConfiguration {
 	/**
 	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is
 	 * the url where the service instance was created.
-	 * 
+	 *
 	 * @return uaa url
 	 */
 	String getUaaUrl();
@@ -30,14 +30,14 @@ public interface XsuaaServiceConfiguration extends OAuth2ServiceConfiguration {
 
 	/**
 	 * XS application identifier
-	 * 
+	 *
 	 * @return xs application id
 	 */
 	String getAppId();
 
 	/**
 	 * Domain of the xsuaa authentication domain
-	 * 
+	 *
 	 * @return uaaDomain
 	 */
 	String getUaaDomain();

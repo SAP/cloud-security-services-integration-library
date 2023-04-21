@@ -25,15 +25,15 @@ import java.util.Properties;
  * Part of Auto Configuration {@link XsuaaAutoConfiguration}
  *
  * <h2>Example Usage</h2>
- * 
+ *
  * <pre class="code">
- * declared on a class: 
- * 
+ * declared on a class:
+ *
  * &#64;Configuration
  * &#64;PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
- * 
+ *
  * declared on attribute:
- * 
+ *
  * &#64;Value("${xsuaa.url:}")
  * </pre>
  *

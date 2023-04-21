@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
  * <p>
  * Validates whether there 'cnf' thumbprint value matches with the X509
  * certificate from the request.
- *
+ * <p>
  * Validator is by default disabled. It can be activated by setting environment
  * variable 'X5T_VALIDATOR_ENABLED' to true.
  */
@@ -39,7 +39,7 @@ public class JwtX5tValidator implements Validator<Token> {
 	/**
 	 * Validates the cnf thumbprint of X509 certificate against trusted
 	 * certificate's thumbprint.
-	 *
+	 * <p>
 	 * In case audience contains only a single value, thumbprint comparison is not
 	 * performed and request is validated. To guarantee that this single audience is
 	 * trusted, use this validator in combination with {@link JwtAudienceValidator}

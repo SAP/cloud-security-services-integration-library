@@ -20,10 +20,12 @@ public class OAuth2TokenResponseTest {
 	@Test
 	public void getExpiredDateFromAccessToken() {
 		long expireInSeconds = 43199;
-		Instant minExpireDate = Instant.ofEpochMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
+		Instant minExpireDate = Instant
+				.ofEpochMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
 		OAuth2TokenResponse accessToken = new OAuth2TokenResponse("e9511922b5e64c49ba0eedcc8d772e76", expireInSeconds,
 				null);
-		Instant maxExpireDate = Instant.ofEpochMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
+		Instant maxExpireDate = Instant
+				.ofEpochMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
 
 		assertThat(accessToken.getExpiredAt(), allOf(OrderingComparison.greaterThanOrEqualTo(minExpireDate),
 				OrderingComparison.lessThanOrEqualTo(maxExpireDate)));

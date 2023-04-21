@@ -9,6 +9,7 @@ import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -16,12 +17,13 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 /**
  * A bean that can be {@code @Autowired} by applications to get access to token
  * flow builders. The token flow builders allow for the execution of a client
- * credentials flow (to get a technical user token) and a jwt bearer token flow (to
- * get an exchange token with different scopes). <br>
- * 
+ * credentials flow (to get a technical user token) and a jwt bearer token flow
+ * (to get an exchange token with different scopes). <br>
+ *
  * This class uses a RestTemplate which it passes on to the builders.
  */
 public class XsuaaTokenFlows implements Serializable {
+	@Serial
 	private static final long serialVersionUID = 2403173341950251507L;
 
 	private final ClientIdentity clientIdentity;
@@ -31,7 +33,7 @@ public class XsuaaTokenFlows implements Serializable {
 	/**
 	 * Create a new instance of this bean with the given RestTemplate. Applications
 	 * should {@code @Autowire} instances of this bean.
-	 * 
+	 *
 	 * @param oAuth2TokenService
 	 *            the OAuth2TokenService that will be used to send the token
 	 *            exchange request.
@@ -68,7 +70,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 * Creates a new Client Credentials Flow builder object. <br>
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
-	 * 
+	 *
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
 	public ClientCredentialsTokenFlow clientCredentialsTokenFlow() {
@@ -79,7 +81,7 @@ public class XsuaaTokenFlows implements Serializable {
 	 * Creates a new Refresh Token Flow builder object.<br>
 	 * Token, authorize and key set endpoints will be derived relative to the base
 	 * URI.
-	 * 
+	 *
 	 * @return the {@link RefreshTokenFlow} builder object.
 	 */
 	public RefreshTokenFlow refreshTokenFlow() {

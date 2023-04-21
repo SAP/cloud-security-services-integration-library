@@ -21,7 +21,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 public class ApplicationServerOptions {
 
 	private final TokenAuthenticator tokenAuthenticator;
-	private int port;
+	private final int port;
 
 	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator) {
 		this(tokenAuthenticator, 0);
@@ -58,24 +58,18 @@ public class ApplicationServerOptions {
 	 * @return the application server options.
 	 */
 	public static ApplicationServerOptions forService(Service service) {
-		ApplicationServerOptions instance;
-
-		switch (service) {
-		case XSUAA:
-			instance = forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
-			break;
-		case IAS:
-			instance = new ApplicationServerOptions(new IasTokenAuthenticator()
-					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
-							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
-							.withUrl("http://localhost")
-							.withDomains("localhost")
-							.build()));
-			break;
-		default:
+		return switch (service) {
+		case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
+		case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
+				.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+						.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
+						.withUrl("http://localhost")
+						.withDomains("localhost")
+						.build()));
+		default ->
 			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
-		}
-		return instance;
+		};
+
 	}
 
 	/**

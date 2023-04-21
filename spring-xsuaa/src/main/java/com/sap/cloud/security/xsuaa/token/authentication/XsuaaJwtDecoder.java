@@ -41,7 +41,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Duration cacheValidityInSeconds;
 	private final int cacheSize;
 
-	com.github.benmanes.caffeine.cache.Cache<String, JwtDecoder> cache;
+	final com.github.benmanes.caffeine.cache.Cache<String, JwtDecoder> cache;
 	private final OAuth2TokenValidator<Jwt> tokenValidators;
 	private final Collection<PostValidationAction> postValidationActions;
 	private TokenInfoExtractor tokenInfoExtractor;

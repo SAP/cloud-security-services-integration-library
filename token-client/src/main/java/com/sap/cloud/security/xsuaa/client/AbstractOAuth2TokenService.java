@@ -316,7 +316,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 		return getCacheConfiguration().isCacheStatisticsEnabled() ? responseCache.stats() : null;
 	}
 
-	private class CacheKey {
+	private static class CacheKey {
 
 		private final URI tokenEndpointUri;
 		private final HttpHeaders headers;

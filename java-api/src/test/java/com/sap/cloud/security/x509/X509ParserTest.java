@@ -35,12 +35,14 @@ class X509ParserTest {
 
 	@Test
 	void parseCertificate_validBase64() throws CertificateException {
-		assertThat(parseCertificate(x509_base64).getIssuerX500Principal().getName(X500Principal.RFC1779)).isEqualTo(DN_ISSUER_VALUE);
+		assertThat(parseCertificate(x509_base64).getIssuerX500Principal().getName(X500Principal.RFC1779))
+				.isEqualTo(DN_ISSUER_VALUE);
 	}
 
 	@Test
 	void parseCertificate_validPEM() throws CertificateException {
-		assertThat(parseCertificate(x509_pem_format).getIssuerX500Principal().getName(X500Principal.RFC1779)).isEqualTo(DN_ISSUER_VALUE);
+		assertThat(parseCertificate(x509_pem_format).getIssuerX500Principal().getName(X500Principal.RFC1779))
+				.isEqualTo(DN_ISSUER_VALUE);
 	}
 
 	@Test

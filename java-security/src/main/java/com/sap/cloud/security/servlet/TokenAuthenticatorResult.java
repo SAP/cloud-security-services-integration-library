@@ -28,7 +28,7 @@ class TokenAuthenticatorResult implements TokenAuthenticationResult {
 
 	/**
 	 * Creates an unauthenticated result with a reason.
-	 * 
+	 *
 	 * @param reason
 	 *            the reason why the request is not authenticated.
 	 * @return a {@link TokenAuthenticationResult}.
@@ -56,7 +56,7 @@ class TokenAuthenticatorResult implements TokenAuthenticationResult {
 
 	/**
 	 * The token that was checked for authentication.
-	 * 
+	 *
 	 * @return the token.
 	 */
 	@Override
@@ -66,7 +66,7 @@ class TokenAuthenticatorResult implements TokenAuthenticationResult {
 
 	/**
 	 * The principal associated with the request.
-	 * 
+	 *
 	 * @return the principal.
 	 */
 	@Override
@@ -76,7 +76,7 @@ class TokenAuthenticatorResult implements TokenAuthenticationResult {
 
 	/**
 	 * The authentication scopes. Can be empty.
-	 * 
+	 *
 	 * @return the scopes as a list of strings.
 	 */
 	@Override
@@ -86,7 +86,7 @@ class TokenAuthenticatorResult implements TokenAuthenticationResult {
 
 	/**
 	 * If not authenticated, this returns the reason why as text.
-	 * 
+	 *
 	 * @return the textual description why the request was not authenticated. Empty
 	 *         string if authenticated.
 	 */

@@ -77,19 +77,18 @@ In case you do not want to use the `RestOperations` bean, that is specified in y
 @Configuration
 public static class RestClientConfiguration {
 
-    @Bean
-    @LoadBalanced
-    public OAuth2RestTemplate myOAuth2RestTemplate() {
-        return new OAuth2RestTemplate(...);
-    }
+	@Bean
+	@LoadBalanced
+	public OAuth2RestTemplate myOAuth2RestTemplate() {
+		return new OAuth2RestTemplate(...)
+	}
 
-    @Bean
-    public RestTemplate xsuaaRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-        // Example that supports both: client secret and client certificate based authentication.
-        // This is especially relevant if you want to leverage token exchange with XsuaaTokenFlows.
-        return SpringHttpClientFactory.createRestTemplate(xsuaaServiceConfiguration.getClientIdentity());
-    }
-
+	@Bean
+	public RestTemplate xsuaaRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
+		// Example that supports both: client secret and client certificate based authentication.
+		// This is especially relevant if you want to leverage token exchange with XsuaaTokenFlows.
+		return SpringHttpClientFactory.createRestTemplate(xsuaaServiceConfiguration.getClientIdentity());
+	}
 }
 ```
 The `spring-xsuaa` includes a default implementation called [DefaultSpringHttpClientFactory](./src/main/java/com/sap/cloud/security/xsuaa/token/authentication/httpclient/DefaultSpringHttpClientFactory.java) for the `SpringHttpClientFactory`. If you encounter performance issues related to token signature validations or token flows, you may want to create your own implementation using an HttpClient customized for your application's workload. Refer to this [section](#insufficient-performance-for-token-validations-or-token-flows) for instructions on how to achieve this.

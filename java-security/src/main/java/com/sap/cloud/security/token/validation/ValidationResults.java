@@ -25,7 +25,7 @@ public class ValidationResults {
 	/**
 	 * Creates an invalid {@link ValidationResult} that contains an error
 	 * description.
-	 * 
+	 *
 	 * @param errorDescription
 	 *            the error description.
 	 * @return an invalid {@link ValidationResult} containing an error description.
@@ -39,7 +39,7 @@ public class ValidationResults {
 	 * Works just like {@link #createInvalid(String)} but accepts a template string
 	 * with placeholders "{}" that are substituted with the given arguments. Works
 	 * like described in {@link MessageFormatter}.
-	 *
+	 * <p>
 	 * For example,
 	 *
 	 * <pre>
@@ -48,7 +48,7 @@ public class ValidationResults {
 	 *
 	 * will return the string "Hi there.".
 	 * <p>
-	 * 
+	 *
 	 * @param errorDescriptionTemplate
 	 *            the description as template used to create the error description.
 	 * @param arguments
