@@ -21,7 +21,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 public class ApplicationServerOptions {
 
 	private final TokenAuthenticator tokenAuthenticator;
-	private int port;
+	private final int port;
 
 	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator) {
 		this(tokenAuthenticator, 0);

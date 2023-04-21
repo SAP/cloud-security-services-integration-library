@@ -5,14 +5,6 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.config.Service.IAS;
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
-
-import javax.annotation.Nullable;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -29,8 +21,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
+
 /**
- * Class used to build a token validator for a oauth service configuration
+ * Class used to build a token validator for an OAuth service configuration
  * {@link OAuth2ServiceConfiguration}. <br>
  * Custom validators can be added via {@link #with(Validator)} method.
  */

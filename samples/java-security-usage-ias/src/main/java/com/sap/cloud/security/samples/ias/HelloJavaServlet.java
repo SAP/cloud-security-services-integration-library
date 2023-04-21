@@ -16,12 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serial;
 
 @WebServlet(HelloJavaServlet.ENDPOINT)
 public class HelloJavaServlet extends HttpServlet {
 	static final String ENDPOINT = "/hello-java-security-ias";
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private static Logger logger = LoggerFactory.getLogger(HelloJavaServlet.class);
+	private static final Logger logger = LoggerFactory.getLogger(HelloJavaServlet.class);
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)

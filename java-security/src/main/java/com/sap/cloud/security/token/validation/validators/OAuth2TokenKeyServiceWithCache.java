@@ -73,7 +73,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * Configures the token key cache. Use
 	 * {@link TokenKeyCacheConfiguration#getInstance(Duration, int, boolean)} to
 	 * pass a custom configuration.
-	 *
+	 * <p>
 	 * Note that the cache size must be 1000 or more and the cache duration must be
 	 * at least 600 seconds!
 	 *
@@ -148,7 +148,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 				return jwk.getPublicKey();
 			}
 		}
-		LOGGER.warn("No matching key found. Keys cached: {}", keySet.toString());
+		LOGGER.warn("No matching key found. Keys cached: {}", keySet);
 		return null;
 	}
 

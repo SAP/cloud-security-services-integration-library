@@ -54,9 +54,8 @@ public class ClientCertificate implements ClientIdentity {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof ClientCertificate))
+		if (!(o instanceof ClientCertificate that))
 			return false;
-		ClientCertificate that = (ClientCertificate) o;
 		return Objects.requireNonNull(certificate, "certificate must be provided").equals(that.certificate) &&
 				Objects.requireNonNull(key, "key must be provided").equals(that.key) &&
 				Objects.requireNonNull(clientId, "clientId must be provided").equals(that.clientId);

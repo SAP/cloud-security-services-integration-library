@@ -51,10 +51,10 @@ public final class Base64JwtDecoder {
 
 	static class DecodedJwtImpl implements DecodedJwt {
 
-		private String header;
-		private String payload;
-		private String signature;
-		private String encodedJwt;
+		private final String header;
+		private final String payload;
+		private final String signature;
+		private final String encodedJwt;
 		private static final String TAB = "\t";
 
 		DecodedJwtImpl(String encodedJwt, String header, String payload, String signature) {
@@ -86,13 +86,10 @@ public final class Base64JwtDecoder {
 
 		@Override
 		public String toString() {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("Jwt header" + lineSeparator());
-			stringBuilder.append(TAB + getHeader() + lineSeparator());
-			stringBuilder.append("Jwt payload" + lineSeparator());
-			stringBuilder.append(TAB + getPayload() + lineSeparator());
-
-			return stringBuilder.toString();
+			return "Jwt header" + lineSeparator() +
+					TAB + getHeader() + lineSeparator() +
+					"Jwt payload" + lineSeparator() +
+					TAB + getPayload() + lineSeparator();
 		}
 	}
 }

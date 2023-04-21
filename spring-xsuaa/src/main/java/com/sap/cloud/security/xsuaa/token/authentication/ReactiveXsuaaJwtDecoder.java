@@ -20,7 +20,10 @@ import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import reactor.core.publisher.Mono;
 
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
@@ -29,9 +32,9 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 
 	Cache<String, ReactiveJwtDecoder> cache;
-	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
-	private Collection<PostValidationAction> postValidationActions;
-	private TokenInfoExtractor tokenInfoExtractor;
+	private final List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
+	private final Collection<PostValidationAction> postValidationActions;
+	private final TokenInfoExtractor tokenInfoExtractor;
 
 	// var arg it is only being converted to a List<OAuth2TokenValidator<Jwt>>,
 	// therefore its type safe.
@@ -58,8 +61,8 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 			}
 		};
 
-		this.tokenValidators.addAll(Arrays.asList(tokenValidators));
-		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
+		this.tokenValidators.add(tokenValidators);
+		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.emptyList();
 	}
 
 	@Override

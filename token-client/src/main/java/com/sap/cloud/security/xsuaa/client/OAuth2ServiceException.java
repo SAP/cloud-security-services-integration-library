@@ -6,6 +6,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import java.io.IOException;
+import java.io.Serial;
 import java.net.URI;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
  */
 public class OAuth2ServiceException extends IOException {
 
+	@Serial
 	private static final long serialVersionUID = 1L;
 	private Integer httpStatusCode = 0;
 
@@ -46,18 +48,8 @@ public class OAuth2ServiceException extends IOException {
 		return new Builder(message);
 	}
 
-	/**
-	 * Returns the HTTP status code of the failed OAuth2 service request or
-	 * {@code 0} e.g. in case the service wasn't called at all.
-	 *
-	 * @return status code or 0
-	 */
-	public Integer getHttpStatusCode() {
-		return httpStatusCode;
-	}
-
 	public static class Builder {
-		private String message;
+		private final String message;
 		private Integer httpStatusCode;
 		private URI serverUri;
 		private String responseBody;
@@ -68,7 +60,7 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		/**
-		 * Parameterizes the Exception with a HTTP status code.
+		 * Parameterizes the Exception with an HTTP status code.
 		 *
 		 * @param httpStatusCode
 		 *            the http status code

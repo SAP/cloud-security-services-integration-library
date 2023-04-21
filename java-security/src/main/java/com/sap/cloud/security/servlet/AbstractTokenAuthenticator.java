@@ -5,14 +5,6 @@
  */
 package com.sap.cloud.security.servlet;
 
-import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
@@ -32,6 +24,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+
 public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
@@ -43,8 +43,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
-		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
-			HttpServletRequest httpRequest = (HttpServletRequest) request;
+		if (request instanceof HttpServletRequest httpRequest && response instanceof HttpServletResponse) {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {

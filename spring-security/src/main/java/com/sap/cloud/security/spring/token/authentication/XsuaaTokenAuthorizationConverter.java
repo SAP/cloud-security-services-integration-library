@@ -25,7 +25,7 @@ import java.util.Collections;
  */
 public class XsuaaTokenAuthorizationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-	private String appId;
+	private final String appId;
 
 	/**
 	 * Creates an instance.
@@ -47,10 +47,10 @@ public class XsuaaTokenAuthorizationConverter implements Converter<Jwt, Abstract
 		if (scopes == null) {
 			return Collections.emptySet();
 		}
-		return localScopeAuthorities(jwt, scopes);
+		return localScopeAuthorities(scopes);
 	}
 
-	protected Collection<GrantedAuthority> localScopeAuthorities(Jwt jwt, Collection<String> scopes) {
+	protected Collection<GrantedAuthority> localScopeAuthorities(Collection<String> scopes) {
 		Collection<GrantedAuthority> localScopeAuthorities = new ArrayList<>();
 		for (String scope : scopes) {
 			if (scope.startsWith(appId + ".")) {

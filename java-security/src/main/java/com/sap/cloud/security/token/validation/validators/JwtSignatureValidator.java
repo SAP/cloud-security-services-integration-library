@@ -255,8 +255,8 @@ class JwtSignatureValidator implements Validator<Token> {
 			if (tokenHeaderPayloadSignature.length != 3) {
 				return createInvalid("Jwt token does not consist of 'header'.'payload'.'signature'.");
 			}
-			String headerAndPayload = new StringBuilder(tokenHeaderPayloadSignature[0]).append(".")
-					.append(tokenHeaderPayloadSignature[1]).toString();
+			String headerAndPayload = tokenHeaderPayloadSignature[0] + "." +
+					tokenHeaderPayloadSignature[1];
 			try {
 				publicSignature.initVerify(publicKey);
 				publicSignature.update(headerAndPayload.getBytes(UTF_8)); // provide data
