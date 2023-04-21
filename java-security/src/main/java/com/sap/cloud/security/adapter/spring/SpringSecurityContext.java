@@ -140,8 +140,6 @@ public class SpringSecurityContext {
 	/**
 	 * This class extends the {@link XsuaaToken} and takes the scopes from Spring
 	 * {@link GrantedAuthority} to perform the {@link #hasLocalScope(String)} check.
-	 * Therefore make sure that you've configured local scopes as authorities using
-	 * {@link SAPOfflineTokenServicesCloud#setLocalScopeAsAuthorities(boolean)}.
 	 */
 	private static class XsuaaTokenWithGrantedAuthorities extends XsuaaToken {
 		private final Collection<? extends GrantedAuthority> authorities;
