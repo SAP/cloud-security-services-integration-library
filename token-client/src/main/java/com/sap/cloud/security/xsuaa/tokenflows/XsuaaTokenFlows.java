@@ -9,6 +9,7 @@ import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -22,6 +23,7 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
  * This class uses a RestTemplate which it passes on to the builders.
  */
 public class XsuaaTokenFlows implements Serializable {
+	@Serial
 	private static final long serialVersionUID = 2403173341950251507L;
 
 	private final ClientIdentity clientIdentity;

@@ -20,9 +20,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.io.Serial;
 
 @WebServlet("/hello-token-client")
 public class HelloTokenClientServlet extends HttpServlet {
+	@Serial
 	private static final long serialVersionUID = 1L;
 	private static XsuaaTokenFlows tokenFlows;
 

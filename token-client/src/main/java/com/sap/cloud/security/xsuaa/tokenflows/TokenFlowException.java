@@ -6,11 +6,13 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import java.io.IOException;
+import java.io.Serial;
 
 /**
  * Exception thrown to signal issues during a token flow execution.
  */
 public class TokenFlowException extends IOException {
+	@Serial
 	private static final long serialVersionUID = 1452898292676860358L;
 
 	/**
