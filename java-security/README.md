@@ -165,16 +165,21 @@ implementation will resolve `ClientCredentials` or `ClientCertificate` implement
 and with that providing the correct implementation for the configured authentication type e.g. X.509 or client secret based.
  
 #### :mega: Service configuration in Kubernetes/Kyma environment 
-Library supports services provisioned by [SAP BTP service-operator](https://github.com/SAP/sap-btp-service-operator) To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container.
-- BTP Service-operator up to v0.2.2 - Library will look up the configuration files in the following paths:
-  - XSUAA: `/etc/secrets/sapbtp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
-  - IAS: `/etc/secrets/sapbtp/identity/<YOUR IAS INSTANCE NAME>`
-- BTP Service-operator starting from v0.2.3 - Library reads the configuration from k8s secret that is stored in a volume, this volume's `mountPath` must be defined in environment variable `SERVICE_BINDING_ROOT`.
-  - upon creation of service binding a kubernetes secret with the same name as the binding is created. This binding secret needs to be stored to pod's volume.
-  - `SERVICE_BINDING_ROOT` environment variable needs to be defined with value that points to volume mount's directory (`mounthPath`) where service binding secret will be stored.
-  e.g. like [here](/samples/java-security-usage/k8s/deployment.yml#L76)
+Starting with version 2.13.0, the service bindings are read with [btp-environment-variable-access](https://github.com/SAP/btp-environment-variable-access) library.
+Please adhere to the guidelines outlined [here](https://github.com/SAP/btp-environment-variable-access#kubernetes-specifics) for configuring K8s secrets for the bound service configurations.
+Detailed information on how to use ``java-security`` library in Kubernetes/Kyma environment can be found in [java-security-usage](/samples/java-security-usage/README.md#deployment-on-kymakubernetes) sample's README.
 
-Detailed information on how to use ``java-security`` library in Kubernetes/Kyma environment can be found in [java-security-usage](/samples/java-security-usage/README.md#deployment-on-kymakubernetes) sample README.
+Generally, the library supports out of the box services provisioned by [SAP BTP service-operator](https://github.com/SAP/sap-btp-service-operator).
+
+To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container.
+- BTP Service-operator up to v0.2.2 - Library will look up the configuration files in the following paths:
+    - XSUAA: `/etc/secrets/sapbtp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
+    - Identity Services: `/etc/secrets/sapbtp/identity/<YOUR IDENTITY SERVICE INSTANCE NAME>`
+- BTP Service-operator starting from v0.2.3 - Library reads the configuration from k8s secret that is stored in a volume, this volume's `mountPath` must be defined in environment variable `SERVICE_BINDING_ROOT`.
+    - Upon creation of the service binding, a Kubernetes secret with the same name as the binding is created. This binding secret needs to be stored to pod's volume.
+    - The `SERVICE_BINDING_ROOT` environment variable needs to be defined with a value that points to volume mount's directory (`mounthPath`) where the service binding secret will be stored.
+      e.g. like [here](/samples/java-security-usage/k8s/deployment.yml#L76).
+
 
 #### Get additional information from `VCAP_SERVICES`
 In case you need further details from `VCAP_SERVICES` system environment variable, which are not exposed by `OAuth2ServiceConfiguration` interface you can use the `DefaultJsonObject` class for Json parsing.
