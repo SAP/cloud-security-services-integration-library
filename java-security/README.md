@@ -24,6 +24,14 @@ To be able to validate tokens it performs the following tasks:
 
 ![](images/TokenAuthenticator.png)
 
+#### Supported Environments
+- Cloud Foundry
+- Kubernetes/Kyma
+
+#### Supported Identity Services
+- SAP Identity service, supports Multitenancy/multiple zones
+- XSUAA
+
 #### Supported Token Signature Algorithms
 | JWS    | Algorithm   | Description                     |
 |--------|-------------|---------------------------------|
@@ -31,6 +39,7 @@ To be able to validate tokens it performs the following tasks:
 
 ## Requirements
 - Java 17
+- [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
 
 ## Table of Contents
 1. [Setup](#setup)
