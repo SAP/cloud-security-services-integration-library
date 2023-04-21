@@ -3,10 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## 3.0.0
 ### Baseline changes
-- `cloud-security-xsuaa-integration` library requires JDK 17
+`cloud-security-xsuaa-integration` library requires
+- Java 17
+- Spring Boot 3.0.x
+- Spring security 6.0.x
 
 ### Breaking Changes
-* IAS configurations need to provide domains via String array in JSON key 'identity.credentials.domains'. Providing String values under key 'identity.credentials.domain' is not supported anymore. IAS configurations from service bindings have been generated like this for a long time already. This should only affect old configuration files manually written for testing.
+* Identity service configurations need to provide domains via String array in JSON key 'identity.credentials.domains'. Providing String values under key 'identity.credentials.domain' is not supported anymore. IAS configurations from service bindings have been generated like this for a long time already. This should only affect old configuration files manually written for testing.
 
 #### Removed modules
 * `spring-xsuaa-mock` &rarr; use [java-security-test](./java-security-test) instead
@@ -33,7 +36,7 @@ All notable changes to this project will be documented in this file.
 #### Removed deprecated methods
 * [java-security]
   * `OAuth2TokenKeyServiceWithCache#withCacheTime`, `OAuth2TokenKeyServiceWithCache#withCacheSize` &rarr; use instead `OAuth2TokenKeyServiceWithCache#withCacheConfiguration`
-  * `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration)` &rarr; use instead `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration, RestOperations)`
+  * `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration)` &rarr;
 * [java-security-test]
   * `SecurityTestRule#getConfigurationBuilderFromFile` &rarr; use instead `SecurityTestRule#getOAuth2ServiceConfigurationBuilderFromFile`
   * `SecurityTestRule#getWireMockRule` &rarr; use instead `SecurityTestRule#getWireMockServer`
