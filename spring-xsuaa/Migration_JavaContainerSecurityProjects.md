@@ -12,7 +12,7 @@ with this open-source version.
 
 The following list serves as an overview of this guide and points out sections that describe required code changes for migrating applications.
 
-- Spring 5 is required! See section [Prerequisite](#prerequisite-migrate-to-spring-5).
+- Spring 5 is required! See section [Prerequisite](#prerequisite--migrate-to-spring-5-and-spring-security-52).
 - Maven dependencies need to be changed. See section [Maven Dependencies](#maven-dependencies).
 - The Spring Security configuration needs changes described in section [Configuration changes](#configuration-changes).
 - `Token` instead of `XSUserInfo`. See section [Fetch data from token](#fetch-data-from-token).
@@ -35,7 +35,7 @@ application. You can take a look at
 [this commit](https://github.com/SAP-samples/cloud-bulletinboard-ads/commit/b6cc7b08b9b5b7862b1a04eb3bc72cb3c28626f8)
 which shows what had to be changed to migrate our open-SAP course application from Spring 4 to Spring 5.
 
-:bulb: Please also consider the [spring-xsuaa](/README.md#requirements-3) requirements.
+:bulb: Please also consider the [spring-xsuaa](/README.md#requirements) requirements.
 
 ## Maven Dependencies
 To use the new [spring-xsuaa](/spring-xsuaa) client library the dependencies declared in maven `pom.xml` need to be changed.
@@ -270,7 +270,7 @@ application locally make sure that it is still working and finally test the appl
 
 
 ## Issues
-In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
+In case you face issues to apply the migration steps check this [troubleshooting](README.md#troubleshooting) for known issues and how to file the issue.
 
 ## Samples
 - [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/tree/solution-24-Make-App-Secure-Spring5)

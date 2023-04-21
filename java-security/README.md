@@ -49,7 +49,7 @@ To be able to validate tokens it performs the following tasks:
     - [OAuth2ServiceServiceConfiguration Usage](#oauth2serviceserviceconfiguration-usage)
     - [JwtValidatorBuilder usage](#jwtvalidatorbuilder-usage)
     - [Token keys(JWKs) cache](#token-keys--jwks--cache)
-    - [Validation listener usage](#validation-listener-usage)
+    - [Validation listener usage](#validationlistener-usage)
     - [ProofOfPossession validation](#proofofpossession-validation)
 3. [Test Utilities](#test-utilities)
     + [Local testing](#local-testing)
@@ -243,7 +243,7 @@ CacheConfiguration customCacheConfiguration = new CacheConfiguration(){
 };
 ```
 
-### 'ValidationListener' usage
+### `ValidationListener` usage
 You can add validation listener to the validators, which will be invoked whenever a token is validated. 
 This can be useful for tasks such as logging to an audit log service. To receive callbacks for successful or failed validations, 
 the validation listener must implement the [ValidationListener](src/main/java/com/sap/cloud/security/token/validation/ValidationListener.java) interface.
@@ -273,7 +273,7 @@ JwtValidatorBuilder.getInstance(oAuth2ServiceConfiguration)
     .with(new JwtX5tValidator(oAuth2ServiceConfiguration))
     .build();
 ```
-Or it can be used as a standalone `Validator`, by creating a new instance of it and calling `JwtX5tValidator.validate(Token token)` method with the token to be validated as a method's parameter. See [here](#get-information-from-token) how to get a token from `SecurityContext`
+Or it can be used as a standalone `Validator`, by creating a new instance of it and calling `JwtX5tValidator.validate(Token token)` method with the token to be validated as a method's parameter. See [here](#retrieve-additional-information-from-token) how to get a token from `SecurityContext`
 ```java
 JwtX5tValidator validator = new JwtX5tValidator(oAuth2ServiceConfiguration);
 ValidationResult result = validator.validate(token);
@@ -412,7 +412,7 @@ If you have classpath related  issues involving JSON you should take a look at t
 [Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 #### ServletContext.getAccessToken() returns null
-`SecurityContext` caches only successfully validated tokens thread-locally, i.e. within the same thread. Please increase the log level as described [here](#increase-log-level-to-debug) in order to check whether the token validation fails and for which reason.
+`SecurityContext` caches only successfully validated tokens thread-locally, i.e. within the same thread. Please increase the log level as described [here](#set-debug-log-level) in order to check whether the token validation fails and for which reason.
 
 In case you use **SAP Java Buildpack** for token validation, make sure that your J2EE Servlet is annotated with a scope check, like:
 ```java

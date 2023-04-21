@@ -25,6 +25,8 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
 
 ## Requirements
 - Java 17
+- Spring Boot 3
+- Spring Framework 6
 - [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
 
 ## Table of Contents

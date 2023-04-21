@@ -2,7 +2,7 @@
 This sample is a Java Back-End application that utilizes the [Java Security](../../java-security/) client library to authenticate JWT tokens issued by the `xsuaa` service.
 It inspects incoming requests to determine if the user has the appropriate authorization by using the [`XsuaaTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java).
 
-Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) or [Cloud Foundry](#Deployment-on-Cloud-Foundry).
+Follow the deployment steps for [Kyma/Kubernetes](#deployment-on-kymakubernetes) or [Cloud Foundry](#Deployment-on-Cloud-Foundry).
 
 # Deployment on Kyma/Kubernetes
 <details>

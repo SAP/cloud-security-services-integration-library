@@ -16,6 +16,10 @@ Library supports services provisioned by [SAP BTP service-operator](https://gith
    - `SERVICE_BINDING_ROOT` environment variable needs to be defined with value that points to volume mount's directory (`mounthPath`) where service binding secret will be stored.
       e.g. like [here](/samples/spring-security-basic-auth/k8s/deployment.yml#L59)
 
+### Requirements
+- Java 17
+- Spring Boot 3
+- Spring Framework 6
      
 ### Maven Dependencies
 These (spring) dependencies need to be provided:
