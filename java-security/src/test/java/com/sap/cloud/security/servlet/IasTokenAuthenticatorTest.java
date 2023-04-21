@@ -5,16 +5,6 @@
  */
 package com.sap.cloud.security.servlet;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.logging.log4j.ThreadContext.isEmpty;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
@@ -33,6 +23,16 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.io.IOException;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.logging.log4j.ThreadContext.isEmpty;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 class IasTokenAuthenticatorTest {
 
@@ -88,7 +88,8 @@ class IasTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 		assertFalse(response.isAuthenticated());
-		assertTrue(response.getUnauthenticatedReason().contains("Unexpected error occurred: There must be a service configuration."));
+		assertTrue(response.getUnauthenticatedReason()
+				.contains("Unexpected error occurred: There must be a service configuration."));
 	}
 
 	@Test

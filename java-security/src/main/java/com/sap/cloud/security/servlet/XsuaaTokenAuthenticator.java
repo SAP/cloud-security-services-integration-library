@@ -25,7 +25,6 @@ import static com.sap.cloud.security.servlet.TokenAuthenticatorResult.createUnau
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
-
 	public XsuaaTokenAuthenticator() {
 		serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
 		httpClient = HttpClientFactory

@@ -5,16 +5,6 @@
  */
 package com.sap.cloud.security.servlet;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.logging.log4j.ThreadContext.isEmpty;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -35,6 +25,16 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.logging.log4j.ThreadContext.isEmpty;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
+
 class XsuaaTokenAuthenticatorTest {
 
 	private final static HttpServletResponse HTTP_RESPONSE = Mockito.mock(HttpServletResponse.class);
@@ -47,7 +47,6 @@ class XsuaaTokenAuthenticatorTest {
 	private static final ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
 	private static OAuth2ServiceConfigurationBuilder oAuth2ServiceConfigBuilder;
 	private static AbstractTokenAuthenticator cut;
-
 
 	XsuaaTokenAuthenticatorTest() throws IOException {
 		xsuaaToken = new XsuaaToken(IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8));
@@ -64,9 +63,9 @@ class XsuaaTokenAuthenticatorTest {
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 		when(mockHttpClient.execute(any(HttpGet.class), any(ResponseHandler.class)))
 				.thenAnswer(invocation -> {
-			ResponseHandler responseHandler = invocation.getArgument(1);
-			return responseHandler.handleResponse(xsuaaTokenKeysResponse);
-		});
+					ResponseHandler responseHandler = invocation.getArgument(1);
+					return responseHandler.handleResponse(xsuaaTokenKeysResponse);
+				});
 
 		CloseableHttpResponse xsuaaTokenResponse = HttpClientTestFactory
 				.createHttpResponse(
@@ -97,7 +96,8 @@ class XsuaaTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 		assertFalse(response.isAuthenticated());
-		assertTrue(response.getUnauthenticatedReason().contains("Unexpected error occurred: There must be a service configuration."));
+		assertTrue(response.getUnauthenticatedReason()
+				.contains("Unexpected error occurred: There must be a service configuration."));
 	}
 
 	@Test

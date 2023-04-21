@@ -70,8 +70,8 @@ public interface SecurityTestContext {
 
 	/**
 	 * Allows to stub further endpoints of the identity service. You can find a
-	 * detailed explanation on how to configure wire mock here:
-	 * <a href="http://wiremock.org/docs/getting-started/">http://wiremock.org/docs/getting-started/</a>
+	 * detailed explanation on how to configure wire mock here: <a href=
+	 * "http://wiremock.org/docs/getting-started/">http://wiremock.org/docs/getting-started/</a>
 	 *
 	 * @return an instance of WireMockServer
 	 */

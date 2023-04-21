@@ -22,7 +22,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 /**
- * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest</a>
+ * <a href=
+ * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest</a>
  */
 public class DefaultOidcConfigurationService implements OidcConfigurationService {
 
@@ -56,7 +57,7 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 			endpointsJson = httpClient.execute(request, response -> {
 				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 				int statusCode = response.getStatusLine().getStatusCode();
-				if(statusCode != HttpStatus.SC_OK) {
+				if (statusCode != HttpStatus.SC_OK) {
 					throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
 							.withUri(discoveryEndpointUri)
 							.withStatusCode(statusCode)

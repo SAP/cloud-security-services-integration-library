@@ -110,7 +110,7 @@ public interface JsonObject {
 
 	/**
 	 * Returns a nested JSON object as @{link JsonObject} instance.
-	 * 
+	 *
 	 * @param name
 	 *            the name of property.
 	 * @return the {@link JsonObject}.
@@ -125,7 +125,7 @@ public interface JsonObject {
 	 * Returns a nested array of JSON objects as list of {@link JsonObject}
 	 * instances. If the property with the given name is not found, an empty list is
 	 * returned.
-	 * 
+	 *
 	 * @param name
 	 *            the name of property.
 	 * @return a list of {@link JsonObject} instances.
@@ -139,7 +139,7 @@ public interface JsonObject {
 	 * Returns a key-value map of the JSON properties.
 	 * <p>
 	 * Example:
-	 * 
+	 *
 	 * <pre>
 	 * {
 	 * 	&#64;code
@@ -151,14 +151,14 @@ public interface JsonObject {
 	 * 			.getKeyValueMap();
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * @return the json properties as key-value map
 	 */
 	Map<String, String> getKeyValueMap();
 
 	/**
 	 * Returns the json object as a json string.
-	 * 
+	 *
 	 * @return the json object in string representation.
 	 */
 	String asJsonString();

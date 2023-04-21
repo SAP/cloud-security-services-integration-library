@@ -34,7 +34,7 @@ public class AuthenticationToken extends JwtAuthenticationToken {
 
 	/**
 	 * Creates
-	 * 
+	 *
 	 * @param jwt
 	 *            Spring Security's representation of the jwt token
 	 * @param grantedAuthorities

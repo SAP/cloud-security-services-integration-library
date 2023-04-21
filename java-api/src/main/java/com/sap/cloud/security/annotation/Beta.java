@@ -6,7 +6,8 @@
 package com.sap.cloud.security.annotation;
 
 /**
- * Signifies that a public API (public class, method or field) is subject to incompatible changes, or even removal, in a future release.
+ * Signifies that a public API (public class, method or field) is subject to
+ * incompatible changes, or even removal, in a future release.
  */
 public @interface Beta {
 }

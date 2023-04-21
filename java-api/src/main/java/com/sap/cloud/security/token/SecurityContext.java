@@ -58,7 +58,7 @@ public class SecurityContext {
 
 	/**
 	 * Saves the validated (!) token thread wide.
-	 * 
+	 *
 	 * @param token
 	 *            token to be saved.
 	 */
@@ -70,7 +70,7 @@ public class SecurityContext {
 
 	/**
 	 * Returns the token that is saved in thread wide storage.
-	 * 
+	 *
 	 * @return the token or null if the storage is empty.
 	 */
 	@Nullable

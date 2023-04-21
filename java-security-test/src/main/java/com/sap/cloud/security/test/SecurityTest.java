@@ -185,8 +185,9 @@ public class SecurityTest
 			LOGGER.warn("More than one OAuth2 service binding found in resource. Using configuration of first one!");
 		}
 
-		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(serviceBindings.get(0));
-		if(builder != null) {
+		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper
+				.mapToOAuth2ServiceConfigurationBuilder(serviceBindings.get(0));
+		if (builder != null) {
 			// adjust domain and URL of the config to fit the mocked service instance
 			builder = builder.withDomains(URI.create(issuerUrl).getHost()).withUrl(issuerUrl);
 		}

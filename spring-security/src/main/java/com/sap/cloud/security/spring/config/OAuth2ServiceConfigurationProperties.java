@@ -70,7 +70,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	/**
 	 * Sets private key of identity service instance.
-	 * 
+	 *
 	 * @param key
 	 *            PEM encoded private key
 	 */

@@ -6,8 +6,8 @@
 package com.sap.cloud.security.token;
 
 /**
- * Constants denoting JWT claims as specified here:
- * <a href="https://tools.ietf.org/html/rfc7519#section-4">https://tools.ietf.org/html/rfc7519#section-4</a>
+ * Constants denoting JWT claims as specified here: <a href=
+ * "https://tools.ietf.org/html/rfc7519#section-4">https://tools.ietf.org/html/rfc7519#section-4</a>
  */
 public final class TokenClaims {
 

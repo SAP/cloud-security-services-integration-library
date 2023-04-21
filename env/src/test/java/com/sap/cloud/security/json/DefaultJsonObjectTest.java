@@ -226,20 +226,21 @@ public class DefaultJsonObjectTest {
 		String deeplyNestedJsonObject = createDeeplyNestedJsonObjectString(100000);
 		try {
 			new DefaultJsonObject(deeplyNestedJsonObject);
-		} catch(StackOverflowError e) {
+		} catch (StackOverflowError e) {
 			Assert.fail("Encountered StackoverflowError.");
-		} catch(Exception ignored) {}
+		} catch (Exception ignored) {
+		}
 	}
 
 	private static String createDeeplyNestedJsonObjectString(int depth) {
 		return "{" +
-			// go down the JSON Object rabbit hole...
-			"\"a\" : {".repeat(Math.max(0, depth)) +
+		// go down the JSON Object rabbit hole...
+				"\"a\" : {".repeat(Math.max(0, depth)) +
 
-			// ... and up again
-			"}".repeat(Math.max(0, depth)) +
+				// ... and up again
+				"}".repeat(Math.max(0, depth)) +
 
-			"}";
+				"}";
 	}
 
 	private DefaultJsonObject createJsonParser(String key, Object value) {

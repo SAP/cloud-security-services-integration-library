@@ -52,7 +52,7 @@ public class ClientCredentialsTokenFlow {
 		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 		assertNotNull(clientIdentity, "ClientIdentity must not be null.");
-		
+
 		this.tokenService = tokenService;
 		this.endpointsProvider = endpointsProvider;
 		this.clientIdentity = clientIdentity;
@@ -99,8 +99,7 @@ public class ClientCredentialsTokenFlow {
 	/**
 	 * Sets the scope attribute for the token request. This will restrict the scope
 	 * of the created token to the scopes provided. By default the scope is not
-	 * restricted and the created token contains all granted scopes.
-	 * <br>
+	 * restricted and the created token contains all granted scopes. <br>
 	 * If you specify a scope that is not authorized for the client, the token
 	 * request will fail.
 	 *
@@ -116,7 +115,7 @@ public class ClientCredentialsTokenFlow {
 
 	/**
 	 * Can be used to disable the cache for the flow.
-	 * 
+	 *
 	 * @param disableCache
 	 *            - disables cache when set to {@code true}.
 	 * @return this builder.

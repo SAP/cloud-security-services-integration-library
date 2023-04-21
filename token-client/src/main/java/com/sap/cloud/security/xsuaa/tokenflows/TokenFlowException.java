@@ -36,7 +36,7 @@ public class TokenFlowException extends IOException {
 
 	/**
 	 * Creates a new exception instances.
-	 * 
+	 *
 	 * @param message
 	 *            - the error message.
 	 */
@@ -46,7 +46,7 @@ public class TokenFlowException extends IOException {
 
 	/**
 	 * Creates a new exception instances.
-	 * 
+	 *
 	 * @param cause
 	 *            - the error cause.
 	 */

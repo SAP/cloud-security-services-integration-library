@@ -58,10 +58,10 @@ class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	/**
-	 * This method disables the tenant id check. In case Jwt issuer `iss` claim doesn't
-	 * match with the `url` attribute from {@link OAuth2ServiceConfiguration)},
-	 * tenant-id (zid) claim needs to be present in token to ensure that the tenant belongs to
-	 * this issuer.
+	 * This method disables the tenant id check. In case Jwt issuer `iss` claim
+	 * doesn't match with the `url` attribute from
+	 * {@link OAuth2ServiceConfiguration)}, tenant-id (zid) claim needs to be
+	 * present in token to ensure that the tenant belongs to this issuer.
 	 * <p>
 	 * Use with caution as it relaxes the validation rules! It is not recommended to
 	 * disable this check for standard Identity service setup.

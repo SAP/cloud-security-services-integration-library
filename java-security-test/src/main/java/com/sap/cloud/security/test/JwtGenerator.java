@@ -30,7 +30,8 @@ import static com.sap.cloud.security.token.TokenHeader.*;
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
  */
 public class JwtGenerator {
-	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, Calendar.DECEMBER, 31).getTime().toInstant();
+	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, Calendar.DECEMBER, 31).getTime()
+			.toInstant();
 	public static final String DEFAULT_KEY_ID = "default-kid";
 	public static final String DEFAULT_KEY_ID_IAS = "default-kid-ias";
 	public static final String DEFAULT_ZONE_ID = "the-zone-id";
@@ -353,7 +354,8 @@ public class JwtGenerator {
 	 * {@link #withScopes(String...)}}. Note that this is specific to tokens of
 	 * service type {@link Service#XSUAA}.
 	 *
-	 * @param scopes token scopes
+	 * @param scopes
+	 *            token scopes
 	 * @return the JwtGenerator itself
 	 * @throws IllegalStateException
 	 *             if the appId has not been set via {@link #withAppId(String)}
@@ -399,9 +401,9 @@ public class JwtGenerator {
 			throw new IllegalStateException("Private key was not set!");
 		}
 		return switch (service) {
-			case IAS -> new SapIdToken(createTokenAsString());
-			case XSUAA -> new XsuaaToken(createTokenAsString());
-			default -> throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
+		case IAS -> new SapIdToken(createTokenAsString());
+		case XSUAA -> new XsuaaToken(createTokenAsString());
+		default -> throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
 		};
 	}
 

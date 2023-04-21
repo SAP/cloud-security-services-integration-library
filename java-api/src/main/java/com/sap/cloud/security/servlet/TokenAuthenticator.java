@@ -21,7 +21,7 @@ public interface TokenAuthenticator {
 
 	/**
 	 * Performs the authentication for the given request.
-	 * 
+	 *
 	 * @param request
 	 *            servlet request.
 	 * @param response

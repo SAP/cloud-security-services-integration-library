@@ -70,11 +70,11 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 	public void retrieveToken_throwsOnNullValues() {
 		assertThatThrownBy(
 				() -> cut.retrieveAccessTokenViaClientCredentialsGrant(null, clientIdentity, null, null, null, false))
-						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
 
 		assertThatThrownBy(
 				() -> cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, null, null, null, null, false))
-						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 	}
 
 	@Test(expected = OAuth2ServiceException.class)

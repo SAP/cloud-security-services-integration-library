@@ -15,7 +15,7 @@ import java.util.Map;
 public interface Environment {
 	/**
 	 * Return OAuth service configuration of Xsuaa identity service instance.
-	 * 
+	 *
 	 * @return the OAuth service configuration or null, in case there is no instance
 	 */
 	@Nullable

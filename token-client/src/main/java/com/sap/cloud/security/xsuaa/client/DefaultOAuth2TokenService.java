@@ -71,7 +71,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		try {
 			return executeRequest(httpPost);
 		} catch (IOException | URISyntaxException e) {
-			if(e instanceof OAuth2ServiceException) throw (OAuth2ServiceException) e;
+			if (e instanceof OAuth2ServiceException)
+				throw (OAuth2ServiceException) e;
 
 			throw new OAuth2ServiceException("Unexpected error retrieving JWT token: " + e.getMessage());
 		}
@@ -128,7 +129,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		return String.valueOf(accessTokenMap.get(key));
 	}
 
-	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters) throws OAuth2ServiceException {
+	private HttpPost createHttpPost(URI uri, HttpHeaders headers, Map<String, String> parameters)
+			throws OAuth2ServiceException {
 		HttpPost httpPost = new HttpPost(uri);
 		headers.getHeaders().forEach(header -> httpPost.setHeader(header.getName(), header.getValue()));
 		List<BasicNameValuePair> basicNameValuePairs = parameters.entrySet().stream()

@@ -60,7 +60,7 @@ public class XsuaaJwtSignatureValidatorTest {
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
 						isNull()))
-								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,

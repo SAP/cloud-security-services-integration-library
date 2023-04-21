@@ -23,8 +23,10 @@ import static com.sap.cloud.security.token.validation.ValidationResults.createIn
  * ({@code exp}) time and if it is used after the "not before" ({@code nbf})
  * time.
  * <p>
- * See specification: <a href=https://tools.ietf.org/html/rfc7519#section-4.1.4>https://tools.ietf.org/html/rfc7519#section-4.1.4</a>
- * <a href=https://tools.ietf.org/html/rfc7519#section-4.1.5>https://tools.ietf.org/html/rfc7519#section-4.1.5</a>
+ * See specification: <a
+ * href=https://tools.ietf.org/html/rfc7519#section-4.1.4>https://tools.ietf.org/html/rfc7519#section-4.1.4</a>
+ * <a
+ * href=https://tools.ietf.org/html/rfc7519#section-4.1.5>https://tools.ietf.org/html/rfc7519#section-4.1.5</a>
  */
 class JwtTimestampValidator implements Validator<Token> {
 

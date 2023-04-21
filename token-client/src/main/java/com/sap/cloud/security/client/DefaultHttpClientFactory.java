@@ -29,16 +29,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Constructs a {@link CloseableHttpClient} object. Facilitates certificate and client credentials-based
- * communication based on the identity service configuration from the binding.
+ * Constructs a {@link CloseableHttpClient} object. Facilitates certificate and
+ * client credentials-based communication based on the identity service
+ * configuration from the binding.
  * <p>
- * HttpClient is configured with the following default values:
- * - connection and connection request timeout - 5 s
- * - socket timeout - 30 s
- * - max connections - 200
- * - max connections per route - 20
+ * HttpClient is configured with the following default values: - connection and
+ * connection request timeout - 5 s - socket timeout - 30 s - max connections -
+ * 200 - max connections per route - 20
  * <p>
- * If these values do not meet your requirements, please provide your own implementation of {@link HttpClientFactory}.
+ * If these values do not meet your requirements, please provide your own
+ * implementation of {@link HttpClientFactory}.
  */
 public class DefaultHttpClientFactory implements HttpClientFactory {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);

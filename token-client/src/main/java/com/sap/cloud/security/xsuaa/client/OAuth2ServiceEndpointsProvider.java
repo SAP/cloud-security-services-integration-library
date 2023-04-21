@@ -11,14 +11,14 @@ public interface OAuth2ServiceEndpointsProvider {
 
 	/**
 	 * Returns token endpoint URI.
-	 * 
+	 *
 	 * @return token endpoint, e.g. {@code https://oauth.server.com/oauth/token}
 	 */
 	URI getTokenEndpoint();
 
 	/**
 	 * Returns authorize endpoint URI.
-	 * 
+	 *
 	 * @return authorize endpoint, e.g.
 	 *         {@code https://oauth.server.com/oauth/authorize}
 	 */

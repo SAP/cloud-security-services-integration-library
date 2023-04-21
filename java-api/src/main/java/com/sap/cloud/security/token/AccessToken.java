@@ -76,7 +76,7 @@ public interface AccessToken extends Token {
 	 *
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
-	 * 
+	 *
 	 * @return the String value of a claim attribute or null if claim or its
 	 *         attribute does not exist.
 	 **/

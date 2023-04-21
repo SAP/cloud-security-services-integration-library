@@ -30,7 +30,7 @@ class X509Parser {
 
 	/**
 	 * Decodes X509 base64 encoded certificate into X509Certificate class
-	 * 
+	 *
 	 * @param encodedX509
 	 *            base64 encoded X509 certificate
 	 * @return Decoded X509Certificate

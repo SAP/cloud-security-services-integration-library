@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 

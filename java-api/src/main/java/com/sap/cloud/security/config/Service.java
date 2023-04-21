@@ -35,7 +35,7 @@ public enum Service {
 	/**
 	 * Returns the name of the identity service as it appears on Cloud Foundry
 	 * marketplace.
-	 * 
+	 *
 	 * @return name of the identity service in context of Cloud Foundry environment.
 	 */
 	public String getCFName() {

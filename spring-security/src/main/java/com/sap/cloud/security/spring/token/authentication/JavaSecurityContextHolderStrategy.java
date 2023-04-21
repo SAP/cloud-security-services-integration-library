@@ -25,20 +25,21 @@ import org.springframework.util.Assert;
  * {@code com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy}
  * <br>
  * or via <br>
- * 
+ *
  * <pre>
  * {@code
  * &#64;Bean
  * public MethodInvokingFactoryBean setJavaSecurityContextHolderStrategy() {
- * 		MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
- * 		methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
- * 		methodInvokingFactoryBean.setTargetMethod("setStrategyName");
- * 		methodInvokingFactoryBean.setArguments("com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy");
- * return methodInvokingFactoryBean;
+ * 	MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
+ * 	methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
+ * 	methodInvokingFactoryBean.setTargetMethod("setStrategyName");
+ * 	methodInvokingFactoryBean
+ * 			.setArguments("com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy");
+ * 	return methodInvokingFactoryBean;
  * }
  * }
  * </pre>
- * 
+ *
  * or via <br>
  * {@code SecurityContextHolder.setStrategyName("com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy")}
  */

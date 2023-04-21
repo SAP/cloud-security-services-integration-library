@@ -5,9 +5,6 @@
  */
 package com.sap.cloud.security.util;
 
-
-import static org.mockito.Mockito.when;
-
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -15,6 +12,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
 import org.mockito.Mockito;
+
+import static org.mockito.Mockito.when;
 
 public class HttpClientTestFactory {
 
