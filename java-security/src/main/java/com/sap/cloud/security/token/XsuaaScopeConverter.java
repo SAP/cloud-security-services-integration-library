@@ -22,7 +22,7 @@ public class XsuaaScopeConverter implements ScopeConverter {
 
 	/**
 	 * Creates an instance of the converter.
-	 * 
+	 *
 	 * @param appId
 	 *            the xs application name e.g. myapp!t123.
 	 */

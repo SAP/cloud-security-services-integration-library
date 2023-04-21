@@ -5,18 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -29,6 +17,18 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.http.HttpMethod;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+
+import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 
 public class DefaultOidcConfigurationServiceTest {
 	public static final URI CONFIG_ENDPOINT_URI = URI.create("https://sub.myauth.com" + DISCOVERY_ENDPOINT_DEFAULT);
@@ -81,7 +81,8 @@ public class DefaultOidcConfigurationServiceTest {
 
 		retrieveEndpoints();
 
-		Mockito.verify(httpClientMock, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()), any(ResponseHandler.class));
+		Mockito.verify(httpClientMock, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()),
+				any(ResponseHandler.class));
 	}
 
 	@Test

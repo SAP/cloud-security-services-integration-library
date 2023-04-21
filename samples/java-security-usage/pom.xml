@@ -31,8 +31,8 @@
         <slf4j.api.version>2.0.5</slf4j.api.version>
         <apache.httpclient.version>4.5.14</apache.httpclient.version>
         <jakarta.servlet.api.version>6.0.0</jakarta.servlet.api.version>
-        <assertj.version>3.23.1</assertj.version>
-        <junit.version>5.9.1</junit.version>
+        <assertj.version>3.24.2</assertj.version>
+        <junit.version>5.9.2</junit.version>
     </properties>
 
     <dependencyManagement>

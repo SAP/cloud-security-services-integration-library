@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serial;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
  * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
+	@Serial
 	private static final long serialVersionUID = 2204172041950251807L;
 
 	private final DecodedJwt decodedJwt;
@@ -127,9 +129,8 @@ public abstract class AbstractToken implements Token {
 			public boolean equals(Object o) {
 				if (this == o)
 					return true;
-				if (!(o instanceof Principal))
+				if (!(o instanceof Principal that))
 					return false;
-				Principal that = (Principal) o;
 				return getName().equals(that.getName());
 			}
 
@@ -157,9 +158,8 @@ public abstract class AbstractToken implements Token {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Token))
+		if (!(obj instanceof Token that))
 			return false;
-		Token that = (Token) obj;
 		return getTokenValue().equals(that.getTokenValue());
 	}
 

@@ -17,13 +17,14 @@ import java.util.Scanner;
 public class Environments {
 
 	private static Environment currentEnvironment;
+
 	private Environments() {
 		// use factoryMethods instead
 	}
 
 	/**
 	 * Determines the current type of {@link Environment}.
-	 * 
+	 *
 	 * @return the current environment
 	 */
 	public static Environment getCurrent() {

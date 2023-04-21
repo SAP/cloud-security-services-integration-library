@@ -15,7 +15,7 @@ public interface ValidationResult {
 
 	/**
 	 * Returns true if there is no validation error, false otherwise.
-	 * 
+	 *
 	 * @return true if there is no validation error.
 	 */
 	default boolean isValid() {

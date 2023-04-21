@@ -22,7 +22,7 @@ public class XsuaaJwtDecoderBuilder {
 	int decoderCacheValidity; // in seconds
 	int decoderCacheSize;
 	Collection<PostValidationAction> postValidationActions;
-	private XsuaaServiceConfiguration configuration;
+	private final XsuaaServiceConfiguration configuration;
 	private RestOperations restOperations;
 	private List<OAuth2TokenValidator<Jwt>> xsuaaTokenValidators;
 

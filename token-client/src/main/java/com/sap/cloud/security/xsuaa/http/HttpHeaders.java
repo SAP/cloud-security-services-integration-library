@@ -5,10 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.http;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HttpHeaders {
@@ -26,7 +23,7 @@ public class HttpHeaders {
 	}
 
 	public HttpHeaders(Collection<HttpHeader> headers) {
-		this.headers = headers.stream().collect(Collectors.toSet());
+		this.headers = new HashSet<>(headers);
 	}
 
 	public Set<HttpHeader> getHeaders() {

@@ -11,7 +11,7 @@ import java.math.BigInteger;
 
 class MinimalDERParser {
 	private static final String INVALID_LENGTH_ENCODING = "Invalid length encoding";
-	private byte[] content;
+	private final byte[] content;
 	private int idx;
 
 	public MinimalDERParser(byte[] content) {

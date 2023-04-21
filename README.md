@@ -65,8 +65,8 @@ In the table below you'll find links to detailed information.
 :bulb: Changes with SAP Java Buildpack 1.26.0
 The former SAP Java Buildpack versions have used deprecated (Spring) Security libraries and had to be updated. As of version 1.26.0 SAP Java Buildpack uses the [`java-security`](/java-security) library. Please consider these (migration) guides:
 
-- [MANDATORY: clean-up deprecated dependencies](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/java-security/Migration_SAPJavaBuildpackProjects.md)
-- [OPTIONAL: Leverage new APIs and features](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/java-security/Migration_SAPJavaBuildpackProjects_V2.md)
+- [MANDATORY: clean-up deprecated dependencies](https://github.com/SAP/cloud-security-services-integration-library/blob/main/java-security/Migration_SAPJavaBuildpackProjects.md)
+- [OPTIONAL: Leverage new APIs and features](https://github.com/SAP/cloud-security-services-integration-library/blob/main/java-security/Migration_SAPJavaBuildpackProjects_V2.md)
 
 
 #### 2.1.2. Spring Boot web applications

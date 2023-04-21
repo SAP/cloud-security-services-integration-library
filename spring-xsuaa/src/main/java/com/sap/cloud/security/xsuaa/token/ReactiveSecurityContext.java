@@ -15,7 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import reactor.core.publisher.Mono;
 
 public class ReactiveSecurityContext {
-	private static Logger logger = LoggerFactory.getLogger(ReactiveSecurityContext.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReactiveSecurityContext.class);
 
 	private ReactiveSecurityContext() {
 	}

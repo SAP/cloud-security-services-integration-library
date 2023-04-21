@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
  * prefix (e.g.my-application-demo!t1229) from the scopes in the JWT.
  */
 public class ReactiveTokenAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
-	TokenAuthenticationConverter converter;
+	final TokenAuthenticationConverter converter;
 
 	public ReactiveTokenAuthenticationConverter(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		this.converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration.getAppId());

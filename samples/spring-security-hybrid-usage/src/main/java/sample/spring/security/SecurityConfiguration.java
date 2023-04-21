@@ -85,7 +85,7 @@ public class SecurityConfiguration {
     /**
      * Workaround for IAS only use case until Cloud Authorization Service is globally available.
      */
-    class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+    static class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
         public AbstractAuthenticationToken convert(Jwt jwt) {
             final List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);

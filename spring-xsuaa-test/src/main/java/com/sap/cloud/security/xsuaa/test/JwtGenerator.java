@@ -16,7 +16,6 @@ import org.springframework.security.jwt.crypto.sign.RsaSigner;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
@@ -34,14 +33,14 @@ public class JwtGenerator {
 	 * Do not want to introduce circular reference to spring-xsuaa. duplicate of
 	 * com.sap.cloud.security.xsuaa.token.TokenClaims
 	 */
-	public final class TokenClaims {
+	public static final class TokenClaims {
 		private TokenClaims() {
 			throw new IllegalStateException("Utility class");
 		}
 
 		static final String CLAIM_XS_USER_ATTRIBUTES = "xs.user.attributes";
 		static final String CLAIM_SCOPES = "scope";
-		static final String CLAIM_CLIENT_ID = "cid"; // Client Id left for backward compatibility
+		static final String CLAIM_CLIENT_ID = "cid"; // clientid left for backward compatibility
 		static final String CLAIM_AUTHORIZATION_PARTY = "azp";
 		static final String CLAIM_USER_NAME = "user_name";
 		static final String CLAIM_EMAIL = "email";
@@ -52,7 +51,7 @@ public class JwtGenerator {
 		static final String CLAIM_EXTERNAL_ATTR = "ext_attr";
 	}
 
-	public final class TokenHeaders {
+	public static final class TokenHeaders {
 		private TokenHeaders() {
 			throw new IllegalStateException("Utility class");
 		}
@@ -64,7 +63,7 @@ public class JwtGenerator {
 	// must match the port defined in XsuaaMockWebServer
 	private static final int MOCK_XSUAA_DEFAULT_PORT = 33195;
 	private static final String INITIAL_JKU = "null";
-	public static final Date NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime();
+	public static final Date NO_EXPIRE_DATE = new GregorianCalendar(2190, Calendar.NOVEMBER, 31).getTime();
 	public static final int NO_EXPIRE = Integer.MAX_VALUE;
 	public static final String CLIENT_ID = "sb-xsapplication!t895";
 	public static final String DEFAULT_IDENTITY_ZONE_ID = "uaa";
@@ -81,8 +80,8 @@ public class JwtGenerator {
 	private String userName = "testuser";
 	private String jwtHeaderKeyId = "legacy-token-key";
 	private int port;
-	private Map<String, List<String>> attributes = new HashMap<>();
-	private Map<String, Object> customClaims = new LinkedHashMap();
+	private final Map<String, List<String>> attributes = new HashMap<>();
+	private final Map<String, Object> customClaims = new LinkedHashMap<>();
 	private boolean deriveAudiences = false;
 
 	/**
@@ -350,7 +349,7 @@ public class JwtGenerator {
 	 *             in case the template file can not be read
 	 */
 	public static Jwt createFromFile(String pathToJwt) throws IOException {
-		return convertTokenToOAuthJwt(IOUtils.resourceToString(pathToJwt, Charset.forName("UTF-8")));
+		return convertTokenToOAuthJwt(IOUtils.resourceToString(pathToJwt, StandardCharsets.UTF_8));
 	}
 
 	/**
@@ -361,7 +360,7 @@ public class JwtGenerator {
 	 * @return a jwt
 	 */
 	public static Jwt createFromClaims(JWTClaimsSet claimsSet) {
-		return createFromClaims(claimsSet.toString(), Collections.EMPTY_MAP);
+		return createFromClaims(claimsSet.toString(), Collections.emptyMap());
 	}
 
 	/**

@@ -17,13 +17,13 @@ class XsuaaTokenFlowsUtils {
 
 	static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 
-
 	/**
 	 * Builds the additional authorities claim 'az_attr' for the JWT.
 	 *
 	 * @param additionalAuthorities
 	 *            to be added to az_attr claim.
-	 * @return the additional authorities az_attr claim as a String or null if additional authorities were null
+	 * @return the additional authorities az_attr claim as a String or null if
+	 *         additional authorities were null
 	 */
 	static String buildAdditionalAuthoritiesJson(Map<String, String> additionalAuthorities) {
 		if (additionalAuthorities != null) {

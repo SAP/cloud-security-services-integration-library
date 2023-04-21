@@ -23,7 +23,7 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
  * Validates if the jwt access token is intended for the OAuth2 client of this
  * application. The aud (audience) claim identifies the recipients the JWT is
  * issued for.
- *
+ * <p>
  * Validates whether there is one audience that matches one of the configured
  * OAuth2 client ids.
  */

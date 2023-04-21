@@ -6,7 +6,7 @@ This migration guide is a step-by-step guide explaining how to replace the follo
 
 with this open-source version.
 
-**Please note, that this Migration Guide is NOT intended for applications that leverage token validation and authorization checks using SAP Java Buildpack.** This [documentation](https://github.com/SAP/cloud-security-xsuaa-integration#token-validation-for-java-web-applications-using-sap-java-buildpack) describes the setup when using SAP Java Buildpack.
+**Please note, that this Migration Guide is NOT intended for applications that leverage token validation and authorization checks using SAP Java Buildpack.** This [sample](https://github.com/SAP/cloud-security-services-integration-library/tree/main/samples/sap-java-buildpack-api-usage) showcases the setup when using SAP Java Buildpack.
 
 ## Overview
 
@@ -191,7 +191,7 @@ have to use Spring's Security Context managed by the `SecurityContextHolder`. Th
 > Note :two:: In case you have used formerly `Principal.getName()` be aware that `spring-xsuaa` returns a user name or client id in the following format:
 > - `user/<origin>/<logonName>`
 > - `client/<clientid>`
-> See also Github issue [#399](https://github.com/SAP/cloud-security-xsuaa-integration/issues/399).
+> See also Github issue [#399](https://github.com/SAP/cloud-security-services-integration-library/issues/399).
 
 
 ### Exception Handling
@@ -217,8 +217,8 @@ See the following table for methods that are not available anymore and workaroun
 | `getToken`              | Not implemented.                                                                                 |
 | `hasAttributes`         | Use `getXSUserAttribute` and check of the attribute is available.                                |
 | `isInForeignMode`       | Not implemented.                                                                                 |
-| `requestToken`          | Deprecated in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library. You can find a  migration guide [here](/token-client/Migration_XSUserInfoRequestToken.md).
-| `requestTokenForClient` | Deprecated in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library. You can find a  migration guide [here](/token-client/Migration_XSUserInfoRequestToken.md).
+| `requestToken`          | Deprecated in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-services-integration-library/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library. You can find a  migration guide [here](/token-client/Migration_XSUserInfoRequestToken.md).
+| `requestTokenForClient` | Deprecated in favor of [XsuaaTokenFlows](https://github.com/SAP/cloud-security-services-integration-library/blob/master/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) which is provided with [token-client](/token-client) library. You can find a  migration guide [here](/token-client/Migration_XSUserInfoRequestToken.md).
 
 
 ### XsuaaToken
@@ -274,7 +274,7 @@ In case you face issues to apply the migration steps check this [troubleshoot](R
 
 ## Samples
 - [cloud-bulletinboard-ads](https://github.com/SAP-samples/cloud-bulletinboard-ads/tree/solution-24-Make-App-Secure-Spring5)
-- [spring-security-xsuaa usage sample](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/spring-security-xsuaa-usage)
+- [spring-security-xsuaa usage sample](https://github.com/SAP/cloud-security-services-integration-library/tree/master/samples/spring-security-xsuaa-usage)
 
 ## Further References
 - [spring-xsuaa documentation](/spring-xsuaa/README.md)

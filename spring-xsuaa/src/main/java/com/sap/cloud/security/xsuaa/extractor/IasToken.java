@@ -21,7 +21,7 @@ import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_ZONE_ID;
 
 class IasToken implements Token {
 
-	private Jwt decodedToken;
+	private final Jwt decodedToken;
 
 	public IasToken(Jwt jwt) {
 		this.decodedToken = jwt;

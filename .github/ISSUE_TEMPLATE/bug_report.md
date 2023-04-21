@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-Please first read carefully [Report an issue](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/CONTRIBUTING.md#report-an-issue) section before creating an Issue.
+Please first read carefully [Report an issue](https://github.com/SAP/cloud-security-services-integration-library/blob/main/CONTRIBUTING.md#report-an-issue) section before creating an Issue.
 
 **Issue Summary**
 - A clear and concise description of the issue.
@@ -21,7 +21,7 @@ Please first read carefully [Report an issue](https://github.com/SAP/cloud-secur
 
 - [ ] Real, current bug
 - [ ] Not a duplicate  
-- [ ] Not covered in "Common Pitfalls" section of corresponding module's README.md e.g. [java-security#common-pitfalls](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main/java-security#common-pitfalls)
+- [ ] Not covered in "Common Pitfalls" section of corresponding module's README.md e.g. [java-security#common-pitfalls](https://github.com/SAP/cloud-security-services-integration-library/tree/main/java-security#common-pitfalls)
 - [ ] Reproducible
 - [ ] Good summary
 - [ ] Well-documented 

@@ -11,8 +11,8 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 /**
- * See also JSON Web Key (JWK) specification:
- * https://tools.ietf.org/html/rfc7517
+ * See also JSON Web Key (JWK) specification: <a href=
+ * "https://tools.ietf.org/html/rfc7517">tools.ietf.org/html/rfc7517"</a>
  */
 interface JsonWebKey {
 	@java.lang.SuppressWarnings("squid:S1214")
@@ -21,23 +21,23 @@ interface JsonWebKey {
 	/**
 	 * Returns the key algorithm a JWT is/can be signed with, e.g.
 	 * {@link JwtSignatureAlgorithm#RS256}.
-	 * 
+	 *
 	 * @return the key algorithm.
 	 */
-	public JwtSignatureAlgorithm getKeyAlgorithm();
+	JwtSignatureAlgorithm getKeyAlgorithm();
 
 	/**
 	 * Returns the key id. This is used, for instance, to choose among a set of keys
 	 * within a JWK Set during key rollover.
-	 * 
+	 *
 	 * @return unique key identifier.
 	 */
 	@Nullable
-	public String getId();
+	String getId();
 
 	/**
 	 * Returns the public key representation.
-	 * 
+	 *
 	 * @return the public key.
 	 * @throws InvalidKeySpecException
 	 *             in case the a PublicKey can not be created for this JSON web key.
@@ -46,6 +46,6 @@ interface JsonWebKey {
 	 *             not supported.
 	 */
 	@Nullable
-	public PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException;
+	PublicKey getPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException;
 
 }

@@ -26,7 +26,7 @@ public class TokenUtil {
 
 	/**
 	 * Splits the bearer token into header, payload and signature.
-	 * 
+	 *
 	 * @param encodedJwtToken
 	 *            encoded jwt token
 	 * @return DecodedJwt
@@ -37,7 +37,7 @@ public class TokenUtil {
 
 	/**
 	 * Parses decoded Jwt token to org.springframework.security.oauth2.jwt
-	 * 
+	 *
 	 * @param decodedJwt
 	 *            decoded Jwt
 	 * @return Jwt class

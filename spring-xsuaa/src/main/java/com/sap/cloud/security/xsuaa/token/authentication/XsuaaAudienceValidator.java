@@ -75,7 +75,8 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	 * Retrieve audiences from token. In case the audience list is empty, takes
 	 * audiences based on the scope names.
 	 *
-	 * @param token Jwt token
+	 * @param token
+	 *            Jwt token
 	 * @return (empty) set of audiences
 	 */
 	static Set<String> getAllowedAudiences(Jwt token) {

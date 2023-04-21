@@ -6,10 +6,12 @@
 package com.sap.cloud.security.config;
 
 import javax.annotation.Nonnull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 public class ClientCredentials implements ClientIdentity, Serializable {
+	@Serial
 	private static final long serialVersionUID = 2405162041950251807L;
 
 	private final String clientSecret;

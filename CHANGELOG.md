@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## 3.0.0
 ### Baseline changes
-- `cloud-security-xsuaa-integration` library requires JDK 17
+- `cloud-security-services-integration-library` requires JDK 17
 
 ### Breaking Changes
 * IAS configurations need to provide domains via String array in JSON key 'identity.credentials.domains'. Providing String values under key 'identity.credentials.domain' is not supported anymore. IAS configurations from service bindings have been generated like this for a long time already. This should only affect old configuration files manually written for testing.
@@ -130,7 +130,7 @@ All notable changes to this project will be documented in this file.
 * Bump [reactor-core](https://github.com/reactor/reactor-core) from 3.4.19 to 3.4.21.
 
 
-**Full Changelog**: https://github.com/SAP/cloud-security-xsuaa-integration/compare/2.12.3...2.13.0
+**Full Changelog**: https://github.com/SAP/cloud-security-services-integration-library/compare/2.12.3...2.13.0
 
 ## 2.12.3
 - [spring-xsuaa][spring-security-compatibility]

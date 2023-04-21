@@ -18,7 +18,8 @@ import static java.lang.System.lineSeparator;
 public final class Base64JwtDecoder {
 	private static final Base64JwtDecoder instance = new Base64JwtDecoder();
 
-	private Base64JwtDecoder() {}
+	private Base64JwtDecoder() {
+	}
 
 	public static Base64JwtDecoder getInstance() {
 		return instance;
@@ -26,7 +27,7 @@ public final class Base64JwtDecoder {
 
 	/**
 	 * Decodes the Json Web token (jwt).
-	 * 
+	 *
 	 * @param jwt
 	 *            the access token
 	 * @return the decoded jwt.

@@ -35,7 +35,7 @@ public interface OAuth2ServiceConfiguration {
 
 	/**
 	 * Client Identity of xsuaa instance
-	 * 
+	 *
 	 * @return ClientIdentity object
 	 */
 	default ClientIdentity getClientIdentity() {
@@ -49,7 +49,7 @@ public interface OAuth2ServiceConfiguration {
 	/**
 	 * Credential type as defined in "oauth2-configuration" of the xsuaa service
 	 * instance security descriptor.
-	 * 
+	 *
 	 * @return value of credential-type field
 	 */
 	@Nullable
@@ -64,14 +64,16 @@ public interface OAuth2ServiceConfiguration {
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
-	 * @return base url, e.g. https://paastenant.idservice.com
+	 * @return base url, e.g. <a href=
+	 *         "https://paastenant.idservice.com">https://paastenant.idservice.com"</a>
 	 */
 	URI getUrl();
 
 	/**
 	 * Cert URL of the OAuth2 identity service instance.
 	 *
-	 * @return cert url, e.g. https://paastenant.cert.idservice.com
+	 * @return cert url, e.g. <a href=
+	 *         "https://paastenant.cert.idservice.com">https://paastenant.idservice.com"</a>
 	 */
 	@Nullable
 	default URI getCertUrl() {
@@ -101,7 +103,7 @@ public interface OAuth2ServiceConfiguration {
 
 	/**
 	 * Returns all properties of the configuration as a map.
-	 * 
+	 *
 	 * @return all properties as map.
 	 */
 	Map<String, String> getProperties();

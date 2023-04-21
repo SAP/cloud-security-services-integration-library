@@ -177,7 +177,7 @@ public class ClientCredentialsTokenFlowTest {
 		when(mockTokenService
 				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
 						any(), any(), any(), anyBoolean()))
-								.thenReturn(accessToken);
+				.thenReturn(accessToken);
 		return accessToken;
 	}
 

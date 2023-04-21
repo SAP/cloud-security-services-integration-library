@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.comp;
@@ -22,7 +22,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
 /**
  * Decorates a {@code Token} issued by xsuaa to provide compatibility methods
  * for spring-xsuaa's {@code Token} interface.
- * 
+ *
  * @deprecated use methods exposed by the {@link Token} interface.
  */
 @Deprecated
@@ -322,7 +322,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	/**
 	 * Returns the username used to authenticate the user. See
 	 * {@code import org.springframework.security.core.userdetails.UserDetails#getUsername()}
-	 * 
+	 *
 	 * @return the username
 	 * @deprecated use {@link Token#getPrincipal()}{@code .getName()} instead
 	 */
@@ -357,7 +357,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 
 	/**
 	 * Returns the user name for token.
-	 * 
+	 *
 	 * @return the user name.
 	 * @deprecated use {@link Token#getPrincipal()}{@code .getName()} instead
 	 */

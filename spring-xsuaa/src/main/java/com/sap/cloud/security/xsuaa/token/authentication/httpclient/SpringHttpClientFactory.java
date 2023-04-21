@@ -37,10 +37,10 @@ public interface SpringHttpClientFactory {
 	String DEFAULT_SPRING_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.xsuaa.token.authentication.httpclient.DefaultSpringHttpClientFactory";
 
 	/**
-	 * Provides RestTemplate based on ClientIdentity details. For
-	 * ClientIdentity that is certificate based it will resolve RestTemplate using
-	 * the provided ClientIdentity, if the ClientIdentity wasn't provided it will
-	 * return default RestTemplate.
+	 * Provides RestTemplate based on ClientIdentity details. For ClientIdentity
+	 * that is certificate based it will resolve RestTemplate using the provided
+	 * ClientIdentity, if the ClientIdentity wasn't provided it will return default
+	 * RestTemplate.
 	 *
 	 * @param clientIdentity
 	 *            for X.509 certificate based communication

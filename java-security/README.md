@@ -435,7 +435,7 @@ Or, alternatively in `src/main/webapp/WEB-INF/web.xml`:
 
 
 #### java.util.ServiceConfigurationError: com.sap.cloud.security.token.TokenFactory: Provider com.sap.cloud.security.servlet.HybridTokenFactory not a subtype
-Starting with version [`2.8.3`](https://github.com/SAP/cloud-security-xsuaa-integration/releases/tag/2.8.3) the version of `java-api` needs to match the version of `java-security` client library. 
+Starting with version [`2.8.3`](https://github.com/SAP/cloud-security-services-integration-library/releases/tag/2.8.3) the version of `java-api` needs to match the version of `java-security` client library. 
 
 Use our [BoM](/bom) to keep all the version in sync as demonstrated in [this](../samples/java-security-usage/pom.xml#L42) sample.
 

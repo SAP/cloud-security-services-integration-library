@@ -34,7 +34,6 @@ bin
 ### IntelliJ IDEA ###
 .idea
 *.iws
-*.iml
 *.ipr
 /venv/
 vim.exe.stackdump

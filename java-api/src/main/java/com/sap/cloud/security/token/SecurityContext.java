@@ -26,7 +26,6 @@ public class SecurityContext {
 	/**
 	 * Returns the certificate that is saved in thread wide storage.
 	 *
-	 *
 	 * @return the certificate or null if the storage is empty.
 	 */
 	@Nullable
@@ -59,7 +58,7 @@ public class SecurityContext {
 
 	/**
 	 * Saves the validated (!) token thread wide.
-	 * 
+	 *
 	 * @param token
 	 *            token to be saved.
 	 */
@@ -71,8 +70,7 @@ public class SecurityContext {
 
 	/**
 	 * Returns the token that is saved in thread wide storage.
-	 * 
-	 * 
+	 *
 	 * @return the token or null if the storage is empty.
 	 */
 	@Nullable
@@ -82,7 +80,6 @@ public class SecurityContext {
 
 	/**
 	 * Returns the token that is saved in thread wide storage.
-	 *
 	 *
 	 * @return the token or null if the storage is empty or the token does not
 	 *         implement the {@code AccessToken} interface.

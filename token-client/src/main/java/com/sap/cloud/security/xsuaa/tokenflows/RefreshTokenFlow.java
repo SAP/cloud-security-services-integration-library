@@ -62,7 +62,7 @@ public class RefreshTokenFlow {
 
 	/**
 	 * Sets the mandatory refresh token to be exchanged for a (refreshed) JWT.
-	 * 
+	 *
 	 * @param refreshToken
 	 *            - the refresh token to be exchanged for a JWT.
 	 * @return this builder object.
@@ -87,7 +87,7 @@ public class RefreshTokenFlow {
 
 	/**
 	 * Executes the refresh token flow against XSUAA.
-	 * 
+	 *
 	 * @return the refreshed OAuth access token returned by XSUAA or an exception in
 	 *         case the token could not be refreshed.
 	 * @throws IllegalStateException

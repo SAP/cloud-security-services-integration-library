@@ -64,7 +64,7 @@ public class IdTokenSignatureValidatorTest {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(eq(JKU_URI), eq(ZONE_UUID)))
-						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,
