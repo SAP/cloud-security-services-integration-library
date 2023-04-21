@@ -91,16 +91,15 @@ Some of the most important rules are listed below:
 
 ### How to contribute - the Process
 
-1.  Make sure the change is useful (e.g. a bugfix or a useful feature). Recommended way is to propose it in a GitHub issue
-2.  Create a branch forking the cloud-security-xsuaa-integration repository and implement your change
-3.  Commit and push your changes to that branch
+1. Make sure the change is useful (e.g. a bugfix or a useful feature). Recommended way is to propose it in a GitHub issue
+2. Create a branch forking the cloud-security-xsuaa-integration repository and implement your change
+3. Commit and push your changes to that branch
     -   If you have several commits, squash them into one (see [this explanation](http://davidwalsh.name/squash-commits-git))
-
-5.  If your change fixes an issue reported at GitHub, add the following line to the commit message:
+4. If your change fixes an issue reported at GitHub, add the following line to the commit message:
     - ```Fixes https://github.com/SAP/cloud-security-xsuaa-integration/issues/(issueNumber)```
     - Do NOT add a colon after "Fixes" - this prevents automatic closing.
-	- When your pull request number is known (e.g. because you enhance a pull request after a code review), you can also add the line ```Closes https://github.com/SAP/cloud-security-xsuaa-integration/issues/pull/(pullRequestNumber)```
-6.  Create a Pull Request to https://github.com/SAP/cloud-security-xsuaa-integration/pulls
-7.  Follow the link posted by the CLA assistant to your pull request and accept the Developer Certificate of Origin, as described in detail above.
-8.  Wait for our code review and approval, possibly enhancing your change on request
-9.  Once the change has been approved it will be merged into master and pull request will be closed (feel free to delete the now obsolete branch)
+    - When your pull request number is known (e.g. because you enhance a pull request after a code review), you can also add the line ```Closes https://github.com/SAP/cloud-security-xsuaa-integration/issues/pull/(pullRequestNumber)```
+5. Create a Pull Request to https://github.com/SAP/cloud-security-xsuaa-integration/pulls
+6. Follow the link posted by the CLA assistant to your pull request and accept the Developer Certificate of Origin, as described in detail above.
+7. Wait for our code review and approval, possibly enhancing your change on request
+8. Once the change has been approved it will be merged into master and pull request will be closed (feel free to delete the now obsolete branch)
