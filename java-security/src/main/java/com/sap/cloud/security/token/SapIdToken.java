@@ -12,15 +12,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.security.Principal;
 
-import static com.sap.cloud.security.token.TokenClaims.ISSUER;
 import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_USER_ID;
 
 /**
  * You can get further token claims from here: {@link TokenClaims}.
  */
 public class SapIdToken extends AbstractToken {
-	static final String IAS_ISSUER = "ias_iss";
-
 	public SapIdToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
 	}
@@ -39,27 +36,22 @@ public class SapIdToken extends AbstractToken {
 		return Service.IAS;
 	}
 
+	/**
+	 * Gets the token issuer domain that is required to check trust in the issuing identity service.
+	 * In multi-tenant or single-tenant with custom domain scenarios, claim {@link TokenClaims#IAS_ISSUER} must be
+	 * used for trust checks instead of claim {@link TokenClaims#ISSUER}. It contains the internal domain of the identity
+	 * service. External customer domains are not trusted.
+	 * <br><br>
+	 * Use {@link Token#getClaimAsString(String)} with {@link TokenClaims#ISSUER} instead to get the custom domain if one is used.
+	 *
+	 * @return value of claim {@link TokenClaims#IAS_ISSUER} if exists, otherwise value of {@link Token#getIssuer()}
+	 */
 	@Override
 	public String getIssuer() {
-		if (hasClaim(IAS_ISSUER)) {
-			return getClaimAsString(IAS_ISSUER);
+		if (hasClaim(TokenClaims.IAS_ISSUER)) {
+			return getClaimAsString(TokenClaims.IAS_ISSUER);
 		}
 		return super.getIssuer();
-	}
-
-	/**
-	 * In case of active custom domains this returns the identifier for the Issuer
-	 * of the token. Its a URL that contains scheme, host with custom domain, and
-	 * optionally, port number and path components. This one is irrelevant for token
-	 * validation.
-	 *
-	 * @return the custom domain issuer.
-	 */
-	String getCustomIssuer() {
-		if (hasClaim(IAS_ISSUER)) {
-			return getClaimAsString(ISSUER);
-		}
-		return null;
 	}
 
 	@Nullable
