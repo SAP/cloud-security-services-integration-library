@@ -1,7 +1,9 @@
 # Description
-This sample is a Java back-end application running on the Cloud Foundry. For all incoming requests it checks whether the user is authorized using the 
-[`IasTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet) which is defined in the [Java Security](../../java-security/) library.   
-**Disclaimer: as of now the IAS token can only be validated in case the token from the consuming application is issued for the same IAS tenant.**
+This sample is a Java Back-End application that utilizes the [Java Security](../../java-security/) client library to validate JWT tokens issued by the `Identity` service.
+It inspects incoming requests to determine if the user has the appropriate access to resource
+by using the [`IasTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java).
+
+**Disclaimer: as of now the Identity tokens can only be validated in case the token from the consuming application is issued for the same Identity tenant.**
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
@@ -54,7 +56,7 @@ cf push --vars-file ../vars.yml
    :bulb: If you call the same endpoint without `Authorization` header you should get a `401`.
 
 ## Clean-Up
-Finally delete your application and your service instances using the following commands:
+Finally, delete your application and your service instances using the following commands:
 ```
 cf us java-security-usage-ias ias-java-security
 cf delete -f java-security-usage-ias

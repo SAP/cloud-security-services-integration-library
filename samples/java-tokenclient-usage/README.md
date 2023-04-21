@@ -1,7 +1,8 @@
 # Description
-This sample is a Java back-end application running on the Cloud Foundry. On incoming requests it reads 
-credentials from the `VCAP_SERVICES` environment variable and requests a new access token over mTLS using X.509 Certificate via client credentials token
-flow provided by the [Token Client](/token-client/) library.
+This sample showcases a Java back-end application leveraging the [Token Client](/token-client/) library 
+to illustrate the token flow process of obtaining an Access Token issued by Xsuaa. 
+Upon receiving incoming requests, the application retrieves credentials from the `VCAP_SERVICES` environment variable 
+and requests a new access token through [ClientCredentialsTokenFlow](/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/ClientCredentialsTokenFlow.java).
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:

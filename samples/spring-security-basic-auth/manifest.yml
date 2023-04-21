@@ -13,6 +13,10 @@ applications:
   path: target/spring-security-basic-auth.jar
   services:
     - xsuaa-basic
+  buildpacks:
+    - java_buildpack
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
 
 
 ...

@@ -1,10 +1,15 @@
 # Description
-This sample uses the SAP application router as a web server and forwards requests to a Java back-end application running on the SAP Java buildpack.
-In a typcal UI5 application, the application router server HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
+:warning: Please note that the SAP Java Buildpack has not yet incorporated the Tomcat 10 runtime, which is required for the `java-security` library and with that this sample is not functional. Stay updated on SAP Java Buildpack releases for future compatibility. 
+In the meantime, you can utilize the `java-security` library with the [Community Cloud Foundry Java Buildpack](https://github.com/cloudfoundry/java-buildpack), as showcased in the [java-security-usage](/samples/java-security-usage) sample.
+
+This sample is a Java Back-End application that demonstrates usage of [SAP Java Buildpack](https://help.sap.com/docs/btp/sap-business-technology-platform/developing-java-in-cloud-foundry-environment).
+SAP Java Buildpack bundles the [Java Security](/java-security/) client library to authenticate JWT tokens issued by the `Xsuaa` service.
+It inspects incoming requests to determine if the user has the appropriate authorization by using the [`XsuaaTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java).
+
+In a typical UI5 application, the application router server HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 
 > :bulb: This application manages your SAP Java buildpack dependencies using [Bill of Materials](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/6c6936e8e4ea40c9a9a69f6783b1e978.html). Check [SJB BoM on Maven Repository](https://mvnrepository.com/artifact/com.sap.cloud.sjb.cf/sap-java-buildpack-bom) to see which versions are provided.
 
-# Coding
 The [web.xml](src/main/webapp/WEB-INF/web.xml) of the application must use auth-method with value `XSUAA`. This enables authentication of requests using incoming OAuth authentication tokens.
 
 ```xml
@@ -85,7 +90,7 @@ If not you should get a `403` status code (Forbidden).
 
 ## Clean-Up
 
-Finally delete your application and your service instances using the following commands:
+Finally, delete your application and your service instances using the following commands:
 ```
 cf delete -f sap-java-buildpack-api-usage
 cf delete -f approuter-sap-java-buildpack-api-usage

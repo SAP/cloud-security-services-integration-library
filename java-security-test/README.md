@@ -9,7 +9,7 @@ The tokens issued by JwtGenerator are signed with a key that fits the stubbed JW
 
 Spring Boot applications can use the provided utility for example in the context of a `WebMvcTest`.\
 For Java EE applications, an optional [Jetty application server](#jetty-application-server) can be started.
-It is pre-configured with a security filter that only accepts valid tokens. Furthermore, it can be be configured to mount both servlets and servet filters that require testing.
+It is pre-configured with a security filter that only accepts valid tokens. Furthermore, it can be configured to mount both servlets and servet filters that require testing.
 
 ## Requirements
 - Java 17

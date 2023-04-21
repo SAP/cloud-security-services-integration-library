@@ -10,6 +10,7 @@ import com.sap.cloud.security.servlet.TokenAuthenticationResult;
 import com.sap.cloud.security.token.SecurityContext;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,24 +33,30 @@ public class IasSecurityFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		try {
-			TokenAuthenticationResult authenticationResult = iasTokenAuthenticator.validateRequest(request, response);
-			if (authenticationResult.isAuthenticated()) {
-				LOGGER.debug("AUTHENTICATED");
-				chain.doFilter(request, response) ;
-			} else {
-				LOGGER.debug("UNAUTHENTICATED");
-				sendUnauthenticatedResponse(response, authenticationResult.getUnauthenticatedReason());
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		if (httpRequest.getRequestURI().equals("/health")) {
+			// Allow the request to proceed without any security check
+			chain.doFilter(request, response);
+		} else {
+			try {
+				TokenAuthenticationResult authenticationResult = iasTokenAuthenticator.validateRequest(request,
+						response);
+				if (authenticationResult.isAuthenticated()) {
+					LOGGER.debug("AUTHENTICATED");
+					chain.doFilter(request, response);
+				} else {
+					LOGGER.debug("UNAUTHENTICATED");
+					sendUnauthenticatedResponse(response, authenticationResult.getUnauthenticatedReason());
+				}
+			} finally {
+				SecurityContext.clear();
 			}
-		} finally {
-			SecurityContext.clear();
 		}
 	}
 
 	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason)  {
-		if (response instanceof HttpServletResponse) {
+		if (response instanceof HttpServletResponse httpServletResponse) {
 			try {
-				HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 				httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, unauthenticatedReason); // 401
 			} catch (IOException e) {
 				LOGGER.error("Failed to send error response", e);
