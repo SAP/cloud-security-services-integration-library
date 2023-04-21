@@ -10,10 +10,8 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import javax.annotation.PostConstruct;
 import java.time.Instant;
 
 /**
@@ -25,14 +23,6 @@ public class TokenUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TokenUtil.class);
 	private static final String EXTERNAL_ATTRIBUTE = "ext_attr";
 	private static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
-	private static String springIasXchangeEnabled;
-	@Value("${xsuaa.iasxchange-enabled:#{null}}")
-	private String iasXchangeValue;
-
-	@PostConstruct
-	public void init() {
-		TokenUtil.springIasXchangeEnabled = iasXchangeValue;
-	}
 
 	/**
 	 * Splits the bearer token into header, payload and signature.
