@@ -12,14 +12,17 @@ All notable changes to this project will be documented in this file.
 * `spring-xsuaa-mock` &rarr; use [java-security-test](./java-security-test) instead
 
 #### Removed deprecated classes and interfaces
+* [api]
+  * `XSPrincipal`, `XSUserInfoException` &rarr; not needed anymore with new [Token](./java-api/src/main/java/com/sap/cloud/security/token/Token.java) interface
 * [env]
   * `CFEnvironment`, `K8sEnvironment` &rarr; use instead `ServiceBindingEnvironment`
   * `CFConstants`, `K8sConstants` &rarr; use instead `ServiceConstants`
 * [java-security]
   * `XSUserInfo`, `XSUserInfoAdapter` &rarr; use instead [Token](./java-api/src/main/java/com/sap/cloud/security/token/Token.java) interface and `Token#getClaimAsString` with [TokenClaims.XSUAA](./java-api/src/main/java/com/sap/cloud/security/token/TokenClaims.java) constants to access XSUAA-specific claims.
+  * `SAPOfflineTokenServicesCloud` &rarr; use instead [spring-security] module
 * [spring-xsuaa]
   * `XSTokenRequest`, `TokenBroker`, `UaaTokenBroker` &rarr; use instead [token-client](./token-client) module to fetch XSUAA tokens via XsuaaTokenFlows
-  * `TokenBrokerResolver` &rarr; No longer provided. See `spring-security-basic-auth` sample how to write your own implementation.
+  * `TokenBrokerResolver`, `AuthenticaionMethod` &rarr; No longer provided. See `spring-security-basic-auth` sample how to write your own implementation.
   * `IasXsuaaExchangeBroker` &rarr; Exchange is not supported by XSUAA service anymore.
   * `TokenUrlUtils` &rarr; use instead `OAuth2ServiceEndpointsProvider`
   * `XsuaaServicesParser` &rarr; use instead `Environments#getCurrent` or `new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> xsuaaConfigJson))`
