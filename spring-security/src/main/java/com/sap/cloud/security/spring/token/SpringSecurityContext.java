@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  * This is an alternative way of accessing jwt tokens of type {@link Token} or
  * {@link AccessToken} in context of an application using
  * spring-security-oauth2.
- *
+ * <p>
  * It uses the {@link SecurityContextHolder} to access Spring's
  * {@link SecurityContext} and can therefore used also in context of
  * asynchronous threads.
@@ -37,7 +37,6 @@ public class SpringSecurityContext {
 
 	/**
 	 * Obtain the Token object from {@link SecurityContextHolder}.
-	 *
 	 *
 	 * @return Token instance or <code>null</code> if {@link SecurityContext} is
 	 *         empty or does not contain a token of this type.
@@ -63,7 +62,6 @@ public class SpringSecurityContext {
 	/**
 	 * Obtain the Access Token from xsuaa service from
 	 * {@link SecurityContextHolder}.
-	 *
 	 *
 	 * @return AccessToken instance or <code>null</code> if {@link SecurityContext}
 	 *         is empty or does not contain a token of this type.

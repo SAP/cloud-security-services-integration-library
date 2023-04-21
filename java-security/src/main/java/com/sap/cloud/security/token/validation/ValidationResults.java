@@ -39,7 +39,7 @@ public class ValidationResults {
 	 * Works just like {@link #createInvalid(String)} but accepts a template string
 	 * with placeholders "{}" that are substituted with the given arguments. Works
 	 * like described in {@link MessageFormatter}.
-	 *
+	 * <p>
 	 * For example,
 	 *
 	 * <pre>

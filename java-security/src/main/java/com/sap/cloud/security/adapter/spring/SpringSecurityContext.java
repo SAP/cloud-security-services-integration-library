@@ -25,11 +25,11 @@ import java.util.Objects;
  * This is an alternative way of accessing jwt tokens of type {@link Token} or
  * {@link AccessToken} in context of an application using
  * spring-security-oauth2.
- *
+ * <p>
  * It uses the {@link SecurityContextHolder} to access Spring's
  * {@link SecurityContext} and can therefore used also in context of
  * asynchronous threads.
- *
+ * <p>
  * Use this class in case your application sets Spring's security context via
  * one of these libraries: <br>
  * <ol>
@@ -120,7 +120,6 @@ public class SpringSecurityContext {
 
 	/**
 	 * Returns the token using {@link SecurityContextHolder}.
-	 *
 	 *
 	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or
 	 *         does not contain a token of this type.

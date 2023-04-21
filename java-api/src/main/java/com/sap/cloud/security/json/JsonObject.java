@@ -52,7 +52,7 @@ public interface JsonObject {
 	 * Parses the json object for the given property {@code name} and returns a
 	 * String list. If the property with the given name is not found, an empty list
 	 * is returned.
-	 *
+	 * <p>
 	 * For example {@code "aud" : "single-value"} or
 	 * {@code "aud" : ["value-1", "value-2"]}
 	 *
@@ -137,7 +137,7 @@ public interface JsonObject {
 
 	/**
 	 * Returns a key-value map of the JSON properties.
-	 *
+	 * <p>
 	 * Example:
 	 * 
 	 * <pre>

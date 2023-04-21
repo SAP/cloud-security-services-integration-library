@@ -30,12 +30,12 @@ import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
  *
  * <pre class="code">
  * declared on a class:
- *<p>
+ *
  * &#64;Configuration
  * &#64;PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = { "" })
- *<p>
+ *
  * declared on attribute:
- *<p>
+ *
  * &#64;Value("${xsuaa.url:}")
  * </pre>
  *

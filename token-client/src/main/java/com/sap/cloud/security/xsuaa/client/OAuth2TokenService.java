@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * Retrieves OAuth2 Access Tokens as documented here:
- * https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token
+ * <a href="https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token">https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token</a>
  */
 public interface OAuth2TokenService {
 

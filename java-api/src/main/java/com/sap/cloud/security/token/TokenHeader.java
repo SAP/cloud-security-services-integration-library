@@ -7,7 +7,7 @@ package com.sap.cloud.security.token;
 
 /**
  * Constants denoting Jwt header parameters.
- * https://tools.ietf.org/html/rfc7515#section-4
+ * <a href="https://tools.ietf.org/html/rfc7515#section-4">https://tools.ietf.org/html/rfc7515#section-4</a>
  */
 public final class TokenHeader {
 	private TokenHeader() {

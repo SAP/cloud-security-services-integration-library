@@ -5,11 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
@@ -21,8 +16,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+
 /**
- * https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest
+ * <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest</a>
  */
 public class DefaultOidcConfigurationService implements OidcConfigurationService {
 

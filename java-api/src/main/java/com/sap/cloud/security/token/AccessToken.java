@@ -19,9 +19,9 @@ import java.util.Set;
 public interface AccessToken extends Token {
 
 	/**
-	 * Returns the list of the claim "scope".
+	 * Returns the set of the claim "scope".
 	 *
-	 * @return the list of the claim scope or empty list.
+	 * @return the set of the claim scope or empty list.
 	 */
 	Set<String> getScopes();
 

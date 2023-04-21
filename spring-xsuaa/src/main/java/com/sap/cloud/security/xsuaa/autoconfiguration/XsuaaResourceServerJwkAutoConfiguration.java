@@ -25,7 +25,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
  * {@link EnableAutoConfiguration Auto-configuration} that exposes a
  * {@link JwtDecoder}, which has the standard Spring Security Jwt validators as
  * well as the XSUAA-specific validators.
- *
+ * <p>
  * Activates when there is a bean of type {@link Jwt} configured in the context.
  *
  * <p>

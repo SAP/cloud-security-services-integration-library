@@ -7,7 +7,7 @@ package com.sap.cloud.security.token;
 
 /**
  * Constants denoting JWT claims as specified here:
- * https://tools.ietf.org/html/rfc7519#section-4
+ * <a href="https://tools.ietf.org/html/rfc7519#section-4">https://tools.ietf.org/html/rfc7519#section-4</a>
  */
 public final class TokenClaims {
 
@@ -39,7 +39,7 @@ public final class TokenClaims {
 	public static final String CNF = "cnf"; // X509 certificate ("cnf" (confirmation)) claim
 	public static final String CNF_X5T = "x5t#S256"; // X509 certificate thumbprint confirmation method
 
-	public final class XSUAA {
+	public static final class XSUAA {
 
 		private XSUAA() {
 		}

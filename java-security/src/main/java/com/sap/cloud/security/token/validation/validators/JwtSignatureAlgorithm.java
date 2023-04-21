@@ -7,7 +7,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 /**
  * This is represented by "kty" (Key Type) Parameter.
- * https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1
+ * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1">https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1</a>
  */
 public enum JwtSignatureAlgorithm {
 	RS256("RSA", "RS256", "SHA256withRSA")/* , ES256("EC", "ES256", "SHA256withECDSA")// Eliptic curve */;

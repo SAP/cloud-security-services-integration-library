@@ -354,7 +354,6 @@ public class JwtGenerator {
 	 * {@link #withScopes(String...)}}. Note that this is specific to tokens of
 	 * service type {@link Service#XSUAA}.
 	 *
-	 *
 	 * @param scopes
 	 * @return the JwtGenerator itself
 	 * @throws IllegalStateException

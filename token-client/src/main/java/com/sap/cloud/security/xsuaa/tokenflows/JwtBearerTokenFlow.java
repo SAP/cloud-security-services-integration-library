@@ -85,7 +85,7 @@ public class JwtBearerTokenFlow {
      * Sets the scope attribute for the token request. This will restrict the scope
      * of the created token to the scopes provided. By default the scope is not
      * restricted and the created token contains all granted scopes.
-     *
+     * <p>
      * If you specify a scope that is not authorized for the user, the token request
      * will fail.
      *

@@ -64,14 +64,14 @@ public interface OAuth2ServiceConfiguration {
 	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
 	 * this is the url where the service instance was created.
 	 *
-	 * @return base url, e.g. https://paastenant.idservice.com
+	 * @return base url, e.g. <a href="https://paastenant.idservice.com">https://paastenant.idservice.com"</a>
 	 */
 	URI getUrl();
 
 	/**
 	 * Cert URL of the OAuth2 identity service instance.
 	 *
-	 * @return cert url, e.g. https://paastenant.cert.idservice.com
+	 * @return cert url, e.g. <a href="https://paastenant.cert.idservice.com">https://paastenant.idservice.com"</a>
 	 */
 	@Nullable
 	default URI getCertUrl() {
