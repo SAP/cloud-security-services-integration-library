@@ -30,25 +30,26 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
 ## Table of Contents
 * [Setup](#setup)
   + [Maven Dependencies](#maven-dependencies)
-  + [Auto-configuration](#auto-configuration)
-  + [SecurityConfiguration](#securityconfiguration)
-    + [Service configuration in Kubernetes environment](#service-configuration-in-kubernetes-environment)
-  * [Usage](#usage)
-    + [Securing Endpoints](#securing-endpoints)
-    + [Securing Methods](#securing-methods)
-    + [Access token information](#access-token-information)
-    + [Fetch XSUAA Tokens](#fetch-xsuaa-tokens)
-    + [Access service configurations](#access-service-configurations)
-  * [Optional Usage](#optional-usage)
-    + [[Optional] Audit Logging](#optional-audit-logging)
-    + [[Optional] Setup Security Context for non-HTTP requests](#optional-setup-security-context-for-non-http-requests)
-  * [Testing](#testing)
-    + [JUnit](#junit)
-    + [Overriding identity service configurations](#overriding-identity-service-configurations)
-  * [Troubleshooting](#troubleshooting)
-    + [Debug logging](#debug-logging)
-    + [Common pitfalls](#common-pitfalls)
-  * [Samples](#samples)
+  + [Autoconfiguration](#autoconfiguration)
+  + [SecurityConfiguration](#security-configuration)
+  + [Service configuration in Kubernetes environment](#service-configuration-in-kuberneteskyma-environment)
+* [Usage](#usage)
+  + [Securing Endpoints](#securing-endpoints)
+  + [Securing Methods](#securing-methods)
+  + [Access token information](#access-token-information)
+  + [Fetch XSUAA Tokens](#fetch-xsuaa-tokens)
+  + [Access service configurations](#access-service-configurations)
+* [Optional Usage](#optional-usage)
+  + [[Optional] Audit Logging](#optional-audit-logging)
+  + [[Optional] Setup Security Context for non-HTTP requests](#optional-setup-security-context-for-non-http-requests)
+* [Testing](#testing)
+  + [JUnit](#junit)
+  + [Overriding identity service configurations](#overriding-identity-service-configurations)
+  + [Local testing](#local-testing)
+* [Troubleshooting](#troubleshooting)
+   + [Set debug log level](#set-debug-log-level)
+   + [Common pitfalls](#common-pitfalls)
+* [Samples](#samples)
 
 
 ## Setup
@@ -67,7 +68,7 @@ These (spring) dependencies need to be provided:
 </dependency>
 ```
 
-### Auto-configuration
+### Autoconfiguration
 By using `resourceserver-security-spring-boot-starter`, beans that are required to initialize the Spring Boot application as OAuth resource server are autoconfigured.
 
 The integration into Spring Security is done by providing a bean of type [JwtDecoder](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/oauth2/jwt/JwtDecoder.html) that overrides the default of the Spring framework.
@@ -366,7 +367,7 @@ There are two ways how to provide the service configuration to your Spring Boot 
 
 
 ## Troubleshooting
-In case you face issues, [submit an issue on Github](https://github.com/SAP/cloud-security-services-integration-library/issues/new/choose) 
+In case you face issues, [submit an issue on GitHub](https://github.com/SAP/cloud-security-services-integration-library/issues/new/choose) 
 and include the following details:
 - any security-related dependencies used including version, get maven dependency tree with `mvn dependency:tree`
 - [debug logs](#set-debug-log-level)
@@ -379,7 +380,7 @@ First, configure the Debug log level for Spring Framework Web and all Security r
 ```yaml
 logging.level:
   com.sap.cloud.security: DEBUG       # set SAP-class loggers to DEBUG; set to ERROR for production setup
-  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met
+  org.springframework: ERROR          # set to DEBUG to see all beans loaded and autoconfig conditions met
   org.springframework.security: DEBUG # set to ERROR for production setup
   org.springframework.web: DEBUG      # set to ERROR for production setup
 ```
