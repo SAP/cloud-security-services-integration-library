@@ -157,6 +157,17 @@ Starting with version 3.0.0, the service bindings are read with [btp-environment
 Please follow the instructions there how to provide the service configurations to your application.
 An example how to use ``spring-security`` library in Kubernetes/Kyma environment can be found in [spring-security-hybrid-usage](../samples/spring-security-hybrid-usage/README.md).
 
+Genereally, the library supports services provisioned by [SAP BTP service-operator](https://github.com/SAP/sap-btp-service-operator).
+To access service instance configurations from the application, Kubernetes secrets need to be provided as files in a volume mounted on application's container.
+
+- BTP Service-operator up to v0.2.2 - Library will look up the configuration files in the following paths:
+  - XSUAA: `/etc/secrets/sapbtp/xsuaa/<YOUR XSUAA INSTANCE NAME>`
+  - Identity Services: `/etc/secrets/sapbtp/identity/<YOUR IDENTITY SERVICE INSTANCE NAME>`
+- BTP Service-operator starting from v0.2.3 - Library reads the configuration from k8s secret that is stored in a volume, this volume's `mountPath` must be defined in environment variable `SERVICE_BINDING_ROOT`.
+  - Upon creation of the service binding, a Kubernetes secret with the same name as the binding is created. This binding secret needs to be stored to pod's volume.
+  - The `SERVICE_BINDING_ROOT` environment variable needs to be defined with a value that points to volume mount's directory (`mounthPath`) where the service binding secret will be stored.
+    e.g. like [here](../samples/spring-security-hybrid-usage/k8s/deployment.yml#L80).
+
 ## Usage
 ### Securing Endpoints
 Controller endpoints can be secured based on the Authorities extracted by the Authorization Converter.\
