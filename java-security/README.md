@@ -10,15 +10,15 @@ To be able to validate tokens it performs the following tasks:
   - The [`TokenAuthenticator`](/java-api/src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java) interface serves as a validation entry point for tokens contained in the authorization header of HTTP requests and has 2 implementations provided:
     [IasAuthenticator](src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java) and [XsuaaAuthenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). These implementations initialize the `JwtValidatorBuilder` for the corresponding security service which returns `CombiningValidator` and then the Token validations is delegated to the Jwt Validators from the `CombiningValidator`:
       - [`JwtTimestampValidator`](
-        src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java) - checks if the JWT is used before the `exp` (expiration) time and is it used after the `nbf` (not before) time
+        src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java) - checks if the JWT is used before the `exp` (expiration) time and if it is used after the `nbf` (not before) time
       - [`JwtIssuerValidator`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java)(Identity service only) - validates if the JWT is issued by a trustworthy identity service
       - [`XsuaaJkuValidator`](
-        src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJkuValidator.java)(Xsuaa only) - validates if the JWT provides a valid `jku` token header parameter that points to a JWKS url from a trustworthy identity service this `jku` needs to match the `uaadomain` from service configuration.
+        src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJkuValidator.java)(Xsuaa only) - validates if the JWT provides a valid `jku` token header parameter that points to a JWKS url from a trustworthy identity service. This `jku` needs to match the `uaadomain` from service configuration.
       - [`JwtAudienceValidator`](
         src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java) - checks if the JWT is intended for the OAuth2 client of this application. The `aud` (audience) claim identifies the recipients the JWT is issued for.
       - [`JwtSignatureValidator`](
         src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java) -  checks if the JWT is signed with the public key of a trustworthy identity service. With that it also makes sure that the payload and the header of the JWT is unchanged.
-- Stores the decoded and validated token in thread-local cache ([`SecurityContext`](/java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java).
+- Stores the decoded and validated token in thread-local cache [`SecurityContext`](/java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java).
 
 :bulb: This library is also integrated in the [SAP Java Buildpack](https://help.sap.com/docs/btp/sap-business-technology-platform/developing-java-in-cloud-foundry-environment), but as of now SAP Java Buildpack does **not** support Tomcat 10 runtime, which is required for the Jakarta API used by this library.
 
@@ -77,7 +77,7 @@ The library provides 2 default implementations of `TokenAuthenticator` interface
 * `org.apache.http.HttpClient` initialization (it's required for signature validation)
 * Jwt Validator setup with help of [`JwtValidatorBuilder`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java)
 
-once `TokenAuthenticator.validateRequest(ServletRequest, ServletResponse)` is called it'll extract the token from the incoming `ServletRequest` and delegate it to the default Jwt validators for corresponding security service.
+Once `TokenAuthenticator#validateRequest(ServletRequest, ServletResponse)` is called, it'll extract the token from the incoming `ServletRequest` and delegate it to the default Jwt validators for corresponding security service.
 
 
 >:bulb: In case the default authenticators does not fit to your needs it is possible to customize them
@@ -132,7 +132,7 @@ Access the OAuth2 Service configuration bound to the application:
   ```java
   OAuth2ServiceConfiguration serviceConfig = Environments.getCurrent().getIasConfiguration(); 
   ```
-:bulb: `Environments` auto-detects the environment(Cloud Foundry or Kubernetes) the app is deployed in. 
+:bulb: `Environments` auto-detects the environment (Cloud Foundry or Kubernetes) the app is deployed in. 
 
 Alternatively, you can also specify a custom Service Configuration:
  ```java
