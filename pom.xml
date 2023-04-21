@@ -101,7 +101,6 @@
 		<module>spring-xsuaa-test</module>
 		<module>spring-xsuaa-starter</module>
 		<module>bom</module>
-		<module>spring-xsuaa-it</module>
     </modules>
 
 	<dependencyManagement>
