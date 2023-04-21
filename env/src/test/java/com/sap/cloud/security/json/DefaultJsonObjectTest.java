@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.json;
@@ -226,29 +226,21 @@ public class DefaultJsonObjectTest {
 		String deeplyNestedJsonObject = createDeeplyNestedJsonObjectString(100000);
 		try {
 			new DefaultJsonObject(deeplyNestedJsonObject);
-		} catch(StackOverflowError e) {
+		} catch (StackOverflowError e) {
 			Assert.fail("Encountered StackoverflowError.");
-		} catch(Exception e) {
-			e.printStackTrace();
+		} catch (Exception ignored) {
 		}
 	}
 
 	private static String createDeeplyNestedJsonObjectString(int depth) {
-		StringBuilder sb = new StringBuilder("{");
-
+		return "{" +
 		// go down the JSON Object rabbit hole...
-		for(int i = 0; i < depth; i++) {
-			sb.append("\"a\" : {");
-		}
+				"\"a\" : {".repeat(Math.max(0, depth)) +
 
-		// ... and up again
-		for(int i = 0; i < depth; i++) {
-			sb.append("}");
-		}
+				// ... and up again
+				"}".repeat(Math.max(0, depth)) +
 
-		sb.append("}");
-
-		return sb.toString();
+				"}";
 	}
 
 	private DefaultJsonObject createJsonParser(String key, Object value) {

@@ -8,8 +8,8 @@ by using the [token-client](/token-client) library. This step-by-step guide expl
 ## Prerequisite
 
 Make sure you have a dependency to `token-client` defined in your `pom.xml` like described
-[here](/token-client#configuration-for-javaspring-applications) if you are using Spring or
-[here](/token-client#configuration-for-java-applications) if you are not using Spring.
+[here](README.md#11-configuration-for-spring-applications) if you are using Spring or
+[here](README.md#12-configuration-for-java-ee-applications) if you are not using Spring.
 
 ## Use the new token-client library
 
@@ -31,16 +31,16 @@ user token flow or a client credentials flow!
 Before you can perform a specific token flow, you first have to create an `XsuaaTokenFlows` object.
 To create this object you have to pass in the following data: `clientId`, `clientSecret` and
 the `uaaUrl`. How you would create the `XsuaaTokenFlows` depends on the type of your application.
-If you are using spring see [here](/token-client#initialization-1) if not see [here](/token-client#initialization).
+If you are using spring see [here](README.md#xsuaatokenflows-initialization) if not see [here](README.md#xsuaatokenflows-initialization-1).
 
 
 ### 3. Perform the flow
 
 Now you are ready to perform the specific flow!
 
-If you want to perform a client credentials flow  see the documentation [here](/token-client#client-credentials-token-flow)
+If you want to perform a client credentials flow  see the documentation [here](README.md#client-credentials-token-flow)
 
-If you want to perform a user token flow see the documentation [here](/token-client#user-token-flow).
+If you want to perform a jwt bearer token flow see the documentation [here](README.md#jwt-bearer-token-flow).
 
 Note that the user token flow is an exchange flow. This means that you *exchange* your user token
 for an access token.  When using `requestToken` or `requestTokenForUser` from `(XS)UserInfo` you did

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.client;
@@ -9,6 +9,7 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -58,7 +59,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClient.execute(any())).thenReturn(response);
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -73,7 +77,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClient.execute(any())).thenReturn(response);
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -91,7 +98,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	@Test
 	public void retrieveTokenKeys_errorOccurs_throwsServiceException() throws IOException {
 		String errorMessage = "useful error message";
-		when(httpClient.execute(any())).thenThrow(new IOException(errorMessage));
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenThrow(new IOException(errorMessage));
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -100,22 +107,23 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_executesHttpGetRequestWithCorrectURI() throws IOException {
-		mockResponse();
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
+
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID);
 
-		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()));
-	}
-
-	private CloseableHttpResponse mockResponse() throws IOException {
-		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
-		when(httpClient.execute(any())).thenReturn(response);
-		return response;
+		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()),
+				any(ResponseHandler.class));
 	}
 
 	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
 		return (httpGet) -> {
-			boolean hasCorrectURI = httpGet.getURI().equals(TOKEN_KEYS_ENDPOINT_URI);
+			boolean hasCorrectURI;
+			hasCorrectURI = httpGet.getURI().equals(TOKEN_KEYS_ENDPOINT_URI);
 			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
 			boolean correctZoneHeader = httpGet.getFirstHeader(HttpHeaders.X_ZONE_UUID).getValue().equals(ZONE_UUID);
 			return hasCorrectURI && correctMethod && correctZoneHeader;

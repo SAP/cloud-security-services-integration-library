@@ -1,11 +1,10 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package sample.spring.security.junitjupiter;
 
-import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,7 @@ class ApplicationTest {
     XsuaaTokenFlows tokenflows;
 
     @Test
-    void whenSpringContextIsBootstrapped_thenNoExceptions() throws TokenFlowException {
+    void whenSpringContextIsBootstrapped_thenNoExceptions() {
         assertNotNull(tokenflows.clientCredentialsTokenFlow());
     }
 }

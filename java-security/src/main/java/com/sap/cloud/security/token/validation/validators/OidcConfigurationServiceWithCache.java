@@ -1,16 +1,9 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
-
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-
-import javax.annotation.Nullable;
-
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -18,6 +11,12 @@ import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
+
+import javax.annotation.Nullable;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
+
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * Decorates {@link OidcConfigurationService} with a cache, which gets looked up

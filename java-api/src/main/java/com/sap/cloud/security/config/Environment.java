@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.config;
@@ -15,7 +15,7 @@ import java.util.Map;
 public interface Environment {
 	/**
 	 * Return OAuth service configuration of Xsuaa identity service instance.
-	 * 
+	 *
 	 * @return the OAuth service configuration or null, in case there is no instance
 	 */
 	@Nullable

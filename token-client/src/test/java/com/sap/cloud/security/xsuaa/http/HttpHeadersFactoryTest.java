@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.http;
@@ -8,7 +8,8 @@ package com.sap.cloud.security.xsuaa.http;
 import org.junit.Test;
 
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.*;
-import static com.sap.cloud.security.xsuaa.http.MediaType.*;
+import static com.sap.cloud.security.xsuaa.http.MediaType.APPLICATION_FORM_URLENCODED;
+import static com.sap.cloud.security.xsuaa.http.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HttpHeadersFactoryTest {

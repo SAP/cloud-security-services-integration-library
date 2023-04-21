@@ -1,14 +1,17 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.test;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
-import com.sap.cloud.security.config.*;
-import com.sap.cloud.security.config.cf.VcapServicesParser;
+import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.ServiceBindingMapper;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.api.ServiceMockConfiguration;
@@ -21,24 +24,19 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.MediaType;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.annotations.AnnotationConfiguration;
-import org.eclipse.jetty.plus.webapp.EnvConfiguration;
-import org.eclipse.jetty.plus.webapp.PlusConfiguration;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.*;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -49,7 +47,8 @@ import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.sap.cloud.security.config.Service.*;
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
 public class SecurityTest
@@ -75,9 +74,9 @@ public class SecurityTest
 	// mock server
 	protected WireMockServer wireMockServer;
 	protected RSAKeys keys;
-	protected Service service;
+	protected final Service service;
 
-	protected String clientId = DEFAULT_CLIENT_ID;
+	protected static final String clientId = DEFAULT_CLIENT_ID;
 	protected String jwksUrl;
 	private String issuerUrl;
 
@@ -137,16 +136,18 @@ public class SecurityTest
 	@Override
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId).withPrivateKey(keys.getPrivate());
+
 		if (jwksUrl == null || issuerUrl == null) {
 			LOGGER.warn("Method getPreconfiguredJwtGenerator was called too soon. Cannot set mock jwks/issuer url!");
 		}
-		switch (service) {
-		case XSUAA:
+
+		if (XSUAA.equals(service)) {
 			jwtGenerator
 					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
 					.withAppId(DEFAULT_APP_ID)
 					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_JWT_BEARER);
 		}
+
 		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
 	}
 
@@ -164,10 +165,34 @@ public class SecurityTest
 	@Override
 	public OAuth2ServiceConfigurationBuilder getOAuth2ServiceConfigurationBuilderFromFile(
 			String configurationResourceName) {
-		return VcapServicesParser.fromFile(configurationResourceName)
-				.getConfigurationBuilder()
-				.withDomains(URI.create(issuerUrl).getHost())
-				.withUrl(issuerUrl);
+		String vcapJson;
+		try {
+			vcapJson = IOUtils.resourceToString(configurationResourceName, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			throw new IllegalArgumentException("Error reading configuration file: " + e.getMessage());
+		}
+
+		List<ServiceBinding> serviceBindings = new SapVcapServicesServiceBindingAccessor(any -> vcapJson)
+				.getServiceBindings().stream()
+				// extract only service bindings for supported OAuth2 services from JSON
+				.filter(b -> b.getServiceName().isPresent() && Service.from(b.getServiceName().get()) != null)
+				.limit(2)
+				.toList();
+
+		if (serviceBindings.isEmpty()) {
+			throw new JsonParsingException("No supported binding found in VCAP_SERVICES!");
+		} else if (serviceBindings.size() > 1) {
+			LOGGER.warn("More than one OAuth2 service binding found in resource. Using configuration of first one!");
+		}
+
+		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper
+				.mapToOAuth2ServiceConfigurationBuilder(serviceBindings.get(0));
+		if (builder != null) {
+			// adjust domain and URL of the config to fit the mocked service instance
+			builder = builder.withDomains(URI.create(issuerUrl).getHost()).withUrl(issuerUrl);
+		}
+
+		return builder;
 	}
 
 	@Override
@@ -190,46 +215,26 @@ public class SecurityTest
 	}
 
 	void startApplicationServer() throws Exception {
-		WebAppContext context = createWebAppContext();
-		ServletHandler servletHandler = createServletHandler(context);
-
-		applicationServletsByPath
-				.forEach((path, servletHolder) -> servletHandler.addServletWithMapping(servletHolder, path));
-		applicationServletFilters.forEach((filterHolder) -> servletHandler
-				.addFilterWithMapping(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
-
-		servletHandler
-				.addFilterWithMapping(new FilterHolder(new SecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
-
-		applicationServer = new Server(applicationServerOptions.getPort());
-		applicationServer.setHandler(context);
-		applicationServer.start();
-	}
-
-	ServletHandler createServletHandler(WebAppContext context) {
 		ConstraintSecurityHandler security = new ConstraintSecurityHandler();
 		JettyTokenAuthenticator authenticator = new JettyTokenAuthenticator(
 				applicationServerOptions.getTokenAuthenticator());
 		security.setAuthenticator(authenticator);
 
-		ServletHandler servletHandler = new ServletHandler();
-		security.setHandler(servletHandler);
-		context.setServletHandler(servletHandler);
+		WebAppContext context = new WebAppContext();
+		context.setContextPath("/");
+		context.setResourceBase("src/main/webapp");
 		context.setSecurityHandler(security);
 
-		return servletHandler;
-	}
+		applicationServletsByPath
+				.forEach((path, servletHolder) -> context.addServlet(servletHolder, path));
+		applicationServletFilters.forEach(filterHolder -> context
+				.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST)));
 
-	WebAppContext createWebAppContext() {
-		WebAppContext context = new WebAppContext();
-		context.setConfigurations(new Configuration[] {
-				new AnnotationConfiguration(), new WebXmlConfiguration(),
-				new WebInfConfiguration(), new PlusConfiguration(), new MetaInfConfiguration(),
-				new FragmentConfiguration(), new EnvConfiguration() });
-		context.setContextPath("/");
-		context.setResourceBase("src/main/java/webapp");
-		context.setParentLoaderPriority(true);
-		return context;
+		context.addFilter(new FilterHolder(new SecurityFilter()), "/*", EnumSet.of(DispatcherType.REQUEST));
+
+		applicationServer = new Server(applicationServerOptions.getPort());
+		applicationServer.setHandler(context);
+		applicationServer.start();
 	}
 
 	String createDefaultTokenKeyResponse() throws IOException {

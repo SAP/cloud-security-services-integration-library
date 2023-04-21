@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.test.integration;
@@ -19,8 +19,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests multiple bindings which is not supported by {@link com.sap.cloud.security.config.cf.VcapServicesParser}
- * and {@link com.sap.cloud.security.test.SecurityTest}.
+ * Tests validation with multiple bindings present which is not supported by {@link com.sap.cloud.security.test.SecurityTest}.
  */
 public class XsuaaMultipleBindingsIntegrationTest {
 

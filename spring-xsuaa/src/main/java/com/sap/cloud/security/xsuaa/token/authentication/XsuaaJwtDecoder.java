@@ -1,13 +1,24 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
-import static org.springframework.util.StringUtils.hasText;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cache.Cache;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.*;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder;
+import org.springframework.util.Assert;
+import org.springframework.web.client.RestOperations;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,29 +28,20 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.oauth2.core.OAuth2TokenValidator;
-import org.springframework.security.oauth2.jwt.*;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder;
-import org.springframework.util.Assert;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import org.springframework.web.client.RestOperations;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
+import static org.springframework.util.StringUtils.hasText;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	private final Duration cacheValidityInSeconds;
+	private final int cacheSize;
 
-	Cache<String, JwtDecoder> cache;
+	final com.github.benmanes.caffeine.cache.Cache<String, JwtDecoder> cache;
 	private final OAuth2TokenValidator<Jwt> tokenValidators;
 	private final Collection<PostValidationAction> postValidationActions;
 	private TokenInfoExtractor tokenInfoExtractor;
@@ -48,8 +50,10 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	XsuaaJwtDecoder(XsuaaServiceConfiguration xsuaaServiceConfiguration, int cacheValidityInSeconds, int cacheSize,
 			OAuth2TokenValidator<Jwt> tokenValidators, Collection<PostValidationAction> postValidationActions) {
 
-		this.cache = Caffeine.newBuilder().expireAfterWrite(cacheValidityInSeconds, TimeUnit.SECONDS)
-				.maximumSize(cacheSize)
+		this.cacheValidityInSeconds = Duration.ofSeconds(cacheValidityInSeconds);
+		this.cacheSize = cacheSize;
+		this.cache = Caffeine.newBuilder().expireAfterWrite(this.cacheValidityInSeconds)
+				.maximumSize(this.cacheSize)
 				.build();
 		this.tokenValidators = tokenValidators;
 		this.xsuaaServiceConfiguration = xsuaaServiceConfiguration;
@@ -112,6 +116,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		} catch (BadJwtException e) {
 			if (e.getMessage().contains("Couldn't retrieve remote JWK set")
 					|| e.getMessage().contains("Cannot verify with online token key, uaadomain is")) {
+				logger.debug(e.getMessage());
 				return tryToVerifyWithVerificationKey(jwt.getParsedString(), e);
 			} else {
 				throw e;
@@ -174,7 +179,13 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	}
 
 	private JwtDecoder getDecoder(String jku) {
-		JwkSetUriJwtDecoderBuilder jwkSetUriJwtDecoderBuilder = NimbusJwtDecoder.withJwkSetUri(jku);
+		Cache jwkSetCache = new ConcurrentMapCache("jwkSetCache", Caffeine.newBuilder()
+				.expireAfterWrite(this.cacheValidityInSeconds)
+				.maximumSize(this.cacheSize)
+				.build().asMap(), false);
+		JwkSetUriJwtDecoderBuilder jwkSetUriJwtDecoderBuilder = NimbusJwtDecoder
+				.withJwkSetUri(jku)
+				.cache(jwkSetCache);
 		if (restOperations != null) {
 			jwkSetUriJwtDecoderBuilder.restOperations(restOperations);
 		}
@@ -184,6 +195,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	}
 
 	private Jwt tryToVerifyWithVerificationKey(String token, JwtException verificationException) {
+		logger.debug("Falling back to token validation with verificationkey");
 		String verificationKey = xsuaaServiceConfiguration.getVerificationKey();
 		if (!hasText(verificationKey)) {
 			throw verificationException;
@@ -197,27 +209,34 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
 			decoder.setJwtValidator(tokenValidators);
 			return decoder.decode(token);
-		} catch (NoSuchAlgorithmException | IllegalArgumentException | InvalidKeySpecException e) {
+		} catch (NoSuchAlgorithmException | IllegalArgumentException | InvalidKeySpecException | BadJwtException e) {
 			logger.debug("Jwt signature validation with fallback verificationkey failed: {}", e.getMessage());
 			throw new BadJwtException("Jwt validation with fallback verificationkey failed");
 		}
 	}
 
-	// TODO: move this code into token-client?
-	private static String convertPEMKey(String pemEncodedKey) {
-		String key = pemEncodedKey;
-		key = key.replace("-----BEGIN PUBLIC KEY-----", "");
-		key = key.replace("-----END PUBLIC KEY-----", "");
-		key = key.replace("\n", "");
-		key = key.replace("\\n", "");
-		return key;
+	private static String extractKey(String pemEncodedKey) {
+		return pemEncodedKey
+				.replace("\n", "")
+				.replace("\\n", "")
+				.replace("\r", "")
+				.replace("\\r", "")
+				.replace("-----BEGIN PUBLIC KEY-----", "")
+				.replace("-----END PUBLIC KEY-----", "");
 	}
 
 	private RSAPublicKey createPublicKey(String pemEncodedPublicKey)
 			throws NoSuchAlgorithmException, InvalidKeySpecException {
-		byte[] decodedKey = Base64.getDecoder().decode(convertPEMKey(pemEncodedPublicKey));
-		X509EncodedKeySpec spec = new X509EncodedKeySpec(decodedKey);
-		return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(spec);
+		logger.debug("verificationkey={}", pemEncodedPublicKey);
+		String key = extractKey(pemEncodedPublicKey);
+		logger.debug("RSA public key n+e={}", key);
+		byte[] decodedKey = Base64.getDecoder().decode(key);
+		X509EncodedKeySpec specX509 = new X509EncodedKeySpec(decodedKey);
+
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		RSAPublicKey rsaPublicKeyX509 = (RSAPublicKey) keyFactory.generatePublic(specX509);
+		logger.debug("parsed RSA e={}, n={}", rsaPublicKeyX509.getPublicExponent(), rsaPublicKeyX509.getModulus());
+		return rsaPublicKeyX509;
 	}
 
 }

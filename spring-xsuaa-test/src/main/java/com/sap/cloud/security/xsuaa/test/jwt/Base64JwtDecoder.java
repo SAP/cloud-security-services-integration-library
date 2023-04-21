@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.test.jwt;
@@ -25,7 +25,7 @@ public final class Base64JwtDecoder {
 
 	/**
 	 * Decodes the Json Web token (jwt).
-	 * 
+	 *
 	 * @param jwt
 	 *            the access token
 	 * @return the decoded jwt.
@@ -51,10 +51,10 @@ public final class Base64JwtDecoder {
 
 	static class DecodedJwtImpl implements DecodedJwt {
 
-		private String header;
-		private String payload;
-		private String signature;
-		private String encodedJwt;
+		private final String header;
+		private final String payload;
+		private final String signature;
+		private final String encodedJwt;
 		private static final String TAB = "\t";
 
 		DecodedJwtImpl(String encodedJwt, String header, String payload, String signature) {
@@ -86,13 +86,10 @@ public final class Base64JwtDecoder {
 
 		@Override
 		public String toString() {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("Jwt header" + lineSeparator());
-			stringBuilder.append(TAB + getHeader() + lineSeparator());
-			stringBuilder.append("Jwt payload" + lineSeparator());
-			stringBuilder.append(TAB + getPayload() + lineSeparator());
-
-			return stringBuilder.toString();
+			return "Jwt header" + lineSeparator() +
+					TAB + getHeader() + lineSeparator() +
+					"Jwt payload" + lineSeparator() +
+					TAB + getPayload() + lineSeparator();
 		}
 	}
 }

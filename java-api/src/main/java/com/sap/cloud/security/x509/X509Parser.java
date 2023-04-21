@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.x509;
@@ -30,7 +30,7 @@ class X509Parser {
 
 	/**
 	 * Decodes X509 base64 encoded certificate into X509Certificate class
-	 * 
+	 *
 	 * @param encodedX509
 	 *            base64 encoded X509 certificate
 	 * @return Decoded X509Certificate

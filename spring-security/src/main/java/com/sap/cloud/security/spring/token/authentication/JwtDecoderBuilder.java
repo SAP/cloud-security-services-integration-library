@@ -1,9 +1,13 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.token.authentication;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -12,10 +16,6 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Builder that creates a {@link JwtDecoder} that can handle both kind of

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.client;
@@ -10,7 +10,6 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class OAuth2TokenResponse {
@@ -68,7 +67,7 @@ public class OAuth2TokenResponse {
 	/**
 	 * An OAuth2 refresh token. Clients typically use the refresh token to obtain a
 	 * new access token without the need for the user to authenticate again.
-	 * 
+	 * <p>
 	 * Note with version 2.5.0 the UserTokenFlow (Jwt Bearer) does not provide any
 	 * longer Refresh Token.
 	 *

@@ -1,15 +1,12 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package testservice.api.v1;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+import com.sap.cloud.security.xsuaa.mock.JWTUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,12 +15,13 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-
-import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
-import com.sap.cloud.security.xsuaa.mock.JWTUtil;
-
 import testservice.api.MockXsuaaServerConfiguration;
 import testservice.api.XsuaaITApplication;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = {
 		XsuaaITApplication.class,
@@ -41,21 +39,22 @@ class XsuaaTokenValidationTest extends MockXsuaaServerConfiguration {
 
 	@Test
 	void testToken_testdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
-				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
-				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
+		 this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+		 "testdomain"))))
+		 .andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
 	void testToken_otherdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				"otherdomain"))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
 	void test_Scope() throws Exception {
-		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
+		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				"otherdomain"))))
 				.andExpect(status().isOk());
 	}
 
@@ -63,7 +62,8 @@ class XsuaaTokenValidationTest extends MockXsuaaServerConfiguration {
 	void test_clientcredentialstoken() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
-						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
+						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa",
+								"legacy-token-key"))))
 				.andExpect(status().isOk()).andExpect(
 						content().string(containsString(".ewogICJqdGkiOiAiOGU3YjNiMDAtNzc1MS00YjQ2LTliMWEtNWE0NmEyY")));
 	}
@@ -85,18 +85,13 @@ class XsuaaTokenValidationTest extends MockXsuaaServerConfiguration {
 				.andExpect(status().isUnauthorized());
 	}
 
-	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
-		private final String token;
-
-		public BearerTokenRequestPostProcessor(String token) {
-			this.token = token;
-		}
+	private record BearerTokenRequestPostProcessor(String token) implements RequestPostProcessor {
 
 		@Override
-		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			request.addHeader("Authorization", "Bearer " + this.token);
-			return request;
+			public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+				request.addHeader("Authorization", "Bearer " + this.token);
+				return request;
+			}
 		}
-	}
 
 }

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.x509;
@@ -35,12 +35,14 @@ class X509ParserTest {
 
 	@Test
 	void parseCertificate_validBase64() throws CertificateException {
-		assertThat(parseCertificate(x509_base64).getIssuerX500Principal().getName(X500Principal.RFC1779)).isEqualTo(DN_ISSUER_VALUE);
+		assertThat(parseCertificate(x509_base64).getIssuerX500Principal().getName(X500Principal.RFC1779))
+				.isEqualTo(DN_ISSUER_VALUE);
 	}
 
 	@Test
 	void parseCertificate_validPEM() throws CertificateException {
-		assertThat(parseCertificate(x509_pem_format).getIssuerX500Principal().getName(X500Principal.RFC1779)).isEqualTo(DN_ISSUER_VALUE);
+		assertThat(parseCertificate(x509_pem_format).getIssuerX500Principal().getName(X500Principal.RFC1779))
+				.isEqualTo(DN_ISSUER_VALUE);
 	}
 
 	@Test

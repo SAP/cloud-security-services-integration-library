@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token;
@@ -19,9 +19,9 @@ import java.util.Set;
 public interface AccessToken extends Token {
 
 	/**
-	 * Returns the list of the claim "scope".
+	 * Returns the set of the claim "scope".
 	 *
-	 * @return the list of the claim scope or empty list.
+	 * @return the set of the claim scope or empty list.
 	 */
 	Set<String> getScopes();
 
@@ -76,7 +76,7 @@ public interface AccessToken extends Token {
 	 *
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
-	 * 
+	 *
 	 * @return the String value of a claim attribute or null if claim or its
 	 *         attribute does not exist.
 	 **/

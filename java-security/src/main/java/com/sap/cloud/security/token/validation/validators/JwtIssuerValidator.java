@@ -1,26 +1,25 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
-import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import com.sap.cloud.security.config.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.Validator;
+import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
+import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
 
 /**
  * Validates that the jwt token is issued by a trust worthy identity provider.

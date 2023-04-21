@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
+<!-- SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <project
 		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.5</version>
+		<version>3.0.4</version>
 		<relativePath/>
 	</parent>
 
@@ -28,10 +28,22 @@
     	<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>1.8</java.version>
+		<java.version>17</java.version>
 		<sap.cloud.security.version>3.0.0</sap.cloud.security.version>
-		<apache.httpclient.version>4.5.14</apache.httpclient.version>
+		<http.client5>5.2.1</http.client5>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.sap.cloud.security</groupId>
+				<artifactId>java-bom</artifactId>
+				<version>${sap.cloud.security.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -41,12 +53,11 @@
         <dependency>
             <groupId>com.sap.cloud.security.xsuaa</groupId>
             <artifactId>xsuaa-spring-boot-starter</artifactId>
-            <version>${sap.cloud.security.version}</version>
         </dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>${apache.httpclient.version}</version>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+			<version>${http.client5}</version>
 		</dependency>
 
 		<!-- test dependencies-->
@@ -58,13 +69,12 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security-test</artifactId>
-			<version>${sap.cloud.security.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>5.7.0</version>
+			<version>5.9.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

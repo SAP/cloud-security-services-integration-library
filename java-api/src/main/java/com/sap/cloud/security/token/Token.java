@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token;
@@ -37,7 +37,7 @@ public interface Token extends Serializable {
 
 	/**
 	 * Creates a token instance based on TokenFactory implementation.
-	 * 
+	 *
 	 * @param jwt
 	 *            encoded JWT token
 	 * @return token instance
@@ -300,8 +300,8 @@ public interface Token extends Serializable {
 	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
 	 *     </code>
 	 *
-	 * @return the list of String values of a claim attribute or empty List if claim or its
-	 *         attribute does not exist.
+	 * @return the list of String values of a claim attribute or empty List if claim
+	 *         or its attribute does not exist.
 	 **/
 	default List<String> getAttributeFromClaimAsStringList(String claimName, String attributeName) {
 		JsonObject claimAsJsonObject = getClaimAsJsonObject(claimName);

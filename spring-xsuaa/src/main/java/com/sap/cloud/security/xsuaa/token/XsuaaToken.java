@@ -1,11 +1,12 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token;
 
 import com.sap.cloud.security.token.InvalidTokenException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.util.Assert;
 
+import java.io.Serial;
 import java.time.Instant;
 import java.util.*;
 
@@ -22,8 +24,6 @@ import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static com.sap.cloud.security.xsuaa.token.TokenClaims.*;
 import static org.springframework.util.StringUtils.hasText;
-
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 
 /**
  * Custom XSUAA token implementation.
@@ -42,6 +42,7 @@ public class XsuaaToken extends Jwt implements Token {
 	// new with SECAUTH-806
 	static final String CLAIM_SUBACCOUNT_ID = "subaccountid";
 	//
+	@Serial
 	private static final long serialVersionUID = -836947635254353927L;
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaToken.class);
 	private Collection<GrantedAuthority> authorities = Collections.emptyList();

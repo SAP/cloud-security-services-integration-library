@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.token.authentication;
@@ -12,7 +12,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * An authentication converter that transforms authorization related information
@@ -23,7 +25,7 @@ import java.util.*;
  */
 public class XsuaaTokenAuthorizationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-	private String appId;
+	private final String appId;
 
 	/**
 	 * Creates an instance.
@@ -45,10 +47,10 @@ public class XsuaaTokenAuthorizationConverter implements Converter<Jwt, Abstract
 		if (scopes == null) {
 			return Collections.emptySet();
 		}
-		return localScopeAuthorities(jwt, scopes);
+		return localScopeAuthorities(scopes);
 	}
 
-	protected Collection<GrantedAuthority> localScopeAuthorities(Jwt jwt, Collection<String> scopes) {
+	protected Collection<GrantedAuthority> localScopeAuthorities(Collection<String> scopes) {
 		Collection<GrantedAuthority> localScopeAuthorities = new ArrayList<>();
 		for (String scope : scopes) {
 			if (scope.startsWith(appId + ".")) {

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package sample.spring.xsuaa;
@@ -111,19 +111,14 @@ public class TestControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
-    private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
-        private String token;
-
-        public BearerTokenRequestPostProcessor(String token) {
-            this.token = token;
-        }
+    private record BearerTokenRequestPostProcessor(String token) implements RequestPostProcessor {
 
         @Override
-        public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-            request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.token);
-            return request;
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.token);
+                return request;
+            }
         }
-    }
 
     private static BearerTokenRequestPostProcessor bearerToken(String token) {
         return new BearerTokenRequestPostProcessor(token);

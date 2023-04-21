@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.x509;
@@ -69,11 +69,10 @@ public class X509Certificate implements Certificate {
 
 	@Override
 	public Map<String, String> getSubjectDNMap() {
-		Map<String, String> map = Stream.of(getSubjectDN().split(",")).collect(Collectors.toMap(
+		return Stream.of(getSubjectDN().split(",")).collect(Collectors.toMap(
 				dn -> dn.split("=")[0].trim(),
 				dn -> dn.split("=")[1],
 				(dn1, dn2) -> dn1 + "," + dn2));
-		return map;
 	}
 
 }

@@ -1,12 +1,12 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.servlet;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 /**
  * TokenAuthenticator is used to authenticate a user sending servlet requests to
@@ -21,7 +21,7 @@ public interface TokenAuthenticator {
 
 	/**
 	 * Performs the authentication for the given request.
-	 * 
+	 *
 	 * @param request
 	 *            servlet request.
 	 * @param response

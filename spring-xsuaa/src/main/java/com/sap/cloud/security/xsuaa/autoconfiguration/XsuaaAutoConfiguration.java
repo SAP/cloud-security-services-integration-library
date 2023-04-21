@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.autoconfiguration;
@@ -10,6 +10,7 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 import com.sap.cloud.security.xsuaa.extractor.TokenUtil;
+import com.sap.cloud.security.xsuaa.token.authentication.httpclient.SpringHttpClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -85,7 +86,6 @@ public class XsuaaAutoConfiguration {
 	@ConditionalOnMissingBean
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaRestOperations() {
-		LOGGER.warn("In productive environment provide a well configured client secret based RestOperations bean");
 		return new RestTemplate();
 	}
 
@@ -97,11 +97,10 @@ public class XsuaaAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	@ConditionalOnClass(name = "org.apache.http.impl.client.CloseableHttpClient")
+	@ConditionalOnClass(name = "org.apache.hc.client5.http.impl.classic.CloseableHttpClient")
 	@ConditionalOnBean(XsuaaServiceConfiguration.class)
 	public RestOperations xsuaaMtlsRestOperations(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
-		LOGGER.warn("In productive environment provide a well configured certificate based RestOperations bean");
-		return SpringHttpClient.getInstance().create(xsuaaServiceConfiguration.getClientIdentity());
+		return SpringHttpClientFactory.createRestTemplate(xsuaaServiceConfiguration.getClientIdentity());
 	}
 
 	private static class OnSecretCredentialTypeCondition implements Condition {

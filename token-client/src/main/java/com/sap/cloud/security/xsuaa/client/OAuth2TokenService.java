@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.client;
@@ -13,8 +13,8 @@ import java.net.URI;
 import java.util.Map;
 
 /**
- * Retrieves OAuth2 Access Tokens as documented here:
- * https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token
+ * Retrieves OAuth2 Access Tokens as documented here: <a href=
+ * "https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token">https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token</a>
  */
 public interface OAuth2TokenService {
 
@@ -47,7 +47,6 @@ public interface OAuth2TokenService {
 			boolean disableCacheForRequest)
 			throws OAuth2ServiceException;
 
-
 	/**
 	 * Requests access token from OAuth Server with refresh-token.
 	 *
@@ -71,7 +70,6 @@ public interface OAuth2TokenService {
 	OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientIdentity clientIdentity,
 			String refreshToken, @Nullable String subdomain, boolean disableCacheForRequest)
 			throws OAuth2ServiceException;
-
 
 	/**
 	 * Requests access token from OAuth Server with user / password.

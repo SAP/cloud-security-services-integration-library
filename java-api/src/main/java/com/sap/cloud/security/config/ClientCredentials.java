@@ -1,15 +1,17 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.config;
 
 import javax.annotation.Nonnull;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 public class ClientCredentials implements ClientIdentity, Serializable {
+	@Serial
 	private static final long serialVersionUID = 2405162041950251807L;
 
 	private final String clientSecret;

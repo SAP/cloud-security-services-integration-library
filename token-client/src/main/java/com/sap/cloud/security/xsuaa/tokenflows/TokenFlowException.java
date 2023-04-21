@@ -1,16 +1,18 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import java.io.IOException;
+import java.io.Serial;
 
 /**
  * Exception thrown to signal issues during a token flow execution.
  */
 public class TokenFlowException extends IOException {
+	@Serial
 	private static final long serialVersionUID = 1452898292676860358L;
 
 	/**
@@ -34,7 +36,7 @@ public class TokenFlowException extends IOException {
 
 	/**
 	 * Creates a new exception instances.
-	 * 
+	 *
 	 * @param message
 	 *            - the error message.
 	 */
@@ -44,7 +46,7 @@ public class TokenFlowException extends IOException {
 
 	/**
 	 * Creates a new exception instances.
-	 * 
+	 *
 	 * @param cause
 	 *            - the error cause.
 	 */

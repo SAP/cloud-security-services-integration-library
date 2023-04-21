@@ -1,12 +1,14 @@
 # Description
-This spring boot application sample uses ```spring-security``` client library to validate jwt tokens issued by ```xsuaa``` service or by ```identity ``` service. On the one hand ```xsuaa``` service issues an access token and on the other hand ```identity``` service issues an oidc token. The tokens vary with regard to the information provided via token claims. In both cases the validated token is available of type [```Token```](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the ```SecurityContextHolder```.
-This sample also demonstrates usage of `CorrelationIdFilter` that adds correlation_id to MDC context that is used to enhance subsequent/outgoing requests with `X-CorrelationID` header. More information about logging filter library used can be found [here](https://github.com/SAP/cf-java-logging-support/wiki/Instrumenting-Servlets).
+This sample is a Spring Boot application that utilizes the `spring-security` client library to authenticate JWT tokens issued by either the `xsuaa` service or the `identity` service. 
+The `xsuaa` service generates an access token, while the `identity` service produces an OIDC token. 
+The tokens differ in the details they provide through token claims. In both instances, 
+the validated token is accessible as a [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the Spring`org.springframework.security.core.context.SecurityContextHolder`.
 
-# Coding
-This sample is using the [`spring-security`](/spring-security/) library, which is based on [Spring's Security](https://github.com/spring-projects/spring-security) project and runs on SAP Cloud Business Technology Platform. It integrates with [Spring Security OAuth 2.0 Resource Server](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver). The security configuration needs to configure jwt for authentication.
+Additionally, this sample showcases the use of the `CorrelationIdFilter`, which appends a correlation_id to the MDC context. 
+This is then used to augment subsequent/outgoing requests with an `X-CorrelationID` header. 
+For more information about the logging filter library employed, please visit [this link](https://github.com/SAP/cf-java-logging-support/wiki/Instrumenting-Servlets).
 
-
-Follow the deployment steps for [Kyma/Kubernetes](#Deployment-on-Kyma/Kubernetes) or [Cloud Foundry](#Deployment-on-Cloud-Foundry).
+Follow the deployment steps for [Kyma/Kubernetes](#deployment-on-kymakubernetes) or [Cloud Foundry](#deployment-on-cloud-foundry).
 
 # Deployment on Kyma/Kubernetes
 <details>

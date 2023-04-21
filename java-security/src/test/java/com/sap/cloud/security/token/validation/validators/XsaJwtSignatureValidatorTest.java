@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
@@ -12,7 +12,6 @@ import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -53,7 +52,7 @@ public class XsaJwtSignatureValidatorTest {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(eq(JKU_URI), any()))
-						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,

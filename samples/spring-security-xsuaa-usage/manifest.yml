@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
 # SPDX-License-Identifier: Apache-2.0
 ---
 # Configuration:
@@ -14,6 +14,10 @@ applications:
   path: target/spring-security-xsuaa-usage.jar
   services:
     - xsuaa-authentication
+  buildpacks:
+    - java_buildpack
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
 
 # Application Router as web server
 - name: approuter-spring-security-xsuaa-usage

@@ -1,9 +1,18 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.test.extension;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.Charset;
 
 import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.api.SecurityTestContext;
@@ -15,15 +24,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.Charset;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class SecurityTestExtensionTest {
 

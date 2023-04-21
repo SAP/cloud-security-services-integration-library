@@ -1,11 +1,14 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,11 +18,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PasswordTokenFlowTest {
@@ -161,14 +163,14 @@ public class PasswordTokenFlowTest {
 		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME,
 				PASSWORD,
 				null, null, false))
-						.thenReturn(validResponse);
+				.thenReturn(validResponse);
 	}
 
 	private void mockValidResponse(String accessToken) throws OAuth2ServiceException {
 		OAuth2TokenResponse validResponse = new OAuth2TokenResponse(accessToken, EXPIRED_IN, REFRESH_TOKEN);
 		when(tokenService.retrieveAccessTokenViaPasswordGrant(TOKEN_ENDPOINT_URI, CLIENT_CREDENTIALS, USERNAME,
 				PASSWORD, null, null, false))
-						.thenReturn(validResponse);
+				.thenReturn(validResponse);
 	}
 
 	private void verifyThatDisableCacheIs(boolean disableCache) throws OAuth2ServiceException {

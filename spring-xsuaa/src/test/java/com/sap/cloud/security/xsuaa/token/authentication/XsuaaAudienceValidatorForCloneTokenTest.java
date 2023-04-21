@@ -1,16 +1,15 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static org.hamcrest.CoreMatchers.is;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,11 +17,11 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.sap.cloud.security.xsuaa.DummyXsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.TokenClaims;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
 
 public class XsuaaAudienceValidatorForCloneTokenTest {
 

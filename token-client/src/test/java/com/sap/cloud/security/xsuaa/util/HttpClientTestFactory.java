@@ -1,9 +1,11 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.util;
+
+import static org.mockito.Mockito.when;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -12,8 +14,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
 import org.mockito.Mockito;
-
-import static org.mockito.Mockito.when;
 
 public class HttpClientTestFactory {
 

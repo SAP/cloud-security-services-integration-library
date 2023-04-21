@@ -81,7 +81,7 @@ try {
 ```
 
 ### New Feature: SecurityContext <a name="security-context"></a>
-In order to obtain token information from the thread local storage (instead of the request) you can use `SecurityContext` from [`java-api`](#maven).
+In order to obtain token information from the thread local storage (instead of the request) you can use `SecurityContext` from [`java-api`](/java-api/README.md#maven-dependencies).
 
 ```java
 import com.sap.cloud.security.token.*;
@@ -104,10 +104,10 @@ public class HelloJavaServlet extends HttpServlet {
 If your application is requesting tokens using `requestToken`, `requestTokenForUser` or `requestTokenForClient` methods of the `(XS)UserInfo` object, you can migrate this to the new `token-client` library. You can find the migration guide [here](/token-client/Migration_XSUserInfoRequestToken.md).
 
 ### Sample using new API
-- [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/samples/sap-java-buildpack-api-usage)
+- [J2EE java web servlet sample using SAP Java Buildpack](https://github.com/SAP/cloud-security-services-integration-library/tree/main/samples/sap-java-buildpack-api-usage)
 
 ## Issues
-In case you face issues to apply the migration steps check this [troubleshoot](README.md#troubleshoot) for known issues and how to file the issue.
+In case you face issues to apply the migration steps check this [troubleshooting](README.md#troubleshooting) for known issues and how to file the issue.
 
 ## Further References
 - [help.sap.com](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/ead7ee64f96f4c42bacbf0ae23d4135b.html)

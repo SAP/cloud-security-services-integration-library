@@ -1,10 +1,73 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.0.0
+### Baseline changes
+`cloud-security-services-integration-library` requires
+- Java 17
+- Spring Boot 3.0.x
+- Spring security 6.0.x
+
+### Breaking Changes
+* Identity service configurations need to provide domains via String array in JSON key 'identity.credentials.domains'. Providing String values under key 'identity.credentials.domain' is not supported anymore. IAS configurations from service bindings have been generated like this for a long time already. This should only affect old configuration files manually written for testing.
+
+#### Removed modules
+* `spring-xsuaa-mock` &rarr; use [java-security-test](./java-security-test) instead
+
+#### Removed deprecated classes and interfaces
+* [api]
+  * `XSPrincipal`, `XSUserInfoException` &rarr; not needed anymore with new [Token](./java-api/src/main/java/com/sap/cloud/security/token/Token.java) interface
+* [env]
+  * `CFEnvironment`, `K8sEnvironment` &rarr; use instead `ServiceBindingEnvironment`
+  * `CFConstants`, `K8sConstants` &rarr; use instead `ServiceConstants`
+* [java-security]
+  * `XSUserInfo`, `XSUserInfoAdapter` &rarr; use instead [Token](./java-api/src/main/java/com/sap/cloud/security/token/Token.java) interface and `Token#getClaimAsString` with [TokenClaims.XSUAA](./java-api/src/main/java/com/sap/cloud/security/token/TokenClaims.java) constants to access XSUAA-specific claims.
+  * `SAPOfflineTokenServicesCloud` &rarr; use instead [spring-security] module
+* [spring-xsuaa]
+  * `XSTokenRequest`, `TokenBroker`, `UaaTokenBroker` &rarr; use instead [token-client](./token-client) module to fetch XSUAA tokens via XsuaaTokenFlows
+  * `TokenBrokerResolver`, `AuthenticaionMethod` &rarr; No longer provided. See `spring-security-basic-auth` sample how to write your own implementation.
+  * `IasXsuaaExchangeBroker` &rarr; Exchange is not supported by XSUAA service anymore.
+  * `TokenUrlUtils` &rarr; use instead `OAuth2ServiceEndpointsProvider`
+  * `XsuaaServicesParser` &rarr; use instead `Environments#getCurrent` or `new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> xsuaaConfigJson))`
+  * `OAuth2AuthenticationConverter` &rarr; Not supported anymore because deprecated by Spring Security: https://github.com/spring-projects/spring-security/wiki/OAuth-2.0-Migration-Guide
+* [token-client]
+  * `UserTokenFlow` &rarr; use instead `JwtBearerTokenFlow`
+
+#### Removed deprecated methods
+* [java-security]
+  * `OAuth2TokenKeyServiceWithCache#withCacheTime`, `OAuth2TokenKeyServiceWithCache#withCacheSize` &rarr; use instead `OAuth2TokenKeyServiceWithCache#withCacheConfiguration`
+  * `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration)` &rarr;
+* [java-security-test]
+  * `SecurityTestRule#getConfigurationBuilderFromFile` &rarr; use instead `SecurityTestRule#getOAuth2ServiceConfigurationBuilderFromFile`
+  * `SecurityTestRule#getWireMockRule` &rarr; use instead `SecurityTestRule#getWireMockServer`
+* [spring-xsuaa]
+  * `Token#getExpirationDate` &rarr; use instead `Token#getExpiration`
+* [spring-xsuaa-test]
+  * `Base64JwtDecoder#Base64JwtDecoder`  &rarr; use instead `Base64JwtDecoder#getInstance`
+* [token-client]
+  * `XsuaaTokenFlows#userTokenFlow` &rarr; use instead `XsuaaTokenFlows#jwtBearerTokenFlow`
+  * `OAuth2TokenService#retrieveAccessTokenViaUserTokenGrant` &rarr; use instead `OAuth2TokenService#retrieveAccessTokenViaJwtBearerTokenGrant`
+  * `OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant(URI, ClientIdentity, String, Map, boolean)` &rarr; use instead [OAuth2TokenService#retrieveAccessTokenViaClientCredentialsGrant](./token-client/src/main/java/com/sap/cloud/security/xsuaa/client/OAuth2TokenService.java) with null for argument `subdomain`
+  * `DefaultOAuth2TokenService#DefaultOAuth2TokenService` &rarr; use instead `DefaultOAuth2TokenService#DefaultOAuth2TokenService(CloseableHttpClient)`
+  * `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService` &rarr; use instead `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService(CloseableHttpClient)`
+  * `DefaultOAuth2TokenService#DefaultOAuth2TokenService(TokenCacheConfiguration)` &rarr; use instead `DefaultOAuth2TokenService#DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
+  * `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService(TokenCacheConfiguration)` &rarr; use instead `XsuaaOAuth2TokenService#XsuaaOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
+  * `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(URI)`, `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(String)` &rarr; use instead `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(String, String)`
+  * `OAuth2TokenResponse#getExpiredAtDate` &rarr; use instead `OAuth2TokenResponse#getExpiredAt`
+  * `Base64JwtDecoder#Base64JwtDecoder`  &rarr; use instead `Base64JwtDecoder#getInstance`
+#### Removed deprecated fields
+* [java-api]
+  * `GrantType#USER_TOKEN` &rarr; use instead `GrantType#JWT_BEARER`
+* [token-client]
+  * `OAuth2TokenServiceConstants#GRANT_TYPE_USER_TOKEN` &rarr; use instead `GrantType#JWT_BEARER`
+* [spring-xsuaa]
+  * `Token#GRANTTYPE_CLIENTCREDENTIAL` &rarr; use instead `GrantType#CLIENT_CREDENTIALS`
+
+
 ## 2.13.5
 - [spring-xsuaa] improved logging for JwtAudienceValidator
 - [java-security] enables token validation without zones
-  
+
 #### Dependency upgrades
 * Bump httpclient from 4.5.13 to 4.5.14
 * Bump btp-environment-variable-access java-bom from 0.5.1 to 0.5.2
@@ -20,15 +83,15 @@ All notable changes to this project will be documented in this file.
   - `scim_id` added as default attribute for identity token Jwt generator
 
 #### Dependency upgrades
-* Bump spring.security.version from 5.7.3 to 5.7.5 
+* Bump spring.security.version from 5.7.3 to 5.7.5
 * Bump btp-environment-variable-access java-bom from 0.4.1 to 0.5.1
 * Bump spring.boot.version from 2.7.3 to 2.7.5
 * Bump reactor-core from 3.4.23 to 3.4.24
-* Bump slf4j.api.version from 2.0.0 to 2.0.3 
+* Bump slf4j.api.version from 2.0.0 to 2.0.3
 * Bump spring-boot-starter-parent from 2.7.3 to 2.7.5
 
 ## 2.13.3
-- [spring-xsuaa-starter]   
+- [spring-xsuaa-starter]
   - Patches [CVE 2022-25857](https://nvd.nist.gov/vuln/detail/CVE-2022-25857) vulnerability in spring boot starter transient dependency.
 
 #### Dependency upgrades
@@ -44,12 +107,12 @@ All notable changes to this project will be documented in this file.
 
 ## 2.13.1
 - [token-client]
-  - `DefaultHttpClientFactory` creates `CloseableHttpClient` with disabled redirects to avoid security vulnerabilities. 
-  
+  - `DefaultHttpClientFactory` creates `CloseableHttpClient` with disabled redirects to avoid security vulnerabilities.
+
   :bangbang: For your custom `CloseableHttpClient` implementation make sure to disable redirects as well. :bangbang:
   - all `TokenServices` and `TokenKeyServices` have been enhanced to add to all outgoing requests a `user-agent` header that contains value `token-client/x.x.x` where x.x.x is token-client version being used
-- [spring-xsuaa] 
-  - `XsuaaJwtDecoder` catches bases64 decoder `IllegalArgumentException` that can be caused by decoding malformed `verificationkey` from xsuaa service configuration to avoid `500 Internal server error` responses    
+- [spring-xsuaa]
+  - `XsuaaJwtDecoder` catches bases64 decoder `IllegalArgumentException` that can be caused by decoding malformed `verificationkey` from xsuaa service configuration to avoid `500 Internal server error` responses
 
 #### Dependency upgrades
 * Bump `spring.boot.version` from 2.7.1 to 2.7.2.
@@ -57,7 +120,7 @@ All notable changes to this project will be documented in this file.
 * Bump reactor-core from 3.4.21 to 3.4.22
 
 ## 2.13.0
-- [env] 
+- [env]
   - uses https://github.com/SAP/btp-environment-variable-access (version 0.3.1), which supports access to service credentials in K8s/Kyma environment provisioned by [SAP BTP Service Operator](https://github.com/SAP/sap-btp-service-operator). Usage of service-catalog is no longer supported. With that there is no service-manager longer required to distinguish the service instance plan, when multiple xsuaa instances are bound (#855).
 - [token-client]
   - NPE bug fix for `UriUtil.replaceSubdomain(@Nonnull URI, @Nullable subdomain)` in cases when provided URI does not contain host(no http/s schema provided) #943
@@ -70,10 +133,10 @@ All notable changes to this project will be documented in this file.
 * Bump [reactor-core](https://github.com/reactor/reactor-core) from 3.4.19 to 3.4.21.
 
 
-**Full Changelog**: https://github.com/SAP/cloud-security-xsuaa-integration/compare/2.12.3...2.13.0
+**Full Changelog**: https://github.com/SAP/cloud-security-services-integration-library/compare/2.12.3...2.13.0
 
 ## 2.12.3
-- [spring-xsuaa][spring-security-compatibility] 
+- [spring-xsuaa][spring-security-compatibility]
   - bug fix for #910 `XsuaaToken.getXSUserAttribute`, `XsuaaTokenComp.getXSUserAttribute` methods' return `null` if claim is not present as documented in javadoc.
 - [java-api]
   - `Token.getAttributeFromClaimAsStringList` javadoc has been fixed, this method supposed to return empty `List` in case of missing attribute not `null`
@@ -103,10 +166,10 @@ All notable changes to this project will be documented in this file.
 
 ## 2.12.0
 - [token-client]
-    - **DefaultHttpClientFactory** does not longer log warning messages in case of cert-based Apache Http Clients.
-    - Usages of HTTP Clients as part of this client library are depicted [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/improve-http-client/docs/images/HttpClient.drawio.svg).
-    - This improves the default Apache Http Client configuration, provided with `DefaultHttpClientFactory`, so that warning message described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main/token-client#new-warning-in-productive-environment-provide-well-configured-httpclientfactory-service) is no longer logged in case of certificate based setup, and stakeholders must not overwrite the default configuration.
-    - In case there is no certificate given in `VCAP_SERVICES` a default http client gets created (`HttpClients.createDefault()`) and the message is still logged with severity `WARNING` .
+  - **DefaultHttpClientFactory** does not longer log warning messages in case of cert-based Apache Http Clients.
+  - Usages of HTTP Clients as part of this client library are depicted [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/improve-http-client/docs/images/HttpClient.drawio.svg).
+  - This improves the default Apache Http Client configuration, provided with `DefaultHttpClientFactory`, so that warning message described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main/token-client#new-warning-in-productive-environment-provide-well-configured-httpclientfactory-service) is no longer logged in case of certificate based setup, and stakeholders must not overwrite the default configuration.
+  - In case there is no certificate given in `VCAP_SERVICES` a default http client gets created (`HttpClients.createDefault()`) and the message is still logged with severity `WARNING` .
 
 #### Details DefaultHttpClientFactory
 It sets
@@ -130,7 +193,7 @@ It introduces a `PoolingHttpClientConnectionManager` and limits
   - Only identity service requires `x-zone_uuid` header for token keys retrieval
   - in case of signature mismatch the result should expose the signature of the encoded JWT token
 - [spring-security]
-Introduces with `spring-security-compatibility` a compatibility module that provides with ``XsuaaTokenComp`` class an option to decorate a token issued by xsuaa to ``com.sap.cloud.security.xsuaa.token.Token`` api, which was used in `spring-xsuaa`.
+  Introduces with `spring-security-compatibility` a compatibility module that provides with ``XsuaaTokenComp`` class an option to decorate a token issued by xsuaa to ``com.sap.cloud.security.xsuaa.token.Token`` api, which was used in `spring-xsuaa`.
   - See also [Migration Guide](https://github.com/SAP/cloud-security-xsuaa-integration/blob/token-compatibility/spring-security/Migration_SpringXsuaaProjects.md) and PR #847
 
 #### Dependency upgrades
@@ -148,13 +211,13 @@ Introduces with `spring-security-compatibility` a compatibility module that prov
 
 ## 2.11.14
 - [java-security] [spring-security]
-    * Never log certificates
-    * Improves JWKS cache handling for OIDC token validation. This is especially relevant when using a shared IAS tenant.
-    * Adds further logs in respect to key mismatches.
-- [spring-xsuaa]    
-    * XsuaaJwtDecoder must ignore line breaks in verificationkey
+  * Never log certificates
+  * Improves JWKS cache handling for OIDC token validation. This is especially relevant when using a shared IAS tenant.
+  * Adds further logs in respect to key mismatches.
+- [spring-xsuaa]
+  * XsuaaJwtDecoder must ignore line breaks in verificationkey
 - [java-security-test]
-    * Bump jackson-databind.version from 2.12.1 to 2.13.2.2 (solves security vulnerability)
+  * Bump jackson-databind.version from 2.12.1 to 2.13.2.2 (solves security vulnerability)
 
 #### Dependency upgrades
 * Bump slf4j.api.version from 1.7.35 to 1.7.36
@@ -166,9 +229,9 @@ Introduces with `spring-security-compatibility` a compatibility module that prov
 * Bump spring.core.version from 5.3.15 to 5.3.17
 
 ## 2.11.13
-- [java-security] 
+- [java-security]
   - removes audience check as part of `JwtX5tValidator`
-- [spring-xsuaa] 
+- [spring-xsuaa]
   - XsuaaServiceConfigurationDefault supports access to other credentials (fix #802)
   - XsuaaServiceConfigurationDefault supports non relaxed-binding rules for non spring framework cases
   - auto-configures mtls-based rest operations w/o credential-type=x509 property
@@ -192,7 +255,7 @@ Introduces with `spring-security-compatibility` a compatibility module that prov
 
 #### Dependency upgrades
 - remove net.minidev:json-smart
-- Bump log4j2.version from 2.17.0 to 2.17.1 
+- Bump log4j2.version from 2.17.0 to 2.17.1
 
 ## 2.11.10
 [spring-xsuaa-starter] Patches CVE-2021-42550
@@ -203,18 +266,18 @@ Introduces with `spring-security-compatibility` a compatibility module that prov
 - Bump logcaptor from 2.7.4 to 2.7.7
 
 ## 2.11.9
-- provides Bill of Material that helps you to keep all of your SAP security related dependencies on sync: 
+- provides Bill of Material that helps you to keep all of your SAP security related dependencies on sync:
 ```xml
 <dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>com.sap.cloud.security</groupId>
-            <artifactId>java-bom</artifactId>
-            <version>...</version>
-            <type>pom</type>
-            <scope>import</scope>
-        </dependency>
-    </dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>com.sap.cloud.security</groupId>
+      <artifactId>java-bom</artifactId>
+      <version>...</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
 </dependencyManagement>
 ```
 See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/samples/java-security-usage/pom.xml).
@@ -241,25 +304,25 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - com.github.tomakehurst:wiremock-jre8-standalone 2.31.0 --> 2.32.0
 
 ## 2.11.3
-- [java-api] 
-    - `SecurityContext` has been extended to provide thread-wide X.509 certificate storage
-- [java-security] 
-    - Introduces X.509 certificate thumbprint validator `JwtX5tValidator` as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/README.md#x509-certificate-thumbprint-x5t-validation)
-    - `IasTokenAuthenticator` and `XsuaaTokenAuthenticator` store the forwarded X.509 certificate for incoming requests in `SecurityContext`
-    - `XsuaaDefaultEndpoints` provides a new [constructor(url, certUrl)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/XsuaaDefaultEndpoints.java#L56) (issue [707](https://github.com/SAP/cloud-security-xsuaa-integration/issues/707))
-- [spring-xsuaa] 
-    - `XsuaaServiceConfiguration` interface default method `getClientIdentity()` needs to be overridden to be used
-    - :exclamation: Incompatible change `XsuaaCredentials`  `getPrivateKey()` `setPrivateKey()` has changed to `getKey()` `setKey()` to reflect the attribute name from configuration
+- [java-api]
+  - `SecurityContext` has been extended to provide thread-wide X.509 certificate storage
+- [java-security]
+  - Introduces X.509 certificate thumbprint validator `JwtX5tValidator` as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/blob/master/java-security/README.md#x509-certificate-thumbprint-x5t-validation)
+  - `IasTokenAuthenticator` and `XsuaaTokenAuthenticator` store the forwarded X.509 certificate for incoming requests in `SecurityContext`
+  - `XsuaaDefaultEndpoints` provides a new [constructor(url, certUrl)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/token-client/src/main/java/com/sap/cloud/security/xsuaa/client/XsuaaDefaultEndpoints.java#L56) (issue [707](https://github.com/SAP/cloud-security-xsuaa-integration/issues/707))
+- [spring-xsuaa]
+  - `XsuaaServiceConfiguration` interface default method `getClientIdentity()` needs to be overridden to be used
+  - :exclamation: Incompatible change `XsuaaCredentials`  `getPrivateKey()` `setPrivateKey()` has changed to `getKey()` `setKey()` to reflect the attribute name from configuration
 - [token-client] Adds ``X-CorrelationID`` header to outgoing requests. In case MDC provides "correlation_id" this one is taken (issue [691](https://github.com/SAP/cloud-security-xsuaa-integration/issues/691))
 
 #### Dependency upgrades
-  - io.projectreactor:reactor-test 3.4.11 --> 3.4.12
-  - io.projectreactor:reactor-core 3.4.11 --> 3.4.12
-  - dependency-check-maven-plugin 6.4.1 --> 6.5.0
-  - org.springframework:spring.core.version  5.3.12 --> 5.3.13
-  - org.springframework:spring.security.version 5.5.3 --> 5.6.0
-  - org.springframework.boot:spring-boot 2.5.6 to 2.6.0 
-  - logcaptor 2.7.0 --> 2.7.2
+- io.projectreactor:reactor-test 3.4.11 --> 3.4.12
+- io.projectreactor:reactor-core 3.4.11 --> 3.4.12
+- dependency-check-maven-plugin 6.4.1 --> 6.5.0
+- org.springframework:spring.core.version  5.3.12 --> 5.3.13
+- org.springframework:spring.security.version 5.5.3 --> 5.6.0
+- org.springframework.boot:spring-boot 2.5.6 to 2.6.0
+- logcaptor 2.7.0 --> 2.7.2
 
 
 ## 2.11.2
@@ -270,10 +333,10 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - Resolves regression in `XsuaaServiceConfigurationDefault` (fixes [#695](https://github.com/SAP/cloud-security-xsuaa-integration/issues/695))
 
 #### Dependency upgrades
-  - io.projectreactor:reactor-test 3.4.10 --> 3.4.11
-  - io.projectreactor:reactor-core 3.4.10 --> 3.4.11
-  - org.springframework:spring.core.version  5.3.10 --> 5.3.12
-  - org.springframework.boot:spring-boot 2.5.4 to 2.5.6 
+- io.projectreactor:reactor-test 3.4.10 --> 3.4.11
+- io.projectreactor:reactor-core 3.4.10 --> 3.4.11
+- org.springframework:spring.core.version  5.3.10 --> 5.3.12
+- org.springframework.boot:spring-boot 2.5.4 to 2.5.6
 
 
 ## 2.11.0
@@ -290,12 +353,12 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 #### Dependency upgrades
 - maven-javadoc-plugin 3.3.0 --> 3.3.1
 - maven-pmd-plugin 3.14.0 --> 3.15.0
-- dependency-check-maven 6.2.2 --> 6.3.1 
+- dependency-check-maven 6.2.2 --> 6.3.1
 - com.github.tomakehurst:wiremock-jre8-standalone 2.30.1 --> 2.31.0
 - io.projectreactor:reactor-test 3.4.9 --> 3.4.10
 - io.projectreactor:reactor-core 3.4.9 --> 3.4.10
 - org.springframework:spring.core.version  5.3.9 --> 5.3.10
-- org.springframework.boot:spring-boot 2.5.3 to 2.5.4 
+- org.springframework.boot:spring-boot 2.5.3 to 2.5.4
 - org.mockito:mockito-core 3.11.2 --> 3.12.4
 
 
@@ -303,7 +366,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [token-client]
   - new method `SSLContextFactory.createKeyStore(ClientIdentity)`
   - `XsuaaTokenFlows` constructor accepts `com.sap.cloud.security.xsuaa.client.ClientCredentials` as argument.
-  
+
 #### Dependency upgrades
 - org.springframework.security:spring-security-oauth2-jose 5.5.1 --> 5.5.2
 - org.springframework.security:spring-security-oauth2-resource-server 5.5.1 --> 5.5.2
@@ -312,17 +375,17 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 
 ## 2.10.4
 - [java-security] Enrich `JsonParsingException` to detect wrong authorization headers earlier
-- [token-client] 
+- [token-client]
   - `ClientCredentials`: solves incompatible change between 2.9.0 and 2.10.0
-  - `OAuth2TokenResponse.getTokenType()` exposes token type as provided by token request 
-- [spring-xsuaa] 
+  - `OAuth2TokenResponse.getTokenType()` exposes token type as provided by token request
+- [spring-xsuaa]
   - `XsuaaServiceConfigurationDefault.hasProperty("apiurl")` returns true if VCAP_SERVICES-xsuaa-credentials contains attribute "apiurl"
-  -`XsuaaServiceConfigurationDefault.getProperty("apiurl")` returns value from VCAP_SERVICES-xsuaa-credentials-apiurl or null, if attribute does not exist.
-- [spring-security]`HybridJwtDecoder` raises ``BadJwtException`` in case the token is invalid and can not be decoded properly. 
+    -`XsuaaServiceConfigurationDefault.getProperty("apiurl")` returns value from VCAP_SERVICES-xsuaa-credentials-apiurl or null, if attribute does not exist.
+- [spring-security]`HybridJwtDecoder` raises ``BadJwtException`` in case the token is invalid and can not be decoded properly.
 
 #### Dependency upgrades
 - wiremock 2.29.1 --> 2.30.1
-- io.projectreactor:reactor-core 3.4.8 --> 3.4.9  
+- io.projectreactor:reactor-core 3.4.8 --> 3.4.9
 - io.projectreactor:reactor-test 3.4.8 --> 3.4.9
 
 ## 2.10.3
@@ -340,7 +403,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 
 ## 2.10.2
 - [spring-security] and starter are released with project version: ``2.10.2``.
-- [spring-xsuaa] `TokenBrokerResolver` supports X.509 authentication method. 
+- [spring-xsuaa] `TokenBrokerResolver` supports X.509 authentication method.
 - [samples/spring-security-basic-auth] deprecates the xsuaa security descriptor with a client secret authentication, default now is X.509 based authentication.
 - [java-security-test] requires ``javax.servlet:javax.servlet-api`` dependency to be provided.
 
@@ -357,7 +420,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 
 ## 2.10.0 and 0.3.0 [BETA]
 - [java-api] provides `ClientIdentity` with 2 implementations: `ClientCredentials` and `ClientCertificate`
-- [token-client] 
+- [token-client]
   - `XsuaaTokenFlows` supports X.509 authentication method. In order to enable X.509 you probably need to provide ``org.apache.httpcomponents:httpclient`` as dependency and need to configure ``XsuaaTokenFlows`` differently:
     - `XsuaaDefaultEndpoints(url)` must be replaced with `XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>)`.
     - `DefaultOAuth2TokenService` constructors that are not parameterized with `CloseableHttpClient` are deprecated, as they do not support X.509.
@@ -365,7 +428,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
     - Find more detailed information [here](/token-client).
   - ``SSLContextFactory`` class, which was marked as deprecated, is moved to `com.sap.cloud.security.mtls` package.
   - logs 'WARN' message, in case application has not overwritten the default http client. Find further information about that [here](/token-client#common-pitfalls).
-- [java-security] 
+- [java-security]
   - `IasXsuaaExchangeBroker` supports X.509 based token exchange. In case the token exchange is done via `XsuaaTokenAuthenticator` you need to provide a http client that is prepared with ssl context.
   - `JwtIssuerValidator.java` supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. The check whether `ias` matches to any given domains is skipped in that case.
   - The token keys cache does not accept cache time longer than 15 minutes.
@@ -377,7 +440,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [spring-security] and starter
   - `XsuaaTokenFlowAutoconfiguration` supports X.509 based authentication. You need to provide ``org.apache.httpcomponents:httpclient`` as dependency.
   - `HybridJwtDecoder` raises `BadJwtException`s instead of `AccessDeniedException`s.
-  - As of version ``2.10`` a warning `In productive environment provide a well configured client secret based RestOperations bean.` is exposed to the application log in case the default implementation of ``RestOperations`` is used and not overwritten by an own well-defined one. 
+  - As of version ``2.10`` a warning `In productive environment provide a well configured client secret based RestOperations bean.` is exposed to the application log in case the default implementation of ``RestOperations`` is used and not overwritten by an own well-defined one.
 - [samples/java-tokenclient-usage] uses X.509 based authentication for `XsuaaTokenflows`
 - [samples/spring-security-xsuaa-usage] deprecates the xsuaa security descriptor with a client secret authentication, default now is X.509 based authentication.
 - [samples/spring-security-hybrid-usage] switched now to X.509 based authentication.
@@ -401,7 +464,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [token-client] **Bug fix** As of now, client-credential and jwt bearer user tokens are not cached in case tokenflow is configured with zone-id (instead of subdomain).
 - [java-security] provides `SapIdToken.getCnfX509Thumbprint()` method to provide thumbprint of certificate, in case token was requested via X509 based authentication.
 - [java-api] provides `Token.getGrantType()` method, proprietary `GrantType.CLIENT_X509` gets deprecated.
-  
+
 ## 0.1.6 [BETA]
 - [spring-security] and [spring-security-starter] `HybridIdentityServicesAutoConfiguration` supports Identity service configuration alone, by setting up `IasJwtDecoder`
 
@@ -418,7 +481,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - reactor.version 3.4.2 --> 3.4.5
 - reactor.test.version 3.4.2 --> 3.4.5
 
-    
+
 ## 2.8.10 and 0.1.4 [BETA]
 - [spring-xsuaa] introduced spring properties for IAS -> Xsuaa token exchange activation, as described [here](/spring-xsuaa/README.md#ias-to-xsuaa-token-exchange)
 - [java-security-test] uses jetty BoM to fix CVE-2021-28164 and CVE-2021-28165.
@@ -433,7 +496,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - spring-boot-starter 2.4.3 --> 2.4.4
   - spring-boot-starter-security 2.4.3 --> 2.4.4
   - net.minidev:json-smart 2.3 --> 2.4.2 to resolve CVE-2021-27568
-  
+
 ## 2.8.8 and 0.1.2 [BETA]
 - [java-security-test] and java samples
   - jetty 9.4.36.v20210114 --> 9.4.38.v20210224 (seems to be incompatible with javax.servlet-api 3.1.0)
@@ -450,7 +513,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - spring.boot.version 2.4.2 --> 2.4.3
   - spring.security.version 5.4.2 --> 5.4.5
 - use ``spring-boot-starter-parent`` version 2.4.3 in spring samples.
-  
+
 ##  2.8.6
 - [token-client] Next to subdomain `XsuaaTokenFlows.clientCredentialsTokenFlow()` supports Zone id.
 
@@ -463,7 +526,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [java-api] move `getAttributeFromClaimAsString` and `getAttributeFromClaimAsStringList` methods from `AccessToken` to its `Token` parent interface.
 
 ## 2.8.4
-- [java-security] Make HybridTokenFactory more failure tolerant 
+- [java-security] Make HybridTokenFactory more failure tolerant
 - [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA
 
 #### Dependency upgrades
@@ -481,8 +544,8 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - caffeine 2.8.6 --> 2.8.8
   - reactor-core 	3.3.7.RELEASE --> 3.4.2
   - log4j-to-slf4j 2.13.3 --> 2.14.0
-  
-  
+
+
 ## 2.8.3
 - [java-api] ``AccessToken`` exposes the ```getSubaccountId()``` method. Further information about the usage of ```getSubaccountId()``` and ```getZoneId()``` can be read [here](https://github.com/SAP-samples/teched2020-DEV263#changed-api-for-multi-tenant-applications-to-determine-tenant-identifier-getsubaccountid-replaced-by-getzoneid).
 - [java-api] [java-security] allows hybrid token creation via `Token.create(String encodedToken)`. The feature is available when using token authenticator. In order to avoid `ServiceLoader` issues, make sure that you don't mix up different versions of these client libraries. E.g., its not possible to use `com.sap.cloud.security:java-api:2.8.3` together with `com.sap.cloud.security:java-security:2.8.2`. See also [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/java-security#common-pitfalls).
@@ -490,40 +553,40 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [token-client] `UserTokenFlow` enhances request with `X-zid` header that corresponds to zone id.
 
 ## 2.8.2
-- [java-security]  
+- [java-security]
   - HOTFIX for ``2.8.1`` version.
   - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/java-security#ias-to-xsuaa-token-exchange).
-  
+
 ## 2.8.1
-- [spring-xsuaa]   
+- [spring-xsuaa]
   - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#ias-to-xsuaa-token-exchange).
   - Replaces dependencies to JSON Parser of ``net.minidev`` with `org.json` (fixes #414).
-  
+
 #### Dependency upgrades
 - spring.boot.version 2.3.5.RELEASE --> 2.4.1
 - spring.core.version 5.2.10.RELEASE --> 5.3.2
 - spring.security.version 5.3.5.RELEASE --> 5.4.2
 
 ## 2.8.0
-- [java-security] 
+- [java-security]
   - `getClientId()` method was added to `Token` interface. `getClientId()` method should be used instead of `getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)`. `TokenClaims.XSUAA.CLIENT_ID` is deprecated.
   - Supports IAS token validation. `IAS_SERVICE_NAME` has not be provided any longer. You can find a sample [here](/samples/java-security-usage-ias).
 - [java-security-test] In case you like to overwrite the client id using `JwtGenerator` using `withClaimValue()` or `withClaimValues()` method, it's recommended to set the `azp` claim instead using `withClaimValue(TokenClaims.AUTHORIZATION_PARTY, "T000310")`.
-- [spring-xsuaa] 
+- [spring-xsuaa]
   - `getClientId()` method implementation of `Token` interface has been changed. Using `azp` and as fallback `aud` and `cid` claims to obtain client id.
-- :warning: **backward incompatible change:** usage of deprecated org.springframework.security.oauth:spring-security-oauth2 dependency in `OAuth2AuthenticationConverter` was removed. 
+- :warning: **backward incompatible change:** usage of deprecated org.springframework.security.oauth:spring-security-oauth2 dependency in `OAuth2AuthenticationConverter` was removed.
   `OAuth2AuthenticationConverter.convert()` method return type has changed from `org.springframework.security.oauth2.provider.OAuth2Authentication` to `org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication`
   - Migration tips
-    - when necessary, org.springframework.security.oauth:spring-security-oauth2 dependency need to be provided explicitly 
-    - `OAuth2WebSecurityExpressionHandler()` won't work in conjunction with `OAuth2AuthenticationConverter`, as it expects `OAuth2Authentication` class instead of `BearerTokenAuthentication` when deriving authorization claims. Use `hasAuthority()` or `hasAnyAuthority()` instead of explicitly defined `expressionHandler(new OAuth2WebSecurityExpressionHandler())` and `access()` expression for authorized requests. 
+    - when necessary, org.springframework.security.oauth:spring-security-oauth2 dependency need to be provided explicitly
+    - `OAuth2WebSecurityExpressionHandler()` won't work in conjunction with `OAuth2AuthenticationConverter`, as it expects `OAuth2Authentication` class instead of `BearerTokenAuthentication` when deriving authorization claims. Use `hasAuthority()` or `hasAnyAuthority()` instead of explicitly defined `expressionHandler(new OAuth2WebSecurityExpressionHandler())` and `access()` expression for authorized requests.
 - The following dependency was removed:
-    - org.springframework.security.oauth:spring-security-oauth2
+  - org.springframework.security.oauth:spring-security-oauth2
 - The following dependencies were updated:
-    - spring.boot.version 2.3.4.RELEASE --> 2.3.5.RELEASE
-    - spring.core.version 5.2.9.RELEASE --> 5.2.10.RELEASE
-    - spring.security.version 5.3.4.RELEASE --> 5.3.5.RELEASE
-    - caffeine.version 2.8.2 --> 2.8.6
-    
+  - spring.boot.version 2.3.4.RELEASE --> 2.3.5.RELEASE
+  - spring.core.version 5.2.9.RELEASE --> 5.2.10.RELEASE
+  - spring.security.version 5.3.4.RELEASE --> 5.3.5.RELEASE
+  - caffeine.version 2.8.2 --> 2.8.6
+
 ## 2.7.8
 - [java-security-test] Supports JUnit 5 Tests with `XsuaaExtension`, `IasExtension` and `SecurityTestExtension` as documented [here](/java-security-test#junit-5).
 - [spring-xsuaa-starter] Upgrade Spring versions:
@@ -550,7 +613,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - There was incompatibility in the implementation of `SAPOfflineTokenServicesCloud` that caused the `remoteUser` of the `HttpServletRequest` to always return the client id of the XSUAA service binding. This was changed so that it now works like in the old implementation. This means that the `remoteUser` now returns either the `user_name` claim of the token for user tokens or the value of the client id `cid` claim of the token for all other tokens (e.g. client tokens).
 
 ## 2.7.5
-- [java-api] `AcessToken` provides  
+- [java-api] `AcessToken` provides
   - `getAttributeFromClaimAsString(String claimName, String attributeName)` to access for example `ext_attr` values such as `subaccountid`
   - `getAttributeFromClaimAsStringList(String claimName, String attributeName)` to access for example `xs.user.attributes` values such as `custom_role`
 - [java-security] provide debug logs for failing token validation, see [troubleshoot](/java-security/README.md#troubleshoot).
@@ -560,28 +623,28 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - spring.boot.version: 2.3.0.RELEASE --> 2.3.1.RELEASE
   - spring.core.version: 5.2.6.RELEASE --> 5.2.7.RELEASE
   - spring.security.version: 5.3.2.RELEASE --> 5.3.3.RELEASE
-  - spring-security-oauth2.version: 2.4.1.RELEASE --> 2.5.0.RELEASE 
+  - spring-security-oauth2.version: 2.4.1.RELEASE --> 2.5.0.RELEASE
 
 ## 2.7.4
 - [java-security] Audience Validation validates to true when the derived `client_id` of broker-clone token matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
 
 ## 2.7.3
-- [java-security] 
+- [java-security]
   - Audience Validation is skipped when `client_id` of token exactly matches the trusted client. This is relevant to support tokens of grant type `user_token` that contains no scopes.
   - provides the subaccount identifier from the `ext_attr` claim.
 - [spring-xsuaa] provides the subaccount identifier from the `ext_attr` claim.
 
 ## 2.7.2
-- [java-security] 
+- [java-security]
   - Audience Validation accepts tokens of grant type `user_token` that does not provide `aud` claim. In that case `JwtAudienceValidator` derives the audiences from the scopes.
 #### :exclamation: IMPORTANT Update
-  - Use `getSubaccountId()` only to fetch the subaccount id, e.g. for calling the metering API for user-based pricing. 
-  - **In case you are interested in the customers tenant GUID make use of `getZoneId()` instead!** 
-  - In upcoming releases - especially for new subaccounts - subaccount id will no longer match the tenant GUID which is provided via the xsuaa access token as `zid` claim or via the ias oidc token as `zone_uuid` claim.
+- Use `getSubaccountId()` only to fetch the subaccount id, e.g. for calling the metering API for user-based pricing.
+- **In case you are interested in the customers tenant GUID make use of `getZoneId()` instead!**
+- In upcoming releases - especially for new subaccounts - subaccount id will no longer match the tenant GUID which is provided via the xsuaa access token as `zid` claim or via the ias oidc token as `zone_uuid` claim.
 
 ## 2.7.1
 
-- [java-security] 
+- [java-security]
   - `XSUserInfoAdapter` provides now the subdomain that is required for token exchange via `getSubdomain()` method.
   - Avoid warning messages "IAS Service is not yet supported!". #273
   - rename Token claim "sap_uid" to „user_uuid“.
@@ -589,14 +652,14 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - `XSUserInfoAdapter` supports `requestTokenForUser()` method.
   - set validators to package private, you can customize the JWT validators using the `JwtValidatorBuilder`.
   - Create validation results lazy. Avoid false warning validation results from `JwtAudienceValidator` (#290), e.g.   
-`Jwt token with audience [<appId>, uaa] is not issued for these clientIds: [<appId>].`
+    `Jwt token with audience [<appId>, uaa] is not issued for these clientIds: [<appId>].`
 - [spring-xsuaa] Improve logs of Audience Validators.
 - [spring-xsuaa-starter] Upgrade Spring versions:
   - spring.boot.version: 2.2.6.RELEASE --> 2.3.0.RELEASE
   - spring.core.version: 5.2.5.RELEASE --> 5.2.6.RELEASE
   - spring.security.version: 5.3.1.RELEASE --> 5.3.2.RELEASE
   - spring.security.oauth2:  2.4.0.RELEASE -> 2.4.1.RELEASE
-- [spring-xsuaa-test]  
+- [spring-xsuaa-test]
   - renamed file `privateKey.txt` to `spring-xsuaa-privateKey.txt` and `publicKey.txt` to `spring-xsuaa-publicKey.txt` to avoid name clashes in context of CAP, which results in a strange `IllegalArgumentException:failed to construct sequence from byte[]: DEF length 1213 object truncated by 2`. This can happen when you use `java-security-test` and `spring-xsuaa-test` in parallel.
   - **For new applications `spring-xsuaa-test` can be replaced in favor of `java-security-test` for unit testing. For testing your app locally you can setup your local environment with the `VCAP_SERVICES` in order to test with your XSUAA instance on Cloud Foundry.**
 - [token-client]
@@ -611,12 +674,12 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 
 ## 2.7.0
 - [token-client] By default requested tokens are now cached. You can disable the cache globally or per request as described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/token-client).
-- [java-security]  
+- [java-security]
   - `XSUserInfoAdapter` provides now the subdomain that is required for token exchange via `getSubdomain()` method.
   - Avoid warning messages "IAS Service is not yet supported!".
-- [spring-xsuaa-test]  
+- [spring-xsuaa-test]
   - renamed file `privateKey.txt` to `spring-xsuaa-privateKey.txt` and `publicKey.txt` to `spring-xsuaa-publicKey.txt` to avoid name clashes in context of CAP, which results in a strange `IllegalArgumentException:failed to construct sequence from byte[]: DEF length 1213 object truncated by 2`. This can happen when you use `java-security-test` and `spring-xsuaa-test` in parallel.
-  - For new applications `spring-xsuaa-test` can be replaced in favor of `java-security-test` for unit testing. For testing your app locally you can setup your local environment with the `VCAP_SERVICES` in order to test with your XSUAA instance on Cloud Foundry.  
+  - For new applications `spring-xsuaa-test` can be replaced in favor of `java-security-test` for unit testing. For testing your app locally you can setup your local environment with the `VCAP_SERVICES` in order to test with your XSUAA instance on Cloud Foundry.
 - [spring-xsuaa-starter] Upgrade Spring versions:
   - spring.boot.version: 2.2.6.RELEASE --> 2.3.0.RELEASE
   - spring.core.version: 5.2.5.RELEASE --> 5.2.6.RELEASE
@@ -664,8 +727,8 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [java-security-test] `JwtGenerator.withClaimsFromFile` accepts claims from a file.
 - [java-security] Provides with `SpringSecurityContext` an alternative way of accessing jwt tokens for Spring applications in asynchronous threads.
 - [token-client] The `UserTokenFlow` has used the "user_token" grant type together with the "refresh_token" grant type in order to do the token exchange.
-After the consumption of UAA 4.27 we can adapt the grant type "urn:ietf:params:oauth:grant-type:jwt-bearer". 
-This reduces the round trips to the XSUAA from 2 to 1. Further, it eliminates the need for the user to have scope "uaa.user". The feature flag `xsuaa.userTokenFlow.useJwtBearer` has become obsolete. 
+  After the consumption of UAA 4.27 we can adapt the grant type "urn:ietf:params:oauth:grant-type:jwt-bearer".
+  This reduces the round trips to the XSUAA from 2 to 1. Further, it eliminates the need for the user to have scope "uaa.user". The feature flag `xsuaa.userTokenFlow.useJwtBearer` has become obsolete.
 
 ## 2.4.5
 - [java-security] Initial / released version of the new plain Java security libraries as documented [here](/README.md#token-validation-for-java-applications).
@@ -684,7 +747,7 @@ This reduces the round trips to the XSUAA from 2 to 1. Further, it eliminates th
 - [spring-xsuaa] `PropertySourceFactory` supports custom property sources and default can optionally be disabled with  `spring.xsuaa.disable-default-property-source=true`
 - [spring-xsuaa] Supports Spring Core `5.2.0.RELEASE`and Spring Boot `2.2.0.RELEASE`
 - [spring-xsuaa] Deprecates `TokenUrlUtils` in favor of `OAuth2ServiceEndpointsProvider`
-- Internally, we've cleaned up maven dependencies (converged versions) and 
+- Internally, we've cleaned up maven dependencies (converged versions) and
   - removed transient dependency of `spring-security-oauth2` to `jackson`.
   - introduced `org.owasp.dependency-check-maven` which performs CVSS checks.
 - [token-client] Supports password token flows as documented [here](/token-client).
@@ -695,28 +758,28 @@ This reduces the round trips to the XSUAA from 2 to 1. Further, it eliminates th
 * Makes `XsuaaMockWebServer` more robust.
 
 ## 2.0.0
-* Deleted package `com.sap.xs2.security.container` in order to avoid Class Loader issues, when an application makes use of SAP-libraries using the SAP-internal container lib like CAP. 
+* Deleted package `com.sap.xs2.security.container` in order to avoid Class Loader issues, when an application makes use of SAP-libraries using the SAP-internal container lib like CAP.
   - As already mentioned use `SpringSecurityContext` class instead of `SecurityContext` class.
 * Removed deprecated methods:
   - `XsuaaServiceConfiguration.getTokenUrl()`
   - `XsuaaToken.getClaimAccessor()` is not required anymore as `Xsuaa` itself implements `JwtClaimAccessor `.
-* Deprecated `TokenBroker` interface and its implementation `UaaTokenBroker`, as this is going to be replaced with the `OAuth2TokenService` interface which is provided by the new `token-client` library. If you wish to configure / pass your `RestTemplate` you can pass an instance of `OAuth2TokenService`:  
+* Deprecated `TokenBroker` interface and its implementation `UaaTokenBroker`, as this is going to be replaced with the `OAuth2TokenService` interface which is provided by the new `token-client` library. If you wish to configure / pass your `RestTemplate` you can pass an instance of `OAuth2TokenService`:
 
 ```java
-new TokenBrokerResolver( 
-  <<your configuration>>, 
-  <<your cache>>, 
-  new XsuaaOAuth2TokenService(<<your restTemplate>>), 
-  <<your authenticationInformationExtractor>>);
+new TokenBrokerResolver(
+        <<your configuration>>,
+        <<your cache>>,
+        new XsuaaOAuth2TokenService(<<your restTemplate>>),
+        <<your authenticationInformationExtractor>>);
 ```
 * `TokenUlrUtils` class is now package protected and will be deleted with version.
 * `token-client` library supports basically Password-Grant Access Tokens.
 
 
 ## 1.7.0
-* We now provide a new slim [`token-client`](/token-client/README.md) library with a `XsuaaTokenFlows` class, which serves as a factory for the different flows (user, refresh and client-credentials). This deprecates the existing `Token.requestToken(XSTokenRequest)` API. 
-  * The `token-client` library can be used by plain Java applications. 
-  * Auto-configuration is provided for Spring Boot applications only, when using XSUAA Spring Boot Starter. 
+* We now provide a new slim [`token-client`](/token-client/README.md) library with a `XsuaaTokenFlows` class, which serves as a factory for the different flows (user, refresh and client-credentials). This deprecates the existing `Token.requestToken(XSTokenRequest)` API.
+  * The `token-client` library can be used by plain Java applications.
+  * Auto-configuration is provided for Spring Boot applications only, when using XSUAA Spring Boot Starter.
 
 * **ANNOUNCEMENT: Please be aware that with version `2.0.0` we want to get rid of package `com.sap.xs2.security.container` in order to avoid Class Loader issues, when an application makes use of SAP-libraries using the SAP-internal container lib.**
 
@@ -726,7 +789,7 @@ new TokenBrokerResolver(
 * Supports reactive ServerHttpSecurity (Spring webflux). Have a look at the (webflux sample application)[samples/spring-webflux-security-xsuaa-usage/README.md]
 * Some enhancements for XSUAA integration
 * To make sure that the Spring SecurityContext is always initialized with a validated token use `SpringSecurityContext.init()` method as documented [here](spring-xsuaa/README.md)
-* Use `SpringSecurityContext` instead of `SecurityContext`, which gets deprecated in this version. 
+* Use `SpringSecurityContext` instead of `SecurityContext`, which gets deprecated in this version.
 
 ### Incompatible changes
 * As of version `1.6.0` you need to make use of XSUAA Spring Boot Starter in order to leverage auto-configuration (see "Troubleshoot" section [here](spring-xsuaa/README.md#troubleshoot))

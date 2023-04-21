@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.http;
@@ -23,7 +23,7 @@ public class HttpHeaders {
 	}
 
 	public HttpHeaders(Collection<HttpHeader> headers) {
-		this.headers = headers.stream().collect(Collectors.toSet());
+		this.headers = new HashSet<>(headers);
 	}
 
 	public Set<HttpHeader> getHeaders() {

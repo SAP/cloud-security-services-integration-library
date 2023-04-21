@@ -129,6 +129,6 @@ To analyze if your application contains one these libraries you can create the d
 You can learn how to do this [here](#Analyze-dependencies).
 
 If your application contains a conflicting library, you can try to exclude it to get rid of the error message.
-Likewise you can exclude json.org from this security library. This is described [here](#Exclude-org.json-dependency).
+Likewise you can exclude json.org from this security library. This is described [here](#exclude-orgjson-dependency).
 
 > Please test if your application still works correctly after defining an exclusion rule!

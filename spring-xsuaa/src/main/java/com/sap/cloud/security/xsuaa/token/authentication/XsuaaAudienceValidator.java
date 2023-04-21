@@ -1,17 +1,12 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -22,8 +17,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.token.TokenClaims;
+import java.util.*;
 
 /**
  * Validate audience using audience field content. In case this field is empty,
@@ -81,7 +75,8 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	 * Retrieve audiences from token. In case the audience list is empty, takes
 	 * audiences based on the scope names.
 	 *
-	 * @param token Jwt token
+	 * @param token
+	 *            Jwt token
 	 * @return (empty) set of audiences
 	 */
 	static Set<String> getAllowedAudiences(Jwt token) {

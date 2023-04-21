@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.extractor;
@@ -17,11 +17,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_ZONE_ID;
 
 class IasToken implements Token {
 
-	private Jwt decodedToken;
+	private final Jwt decodedToken;
 
 	public IasToken(Jwt jwt) {
 		this.decodedToken = jwt;

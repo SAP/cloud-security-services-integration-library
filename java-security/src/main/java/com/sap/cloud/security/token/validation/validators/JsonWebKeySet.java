@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 class JsonWebKeySet {
 
 	private final Set<JsonWebKey> jsonWebKeys = new HashSet<>();
-	private Map<String, Boolean> zoneIdAccepted = new HashMap<>();
+	private final Map<String, Boolean> zoneIdAccepted = new HashMap<>();
 
 	@Nullable
 	public JsonWebKey getKeyByAlgorithmAndId(JwtSignatureAlgorithm keyAlgorithm, String keyId) {

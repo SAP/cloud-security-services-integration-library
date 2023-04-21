@@ -1,8 +1,9 @@
 package testservice.api;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
+import com.sap.cloud.security.xsuaa.mock.JWTUtil;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,11 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-import com.sap.cloud.security.xsuaa.mock.JWTUtil;
-
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.RecordedRequest;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class XsuaaRequestDispatcher extends Dispatcher {
 	protected static final String RESPONSE_404 = "Xsuaa mock authorization server does not support this request";

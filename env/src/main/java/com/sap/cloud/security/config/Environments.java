@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.config;
@@ -17,13 +17,14 @@ import java.util.Scanner;
 public class Environments {
 
 	private static Environment currentEnvironment;
+
 	private Environments() {
 		// use factoryMethods instead
 	}
 
 	/**
 	 * Determines the current type of {@link Environment}.
-	 * 
+	 *
 	 * @return the current environment
 	 */
 	public static Environment getCurrent() {

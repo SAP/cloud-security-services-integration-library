@@ -68,8 +68,6 @@ spec:
       labels:
         app: java-security-usage
     spec:
-      imagePullSecrets:
-        - name: sap-repo-registry
       containers:
         - image: <YOUR IMAGE REPOSITORY>
           env:

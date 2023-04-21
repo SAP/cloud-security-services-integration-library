@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa;
@@ -104,7 +104,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	/**
 	 * This only supports read from VCAP_SERVICES in cf environment or read from
 	 * secrets in kubernetes environment.
-	 * 
+	 *
 	 * @param name
 	 *            of the credential property
 	 * @return the property value or null if not found
@@ -118,7 +118,7 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	/**
 	 * This only supports VCAP_SERVICES in cf environment or read from secrets in
 	 * kubernetes environment.
-	 * 
+	 *
 	 * @param name
 	 *            of the credential property
 	 * @return false if property doesn't exist

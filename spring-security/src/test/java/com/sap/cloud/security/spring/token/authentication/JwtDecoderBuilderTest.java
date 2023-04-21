@@ -1,26 +1,22 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.token.authentication;
 
-import com.sap.cloud.security.config.CacheConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.ServiceConstants;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 class JwtDecoderBuilderTest {
 	JwtDecoderBuilder cut = new JwtDecoderBuilder();

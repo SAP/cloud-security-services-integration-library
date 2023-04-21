@@ -1,13 +1,13 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.token;
 
-import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
 import com.sap.cloud.security.spring.token.authentication.XsuaaTokenAuthorizationConverter;
+import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.token.Token;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +24,6 @@ import java.util.concurrent.Future;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 

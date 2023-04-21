@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.mtls;
@@ -11,7 +11,7 @@ import java.math.BigInteger;
 
 class MinimalDERParser {
 	private static final String INVALID_LENGTH_ENCODING = "Invalid length encoding";
-	private byte[] content;
+	private final byte[] content;
 	private int idx;
 
 	public MinimalDERParser(byte[] content) {

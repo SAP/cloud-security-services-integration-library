@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
@@ -62,7 +62,7 @@ public class RefreshTokenFlow {
 
 	/**
 	 * Sets the mandatory refresh token to be exchanged for a (refreshed) JWT.
-	 * 
+	 *
 	 * @param refreshToken
 	 *            - the refresh token to be exchanged for a JWT.
 	 * @return this builder object.
@@ -87,7 +87,7 @@ public class RefreshTokenFlow {
 
 	/**
 	 * Executes the refresh token flow against XSUAA.
-	 * 
+	 *
 	 * @return the refreshed OAuth access token returned by XSUAA or an exception in
 	 *         case the token could not be refreshed.
 	 * @throws IllegalStateException

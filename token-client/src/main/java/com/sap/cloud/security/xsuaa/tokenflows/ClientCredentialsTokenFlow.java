@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
@@ -11,7 +11,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,6 +19,7 @@ import java.util.*;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
+import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 
 /**
  * A client credentials flow builder class. Applications retrieve an instance of
@@ -27,7 +27,6 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SC
  * using a builder pattern.
  */
 public class ClientCredentialsTokenFlow {
-	private static final String CLAIM_ADDITIONAL_AZ_ATTR = "az_attr";
 	private final OAuth2TokenService tokenService;
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
 	private final ClientIdentity clientIdentity;
@@ -53,7 +52,7 @@ public class ClientCredentialsTokenFlow {
 		assertNotNull(tokenService, "OAuth2TokenService must not be null.");
 		assertNotNull(endpointsProvider, "OAuth2ServiceEndpointsProvider must not be null.");
 		assertNotNull(clientIdentity, "ClientIdentity must not be null.");
-		
+
 		this.tokenService = tokenService;
 		this.endpointsProvider = endpointsProvider;
 		this.clientIdentity = clientIdentity;
@@ -100,8 +99,7 @@ public class ClientCredentialsTokenFlow {
 	/**
 	 * Sets the scope attribute for the token request. This will restrict the scope
 	 * of the created token to the scopes provided. By default the scope is not
-	 * restricted and the created token contains all granted scopes.
-	 * <br>
+	 * restricted and the created token contains all granted scopes. <br>
 	 * If you specify a scope that is not authorized for the client, the token
 	 * request will fail.
 	 *
@@ -117,7 +115,7 @@ public class ClientCredentialsTokenFlow {
 
 	/**
 	 * Can be used to disable the cache for the flow.
-	 * 
+	 *
 	 * @param disableCache
 	 *            - disables cache when set to {@code true}.
 	 * @return this builder.
@@ -141,7 +139,7 @@ public class ClientCredentialsTokenFlow {
 	@Nullable
 	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {
 		Map<String, String> requestParameter = new HashMap<>();
-		String authorities = buildAuthorities();
+		String authorities = buildAdditionalAuthoritiesJson(authzAttributes);
 
 		if (authorities != null) {
 			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI
@@ -163,28 +161,4 @@ public class ClientCredentialsTokenFlow {
 		}
 	}
 
-	/**
-	 * Builds the additional authorities claim of the JWT. Returns null, if the
-	 * request does not have any additional authorities set.
-	 *
-	 * @return the additional authorities claims or null, if the request has no
-	 * additional authorities set.
-	 * @throws IllegalArgumentException in case authorization attributes couldn't be mapped
-	 */
-	@Nullable
-	private String buildAuthorities() throws IllegalArgumentException {
-		if (authzAttributes== null) {
-			return null;
-		}
-		try {
-			Map<String, Object> additionalAuthorizationAttributes = new HashMap<>();
-			additionalAuthorizationAttributes.put(CLAIM_ADDITIONAL_AZ_ATTR, authzAttributes);
-
-			JSONObject additionalAuthorizationAttributesJson = new JSONObject(additionalAuthorizationAttributes);
-			return additionalAuthorizationAttributesJson.toString();
-		} catch (RuntimeException e) {
-			throw new IllegalArgumentException(
-					"Error mapping additional authorization attributes to JSON. See root cause exception. ", e);
-		}
-	}
 }

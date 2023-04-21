@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.servlet;
@@ -12,19 +12,18 @@ import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.x509.X509Certificate;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import javax.annotation.Nullable;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 
 import static com.sap.cloud.security.servlet.TokenAuthenticatorResult.createUnauthenticated;
 
 public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
-
 
 	public XsuaaTokenAuthenticator() {
 		serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
@@ -75,8 +74,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
-		if (request instanceof HttpServletRequest && response instanceof HttpServletResponse) {
-			HttpServletRequest httpRequest = (HttpServletRequest) request;
+		if (request instanceof HttpServletRequest httpRequest && response instanceof HttpServletResponse) {
 			String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
 			if (headerIsAvailable(authorizationHeader)) {
 				try {

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token.authentication;
@@ -22,7 +22,7 @@ public class XsuaaJwtDecoderBuilder {
 	int decoderCacheValidity; // in seconds
 	int decoderCacheSize;
 	Collection<PostValidationAction> postValidationActions;
-	private XsuaaServiceConfiguration configuration;
+	private final XsuaaServiceConfiguration configuration;
 	private RestOperations restOperations;
 	private List<OAuth2TokenValidator<Jwt>> xsuaaTokenValidators;
 

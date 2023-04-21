@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.config;
 
-
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +13,7 @@ import java.io.InputStream;
 
 import static com.sap.cloud.security.config.ServiceConstants.SERVICE_PLAN;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class EnvironmentsTest {
 

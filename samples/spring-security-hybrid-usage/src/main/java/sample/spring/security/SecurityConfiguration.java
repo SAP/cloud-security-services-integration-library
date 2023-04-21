@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package sample.spring.security;
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
-@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
 public class SecurityConfiguration {
 
@@ -44,17 +44,16 @@ public class SecurityConfiguration {
         http.sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests()
-                .antMatchers("/sayHello").hasAuthority("Read")
-                .antMatchers("/comp/sayHello").hasAuthority("Read")
-                .antMatchers("/*").authenticated()
-                .anyRequest().denyAll()
-                .and()
+                .authorizeHttpRequests(authz ->
+                        authz.requestMatchers("/sayHello").hasAuthority("Read")
+                                .requestMatchers("/comp/sayHello").hasAuthority("Read")
+                                .requestMatchers("/*").authenticated()
+                                .anyRequest().denyAll())
                 .oauth2ResourceServer()
                 .jwt()
                 .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()); // Adjust the converter to represent your use case
-        // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
-        // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
+                                            // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
+                                            // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
         // @formatter:on
         return http.build();
     }
@@ -86,7 +85,7 @@ public class SecurityConfiguration {
     /**
      * Workaround for IAS only use case until Cloud Authorization Service is globally available.
      */
-    class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+    static class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
         public AbstractAuthenticationToken convert(Jwt jwt) {
             final List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);

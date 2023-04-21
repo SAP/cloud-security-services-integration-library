@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
+<!-- SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <profiles version="12">
     <profile kind="CodeFormatterProfile" name="xsa" version="12">

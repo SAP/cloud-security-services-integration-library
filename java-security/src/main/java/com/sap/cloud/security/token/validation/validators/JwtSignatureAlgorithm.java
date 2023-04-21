@@ -1,13 +1,13 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
 
 /**
- * This is represented by "kty" (Key Type) Parameter.
- * https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1
+ * This is represented by "kty" (Key Type) Parameter. <a href=
+ * "https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1">https://www.rfc-editor.org/rfc/rfc7518.html#section-6.1</a>
  */
 public enum JwtSignatureAlgorithm {
 	RS256("RSA", "RS256", "SHA256withRSA")/* , ES256("EC", "ES256", "SHA256withECDSA")// Eliptic curve */;

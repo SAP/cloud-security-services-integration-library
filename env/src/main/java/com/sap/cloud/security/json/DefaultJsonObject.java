@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.json;
@@ -25,7 +25,7 @@ public class DefaultJsonObject implements JsonObject {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultJsonObject.class);
 
-	private JSONObject jsonObject;
+	private final JSONObject jsonObject;
 
 	/**
 	 * Create an instance

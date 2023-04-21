@@ -1,22 +1,21 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.extractor;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.token.XsuaaToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
-import com.sap.cloud.security.xsuaa.token.TokenClaims;
-import com.sap.cloud.security.xsuaa.token.XsuaaToken;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DefaultAuthoritiesExtractor extends JwtAuthenticationConverter implements AuthoritiesExtractor {
 
@@ -24,7 +23,6 @@ public class DefaultAuthoritiesExtractor extends JwtAuthenticationConverter impl
 		return extractAuthorities(jwt);
 	}
 
-	@Override
 	protected Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
 		List<String> scopes = jwt.getClaimAsStringList(TokenClaims.CLAIM_SCOPES);
 

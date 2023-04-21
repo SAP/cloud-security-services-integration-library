@@ -1,33 +1,32 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import java.net.URI;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.time.Duration;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.net.URI;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.time.Duration;
+
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
@@ -74,7 +73,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * Configures the token key cache. Use
 	 * {@link TokenKeyCacheConfiguration#getInstance(Duration, int, boolean)} to
 	 * pass a custom configuration.
-	 *
+	 * <p>
 	 * Note that the cache size must be 1000 or more and the cache duration must be
 	 * at least 600 seconds!
 	 *
@@ -149,7 +148,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 				return jwk.getPublicKey();
 			}
 		}
-		LOGGER.warn("No matching key found. Keys cached: {}", keySet.toString());
+		LOGGER.warn("No matching key found. Keys cached: {}", keySet);
 		return null;
 	}
 

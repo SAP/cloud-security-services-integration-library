@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.extractor;
@@ -10,10 +10,8 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-import javax.annotation.PostConstruct;
 import java.time.Instant;
 
 /**
@@ -25,18 +23,10 @@ public class TokenUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TokenUtil.class);
 	private static final String EXTERNAL_ATTRIBUTE = "ext_attr";
 	private static final String EXTERNAL_ATTRIBUTE_ENHANCER = "enhancer";
-	private static String springIasXchangeEnabled;
-	@Value("${xsuaa.iasxchange-enabled:#{null}}")
-	private String iasXchangeValue;
-
-	@PostConstruct
-	public void init() {
-		TokenUtil.springIasXchangeEnabled = iasXchangeValue;
-	}
 
 	/**
 	 * Splits the bearer token into header, payload and signature.
-	 * 
+	 *
 	 * @param encodedJwtToken
 	 *            encoded jwt token
 	 * @return DecodedJwt
@@ -47,7 +37,7 @@ public class TokenUtil {
 
 	/**
 	 * Parses decoded Jwt token to org.springframework.security.oauth2.jwt
-	 * 
+	 *
 	 * @param decodedJwt
 	 *            decoded Jwt
 	 * @return Jwt class

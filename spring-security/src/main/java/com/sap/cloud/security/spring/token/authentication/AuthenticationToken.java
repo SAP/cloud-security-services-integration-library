@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.token.authentication;
@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.util.Assert;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -20,7 +21,6 @@ import java.util.Objects;
  * <br>
  *
  * The {@link Token} instance is accessible via the Security Context:
- *
  * {@code (Token)SecurityContextHolder.getContext().getAuthentication().getPrincipal();}
  *
  * @see Token
@@ -28,12 +28,13 @@ import java.util.Objects;
  *
  */
 public class AuthenticationToken extends JwtAuthenticationToken {
+	@Serial
 	private static final long serialVersionUID = -3779129534612771294L;
 	private final Token token;
 
 	/**
 	 * Creates
-	 * 
+	 *
 	 * @param jwt
 	 *            Spring Security's representation of the jwt token
 	 * @param grantedAuthorities

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
 # SPDX-License-Identifier: Apache-2.0
 ---
 # Configuration:
@@ -14,13 +14,15 @@ applications:
 
   host: 
   path: target/sap-java-buildpack-api-usage.war
-  buildpacks:
-    - sap_java_buildpack
   services:
     - xsuaa-buildpack
+  buildpacks:
+    - sap_java_buildpack
   env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
     SET_LOGGING_LEVEL: '{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}'
     ENABLE_SECURITY_JAVA_API_V2: true
+
 # Application Router as web server
 - name: approuter-sap-java-buildpack-api-usage
   path: approuter

@@ -1,12 +1,9 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package sample.spring.security;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import com.sap.cloud.security.comp.XsuaaTokenComp;
 import com.sap.cloud.security.token.AccessToken;
@@ -22,6 +19,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.sap.cloud.security.config.Service.XSUAA;
 
 @RestController
@@ -33,7 +33,7 @@ public class TestController {
      * A (fake) data layer showing global method security features of Spring Security in combination with tokens from
      * XSUAA.
      */
-    private DataService dataService;
+    private final DataService dataService;
 
     @Autowired
     public TestController(DataService dataService) {
@@ -71,7 +71,7 @@ public class TestController {
     }
 
     @GetMapping("/comp/sayHello")
-    public Map<String, String> sayHello_compatibility(@AuthenticationPrincipal Token token) {
+    public Map<String, String> sayHelloCompatibility(@AuthenticationPrincipal Token token) {
         logger.debug("Got the token: {}", token);
         com.sap.cloud.security.xsuaa.token.Token compToken; // to analyze deprecated methods: XsuaaTokenComp compToken;
         try {

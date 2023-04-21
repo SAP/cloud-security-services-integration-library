@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token;
@@ -14,11 +14,14 @@ import org.json.JSONObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serial;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.*;
@@ -29,6 +32,7 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
  * header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
+	@Serial
 	private static final long serialVersionUID = 2204172041950251807L;
 
 	private final DecodedJwt decodedJwt;
@@ -125,9 +129,8 @@ public abstract class AbstractToken implements Token {
 			public boolean equals(Object o) {
 				if (this == o)
 					return true;
-				if (!(o instanceof Principal))
+				if (!(o instanceof Principal that))
 					return false;
-				Principal that = (Principal) o;
 				return getName().equals(that.getName());
 			}
 
@@ -155,9 +158,8 @@ public abstract class AbstractToken implements Token {
 			return true;
 		if (obj == null)
 			return false;
-		if (!(obj instanceof Token))
+		if (!(obj instanceof Token that))
 			return false;
-		Token that = (Token) obj;
 		return getTokenValue().equals(that.getTokenValue());
 	}
 

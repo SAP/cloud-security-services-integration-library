@@ -1,12 +1,12 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.MockTokenBuilder;
+import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static com.sap.cloud.security.TestConstants.*;
-import static com.sap.cloud.security.token.MockTokenBuilder.*;
+import static com.sap.cloud.security.token.MockTokenBuilder.NO_EXPIRE_DATE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JwtTimestampValidatorTest {

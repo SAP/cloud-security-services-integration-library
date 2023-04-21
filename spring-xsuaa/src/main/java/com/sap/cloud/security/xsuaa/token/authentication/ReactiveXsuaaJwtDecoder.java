@@ -1,21 +1,15 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
-import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
-
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.json.JSONObject;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -23,21 +17,24 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTParser;
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-
 import reactor.core.publisher.Mono;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_JKU;
+import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 
 public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 
-	Cache<String, ReactiveJwtDecoder> cache;
-	private List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
-	private Collection<PostValidationAction> postValidationActions;
-	private TokenInfoExtractor tokenInfoExtractor;
+	final Cache<String, ReactiveJwtDecoder> cache;
+	private final List<OAuth2TokenValidator<Jwt>> tokenValidators = new ArrayList<>();
+	private final Collection<PostValidationAction> postValidationActions;
+	private final TokenInfoExtractor tokenInfoExtractor;
 
 	// var arg it is only being converted to a List<OAuth2TokenValidator<Jwt>>,
 	// therefore its type safe.
@@ -64,8 +61,8 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 			}
 		};
 
-		this.tokenValidators.addAll(Arrays.asList(tokenValidators));
-		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.EMPTY_LIST;
+		this.tokenValidators.add(tokenValidators);
+		this.postValidationActions = postValidationActions != null ? postValidationActions : Collections.emptyList();
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.token.authentication;
@@ -21,12 +21,12 @@ import org.springframework.util.Assert;
  * {@code java-security} client library.<br>
  * In case of successful validation, the token gets parsed and returned as
  * {@link Jwt}.
- *
+ * <p>
  * Supports only id tokens issued by ias identity service.
  */
 public class IasJwtDecoder implements JwtDecoder {
-	CombiningValidator<Token> tokenValidators;
-	Logger logger = LoggerFactory.getLogger(getClass());
+	final CombiningValidator<Token> tokenValidators;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Creates instance with a set of validators for validating the oidc token

@@ -1,6 +1,6 @@
-# SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
-# SPDX-License-Identifier: Apache-2.0
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-License-Identifier: Apache-2.0
 # Prerequisites:
 #   * have logged in to docker
 #   * valid kubeconfig.yml stored in samples root folder
@@ -9,9 +9,13 @@
 #   - In case they are missing you will prompted to enter these values at the runtime.
 # The user and password to execute the test with can be provided as environment variables 'USER' and 'PASSWORD' - export USER=myUser export PASSWORD=myPassword.
 #   - In case environment variables are not provided you will be prompted to enter username and password at the runtime.
-# API access credentials need to be provided as the following environment variables: 'API_CLIENTID', 'API_CLIENTSECRET' and 'USER_ID' is the xsuaa ID of the test user
+# API access credentials need to be provided as the following environment variables: 'API_CLIENTID', 'API_CLIENTSECRET' and 'USER_ID'.
+# USER_ID is the xsuaa ID of the test user (it can be found in the BTP cockpit Security->Users->Test User-> ID ).
+# Note: For API access, xsuaa instance with the plan apiaccess need to be created in the same subaccount,
+# but not necessarily in the k8s environment.
 #-------------------------------------------------
-# Required libs jq -> if missing brew install jq
+# Required BASH 5.x or higher
+# libs: jq -> if missing brew install jq
 
 # Colors
 RED='\033[0;31m'
@@ -60,13 +64,13 @@ prepare_image() {
 
 #prepare deployment file and deploy the app, first argument is sample name
 deploy_app() {
-  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-repo-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
-  sleep 20
+  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
+  sleep 30
 }
 
 #delete the deployed app, first argument is sample name
 delete_deployment() {
-  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-repo-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl delete -f - -n "$NAMESPACE"
+  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl delete -f - -n "$NAMESPACE"
   sleep 7
 }
 
@@ -174,9 +178,10 @@ for sample in "${SAMPLES[@]}"; do
   prepare_image "$sample"
   deploy_app "$sample"
 
-  bindings=($(awk '/serviceBindingRef/{getline;print $2}' ./k8s/deployment.yml))
+  readarray -t bindings <<<  $(awk '/^kind: ServiceBinding/{flag=1; next} flag && /name:/ {print $2; flag=0}'  ./k8s/deployment.yml)
 
-  host=$(kubectl get virtualservices -n "$NAMESPACE" -o jsonpath='{.items[*].spec.hosts[0]}')
+  host=$(kubectl get virtualservices -n "$NAMESPACE" -o jsonpath='{.items[*].spec.hosts[0]}' | tr ' ' '\n' | grep "^${sample%-usage}")
+
   serviceConfig[clientid]=$(kubectl get secret "${bindings[0]}" -o jsonpath='{.data.clientid}' -n "$NAMESPACE" | base64 --decode)
   serviceConfig[clientsecret]=$(kubectl get secret "${bindings[0]}" -o jsonpath='{.data.clientsecret}' -n "$NAMESPACE" | base64 --decode)
   serviceConfig[url]=$(kubectl get secret "${bindings[0]}" -o jsonpath='{.data.url}' -n "$NAMESPACE" | base64 --decode)
@@ -201,21 +206,21 @@ for sample in "${SAMPLES[@]}"; do
     resultList[1]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 401)
 
     token=$(get_token "$(declare -p serviceConfig)")
-    resultList[2]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 403 "Bearer $token")
+    resultList[2]=$(execute_test "$host" "java-security-usage/hello-java-security" 200 "Bearer $token")
+    resultList[3]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 403 "Bearer $token")
 
     add_user_to_role "$(declare -p serviceConfig)" JAVA_SECURITY_SAMPLE_Viewer
     token=$(get_token "$(declare -p serviceConfig)")
-    resultList[3]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 200 "Bearer $token")
-    resultList[4]=$(execute_test "$host" "java-security-usage/hello-java-security" 200 "Bearer $token")
+    resultList[4]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 200 "Bearer $token")
     ;;
   "spring-security-basic-auth")
-    resultList[0]=$(execute_test "$host" "hello-token" 401)
+    resultList[0]=$(execute_test "$host" "fetchToken" 401)
 
-    credentials=$(echo  "$USER:$PASSWORD" | base64)
-    resultList[1]=$(execute_test "$host" "hello-token" 403 "Basic $credentials")
+    credentials=$(echo -n "$USER:$PASSWORD" | base64)
+    resultList[1]=$(execute_test "$host" "fetchToken" 403 "Basic $credentials")
 
     add_user_to_role "$(declare -p serviceConfig)" BASIC_AUTH_API_Viewer
-    resultList[2]=$(execute_test "$host" "hello-token" 200 "Basic $credentials")
+    resultList[2]=$(execute_test "$host" "fetchToken" 200 "Basic $credentials")
     ;;
   esac
 

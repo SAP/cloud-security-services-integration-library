@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.test.api;
@@ -70,8 +70,8 @@ public interface SecurityTestContext {
 
 	/**
 	 * Allows to stub further endpoints of the identity service. You can find a
-	 * detailed explanation on how to configure wire mock here:
-	 * http://wiremock.org/docs/getting-started/
+	 * detailed explanation on how to configure wire mock here: <a href=
+	 * "http://wiremock.org/docs/getting-started/">http://wiremock.org/docs/getting-started/</a>
 	 *
 	 * @return an instance of WireMockServer
 	 */

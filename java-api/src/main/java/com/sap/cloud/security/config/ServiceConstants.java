@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.config;
@@ -11,7 +11,6 @@ package com.sap.cloud.security.config;
 public class ServiceConstants {
 	public static final String VCAP_SERVICES = "VCAP_SERVICES";
 	public static final String VCAP_APPLICATION = "VCAP_APPLICATION";
-	public static final String CREDENTIALS = "credentials";
 	public static final String SERVICE_PLAN = "plan";
 	public static final String URL = "url";
 	public static final String CLIENT_ID = "clientid";

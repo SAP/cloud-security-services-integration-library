@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
@@ -25,7 +25,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -59,7 +60,7 @@ public class XsuaaJwtSignatureValidatorTest {
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
 						isNull()))
-								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,

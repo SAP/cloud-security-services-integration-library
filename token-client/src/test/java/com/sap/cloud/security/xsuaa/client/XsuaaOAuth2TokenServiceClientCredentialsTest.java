@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.client;
@@ -70,11 +70,11 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 	public void retrieveToken_throwsOnNullValues() {
 		assertThatThrownBy(
 				() -> cut.retrieveAccessTokenViaClientCredentialsGrant(null, clientIdentity, null, null, null, false))
-						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("tokenEndpointUri");
 
 		assertThatThrownBy(
 				() -> cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint, null, null, null, null, false))
-						.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
+				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("clientIdentity");
 	}
 
 	@Test(expected = OAuth2ServiceException.class)

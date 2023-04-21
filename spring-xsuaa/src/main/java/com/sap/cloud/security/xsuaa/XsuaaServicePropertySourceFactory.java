@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa;
@@ -25,15 +25,15 @@ import java.util.Properties;
  * Part of Auto Configuration {@link XsuaaAutoConfiguration}
  *
  * <h2>Example Usage</h2>
- * 
+ *
  * <pre class="code">
- * declared on a class: 
- * 
+ * declared on a class:
+ *
  * &#64;Configuration
  * &#64;PropertySource(factory = XsuaaServicePropertySourceFactory.class, value = { "" })
- * 
+ *
  * declared on attribute:
- * 
+ *
  * &#64;Value("${xsuaa.url:}")
  * </pre>
  *

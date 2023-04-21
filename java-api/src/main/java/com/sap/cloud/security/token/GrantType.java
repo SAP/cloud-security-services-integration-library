@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token;
@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 
 /**
  * Constants denoting the grant type of a Jwt access token as specified here:
- * https://tools.ietf.org/html/rfc6749
+ * <a href="https://tools.ietf.org/html/rfc6749"></a>
  */
 public enum GrantType {
 	// @formatter:off
@@ -25,7 +25,7 @@ public enum GrantType {
 	CLIENT_X509("client_x509"),
 	AUTHORIZATION_CODE("authorization_code");
 	// @formatter:on
-	private String claimName;
+	private final String claimName;
 
 	GrantType(String claimName) {
 		this.claimName = claimName;

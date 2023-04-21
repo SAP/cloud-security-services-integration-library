@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.config;
@@ -48,13 +48,13 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 	protected static final String IAS_PREFIX = "sap.security.services.identity.";
 
 	private static final List<String> XSUAA_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
+			.asList("clientid", "clientsecret", "identityzoneid",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
-					"key", "credential-type", "certurl" }));
+					"key", "credential-type", "certurl"));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList(new String[] { "clientid", "clientsecret", "domains", "url" }));
+			.asList("clientid", "clientsecret", "domains", "url"));
 
 	@Override
 	@SuppressWarnings("squid:S2259") // false positive

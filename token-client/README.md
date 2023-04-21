@@ -1,206 +1,164 @@
 # XSUAA Token Client and Token Flow API
 
-## Motivation
+This library provides a lightweight HTTP client for Xsuaa `/oauth/token` and `/token_keys` endpoints, as specified [here](https://docs.cloudfoundry.org/api/uaa/version/76.9.0/#token). 
+Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) class to support the following token flows:
 
-This library serves as slim client for some XSUAA `/oauth/token` token endpoints as specified [here](https://docs.cloudfoundry.org/api/uaa/version/74.1.0/index.html#token). 
-Furthermore it introduces a new API to support the following token flows:
+* **[Jwt Bearer Token Flow](#jwt-bearer-token-flow)**.  
+  The token exchange concept aims to segregate service-specific access scopes into separate tokens. For instance, if Service A and Service B have different scopes, the goal is to avoid having a single Jwt token containing all scopes. To achieve principal propagation in that scenario, Service A could use a Jwt Bearer Token Flow before making requests to Service B on behalf of the user. To do so, he would exchange the user's access token for Service A for an access token of the same user for Service B.
+* **[Client Credentials Flow](#client-credentials-token-flow)**.  
+  The Client Credentials ([RFC 6749, section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4)) are employed by clients to acquire an access token without a user context. This is useful for non-interactive applications (e.g., CLI, batch job, or service-2-service communication) where the token is issued to the application itself, instead of an end-user for accessing resources without principal propagation.
+* **[Refresh Token Flow](#refresh-token-flow)**.  
+  A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#section-1.5)) flow enables obtaining a new access token if the current one becomes invalid or expires.
+* **[Password Token Flow](#password-token-flow)**.  
+  Resource owner password credentials (i.e., username and password) can be used directly as an authorization grant to obtain an access token ([RFC 6749, section 1.3.3](https://tools.ietf.org/html/rfc6749#section-1.3.3)). These credentials should be employed only when there is a high degree of trust between the resource owner and the client.
 
-* **User Token Flow**.
-Deprecated in favor of Jwt Bearer Token Flow.
-* **Jwt Bearer Token Flow**.  
-The idea behind a token exchange is to separate service-specific access scopes into separate tokens. For example, if Service A has scopes specific to its functionality and Service B has other scopes, the intention is that there is no single Jwt token that contains all of these scopes. As of version `2.5.1` the `grant_type`=`urn:ietf:params:oauth:grant-type:jwt-bearer` is used ([RFC 7523](https://tools.ietf.org/html/rfc7523)) instead of User Token Flow to exchange tokens.
-* **Client Credentials Flow**.  
-The Client Credentials ([RFC 6749, section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4)) is used by clients to obtain an access token outside of the context of a user. It is used for non interactive applications (a CLI, a batch job, or for service-2-service communication) where the token is issued to the application itself, instead of an end user for accessing resources without principal propagation. 
-* **Refresh Token Flow**.  
-A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#section-1.5)) flow allows you to obtain a new access token in case the current one becomes invalid or expires.
-* **Password Token Flow**.  
-The Resource owner password credentials (i.e., username and password) can be used directly as an authorization grant to obtain an access token ([RFC 6749, section 1.3.3](https://tools.ietf.org/html/rfc6749#section-1.3.3)). The credentials should only be used when there is a high degree of trust between the resource owner and the client.
+> Note: The **Authorization Code Grant Flow** requires a browser and is typically initiated by an API gateway, such as an Application Router. However, other flows might need to be triggered programmatically, such as swapping one token for another or refreshing a token prior to its expiration. When creating an Xsuaa service instance, an OAuth client is generated, and the client Identity (client ID and secret or client certificate and key) are supplied when you bind your application to the Xsuaa service instance. With these elements in place, you can leverage the token flows in your Java application.
 
-> Note: The **Authorization Code Grant Flow** involves the browser and is therefore triggered by an API gateway (e.g. Application Router). The other flows, however, may need to be triggered programmatically, e.g. to exchange one token for another or refresh a token, if it is about to expire. When you create a XSUAA service instance a OAuth client gets created and you receive the client credentials (client id and secret) when you bind your application with the XSUAA service instance. Having that in place you are ready to use the token flows in your Java application.
+## Requirements
+- [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
 
-## Configuration for Java Applications
+## Table of Contents
+1. [Setup](#setup)
+   - [1.1 Spring applications](#11-configuration-for-spring-applications)
+   - [1.2 Java EE web applications](#12-configuration-for-java-ee-applications)
+   - [Identity service configuration setup](#oauth2serviceconfiguration)
+   - [HTTP Client setup](#httpclientfactory)
+   - [Cache configuration](#cache-configuration)
+2. [API Usage](#token-flows-api-usage)
+   - [2.1. Jwt Bearer Token Flow](#jwt-bearer-token-flow)
+   - [2.2. Client Credentials Token Flow](#client-credentials-token-flow)
+   - [2.3. Refresh Token Flow](#refresh-token-flow)
+   - [2.4. Password Token Flow](#password-token-flow)
+3. [Troubleshooting](#troubleshooting)
+4. [Samples](#samples)
 
-#### Maven Dependencies, when using Apache Http Client:
-```xml
-<dependency>
-    <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>token-client</artifactId>
-    <version>3.0.0</version>
-</dependency>
-<dependency>
-  <groupId>org.apache.httpcomponents</groupId>
-  <artifactId>httpclient</artifactId>
-</dependency>
-```
+## Setup 
+For Spring Boot applications `TokenFlows` come autoconfigured with our `spring-security` or `spring-xsuaa` libraries and can be easily consumed by autowiring the `XsuaaTokenFlows` Bean. For more details see [1.1. Configuration for Spring Applications](#11-configuration-for-spring-applications) section.
 
-#### XsuaaTokenFlows Initialization
-Instantiate `XsuaaTokenFlows` with the `DefaultOAuth2TokenService` which
-makes use of [Apache HttpClient](https://hc.apache.org/):
+For a **Java EE application** you will need to provide
+[OAuth2ServiceConfiguration](#oauth2serviceconfiguration) and [HttpClientFactory](#httpclientfactory) to set up `XsuaaTokenFlows`. See [1.2. Configuration for Java EE Applications](#12-configuration-for-java-ee-applications) section for more details.
 
-The `DefaultOAuth2TokenService` need to be instantiated with a `CloseableHttpClient`.
+There is also a Cache provided that caches up to 1000 tokens for 10 minutes. For Spring Boot autoconfigured `XsuaaTokenFlows` it is only possible to [disable cache per each request](#disable-cache-for-a-single-request--runtime-). 
+If you want to change cache settings you have to [overwrite the autoconfigured](#custom-xsuaatokenflows-bean) `XsuaaTokenFlows` Bean.
+See more details in [Cache](#cache-configuration) section.
 
-```java
-XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                    new DefaultOAuth2TokenService(<CloseableHttpClient>), 
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
-                    <OAuth2ServiceConfiguration>.getClientIdentity()));
-```
-- `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. Find further information on how to set it up [here](#OAuth2ServiceConfiguration).
-
-- `<CloseableHttpClient>` is your custom configured Apache http client. <br>You can use our preconfigured http client provided with `HttpClientFactory`: `HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity())`. <br>For productive usage you may want to overwrite the [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) as documented [here](#new-warning-in-productive-environment-provide-well-configured-httpclientfactory-service).
-
-
-#### Cache
-
-By default, the `OAuth2TokenService` implementations (DefaultOAuth2TokenService and XsuaaOAuth2TokenService) are caching tokens internally. By default up to 1000 tokens are cached for 10 minutes and the statistics are disabled. The Cache can be individually configured by providing an
-`TokenCacheConfiguration` object as constructor parameter. The cache can be disabled by using the
-`TokenCacheConfiguration.cacheDisabled()` configuration. 
-
-##### Disable Caching
-```java
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(<CloseableHttpClient>, TokenCacheConfiguration.cacheDisabled());
-```
-:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService` implementation or to the `XsuaaTokenFlows`.
-
-##### Disable per Request (runtime)
-```java
-tokenFlows.clientCredentialsTokenFlow().disableCache(true).execute();
-```
-
-##### Clear cache (runtime)
-```java
-// design time
-AbstractOAuth2TokenService tokenService = new DefaultOAuth2TokenService(<CloseableHttpClient>);
-XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
-// runtime in case of reoccurring issues
-tokenService.clearCache();
-```
-
-## Configuration for Spring Applications
-
-#### Maven Dependencies, when using Spring Web `RestTemplate`
-```xml
-<dependency>
-    <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>token-client</artifactId>
-    <version>3.0.0</version>
-</dependency>
-<dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-web</artifactId>
-</dependency>
-<dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
-  <groupId>org.apache.httpcomponents</groupId>
-  <artifactId>httpclient</artifactId>
-</dependency>
-```
-
-#### XsuaaTokenFlows Initialization
-With Spring-Web available `XsuaaTokenFlows` can be instantiated with a `RestTemplate` of your choice like that:
-
-```java
-XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                    new XsuaaOAuth2TokenService(<RestOperations>),
-                    new XsuaaDefaultEndpoints(<OAuth2ServiceConfiguration>), // XsuaaDefaultEndpoints(url) is deprecated as of 2.10
-                    <OAuth2ServiceConfiguration>.getClientIdentity());
-```
-- `<OAuth2ServiceConfiguration>` is a placeholder for the `OAuth2ServiceConfiguration` instance which holds the information from the XSUAA service binding. When using `spring-xsuaa` client library this is given with `XsuaaServiceConfiguration`. Find further information on how to set it up [here](#OAuth2ServiceConfiguration).
-
-- `<RestOperations>` is your custom configured Spring http client.<br>
-For X.509 based authentication method you can configure Spring's rest client using Apache's http client. 
-<br>You can use our preconfigured Apache http client provided with `HttpClientFactory`. For productive usage you may want to overwrite the [default implementation](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) as documented [here](#new-warning-in-productive-environment-provide-well-configured-httpclientfactory-service).
-    ```java
-    // if <OAuth2ServiceConfiguration>.getClientIdentity().isCertificateBased() == true
-    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-    requestFactory.setHttpClient(HttpClientFactory.create(<OAuth2ServiceConfiguration>.getClientIdentity()));
-    RestOperations restOperations = new RestTemplate(requestFactory);            
-    ```
-
-#### Cache
-
-By default, the `XsuaaOAuth2TokenService` caches tokens internally. The Cache can be configured by providing an
-`CacheConfiguration` object as constructor parameter. The cache can be disabled by using the
-`CacheConfiguration.CACHE_DISABLED` configuration.
-
-:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService.java` implementation or to the `XsuaaTokenFlows`.
-
-## Configuration for Spring Boot Applications
-
+### 1.1. Configuration for Spring Applications
 #### Maven Dependencies
-In context of a Spring Boot application you may like to leverage auto-configuration:
+In context of a Spring Boot application you can leverage autoconfiguration provided by the following library:
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security</groupId>
+    <artifactId>resourceserver-security-spring-boot-starter</artifactId>
+    <version>3.0.0</version>
+</dependency>
+```
+In context of Spring Applications you will need the following dependencies:
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>xsuaa-spring-boot-starter</artifactId>
+    <artifactId>token-client</artifactId>
     <version>3.0.0</version>
 </dependency>
-<dependency> <!-- required when using Spring Web `RestTemplate` with X.509 authentication method-->
-  <groupId>org.apache.httpcomponents</groupId>
-  <artifactId>httpclient</artifactId>
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
 </dependency>
 ```
 
-#### Auto-configuration
-As auto-configuration requires Spring Boot specific dependencies, it is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
-Then, xsuaa integration libraries auto-configures beans, that are required to initialize the Token Flows API.
-
-Auto-configuration class | Description
----- | --------
-[XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java) | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.url` e.g. for testing purposes. Furthermore it exposes a `XsuaaServiceConfiguration` bean that can be used to access xsuaa service information.  Alternatively you can access them with `@Value` annotation e.g. `@Value("${xsuaa.url:}") String xsuaaBaseUrl`. As of version `1.7.0` it creates a default [`RestTemplate`](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/client/RestOperations.html) bean that serves as Rest client that is used inside a default `OAuth2TokenService` to perform HTTP requests to the XSUAA server. **It is recommended to overwrite this default and configuring it with the HTTP client of your choice.**
-[XsuaaTokenFlowAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean for a given `RestOperations` and `XsuaaServiceConfiguration` bean to fetch the XSUAA service binding information. 
-
-You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
-
 #### XsuaaTokenFlows Initialization
+As autoconfiguration requires Spring Boot specific dependencies, it is enabled when using `resourceserver-security-spring-boot-starter` Spring Boot Starter.
+Then `spring-security` library autoconfigures beans, that are required to initialize the Token Flows API.
+
+| Auto-configuration class                                                                                                                          | Description                                                                                                                                                                                         |
+|---------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [XsuaaTokenFlowAutoConfiguration](../spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/XsuaaTokenFlowAutoConfiguration.java) | Configures a `XsuaaTokenFlows` bean with the [xsuaaServiceConfiguration](#autoconfigured-OAuth2ServiceConfiguration-Bean) Bean  and [tokenFlowHttpClient](#autoconfigured-tokenFlowHttpClient) Bean |
+
 To consume the `XsuaaTokenFlows` class, you simply need to `@Autowire` it like this:
 ```java
 @Autowired
 private XsuaaTokenFlows xsuaaTokenFlows;
 ```
 
-For X.509 based authentication method using an externally managed certificate, `ClientCertificate` class needs to be instantiated with the external key and `xsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. <br>Alternatively you can provide the certificate key property programmatically by defining default property.
+#### Custom XsuaaTokenFlows Bean
+For non Spring Boot Applications or if the `XsuaaTokenFlowAutoConfiguration` doesn't fit to your use case you can provide your own `XsuaaTokenFlows` Bean.
 
-- Default property
-    ```java
-  @SpringBootApplication
-  public class Application {
-      public static void main(String[] args) {
-          
-          SpringApplication application = new SpringApplication(Application.class);
-          Properties properties = new Properties();
-          
-          properties.put("xsuaa.key", "-----BEGIN RSA PRIVATE KEY-----"); // when using spring-xsuaa
-          properties.put("sap.security.services.xsuaa.key", "-----BEGIN RSA PRIVATE KEY-----"); // when using spring-security
-          
-          application.setDefaultProperties(properties);
-          application.run(args);
-          
-      }
-  }
-    ```
-  
-- For **testing purposes only** `key` can be overwritten in `application.yml` properties file.
-    ```yaml
-    # spring-xsuaa
-    xsuaa:
-      key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-    # spring-security
-    sap.security.services.xsuaa:
-      key: -----BEGIN RSA PRIVATE KEY-----YOUR PRIVATE KEY-----END RSA PRIVATE KEY-----
-  ```
-:exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in github.com
+```java
+import com.sap.cloud.security.annotation.Beta;
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
-## <a id="OAuth2ServiceConfiguration"></a>Setup OAuth2ServiceConfiguration
-`OAuth2ServiceConfiguration` holds the information from the respective XSUAA service binding. When using `spring-xsuaa` client library this is also given with `XsuaaServiceConfiguration`.
+@Configuration
+public class CustomConfiguration {
 
-#### Load from Environment
+	@Bean
+	public OAuth2ServiceConfiguration customServiceConfiguration() {
+		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+                .withClientId(...)
+                .withCertificate(...)
+                .withPrivateKey(...)
+                .withUrl(...)
+                .withCertUrl(...).build();
+	}
+
+	@Bean
+	public CloseableHttpClient customHttpClient(OAuth2ServiceConfiguration customServiceConfiguration) {
+		return HttpClientFactory.create(customServiceConfiguration.getClientIdentity());
+	}
+
+	@Bean
+	public XsuaaTokenFlows customTokenFlows(CloseableHttpClient customHttpClient, OAuth2ServiceConfiguration customServiceConfiguration) {
+		return new XsuaaTokenFlows(
+						new DefaultOAuth2TokenService(customHttpClient),
+						new XsuaaDefaultEndpoints(customServiceConfiguration),
+				        customServiceConfiguration.getClientIdentity()
+        );
+	}
+}
 ```
-OAuth2ServiceConfiguration config = Environments.getCurrent().getXsuaaConfiguration();
-``` 
-> Note: By default `Environments` auto-detects the environment: Cloud Foundry or Kubernetes. 
+See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [HttpClientFactory](#httpclientfactory) for more detailed information about the involved classes.
 
-#### Instantiate a custom one
-If you need to fetch a token using the uaa service configuration of your job scheduler, you can't use the config loaded from service binding. In that case you may leverage ``OAuth2ServiceConfigurationBuilder`` provided with ``env`` client library. 
+### 1.2. Configuration for Java EE Applications
+#### Maven Dependencies
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+    <version>3.0.0</version>
+</dependency>
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+</dependency>
+```
+
+#### XsuaaTokenFlows Initialization
+```java
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+                                    new DefaultOAuth2TokenService(CloseableHttpClient), 
+                                    new XsuaaDefaultEndpoints(OAuth2ServiceConfiguration),
+                                    OAuth2ServiceConfiguration.getClientIdentity()));
+```
+The `XsuaaTokenFlows` needs to be instantiated with a `DefaultOAuth2TokenService`, `XsuaaDefaultEndpoints` and `ClientIdentity`.
+
+- `OAuth2ServiceConfiguration` is placeholder for the Identity service configuration, see [here](#oauth2serviceconfiguration) how to initialize it
+
+- `CloseableHttpClient` is a placeholder for the Apache HTTP client, see [here](#httpclientfactory) how to initialize it
+
+### OAuth2ServiceConfiguration
+`OAuth2ServiceConfiguration` holds the information from the respective Identity service binding and is used in `XsuaaTokenFlows` initialization.
+
+#### Autoconfigured OAuth2ServiceConfiguration Bean
+When using `spring-xsuaa` or `spring-security` client libraries, a readily configured OAuth2ServiceConfiguration is accessible via `XsuaaServiceConfiguration` Bean.
+
+#### Default OAuth2ServiceConfiguration
+Alternatively, the `env` library provides a convenient way to obtain bound Identity service configurations by reading information from the `VCAP_SERVICES` environment variable or K8s secrets and mapping it to an instance of the `OAuth2ServiceConfiguration` class. You can use it as follows:
+```java
+OAuth2ServiceConfiguration config = Environments.getCurrent().getXsuaaConfiguration();
+```
+
+#### Custom OAuth2ServiceConfiguration
+If you need to fetch a token from a specific Identity service instance that is not bound to your application, e.g. the uaa service configuration of your job scheduler, you need to initialize an `OAuth2ServiceConfiguration` manually. You can use the `OAuth2ServiceConfigurationBuilder` provided by the `env` library for this purpose.
 
 ```java
 OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA);
@@ -212,28 +170,139 @@ OAuth2ServiceConfiguration config = builder.withClientId(...)
                                            .withCertUrl(...).build();
 ```
 
-#### Adapt to externally managed certificate
-If you want to use an **externally managed certificate** within your Java application, `OAuth2ServiceConfiguration` instance needs to be adapted with the external key:
-```java
-OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.fromConfiguration(Environments.getCurrent().getXsuaaConfiguration());
-OAuth2ServiceConfiguration config = builder.withPrivateKey("-----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----").build();
+#### Externally managed certificate
+To utilize an **externally managed certificate** in 
+- Java EE application: you need to modify the `OAuth2ServiceConfiguration` instance with the external key:
+    ```java
+   OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.fromConfiguration(Environments.getCurrent().getXsuaaConfiguration());
+   OAuth2ServiceConfiguration config = builder.withPrivateKey("-----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----").build();
+    ```
+- Spring Boot applications:
+  A `ClientCertificate` needs to be instantiated with the external key and the `XsuaaTokenFlows` bean needs to be overwritten using this `ClientCertificate` instance. <br>Alternatively you can provide the certificate key property programmatically by defining default property.
+   ```java
+    @SpringBootApplication
+    public class Application {
+        public static void main(String[] args) {
+          
+            SpringApplication application = new SpringApplication(Application.class);
+            Properties properties = new Properties();
+          
+            properties.put("xsuaa.key", "-----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----"); // when using spring-xsuaa
+            properties.put("sap.security.services.xsuaa.key", "-----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----"); // when using spring-security
+          
+            application.setDefaultProperties(properties);
+            application.run(args);
+          
+        }
+    }
+   ```
+
+  :information_source: For **testing purposes only** `key` can be overwritten in `application.yml` properties file.
+   ```yaml
+      # spring-xsuaa
+      xsuaa:
+        key: -----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----
+      # spring-security
+      sap.security.services.xsuaa:
+        key: -----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----
+    ```
+    :exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in GitHub.com
+
+:bulb: Note that if you are only using the `token-client` library without the [java-security](../java-security/README.md) or [spring-security](../spring-security/README.md), you will need to define the `env` dependency in your pom.xml:
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security</groupId>
+    <artifactId>env</artifactId>
+</dependency>
 ```
-In spring boot applications you also have the option to overwrite the private key using Spring properties framework. See also [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main/token-client#xsuaatokenflows-initialization-2).
 
+### HttpClientFactory
+`HttpClientFactory` creates an HTTP client that will make the requests to the corresponding Identity service.
 
-## Usage
+#### Autoconfigured tokenFlowHttpClient
+When using `resourceserver-security-spring-boot-starter` Spring Boot Starter client library, a readily configured `CloseableHttpClient` is accessible via `tokenFlowHttpClient` Bean that uses the `HttpClientFactory` internally to set up the HTTP Client for token flows.
+
+#### Default HttpClientFactory
+The Token Client library includes a default implementation [DefaultHttpClientFactory](./src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java), of the [HttpClientFactory](./src/main/java/com/sap/cloud/security/client/HttpClientFactory.java) interface. 
+It creates a preconfigured [Apache HttpClient 4](https://hc.apache.org/httpcomponents-client-4.5.x/index.html) with the given [ClientIdentity](../java-api/src/main/java/com/sap/cloud/security/config/ClientIdentity.java) for the Identity service instance.
+
+To acquire the HTTP client, use the following code:
+```java
+CloseableHttpClient client = HttpClientFactory.createClient(ClientIdentity clientIdentity); // you can obtain ClientIdentity by invoking the OAuthServiceConfiguration.getClientIdentity() method
+```
+
+`DefaultHttpClientFactory` HTTP Clients are configured in the following way:
+- connection pool
+    - maximum of 200 total connections
+    - 50 connections per route.
+- connection and connection request timeouts -  5 seconds
+- socket timeout 30 seconds
+
+:information_source: These values are intended as an initial configuration, and you should monitor your application's performance and provide your own `HttpClientFactory` implementation, if you observe performance degradation.
+For more information, refer to the [Troubleshooting](#insufficient-performance-for-token-validations-or-token-flows) section.
+
+### Cache Configuration
+
+By default, the `OAuth2TokenService` implementations (`DefaultOAuth2TokenService` and `XsuaaOAuth2TokenService`) are caching tokens internally.
+By default up to 1000 tokens are cached for 10 minutes and the statistics are disabled.
+The Cache can be individually configured by configuring `TokenCacheConfiguration` class. `XsuaaTokenFlows` need to be then initialized with the `DefaultOAuth2TokenService` or `XsuaaOAuth2TokenService` that takes `TokenCacheConfiguration` as a constructor parameter.
+
+#### Cache configuration options:
+```java
+TokenCacheConfiguration tokenCache = TokenCacheConfiguration.getInstance(
+		Duration cacheDuration,
+                int cacheSize, 
+                Duration tokenExpirationDelta,
+		boolean cacheStatisticsEnabled);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(CloseableHttpClient, tokenCache);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
+```
+#### Disable Cache
+The cache can be disabled by using the `TokenCacheConfiguration.cacheDisabled()` configuration as follows:
+```java
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration.cacheDisabled());
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
+```
+:exclamation: In order to leverage the cache it makes sense to have only one reference to the `OAuth2TokenService` implementation or to the `XsuaaTokenFlows`.
+
+#### Disable Cache for a single request (runtime)
+```java
+tokenFlows.clientCredentialsTokenFlow().disableCache(true).execute();
+```
+
+#### Clear cache (runtime)
+```java
+AbstractOAuth2TokenService tokenService = new DefaultOAuth2TokenService(CloseableHttpClient);
+XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
+// runtime in case of reoccurring issues
+tokenService.clearCache();
+```
+
+## Token Flows API usage
 The `XsuaaTokenFlows` provides a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
 
+### Jwt Bearer Token Flow
+In order to exchange an access token for a different service:
+
+```java
+OAuth2TokenResponse tokenResponse = tokenFlows.jwtBearerTokenFlow()
+                                    .bearerToken(bearerToken)
+                                    .zoneId("MY_ZONE_ID")           // optional
+                                    .scopes("READ")                 // optional restriction of granted scopes
+                                    .disableCache(true)             // optionally disables token cache for the request
+                                    .execute();
+```
 
 ### Client Credentials Token Flow
 Obtain a client credentials token:
 
 ```java
 OAuth2TokenResponse clientCredentialsToken = tokenFlows.clientCredentialsTokenFlow()
-                                                    .subdomain(jwtToken.getSubdomain()) // this is optional - use zoneId alternatively
-                                                    .disableCache(true)                 // optionally disables token cache for request
+                                                    .zoneId("MY_ZONE_ID")               // optional
+                                                    .disableCache(true)                 // optionally disables token cache for the request
                                                     .execute();
 ```
+
 ### Refresh Token Flow
 In case you have a refresh token and want to obtain an access token:
 
@@ -244,79 +313,62 @@ OAuth2TokenResponse refreshToken = tokenFlows.refreshTokenFlow()
                               .disableCache(true)                 // optionally disables token cache for request
                               .execute();
 ```
-### User Token Flow
-Deprecated, please use Jwt Bearer Token Flow instead.
-
-### Jwt Bearer Token Flow
-In order to exchange an access token for a different service:
-
-```java
-OAuth2TokenResponse tokenResponse = tokenFlows.jwtBearerTokenFlow()
-                                    .bearerToken(bearerToken)
-                                    .subdomain(bearerToken.getSubdomain()) // optional
-                                    .scopes("READ") // optional restriction of granted scopes
-                                    .disableCache(true)  // optionally disables token cache for request
-                                    .execute();
-```
 
 ### Password Token Flow
 In order to obtain an access token for a user:
 ```java
 OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
                                     .subdomain(jwtToken.getSubdomain()) 
-                                    .username(<your username>)
-                                    .password(<your password>)
+                                    .username(<username>)
+                                    .password(<user password>)
                                     .disableCache(true)  // optionally disables token cache for request
                                     .execute();
 ```
 
 
-Make sure to read the API documentation of the `XsuaaTokenFlows` API, to understand what the individual token flows' parameters are for.
-
 ## Troubleshooting
 
-For troubleshooting problems with the token service, you can set the logging level for the 
-`com.sap.cloud.security` package to `DEBUG`. Have a look at the 
-[Logging](/java-security/README.md#logging) section for more information on logging.
+To troubleshoot problems with the token client, you can set the logging level for the 
+`com.sap.cloud.security` package to `DEBUG`. 
+Have a look at the [Logging](/java-security/README.md#logging) section for more information on logging for Java EE applications.
 
-If you need more detailed network data in your logs, you can also enable debugging for your HTTP client.
-Note that this might leak encoded tokens into your logs. Use with care! 
-For java applications using `HttpClient`, see the  
-[logging documentation](https://hc.apache.org/httpcomponents-client-4.5.x/logging.html).
-For spring applications using rest template, you can set
-`org.springframework.web.client.RestTemplate` to log level `DEBUG`. 
+If you need more detailed network data in your logs, you can also enable debugging for your HTTP client. For more information see
+[Apache HTTP Client logging documentation](https://hc.apache.org/httpcomponents-client-4.5.x/logging.html).
 
-### Common Pitfalls
+:exclamation:Note that this might leak encoded tokens into your logs. Use with caution!
 
-#### New warning `In productive environment provide well configured HttpClientFactory service` 
-As of version ``2.10`` a warning `In productive environment provide well configured HttpClientFactory service` is exposed to the application log in case there is no user provided `HttpClientFactory` implementation that serves a well-configured ``CloseableRestClient``.
+### Insufficient performance for token validations or token flows
 
-> Instead of using the default Apache Rest Client config for productive and high available applications we recommend you to customize your http client carefully. You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management"](https://www.baeldung.com/httpclient-connection-management).<br>
+If you observe performance degradation for token validation or token flows, `HtpClient` configuration should be adjusted according to your platform's requirements, infrastructure, and anticipated load. You should monitor the performance of your `HtpClient` under various loads and adjust these parameters accordingly to achieve optimal performance.
 
-:bangbang: For your custom `CloseableHttpClient` implementation always disable redirects :bangbang:
+> You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management](https://www.baeldung.com/httpclient-connection-management).<br>
 
-In case you like to overwrite [`DefaultHttpClientFactory`](/token-client/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java) you can register your own implementation of `HttpClientFactory` interface as following:
+To adjust the `HtpClient` parameters you will need to provide your own implementation of `HttpClientFactory` interface.
 
-- Create a SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory.  
-- Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`.
-- The implementation could look like:  
+- Create an SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory
+- Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`
+- The implementation could look like:
 ````java
-public class DefaultHttpClientFactory implements HttpClientFactory {
+public class CustomHttpClientFactory implements HttpClientFactory {
 
     public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
         // here comes your implementation
     }
 }
 ````
+:bangbang: For your custom `CloseableHttpClient` implementation always disable redirects :bangbang:
+
+
+### Common Pitfalls
 #### This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library
 If you have classpath related  issues involving JSON you should take a look at the
-[Troubleshooting JSON class path issues](/docs/Troubleshooting_JsonClasspathIssues.md) document.
+[Troubleshooting JSON class path issues](../docs/Troubleshooting_JsonClasspathIssues.md) document.
 
 #### Token exchange `Unable to map issuer`
 ```bash
 {\"error\":\"unauthorized\",\"error_description\":\"Unable to map issuer, [http://subdomain.localhost:8080/uaa/oauth/token] , to a single registered provider\"}
 ```  
-Token exchange is only supported within the same identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the JWT Bearer Token Flow the following way:
+Token exchange is only supported within the same Identity zone/tenant. That means, that you have to call the `/oauth/token` endpoint of the same subdomain, that was used for the original token. This can be achieved by configuring the JWT Bearer Token Flow the following way:
 ````
 tokenFlows.jwtBearerTokenFlow().token(jwtToken).subdomain(jwtToken.getSubdomain());
 ````
@@ -329,8 +381,6 @@ Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Err
 nested exception is java.lang.NoClassDefFoundError: org/apache/http/client/HttpClient
 ``` 
 indicates that mandatory `org.apache.httpcomponents:httpclient` dependency is missing in your POM.
-
-
 
 ## Samples
 - [Java sample](/samples/java-tokenclient-usage)

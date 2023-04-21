@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
+<!-- SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -14,31 +14,40 @@
         <maven.compiler.target>17</maven.compiler.target>
         <sap.cloud.security.version>3.0.0</sap.cloud.security.version>
         <apache.httpclient.version>4.5.14</apache.httpclient.version>
-        <javax.servlet.api.version>4.0.1</javax.servlet.api.version>
+        <jakarta.servlet.api.version>6.0.0</jakarta.servlet.api.version>
         <slf4j.api.version>2.0.5</slf4j.api.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.sap.cloud.security</groupId>
+                <artifactId>java-bom</artifactId>
+                <version>${sap.cloud.security.version}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>com.sap.cloud.security.xsuaa</groupId>
             <artifactId>token-client</artifactId>
-            <version>${sap.cloud.security.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-security</artifactId>
-            <version>${sap.cloud.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${apache.httpclient.version}</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet.api.version}</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${jakarta.servlet.api.version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- logging -->
@@ -63,8 +72,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
         </plugins>

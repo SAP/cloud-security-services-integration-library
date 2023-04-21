@@ -1,12 +1,11 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.config;
 
 import com.sap.cloud.security.config.*;
-import com.sap.cloud.security.config.ServiceConstants;
 
 import java.net.URI;
 import java.util.List;
@@ -31,7 +30,7 @@ import java.util.Objects;
  * {@code @ConfigurationProperties("vcap.services.<your service instance name>.credentials")}
  */
 public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfiguration {
-	OAuth2ServiceConfigurationBuilder builder;
+	final OAuth2ServiceConfigurationBuilder builder;
 	OAuth2ServiceConfiguration configuration;
 
 	/**
@@ -71,7 +70,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	/**
 	 * Sets private key of identity service instance.
-	 * 
+	 *
 	 * @param key
 	 *            PEM encoded private key
 	 */

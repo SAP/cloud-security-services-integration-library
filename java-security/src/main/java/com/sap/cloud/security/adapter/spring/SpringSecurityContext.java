@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.adapter.spring;
@@ -25,11 +25,11 @@ import java.util.Objects;
  * This is an alternative way of accessing jwt tokens of type {@link Token} or
  * {@link AccessToken} in context of an application using
  * spring-security-oauth2.
- *
+ * <p>
  * It uses the {@link SecurityContextHolder} to access Spring's
  * {@link SecurityContext} and can therefore used also in context of
  * asynchronous threads.
- *
+ * <p>
  * Use this class in case your application sets Spring's security context via
  * one of these libraries: <br>
  * <ol>
@@ -121,7 +121,6 @@ public class SpringSecurityContext {
 	/**
 	 * Returns the token using {@link SecurityContextHolder}.
 	 *
-	 *
 	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or
 	 *         does not contain a token of this type.
 	 */
@@ -141,8 +140,6 @@ public class SpringSecurityContext {
 	/**
 	 * This class extends the {@link XsuaaToken} and takes the scopes from Spring
 	 * {@link GrantedAuthority} to perform the {@link #hasLocalScope(String)} check.
-	 * Therefore make sure that you've configured local scopes as authorities using
-	 * {@link SAPOfflineTokenServicesCloud#setLocalScopeAsAuthorities(boolean)}.
 	 */
 	private static class XsuaaTokenWithGrantedAuthorities extends XsuaaToken {
 		private final Collection<? extends GrantedAuthority> authorities;

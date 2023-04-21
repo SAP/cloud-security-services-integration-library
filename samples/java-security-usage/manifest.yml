@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+# SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
 # SPDX-License-Identifier: Apache-2.0
 ---
 # Configuration:
@@ -13,7 +13,10 @@ applications:
   host: 
   path: target/java-security-usage.war
   buildpacks:
-    - java_buildpack
+    - https://github.com/cloudfoundry/java-buildpack.git
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 17.0.+ } }'
+    JBP_CONFIG_TOMCAT: '{ tomcat: { version: 10.0.+ } }'
   services:
     - xsuaa-java-security
 ...

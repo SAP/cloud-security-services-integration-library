@@ -1,20 +1,24 @@
 @startuml
--> Application: setup()
-Application --> Environments: getCurrent().getXsuaaConfiguration()
+-> TokenAuthenticator: setup()
+ TokenAuthenticator --> Environments: getCurrent().getXsuaaConfiguration()
+ TokenAuthenticator --> Environments: getCurrent().getIasConfiguration()
 
-Environments -> Application: OAuth2ServiceConfiguration
+Environments -> TokenAuthenticator: OAuth2ServiceConfiguration
 
-Application -> JwtValidatorBuilder: getInstance(OAuth2ServiceConfiguration).build()
-JwtValidatorBuilder --> Application: CombinedValidator
+TokenAuthenticator --> HttpClientFactory: create(OAuth2ServiceConfiguration.getClientIdentity())
+HttpClientFactory -> TokenAuthenticator: CloseableHttpClient
 
--> Application: anyProtectedFunction()
+TokenAuthenticator --> JwtValidatorBuilder: getInstance(OAuth2ServiceConfiguration).withHttpClient(CloseableHttpClient).build()
+JwtValidatorBuilder -> TokenAuthenticator: CombiningValidator
+
+-> TokenAuthenticator: anyProtectedServlet()
 
 
-Application -> XsuaaToken: new("abyJhbGci1iJSUzI1NiJ9.eyJhdW...")
-XsuaaToken --> Application: Token
+TokenAuthenticator --> Token: create("eyJhdW...")
+Token -> TokenAuthenticator: Token
 
-Application -> CombinedValidator: validate(Token)
-CombinedValidator --> Application: ValidationResult
+TokenAuthenticator --> CombiningValidator: validate(Token)
+CombiningValidator -> TokenAuthenticator: ValidationResult
 @enduml
 
 

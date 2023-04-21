@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.config;
@@ -16,7 +16,7 @@ public class ClientCertificate implements ClientIdentity {
 
 	/**
 	 * Represents certificate based client identity.
-	 * 
+	 *
 	 * @param certificate
 	 *            PEM encoded X.509 certificate of the OAuth 2.0 client
 	 * @param key
@@ -54,9 +54,8 @@ public class ClientCertificate implements ClientIdentity {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof ClientCertificate))
+		if (!(o instanceof ClientCertificate that))
 			return false;
-		ClientCertificate that = (ClientCertificate) o;
 		return Objects.requireNonNull(certificate, "certificate must be provided").equals(that.certificate) &&
 				Objects.requireNonNull(key, "key must be provided").equals(that.key) &&
 				Objects.requireNonNull(clientId, "clientId must be provided").equals(that.clientId);

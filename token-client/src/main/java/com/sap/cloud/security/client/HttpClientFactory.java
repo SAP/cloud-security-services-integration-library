@@ -1,20 +1,20 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.client;
+
+import java.security.ProviderException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
 
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.token.ProviderNotFoundException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.LoggerFactory;
-
-import java.security.ProviderException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
 
 /**
  * Represents a {@link CloseableHttpClient} creation interface.

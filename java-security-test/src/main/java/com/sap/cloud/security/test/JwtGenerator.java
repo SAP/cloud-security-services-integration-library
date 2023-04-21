@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2018-2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * 
+ * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.test;
@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.sap.cloud.security.token.TokenHeader.*;
@@ -31,7 +30,8 @@ import static com.sap.cloud.security.token.TokenHeader.*;
  * Jwt {@link Token} builder class to generate tokes for testing purposes.
  */
 public class JwtGenerator {
-	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, 11, 31).getTime().toInstant();
+	public static final Instant NO_EXPIRE_DATE = new GregorianCalendar(2190, Calendar.DECEMBER, 31).getTime()
+			.toInstant();
 	public static final String DEFAULT_KEY_ID = "default-kid";
 	public static final String DEFAULT_KEY_ID_IAS = "default-kid-ias";
 	public static final String DEFAULT_ZONE_ID = "the-zone-id";
@@ -354,8 +354,8 @@ public class JwtGenerator {
 	 * {@link #withScopes(String...)}}. Note that this is specific to tokens of
 	 * service type {@link Service#XSUAA}.
 	 *
-	 *
 	 * @param scopes
+	 *            token scopes
 	 * @return the JwtGenerator itself
 	 * @throws IllegalStateException
 	 *             if the appId has not been set via {@link #withAppId(String)}
@@ -367,7 +367,7 @@ public class JwtGenerator {
 		if (service == Service.XSUAA) {
 			localScopes = Stream.of(scopes)
 					.map(scope -> appId + "." + scope)
-					.collect(Collectors.toList());
+					.toList();
 			putScopesInJsonPayload();
 		} else {
 			throw new UnsupportedOperationException("Scopes are not supported for service " + service);
@@ -400,14 +400,11 @@ public class JwtGenerator {
 		if (privateKey == null) {
 			throw new IllegalStateException("Private key was not set!");
 		}
-		switch (service) {
-		case IAS:
-			return new SapIdToken(createTokenAsString());
-		case XSUAA:
-			return new XsuaaToken(createTokenAsString());
-		default:
-			throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
-		}
+		return switch (service) {
+		case IAS -> new SapIdToken(createTokenAsString());
+		case XSUAA -> new XsuaaToken(createTokenAsString());
+		default -> throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
+		};
 	}
 
 	private JSONObject filterPayload(JSONObject payload) {
@@ -445,7 +442,7 @@ public class JwtGenerator {
 
 	private void putScopesInJsonPayload() {
 		List<String> resultingScopes = Stream.concat(localScopes.stream(), scopes.stream())
-				.collect(Collectors.toList());
+				.toList();
 		jsonPayload.put(TokenClaims.XSUAA.SCOPES, resultingScopes);
 	}
 
