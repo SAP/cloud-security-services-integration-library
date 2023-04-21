@@ -102,4 +102,4 @@ Some of the most important rules are listed below:
 5. Create a Pull Request to https://github.com/SAP/cloud-security-services-integration-library/pulls
 6. Follow the link posted by the CLA assistant to your pull request and accept the Developer Certificate of Origin, as described in detail above.
 7. Wait for our code review and approval, possibly enhancing your change on request
-8. Once the change has been approved it will be merged into master and pull request will be closed (feel free to delete the now obsolete branch)
+8. Once the change has been approved it will be merged into main and pull request will be closed (feel free to delete the now obsolete branch)
