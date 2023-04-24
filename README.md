@@ -33,6 +33,7 @@ Before you can use the SAP Cloud Security Services Integration libraries, you mu
 5. Maven 3.9.0 or later
 6. (Optional) Spring Boot 3.0.0 or later, Spring Security 6.0.0 or later if using the Spring integration
 
+:exclamation: For Java 8 and 11 please use [2.x release](https://github.com/SAP/cloud-security-services-integration-library/tree/main-2.x) of this library.
 
 ## Usage
 Typical web applications consist of a gateway server serving HTML content to the user client and one or more servers behind the gateway providing REST APIs. The gateway server acts as OAuth2 client executing an OAuth2 Authorization Code Flow to retrieve an access token when a new user client session is created. Requests from the user client are correlated with a session id on the gateway server which appends the access token to subsequent requests and forwards them to the REST APIs. The session flow looks as follows:
