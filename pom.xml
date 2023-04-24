@@ -88,7 +88,6 @@
 	</properties>
 
 	<modules>
-		<module>api</module>
 		<module>java-api</module>
 		<module>env</module>
 		<module>token-client</module>
