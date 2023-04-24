@@ -14,7 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ 17 ]
+        include:
+          - java-version: 17
+            branch: main
+          - java-version: 8
+            branch: main-2.x
+          - java-version: 11
+            branch: main-2.x
+    if: github.ref == 'refs/heads/' + matrix.branch
     name: Build with Java ${{ matrix.java-version }}
 
     steps:
