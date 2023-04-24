@@ -21,7 +21,7 @@ jobs:
             branch: main-2.x
           - java-version: 11
             branch: main-2.x
-    if: github.ref == 'refs/heads/' + matrix.branch
+    if: ${{ endsWith( github.ref, matrix.branch ) }}
     name: Build with Java ${{ matrix.java-version }}
 
     steps:
