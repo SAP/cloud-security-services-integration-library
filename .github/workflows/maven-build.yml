@@ -5,23 +5,16 @@ name: Maven Build main
 
 on:
   push:
-    branches: [ main, main-2.x ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, main-2.x ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - java-version: 17
-            branch: main
-          - java-version: 8
-            branch: main-2.x
-          - java-version: 11
-            branch: main-2.x
-    if: ${{ endsWith( github.ref, matrix.branch ) }}
+        java-version: [ 17 ]
     name: Build with Java ${{ matrix.java-version }}
 
     steps:
