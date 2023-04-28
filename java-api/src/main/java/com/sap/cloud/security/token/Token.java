@@ -28,7 +28,7 @@ public interface Token extends Serializable {
 	@SuppressWarnings("unchecked")
 	List<TokenFactory> services = new ArrayList() {
 		{
-			ServiceLoader.load(TokenFactory.class).forEach(this::add);
+			ServiceLoader.load(TokenFactory.class, ClassLoader.getSystemClassLoader()).forEach(this::add);
 			LoggerFactory.getLogger(Token.class).info("loaded TokenFactory service providers: {}", this);
 		}
 	};
