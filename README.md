@@ -146,7 +146,7 @@ along with libraries that you intend to use e.g. `java-security`
 If you intend to extend this library you can clone this repository and install this project with `mvn` as follows:
 ```sh
 git clone https://github.com/SAP/cloud-security-services-integration-library
-cd cloud-security-xsuaa-integration
+cd cloud-security-services-integration-library
 mvn clean install
 ```
 
