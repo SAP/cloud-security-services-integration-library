@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Cloud Security Client Java
 Upstream-Contact: SAP SE <cas@sap.com, nena.raab@sap.com>
-Source: https://github.com/SAP/cloud-security-xsuaa-integration
+Source: https://github.com/SAP/cloud-security-services-integration-library
 
 Files:
     README.md

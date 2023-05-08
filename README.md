@@ -1,4 +1,4 @@
-[![REUSE status](https://api.reuse.software/badge/github.com/SAP/cloud-security-xsuaa-integration)](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration)
+[![REUSE status](https://api.reuse.software/badge/github.com/SAP/cloud-security-services-integration-library)](https://api.reuse.software/info/github.com/SAP/cloud-security-services-integration-library)
 [![Maven Build main](https://github.com/SAP/cloud-security-services-integration-library/actions/workflows/maven-build.yml/badge.svg?branch=main)](https://github.com/SAP/cloud-security-services-integration-library/actions/workflows/maven-build.yml)
 [![Fosstars security rating](https://raw.githubusercontent.com/SAP/cloud-security-xsuaa-integration/fosstars-report/fosstars_badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/fosstars-report/fosstars_report.md)
 [![CodeQL](https://github.com/SAP/cloud-security-xsuaa-integration/workflows/CodeQL/badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/actions?query=workflow%3ACodeQL)
@@ -145,8 +145,8 @@ along with libraries that you intend to use e.g. `java-security`
 
 If you intend to extend this library you can clone this repository and install this project with `mvn` as follows:
 ```sh
-git clone https://github.com/SAP/cloud-security-xsuaa-integration
-cd cloud-security-xsuaa-integration
+git clone https://github.com/SAP/cloud-security-services-integration-library
+cd cloud-security-services-integration-library
 mvn clean install
 ```
 
