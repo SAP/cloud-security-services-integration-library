@@ -4,6 +4,8 @@ This migration guide will help you upgrade your application from 2.x to 3.x Vers
 
 ## Requirements
 * JDK 17
+* In case the [SAP Cloud SDK](https://sap.github.io/cloud-sdk/docs/java/overview-cloud-sdk-for-java) is used, the minimum required version for that is `4.14.0`.
+  Further details can be found [here](https://sap.github.io/cloud-sdk/docs/java/release-notes).
 
 ## Step 1: Migrate from `javax.*` to `jakarta.*` Namespaces
 Java EE was transferred from Oracle to the Eclipse Foundation, and the `javax.*` namespace was changed to `jakarta.*`. To migrate your application, follow the [Eclipse Transformer Guide](https://projects.eclipse.org/projects/technology.transformer) to update the affected packages and classes in your codebase.
