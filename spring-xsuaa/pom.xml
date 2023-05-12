@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.0.0</version>
+		<version>3.0.1</version>
 	</parent>
 
 	<artifactId>spring-xsuaa</artifactId>
@@ -61,10 +61,6 @@
 			<groupId>jakarta.servlet</groupId>
 			<artifactId>jakarta.servlet-api</artifactId>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>

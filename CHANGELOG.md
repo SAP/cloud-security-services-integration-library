@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.0.1
+- [spring-xsuaa] fixes incompatible TLS version for `DefaultSpringHttpClientFactory`
+
+#### Dependency upgrades
+- Bump spring.core.version from 6.0.8 to 6.0.9
+- Bump reactor-core from 3.5.5 to 3.5.6
+- Bump btp-environment-variable-access from 0.5.2 to 0.6.0
+
 ## 3.0.0
 ### Baseline changes
 `cloud-security-services-integration-library` requires
