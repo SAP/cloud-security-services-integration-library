@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.0.0</version>
+		<version>3.0.1</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
@@ -55,20 +55,9 @@
 			<artifactId>httpclient</artifactId>
 			<scope>provided</scope>
 		</dependency>
-
-		<!-- optionally needed for XSUserInfoAdapter-->
 		<dependency>
-			<groupId>com.sap.cloud.security.xsuaa</groupId>
-			<artifactId>api</artifactId>
-			<version>${project.version}</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<!-- optionally needed for the spring adapter used by migration projects -->
-		<!-- this deprecates as it gets replaced with libs of groupId "org.springframework.security" -->
-		<dependency>
-			<groupId>org.springframework.security.oauth</groupId>
-			<artifactId>spring-security-oauth2</artifactId>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
