@@ -88,7 +88,7 @@ public class DefaultSpringHttpClientFactory implements SpringHttpClientFactory {
 						.setMaxConnPerRoute(MAX_CONNECTIONS_PER_ROUTE)
 						.setMaxConnTotal(MAX_CONNECTIONS)
 						.setSSLSocketFactory(SSLConnectionSocketFactoryBuilder.create()
-								.setTlsVersions(TLS.V_1_3)
+								.setTlsVersions(TLS.V_1_2) // TLS 1.3 not yet supported by cf routing
 								.setSslContext(context)
 								.build())
 						.build());
