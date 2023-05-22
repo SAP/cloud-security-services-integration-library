@@ -69,7 +69,7 @@
 		<sap.cloud.env.servicebinding.version>0.6.0</sap.cloud.env.servicebinding.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>2.9.3</caffeine.version>
-		<commons.io.version>2.11.0</commons.io.version>
+		<commons.io.version>2.12.0</commons.io.version>
 		<javax.servlet.api.version>4.0.1</javax.servlet.api.version>
 		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>5.9.2</junit-jupiter.version>
