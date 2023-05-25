@@ -5,9 +5,11 @@
  */
 package com.sap.cloud.security.samples.ias;
 
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.servlet.IasTokenAuthenticator;
 import com.sap.cloud.security.servlet.TokenAuthenticationResult;
 import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +25,10 @@ public class IasSecurityFilter implements Filter {
 	private final IasTokenAuthenticator iasTokenAuthenticator;
 
 	public IasSecurityFilter() {
+		// JwtValidatorBuilder is a singleton and it stores for each service configuration one JwtValidatorBuilder instance
+		// as the provided service instance matches the one in AbstractTokenAuthenticator it will reuse the JwtValidatorBuilder instance
+		// and the TenantId check will be disabled
+		JwtValidatorBuilder.getInstance(Environments.getCurrent().getIasConfiguration()).disableTenantIdCheck();
 		iasTokenAuthenticator = new IasTokenAuthenticator();
 	}
 
