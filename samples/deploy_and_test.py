@@ -4,20 +4,19 @@
 import abc
 import distutils
 import http
-import ssl
-import subprocess
-import urllib.request
-from urllib.parse import urlencode
-from urllib.error import HTTPError
-from base64 import b64encode
 import json
-import unittest
 import logging
 import os
-import time
 import re
+import ssl
+import subprocess
+import time
+import unittest
+import urllib.request
+from base64 import b64encode
 from getpass import getpass
-from distutils.core import setup
+from urllib.error import HTTPError
+from urllib.parse import urlencode
 
 # Usage information
 # To run this script you must be logged into CF via 'cf login' Also make sure
@@ -730,7 +729,7 @@ class ApiAccessService:
         service_key_output = subprocess.run(
             ['cf', 'service-key', name, self.service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
-        self.data = json.loads(''.join(lines[1:]))
+        self.data = json.loads(''.join(lines[1:])).get('credentials')
         logging.debug('Created ' + str(self))
 
     def delete(self):
