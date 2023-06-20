@@ -1,7 +1,7 @@
 version: 2
 updates:
   - package-ecosystem: maven
-    target-branch: "main-dev"
+    target-branch: "main-2.x"
     directory: "/"
     schedule:
       interval: daily

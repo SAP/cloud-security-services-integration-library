@@ -747,7 +747,7 @@ class ApiAccessService:
         service_key_output = subprocess.run(
             ['cf', 'service-key', name, self.service_key_name], capture_output=True)
         lines = service_key_output.stdout.decode().split('\n')
-        self.data = json.loads(''.join(lines[1:]))
+        self.data = json.loads(''.join(lines[1:])).get('credentials')
         logging.debug('Created ' + str(self))
 
     def delete(self):
