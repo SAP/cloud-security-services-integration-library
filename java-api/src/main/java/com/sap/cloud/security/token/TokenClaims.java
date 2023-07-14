@@ -33,7 +33,15 @@ public final class TokenClaims {
 	 */
 	public static final String SAP_GLOBAL_SCIM_ID = "scim_id";
 	public static final String SAP_GLOBAL_USER_ID = "user_uuid";
-	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // tenant GUID
+
+
+	/**
+	 * @deprecated Use {@link TokenClaims#SAP_GLOBAL_APP_TID} instead.
+	 */
+	@Deprecated
+	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // legacy claim app_tid should be used instead
+	public static final String SAP_GLOBAL_APP_TID = "app_tid"; // tenant GUID
+
 	public static final String GROUPS = "groups"; // scim groups
 	public static final String AUTHORIZATION_PARTY = "azp"; // Authorization party contains OAuth client identifier
 	public static final String CNF = "cnf"; // X509 certificate ("cnf" (confirmation)) claim
