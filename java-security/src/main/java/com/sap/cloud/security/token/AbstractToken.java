@@ -24,7 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.EXPIRATION;
+import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
@@ -170,7 +171,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public String getZoneId() {
-		return getClaimAsString(SAP_GLOBAL_ZONE_ID);
+		return getAppTid();
 	}
 
 	@Override
