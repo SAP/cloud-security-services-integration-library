@@ -23,7 +23,8 @@ import java.io.IOException;
 import java.net.URI;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -38,7 +39,7 @@ public class IdTokenSignatureValidatorTest {
 	OAuth2ServiceEndpointsProvider endpointsProviderMock;
 	private OidcConfigurationService oidcConfigurationServiceMock;
 	private static final URI JKU_URI = URI.create("https://application.myauth.com/jwks_uri");
-	private static final String ZONE_UUID = "0987654321";
+	private static final String APP_TID = "the-app-tid";
 	private static final URI DISCOVERY_URI = URI
 			.create("https://application.myauth.com" + OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT);
 
@@ -62,7 +63,7 @@ public class IdTokenSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(eq(JKU_URI), eq(ZONE_UUID)))
+				.retrieveTokenKeys(eq(JKU_URI), eq(APP_TID)))
 						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
@@ -78,7 +79,7 @@ public class IdTokenSignatureValidatorTest {
 	}
 
 	@Test
-	public void validationFails_WhenEndpointProvidesNullJku() throws OAuth2ServiceException {
+	public void validationFails_WhenEndpointProvidesNullJku() {
 		when(endpointsProviderMock.getJwksUri()).thenReturn(null);
 
 		ValidationResult result = cut.validate(iasToken);
