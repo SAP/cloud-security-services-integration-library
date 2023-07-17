@@ -13,9 +13,8 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ZDN;
-import static java.nio.charset.StandardCharsets.*;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -166,6 +165,17 @@ public class XsuaaTokenTest {
 	@Test
 	public void getSubaccountId_noSubaccountIdAndNoFallback_isNull() {
 		assertThat(userToken.getSubaccountId()).isNull();
+	}
+
+	@Test
+	public void checkAppTidFallback() {
+		XsuaaToken token = Mockito.mock(XsuaaToken.class);
+		when(token.getZoneId()).thenCallRealMethod();
+		when(token.getAppTid()).thenCallRealMethod();
+		when(token.getClaimAsString(ZONE_ID)).thenReturn("zid");
+
+		assertThat(token.getZoneId()).isEqualTo("zid");
+		assertThat(token.getAppTid()).isEqualTo("zid");
 	}
 
 }
