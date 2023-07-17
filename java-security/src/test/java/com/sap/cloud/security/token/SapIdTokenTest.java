@@ -57,4 +57,8 @@ public class SapIdTokenTest {
 		assertThat(cut2.getCnfX509Thumbprint()).isEqualTo("fU-XoQlhMTpQsz9ArXl6zHIpMGuRO4ExLKdLRTc5VjM");
 	}
 
+	@Test
+	public void getAppTid() {
+		assertThat(cut.getAppTid()).isEqualTo("the-app-tid");
+	}
 }
