@@ -5,9 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import java.net.URI;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.net.URI;
 
 /**
  * Service that targets Identity service (xsuaa and identity) to request Json
@@ -16,9 +16,6 @@ import javax.annotation.Nullable;
 public interface OAuth2TokenKeyService {
 
 	/**
-	 * Same as {@link #retrieveTokenKeys(URI, String)} except that zoneId is set to
-	 * {@code null}.
-	 *
 	 * @deprecated gets removed in favor of {@link #retrieveTokenKeys(URI, String)}
 	 *             with next major version 3.0.0
 	 */
@@ -29,18 +26,29 @@ public interface OAuth2TokenKeyService {
 	}
 
 	/**
+	 * @deprecated gets removed in favor of {@link #retrieveTokenKeys(URI, String, String)}
+	 *             with next major version 4.0.0
+	 */
+	@Deprecated
+	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId) throws OAuth2ServiceException;
+
+	/**
 	 * Requests token web key set from OAuth Server.
 	 *
 	 * @param tokenKeysEndpointUri
 	 *            the token endpoint URI (jku).
-	 * @param zoneId
-	 *            the zone uuid of the tenant. Obligatory parameter in context of
-	 *            multi-tenant IAS applications to make sure that the zone uuid
+	 * @param tenantId
+	 *            the tenant id of the tenant. Obligatory parameter in context of
+	 *            multi-tenant IAS applications to make sure that the tenant id
 	 *            belongs to the IAS tenant.
-	 * @return An endpoint which returns the list of JSON Web Token (JWT) keys as
+	 * @param clientId
+	 * 				clientId from the service binding
+	 * @return list of JSON Web Token (JWT) keys as
 	 *         JSON string.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String zoneId) throws OAuth2ServiceException;
+	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nonnull String tenantId, @Nonnull String clientId) throws OAuth2ServiceException {
+		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId);
+	}
 }
