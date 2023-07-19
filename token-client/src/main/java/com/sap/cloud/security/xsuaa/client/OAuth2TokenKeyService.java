@@ -22,18 +22,27 @@ public interface OAuth2TokenKeyService {
 	@Deprecated
 	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri) throws OAuth2ServiceException {
 		throw new UnsupportedOperationException(
-				"for security reason this internal method was replaced with retrieveTokenKeys(<jwks_url>, <zone_uuid>)");
+				"for security reason this internal method was replaced with retrieveTokenKeys(<jwks_url>, <app_tid>)");
 	}
 
 	/**
-	 * @deprecated gets removed in favor of {@link #retrieveTokenKeys(URI, String, String)}
-	 *             with next major version 4.0.0
+	 * Requests token web key set from Xsuaa OAuth Server.
+	 *
+	 * @param tokenKeysEndpointUri
+	 *            the token endpoint URI (jku).
+	 * @param tenantId
+	 *            the tenant id of the tenant. Obligatory parameter in context of
+	 *            multi-tenant IAS applications to make sure that the tenant id
+	 *            belongs to the IAS tenant.
+	 * @return list of JSON Web Token (JWT) keys as
+	 *         JSON string.
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
 	 */
-	@Deprecated
 	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId) throws OAuth2ServiceException;
 
 	/**
-	 * Requests token web key set from OAuth Server.
+	 * Requests token web key set from IAS OAuth Server.
 	 *
 	 * @param tokenKeysEndpointUri
 	 *            the token endpoint URI (jku).
@@ -48,7 +57,7 @@ public interface OAuth2TokenKeyService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nonnull String tenantId, @Nonnull String clientId) throws OAuth2ServiceException {
+	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId) throws OAuth2ServiceException {
 		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId);
 	}
 }
