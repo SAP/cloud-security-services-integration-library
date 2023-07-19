@@ -21,7 +21,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.*;
+import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.bearerToken;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,7 +48,7 @@ class TestControllerIasTest {
 				.andReturn().getResponse().getContentAsString();
 
 		assertTrue(response.contains("sb-clientId!t0815"));
-		assertTrue(response.contains("the-zone-id"));
+		assertTrue(response.contains("the-app-tid"));
 	}
 
 	@Test
@@ -64,7 +64,7 @@ class TestControllerIasTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 
-		assertTrue(response.contains("You got the sensitive data for zone 'the-zone-id'."));
+		assertTrue(response.contains("You got the sensitive data for zone 'the-app-tid'."));
 	}
 
 	@Test
