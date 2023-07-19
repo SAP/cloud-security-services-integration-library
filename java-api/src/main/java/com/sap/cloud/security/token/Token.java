@@ -279,7 +279,6 @@ public interface Token extends Serializable {
 	 * Example: <br>
 	 * <code>
 	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
-	 * <p>
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
 	 *
