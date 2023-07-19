@@ -5,17 +5,16 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
-import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
-import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
-import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.*;
-import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-import static java.nio.charset.StandardCharsets.*;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -24,14 +23,13 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.regex.Pattern;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.validation.ValidationResult;
-import com.sap.cloud.security.token.validation.Validator;
-
-import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
+import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.*;
+import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Validates whether the jwt was signed with the public key of the trust-worthy
@@ -83,7 +81,7 @@ class JwtSignatureValidator implements Validator<Token> {
 			zoneIdForTokenKeys = token.getZoneId();
 			if (isTenantIdCheckEnabled && !token.getIssuer().equals("" + configuration.getUrl())
 					&& zoneIdForTokenKeys == null) {
-				return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
+				return createInvalid("Error occurred during signature validation: OIDC token must provide app_tid.");
 			}
 		}
 		try {
@@ -162,7 +160,7 @@ class JwtSignatureValidator implements Validator<Token> {
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId,
-				URI.create(tokenKeysUrl), fallbackPublicKey, zoneId);
+				URI.create(tokenKeysUrl), fallbackPublicKey, zoneId, configuration.getClientId());
 	}
 
 	private static class Validation {
@@ -179,14 +177,14 @@ class JwtSignatureValidator implements Validator<Token> {
 
 		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
 				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey,
-				@Nullable String zoneId) {
+				@Nullable String zoneId, String clientId) {
 			ValidationResult validationResult;
 
 			validationResult = setSupportedJwtAlgorithm(tokenAlgorithm);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
-			validationResult = setPublicKey(tokenKeyService, tokenKeyId, tokenKeysUrl, zoneId);
+			validationResult = setPublicKey(tokenKeyService, tokenKeyId, tokenKeysUrl, zoneId, clientId);
 			if (validationResult.isErroneous()) {
 				if (fallbackPublicKey != null) {
 					try {
@@ -222,9 +220,9 @@ class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		private ValidationResult setPublicKey(OAuth2TokenKeyServiceWithCache tokenKeyService, String keyId,
-				URI keyUri, String zoneId) {
+				URI keyUri, String zoneId, String clientId) {
 			try {
-				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri, zoneId);
+				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri, zoneId, clientId);
 			} catch (OAuth2ServiceException e) {
 				return createInvalid("Error retrieving Json Web Keys from Identity Service: {}.", e.getMessage());
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
