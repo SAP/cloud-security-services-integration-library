@@ -113,8 +113,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * @param keyUri
 	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
 	 *            specific).
-	 * @param zoneId
-	 *            the Zone Id of the tenant
+	 * @param appTid
+	 *            the tenant identifier of the tenant
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service
@@ -126,22 +126,57 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *
 	 */
 	@Nullable
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String zoneId)
+	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid)
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+		assertNotNull(keyAlgorithm, "keyAlgorithm must not be null.");
+		assertHasText(keyId, "keyId must not be null.");
+		assertNotNull(keyUri, "keyUrl must not be null.");
+
+		return getPublicKey(keyAlgorithm, keyId, keyUri, appTid, null);
+	}
+
+	/**
+	 * Returns the cached key by id and type or requests the keys from the jwks URI
+	 * of the identity service.
+	 *
+	 * @param keyAlgorithm
+	 *            the Key Algorithm of the Access Token.
+	 * @param keyId
+	 *            the Key Id of the Access Token.
+	 * @param keyUri
+	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
+	 *            specific).
+	 * @param appTid
+	 *            the tenant identifier of the tenant
+	 *
+	 * @param clientId
+	 * 				client id from the service configuration
+	 * @return a PublicKey
+	 * @throws OAuth2ServiceException
+	 *             in case the call to the jwks endpoint of the identity service
+	 *             failed.
+	 * @throws InvalidKeySpecException
+	 *             in case the PublicKey generation for the json web key failed.
+	 * @throws NoSuchAlgorithmException
+	 *             in case the algorithm of the json web key is not supported.
+	 *
+	 */
+	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid, String clientId)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		assertNotNull(keyAlgorithm, "keyAlgorithm must not be null.");
 		assertHasText(keyId, "keyId must not be null.");
 		assertNotNull(keyUri, "keyUrl must not be null.");
 
 		JsonWebKeySet keySet = getCache().getIfPresent(keyUri.toString());
-		if (keySet == null || !keySet.containsZoneId(zoneId)) {
-			keySet = retrieveTokenKeysAndUpdateCache(keyUri, zoneId, keySet); // creates and updates cache entries
+		if (keySet == null || !keySet.containsAppTid(appTid)) {
+			keySet = retrieveTokenKeysAndUpdateCache(keyUri, appTid, keySet, clientId); // creates and updates cache entries
 		}
 		if (keySet == null || keySet.getAll().isEmpty()) {
 			LOGGER.error("Retrieved no token keys from {}", keyUri);
 			return null;
 		}
-		if (!keySet.isZoneIdAccepted(zoneId)) {
-			throw new OAuth2ServiceException("Keys not accepted for zone_uuid " + zoneId);
+		if (!keySet.isAppTidAccepted(appTid)) {
+			throw new OAuth2ServiceException("Keys not accepted for app_tid " + appTid);
 		}
 		for (JsonWebKey jwk : keySet.getAll()) {
 			if (keyId.equals(jwk.getId()) && jwk.getKeyAlgorithm().equals(keyAlgorithm)) {
@@ -181,22 +216,22 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		return TokenKeyCacheConfiguration.getInstance(duration, size, cacheConfiguration.isCacheStatisticsEnabled());
 	}
 
-	private JsonWebKeySet retrieveTokenKeysAndUpdateCache(URI jwksUri, String zoneId,
-			@Nullable JsonWebKeySet keySetCached)
+	private JsonWebKeySet retrieveTokenKeysAndUpdateCache(URI jwksUri, String appTid,
+			@Nullable JsonWebKeySet keySetCached, String clientId)
 			throws OAuth2ServiceException {
 		String jwksJson;
 		try {
-			jwksJson = getTokenKeyService().retrieveTokenKeys(jwksUri, zoneId);
+			jwksJson = getTokenKeyService().retrieveTokenKeys(jwksUri, appTid, clientId);
 		} catch (OAuth2ServiceException e) {
 			if (keySetCached != null) {
-				keySetCached.withZoneId(zoneId, false);
+				keySetCached.withAppTid(appTid, false);
 			}
 			throw e;
 		}
 		if (keySetCached != null) {
-			return keySetCached.withZoneId(zoneId, true);
+			return keySetCached.withAppTid(appTid, true);
 		}
-		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson).withZoneId(zoneId, true);
+		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson).withAppTid(appTid, true);
 		getCache().put(jwksUri.toString(), keySet);
 		return keySet;
 	}
