@@ -57,16 +57,16 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.source.plugin.version>3.3.0</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
-		<spring.boot.version>2.7.12</spring.boot.version>
-		<spring.core.version>5.3.27</spring.core.version>
-		<spring.security.version>5.8.3</spring.security.version>
+		<spring.boot.version>2.7.13</spring.boot.version>
+		<spring.core.version>5.3.29</spring.core.version>
+		<spring.security.version>5.8.5</spring.security.version>
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.4.24</reactor.version>
 		<log4j2.version>2.20.0</log4j2.version>
 		<slf4j.api.version>1.7.36</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20230618</org.json.version>
-		<sap.cloud.env.servicebinding.version>0.6.0</sap.cloud.env.servicebinding.version>
+		<sap.cloud.env.servicebinding.version>0.8.0</sap.cloud.env.servicebinding.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>2.9.3</caffeine.version>
 		<commons.io.version>2.13.0</commons.io.version>
