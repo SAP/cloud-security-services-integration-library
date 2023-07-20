@@ -84,7 +84,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void createIasToken_isNotNull() {
+	public void createIasToken() {
 		cut = JwtGenerator.getInstance(IAS, "T000310")
 				.withClaimValue(SUBJECT, "P176945")
 				.withClaimValue(ISSUER, "https://application.myauth.com")
