@@ -47,7 +47,7 @@ public final class TokenClaims {
 	 * @deprecated Use {@link TokenClaims#SAP_GLOBAL_APP_TID} instead.
 	 */
 	@Deprecated
-	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // legacy claim app_tid should be used instead
+	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // legacy claim
 	public static final String SAP_GLOBAL_APP_TID = "app_tid"; // tenant GUID
 
 	public static final String GROUPS = "groups"; // scim groups
