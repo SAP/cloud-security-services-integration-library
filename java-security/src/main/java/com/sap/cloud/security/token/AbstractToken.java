@@ -170,11 +170,6 @@ public abstract class AbstractToken implements Token {
 	}
 
 	@Override
-	public String getZoneId() {
-		return getAppTid();
-	}
-
-	@Override
 	public String toString() {
 		return decodedJwt.toString();
 	}
