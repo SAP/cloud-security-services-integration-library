@@ -1,6 +1,32 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.14.0
+#### :exclamation: IMPORTANT Update
+The `zone_uuid` claim in Identity service tokens has been deprecated and is now replaced by the `app_tid` claim. You should use the `app_tid` claim to identify the unique tenant id, which was previously referred to as the zone.
+
+- [java-api]
+  - `Token` interface is extended with default method `getAppTid()` and `getZoneId()` method has been deprecated, use `getAppTid()` method instead
+  - `TokenClaims` is extended with the `SAP_GLOBAL_APP_TID` and `SAP_GLOBAL_ZONE_ID` is deprecated
+- [token-client]
+  - `OAuth2TokenKeyService` interface has been extended with `retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId)` method
+  - `HttpHeaders` constants are extended with `X-app_tid` abd `X-client_id` headers
+  - JWKs fetch from identity service going forward requires mandatory headers: `X-app_tid` abd `X-client_id` this has been updated in the default implementations of the `OAuth2TokenKeyService`:
+    - `DefaultOAuth2TokenKeyService`
+    - `OAuth2TokenKeyServiceWithCache` (java-security module)
+    - `SpringOAuth2TokenKeyService`
+- [java-security] `AbstractToken` is serializable #1207
+
+
+#### Dependency upgrades
+- Bump spring.core.version from 5.3.27 to 5.3.29
+- Bump spring.boot.version from 2.7.10 to 2.7.14
+- Bump spring.security.version from 5.8.3 to 5.8.5
+- Bump reactor-core from 3.4.24 to 3.4.31
+- Bump btp-environment-variable-access from 0.6.0 to 0.8.0
+- Bump json from 20230227 to 20230618
+- Bump commons-io from 2.11.0 to 2.13.0
+
 ## 2.13.9
 Patches [CVE-2023-20863](https://nvd.nist.gov/vuln/detail/CVE-2023-20863)
 - [env]
