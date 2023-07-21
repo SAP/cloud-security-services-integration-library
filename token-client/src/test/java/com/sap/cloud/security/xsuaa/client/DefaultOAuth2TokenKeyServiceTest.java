@@ -65,12 +65,12 @@ public class DefaultOAuth2TokenKeyServiceTest {
 			return responseHandler.handleResponse(response);
 		});
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
-				.hasMessageContaining("Headers [x-app_tid=92768714-4c2e-4b79-bc1b-009a4127ee3c]");
+				.hasMessageContaining("Headers [x-app_tid=92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id=client-id]");
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 			return responseHandler.handleResponse(response);
 		});
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, null))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
 				.hasMessageContaining("'Something went wrong'")
@@ -92,7 +92,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, APP_TID))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, APP_TID, null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -101,7 +101,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorMessage = "useful error message";
 		when(httpClient.execute(any(), any(ResponseHandler.class))).thenThrow(new IOException(errorMessage));
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, null))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorMessage);
 	}
@@ -115,7 +115,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 			return responseHandler.handleResponse(response);
 		});
 
-		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID);
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID);
 
 		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()),
 				any(ResponseHandler.class));
