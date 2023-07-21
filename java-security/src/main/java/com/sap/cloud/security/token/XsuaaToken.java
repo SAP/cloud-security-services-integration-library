@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.io.Serial;
 import java.security.Principal;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -28,7 +27,6 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
  */
 public class XsuaaToken extends AbstractToken implements AccessToken {
 
-	@Serial
 	private static final long serialVersionUID = 3304172041930251807L;
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>

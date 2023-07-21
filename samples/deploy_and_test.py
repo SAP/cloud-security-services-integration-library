@@ -785,8 +785,8 @@ class ApiAccessService:
     def __get_access_token(self):
         token = self.http_util.get_token(
             xsuaa_service_url=self.xsuaa_service_url,
-            clientid=self.data.get('credentials').get('clientid'),
-            clientsecret=self.data.get('credentials').get('clientsecret'),
+            clientid=self.data.get('clientid'),
+            clientsecret=self.data.get('clientsecret'),
             grant_type='client_credentials')
         return token.get('access_token')
 

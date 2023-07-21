@@ -9,7 +9,6 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serial;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.regex.Pattern;
@@ -60,7 +59,6 @@ public final class Base64JwtDecoder {
 
 	static class DecodedJwtImpl implements DecodedJwt {
 
-		@Serial
 		private static final long serialVersionUID = 1454353454555430987L;
 
 		private final String header;

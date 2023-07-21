@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
-import java.io.Serial;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.*;
@@ -24,7 +23,6 @@ import java.util.*;
  */
 public class DefaultJsonObject implements JsonObject {
 
-	@Serial
 	private static final long serialVersionUID = 2204172045251807L;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultJsonObject.class);
