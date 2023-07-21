@@ -75,12 +75,12 @@ class JwtSignatureValidator implements Validator<Token> {
 	public ValidationResult validate(Token token) {
 		String jwksUri;
 		String keyId;
-		String zoneIdForTokenKeys = null;
+		String appTidForTokenKeys = null;
 
 		if (Service.IAS == configuration.getService()) {
-			zoneIdForTokenKeys = token.getZoneId();
+			appTidForTokenKeys = token.getAppTid();
 			if (isTenantIdCheckEnabled && !token.getIssuer().equals("" + configuration.getUrl())
-					&& zoneIdForTokenKeys == null) {
+					&& appTidForTokenKeys == null) {
 				return createInvalid("Error occurred during signature validation: OIDC token must provide app_tid.");
 			}
 		}
@@ -96,7 +96,7 @@ class JwtSignatureValidator implements Validator<Token> {
 					keyId,
 					jwksUri,
 					fallbackPublicKey,
-					zoneIdForTokenKeys);
+					appTidForTokenKeys);
 		} catch (OAuth2ServiceException | IllegalArgumentException e) {
 			return createInvalid("Error occurred during jwks uri determination: {}", e.getMessage());
 		}
