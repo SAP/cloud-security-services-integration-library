@@ -1,6 +1,31 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.1.0
+#### :exclamation: IMPORTANT Update 
+The `zone_uuid` claim in Identity service tokens has been deprecated and is now replaced by the `app_tid` claim. You should use the `app_tid` claim to identify the unique tenant id, which was previously referred to as the zone.
+
+- [java-api] 
+  - `Token` interface is extended with default method `getAppTid()` and `getZoneId()` method has been deprecated, use `getAppTid()` method instead
+  - `TokenClaims` is extended with the `SAP_GLOBAL_APP_TID` and `SAP_GLOBAL_ZONE_ID` is deprecated
+- [token-client] 
+  - `OAuth2TokenKeyService` interface has been extended with `retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId)` method
+  - `HttpHeaders` constants are extended with `X-app_tid` abd `X-client_id` headers
+  - JWKs fetch from identity service going forward requires mandatory headers: `X-app_tid` abd `X-client_id` this has been updated in the default implementations of the `OAuth2TokenKeyService`:
+    - `DefaultOAuth2TokenKeyService`
+    - `OAuth2TokenKeyServiceWithCache` (java-security module)
+    - `SpringOAuth2TokenKeyService`
+
+
+#### Dependency upgrades
+- Bump spring.core.version from 6.0.9 to 6.0.11
+- Bump spring.boot.version from 3.0.6 to 3.1.2
+- Bump spring.security.version from 6.0.3 to 6.1.2
+- Bump reactor-core from 3.5.6 to 3.5.8
+- Bump btp-environment-variable-access from 0.6.0 to 0.8.0
+- Bump json from 20230227 to 20230618
+- Bump commons-io from 2.11.0 to 2.13.0
+
 ## 3.0.1
 - [spring-xsuaa] fixes incompatible TLS version for `DefaultSpringHttpClientFactory`
 
