@@ -6,8 +6,8 @@
 package com.sap.cloud.security.token;
 
 /**
- * Constants denoting JWT claims as specified here:
- * https://tools.ietf.org/html/rfc7519#section-4
+ * Constants denoting JWT claims as specified here: <a href=
+ * "https://tools.ietf.org/html/rfc7519#section-4">https://tools.ietf.org/html/rfc7519#section-4</a>
  */
 public final class TokenClaims {
 
@@ -62,7 +62,7 @@ public final class TokenClaims {
 
 		public static final String ORIGIN = "origin";
 		public static final String GRANT_TYPE = "grant_type"; // OAuth grant type used for token creation
-		public static final String ZONE_ID = "zid"; // tenant GUID -> SAP_GLOBAL_ZONE_ID
+		public static final String ZONE_ID = "zid"; // tenant GUID same value as SAP_GLOBAL_APP_TID
 		/**
 		 * @deprecated Use {@link Token#getClientId} instead.
 		 */
