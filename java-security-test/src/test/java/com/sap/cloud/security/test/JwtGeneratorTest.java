@@ -12,7 +12,10 @@ import com.sap.cloud.security.token.AbstractToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 
@@ -33,9 +36,10 @@ import java.util.List;
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.*;
-import static com.sap.cloud.security.test.SecurityTestRule.*;
+import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_APP_ID;
+import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
 import static com.sap.cloud.security.token.TokenClaims.*;
-import static com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm.*;
+import static com.sap.cloud.security.token.validation.validators.JwtSignatureAlgorithm.RS256;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -63,7 +67,7 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void createToken_setsDefaultsForTesting() {
+	public void createXsuaaToken_setsDefaultsForTesting() {
 		Token token = cut.createToken();
 
 		assertThat(token).isNotNull();
@@ -73,14 +77,14 @@ public class JwtGeneratorTest {
 		assertThat(token.getClaimAsString(AUTHORIZATION_PARTY)).isEqualTo(DEFAULT_CLIENT_ID);
 		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
-		assertThat(token.getZoneId()).isEqualTo(DEFAULT_ZONE_ID);
+		assertThat(token.getAppTid()).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.ZONE_ID)).isEqualTo(DEFAULT_ZONE_ID);
 		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
 		assertThat(((AbstractToken) token).isXsuaaToken()).isTrue();
 	}
 
 	@Test
-	public void createIasToken_isNotNull() {
+	public void createIasToken() {
 		cut = JwtGenerator.getInstance(IAS, "T000310")
 				.withClaimValue(SUBJECT, "P176945")
 				.withClaimValue(ISSUER, "https://application.myauth.com")
@@ -94,7 +98,7 @@ public class JwtGeneratorTest {
 
 		assertThat(token).isNotNull();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.KEY_ID)).isEqualTo(DEFAULT_KEY_ID_IAS);
-		assertThat(token.getClaimAsString(SAP_GLOBAL_ZONE_ID)).isEqualTo(DEFAULT_ZONE_ID);
+		assertThat(token.getClaimAsString(SAP_GLOBAL_APP_TID)).isEqualTo(DEFAULT_APP_TID);
 		assertThat(token.getClaimAsString(AUDIENCE)).isEqualTo("T000310");
 		assertThat(token.getClaimAsString(AUTHORIZATION_PARTY)).isEqualTo("T000310");
 		assertThat(token.getClientId()).isEqualTo("T000310");

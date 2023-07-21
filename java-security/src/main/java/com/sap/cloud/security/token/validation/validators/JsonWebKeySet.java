@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 class JsonWebKeySet {
 
 	private final Set<JsonWebKey> jsonWebKeys = new HashSet<>();
-	private Map<String, Boolean> zoneIdAccepted = new HashMap<>();
+	private final Map<String, Boolean> appTidAccepted = new HashMap<>();
 
 	@Nullable
 	public JsonWebKey getKeyByAlgorithmAndId(JwtSignatureAlgorithm keyAlgorithm, String keyId) {
@@ -45,16 +45,16 @@ class JsonWebKeySet {
 				.filter(jwk -> kid.equals(jwk.getId()));
 	}
 
-	public boolean containsZoneId(String zoneId) {
-		return zoneIdAccepted.containsKey(zoneId);
+	public boolean containsAppTid(String appTid) {
+		return appTidAccepted.containsKey(appTid);
 	}
 
-	public boolean isZoneIdAccepted(String zoneId) {
-		return zoneIdAccepted.get(zoneId);
+	public boolean isAppTidAccepted(String appTid) {
+		return appTidAccepted.get(appTid);
 	}
 
-	public JsonWebKeySet withZoneId(String zoneId, boolean isAccepted) {
-		zoneIdAccepted.put(zoneId, isAccepted);
+	public JsonWebKeySet withAppTid(String appTid, boolean isAccepted) {
+		appTidAccepted.put(appTid, isAccepted);
 		return this;
 	}
 

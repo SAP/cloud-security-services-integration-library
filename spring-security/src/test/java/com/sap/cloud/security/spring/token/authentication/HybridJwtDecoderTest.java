@@ -20,7 +20,8 @@ import java.time.Instant;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +43,7 @@ class HybridJwtDecoderTest {
 		Jwt jwt = HybridJwtDecoder.parseJwt(jwtGenerator.createToken());
 
 		assertEquals(2, jwt.getHeaders().size());
-		assertEquals(7, jwt.getClaims().size());
+		assertEquals(8, jwt.getClaims().size());
 		assertEquals(1, jwt.getExpiresAt().compareTo(Instant.now()));
 		assertEquals("theClientId", jwt.getClaim(TokenClaims.AUTHORIZATION_PARTY));
 	}

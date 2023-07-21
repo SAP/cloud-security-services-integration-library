@@ -22,7 +22,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class IasTokenTest {
 
 	private JWTClaimsSet.Builder claimsSetBuilder = null;
-	private final String zoneId = "e2f7fbdb-0326-40e6-940f-dfddad057ff3";
+	private final String appTid = "app-tid";
+	private final String zoneId = "zone-id";
 	private static final String USER_ID = "test-user-id";
 	private static final String USER_NAME_VALUE = "testUser";
 
@@ -32,6 +33,7 @@ class IasTokenTest {
 				.issueTime(new Date())
 				.expirationTime(JwtGenerator.NO_EXPIRE_DATE)
 				.claim(SAP_GLOBAL_USER_ID, USER_ID)
+				.claim(SAP_GLOBAL_APP_TID, appTid)
 				.claim(SAP_GLOBAL_ZONE_ID, zoneId)
 				.claim(USER_NAME, USER_NAME_VALUE)
 				.claim(AUTHORIZATION_PARTY, "client-id")
@@ -39,11 +41,11 @@ class IasTokenTest {
 	}
 
 	@Test
-	public void checkIasTokenTest() {
+	void checkIasTokenTest() {
 		IasToken token = createToken(claimsSetBuilder);
 
 		assertThat(token.getClientId(), is("client-id"));
-		assertThat(token.getZoneId(), is(zoneId));
+		assertThat(token.getAppTid(), is(appTid));
 		assertThat(token.getExpiration(), is(JwtGenerator.NO_EXPIRE_DATE.toInstant()));
 		assertThat(token.getAudiences().size(), is(2));
 		assertThat(token.getService(), is(Service.IAS));
@@ -51,7 +53,17 @@ class IasTokenTest {
 		assertThat(token.getTokenValue(), notNullValue());
 		assertThat(token.isExpired(), is(false));
 		assertThat(token.hasClaim(EMAIL), is(false));
-		assertThat(token.hasClaim(SAP_GLOBAL_ZONE_ID), is(true));
+		assertThat(token.hasClaim(SAP_GLOBAL_APP_TID), is(true));
+	}
+
+	@Test
+	void checkAppTidFallback() {
+		JWTClaimsSet.Builder claimsSetBuilder = new JWTClaimsSet.Builder()
+				.claim(SAP_GLOBAL_ZONE_ID, zoneId)
+				.expirationTime(JwtGenerator.NO_EXPIRE_DATE);
+		IasToken token = createToken(claimsSetBuilder);
+
+		assertThat(token.getAppTid(), is(zoneId));
 	}
 
 	private IasToken createToken(JWTClaimsSet.Builder claimsBuilder) {

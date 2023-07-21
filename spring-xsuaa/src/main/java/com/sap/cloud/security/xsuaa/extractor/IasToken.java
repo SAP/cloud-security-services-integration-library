@@ -17,7 +17,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
-import static com.sap.cloud.security.token.TokenClaims.*;
+import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_APP_TID;
+import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_ZONE_ID;
 
 class IasToken implements Token {
 
@@ -49,6 +50,7 @@ class IasToken implements Token {
 		return decodedToken.getClaimAsString(claimName);
 	}
 
+	@Nonnull
 	@Override
 	public List<String> getClaimAsStringList(@Nonnull String claimName) {
 		return decodedToken.getClaimAsStringList(claimName);
@@ -95,6 +97,11 @@ class IasToken implements Token {
 
 	@Override
 	public String getZoneId() {
-		return decodedToken.getClaimAsString(SAP_GLOBAL_ZONE_ID);
+		return getAppTid();
+	}
+
+	@Override
+	public String getAppTid() {
+		return decodedToken.hasClaim(SAP_GLOBAL_APP_TID) ? decodedToken.getClaimAsString(SAP_GLOBAL_APP_TID) : decodedToken.getClaimAsString(SAP_GLOBAL_ZONE_ID);
 	}
 }

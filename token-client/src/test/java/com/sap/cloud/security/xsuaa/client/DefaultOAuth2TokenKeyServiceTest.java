@@ -31,7 +31,8 @@ import static org.mockito.Mockito.when;
 public class DefaultOAuth2TokenKeyServiceTest {
 
 	public static final URI TOKEN_KEYS_ENDPOINT_URI = URI.create("https://tokenKeys.io/token_keys");
-	public static final String ZONE_UUID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
+	public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
+	public static final String CLIENT_ID = "client-id";
 	private final String jsonWebKeysAsString;
 
 	private DefaultOAuth2TokenKeyService cut;
@@ -60,12 +61,12 @@ public class DefaultOAuth2TokenKeyServiceTest {
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClient.execute(any())).thenReturn(response);
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
-				.hasMessageContaining("Headers [x-zone_uuid=92768714-4c2e-4b79-bc1b-009a4127ee3c]");
+				.hasMessageContaining("Headers [x-app_tid=92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id=client-id]");
 	}
 
 	@Test
@@ -75,7 +76,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClient.execute(any())).thenReturn(response);
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, null))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
 				.hasMessageContaining("'Something went wrong'")
@@ -84,7 +85,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, ZONE_UUID))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, APP_TID, null))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -93,32 +94,28 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorMessage = "useful error message";
 		when(httpClient.execute(any())).thenThrow(new IOException(errorMessage));
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorMessage);
 	}
 
 	@Test
 	public void retrieveTokenKeys_executesHttpGetRequestWithCorrectURI() throws IOException {
-		mockResponse();
-
-		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, ZONE_UUID);
-
-		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()));
-	}
-
-	private CloseableHttpResponse mockResponse() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
 		when(httpClient.execute(any())).thenReturn(response);
-		return response;
+
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID);
+
+		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()));
 	}
 
 	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
 		return (httpGet) -> {
 			boolean hasCorrectURI = httpGet.getURI().equals(TOKEN_KEYS_ENDPOINT_URI);
 			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
-			boolean correctZoneHeader = httpGet.getFirstHeader(HttpHeaders.X_ZONE_UUID).getValue().equals(ZONE_UUID);
-			return hasCorrectURI && correctMethod && correctZoneHeader;
+			boolean correctTenantHeader = httpGet.getFirstHeader(HttpHeaders.X_APP_TID).getValue().equals(APP_TID);
+			boolean correctClientId = httpGet.getFirstHeader(HttpHeaders.X_CLIENT_ID).getValue().equals(CLIENT_ID);
+			return hasCorrectURI && correctMethod && correctTenantHeader && correctClientId;
 		};
 	}
 }

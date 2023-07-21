@@ -29,6 +29,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNotNull;
 import static org.mockito.Mockito.when;
 
 public class JwtSignatureValidatorTest {
@@ -50,10 +51,12 @@ public class JwtSignatureValidatorTest {
 
 		mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.getService()).thenReturn(Service.IAS);
+		when(mockConfiguration.getClientId()).thenReturn("client-id");
+
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any()))
+				.retrieveTokenKeys(any(), any(), isNotNull()))
 						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
@@ -102,7 +105,7 @@ public class JwtSignatureValidatorTest {
 		ValidationResult validationResult = cut.validate(iasPaasToken);
 		assertTrue(validationResult.isErroneous());
 		assertThat(validationResult.getErrorDescription(),
-				startsWith("Error occurred during signature validation: OIDC token must provide zone_uuid."));
+				startsWith("Error occurred during signature validation: OIDC token must provide app_tid."));
 	}
 
 	@Test
@@ -175,7 +178,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenOAuthServerIsUnavailable() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any())).thenThrow(OAuth2ServiceException.class);
+				.retrieveTokenKeys(any(), any(), any())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-ias",
 				"http://unavailable.com/token_keys", null, null);
