@@ -5,9 +5,10 @@
  */
 package com.sap.cloud.security.token;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
-public interface ScopeConverter {
+public interface ScopeConverter extends Serializable {
 	Set<String> convert(Collection<String> scopes);
 }

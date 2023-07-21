@@ -7,6 +7,7 @@ package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -18,6 +19,10 @@ import java.util.regex.Pattern;
  * and prefixed with the "appId.", to local ones.
  */
 public class XsuaaScopeConverter implements ScopeConverter {
+
+	@Serial
+	private static final long serialVersionUID = 2204172290850251807L;
+
 	private final Pattern globalScopePattern;
 
 	/**

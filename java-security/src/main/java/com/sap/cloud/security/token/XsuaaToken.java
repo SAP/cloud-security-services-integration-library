@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serial;
 import java.security.Principal;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -26,6 +27,9 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
  * and provides access to token header parameters and claims.
  */
 public class XsuaaToken extends AbstractToken implements AccessToken {
+
+	@Serial
+	private static final long serialVersionUID = 3304172041930251807L;
 	static final String UNIQUE_USER_NAME_FORMAT = "user/%s/%s"; // user/<origin>/<logonName>
 	static final String UNIQUE_CLIENT_NAME_FORMAT = "client/%s"; // client/<clientid>
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaToken.class);
@@ -59,7 +63,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	 *            of the access token
 	 * @param userName
 	 *            of the access token
-	 * @return unique principal name or <code>null</code> if origin or user name is
+	 * @return unique principal name or <code>null</code> if origin or username is
 	 *         <code>null</code> or empty. Origin must also not contain a '/'
 	 *         character.
 	 */
@@ -100,9 +104,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 
 	@Override
 	public Set<String> getScopes() {
-		LinkedHashSet<String> scopes = new LinkedHashSet<>();
-		scopes.addAll(getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
-		return scopes;
+		return new LinkedHashSet<>(getClaimAsStringList(TokenClaims.XSUAA.SCOPES));
 	}
 
 	@Override

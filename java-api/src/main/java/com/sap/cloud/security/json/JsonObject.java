@@ -6,6 +6,7 @@
 package com.sap.cloud.security.json;
 
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Map;
 /**
  * Interface used to expose JSON data.
  */
-public interface JsonObject {
+public interface JsonObject extends Serializable {
 
 	/**
 	 * @param name
