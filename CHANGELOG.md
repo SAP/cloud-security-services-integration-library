@@ -15,7 +15,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
     - `DefaultOAuth2TokenKeyService`
     - `OAuth2TokenKeyServiceWithCache` (java-security module)
     - `SpringOAuth2TokenKeyService`
-
+- [java-security] `AbstractToken` is serializable fixes #1209 
 
 #### Dependency upgrades
 - Bump spring.core.version from 6.0.9 to 6.0.11
