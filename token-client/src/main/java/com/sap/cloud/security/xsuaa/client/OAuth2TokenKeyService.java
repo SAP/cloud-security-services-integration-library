@@ -31,7 +31,7 @@ public interface OAuth2TokenKeyService {
 	 * @param tokenKeysEndpointUri
 	 *            the token endpoint URI (jku).
 	 * @param tenantId
-	 *            the tenant id of the tenant. Obligatory parameter in context of
+	 *            the unique identifier of the tenant. Obligatory parameter in context of
 	 *            multi-tenant IAS applications to make sure that the tenant id
 	 *            belongs to the IAS tenant.
 	 * @return list of JSON Web Token (JWT) keys as
@@ -47,7 +47,7 @@ public interface OAuth2TokenKeyService {
 	 * @param tokenKeysEndpointUri
 	 *            the token endpoint URI (jku).
 	 * @param tenantId
-	 *            the tenant id of the tenant. Obligatory parameter in context of
+	 *            the unique identifier of the tenant. Obligatory parameter in context of
 	 *            multi-tenant IAS applications to make sure that the tenant id
 	 *            belongs to the IAS tenant.
 	 * @param clientId
