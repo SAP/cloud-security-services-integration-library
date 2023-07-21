@@ -114,7 +114,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
 	 *            specific).
 	 * @param appTid
-	 *            the tenant identifier of the tenant
+	 *            the unique identifier of the tenant
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service
@@ -147,7 +147,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
 	 *            specific).
 	 * @param appTid
-	 *            the tenant identifier of the tenant
+	 *            the unique identifier of the tenant
 	 *
 	 * @param clientId
 	 * 				client id from the service configuration
