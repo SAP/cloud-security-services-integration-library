@@ -5,10 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.http;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class HttpHeaders {
@@ -25,7 +22,7 @@ public class HttpHeaders {
 	 *
 	 * will be removed with next major release 4.0.0
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true )
 	public static final String X_ZONE_UUID = "x-zone_uuid";
 	public static final String X_APP_TID = "x-app_tid";
 	public static final String X_CLIENT_ID = "x-client_id";
