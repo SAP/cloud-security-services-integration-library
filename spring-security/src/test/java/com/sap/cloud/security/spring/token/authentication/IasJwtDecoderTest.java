@@ -42,7 +42,7 @@ class IasJwtDecoderTest {
 		Jwt jwt = IasJwtDecoder.parseJwt(jwtGenerator.createToken());
 
 		assertEquals(2, jwt.getHeaders().size());
-		assertEquals(7, jwt.getClaims().size());
+		assertEquals(8, jwt.getClaims().size());
 		assertEquals(1, jwt.getExpiresAt().compareTo(Instant.now()));
 		assertEquals("theClientId", jwt.getClaim(TokenClaims.AUTHORIZATION_PARTY));
 	}

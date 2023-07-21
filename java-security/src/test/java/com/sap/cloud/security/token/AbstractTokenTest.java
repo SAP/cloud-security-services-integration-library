@@ -25,16 +25,16 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.sap.cloud.security.token.TokenClaims.AUTHORIZATION_PARTY;
+import static com.sap.cloud.security.token.TokenClaims.*;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.CLIENT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
-public class AbstractTokenTest {
+class AbstractTokenTest {
 
 	private final String jwtString;
-	private Token cut;
+	private final Token cut;
 
 	public AbstractTokenTest() throws IOException {
 		jwtString = IOUtils.resourceToString("/xsuaaCCAccessTokenRSA256.txt", StandardCharsets.UTF_8);
@@ -52,38 +52,38 @@ public class AbstractTokenTest {
 	}
 
 	@Test
-	public void getHeaderParameterAsString() {
+	void getHeaderParameterAsString() {
 		assertThat(cut.getHeaderParameterAsString("alg")).isEqualTo("RS256");
 	}
 
 	@Test
-	public void containsClaim() {
+	void containsClaim() {
 		assertThat(cut.hasClaim("notContained")).isFalse();
 		assertThat(cut.hasClaim("grant_type")).isTrue();
 	}
 
 	@Test
-	public void getClaimAsString() {
+	void getClaimAsString() {
 		assertThat(cut.getClaimAsString("zid")).isEqualTo("uaa");
 	}
 
 	@Test
-	public void getClaimAsStringList() {
+	void getClaimAsStringList() {
 		assertThat(cut.getClaimAsStringList("aud")).containsExactly("uaa", "sap_osb");
 	}
 
 	@Test
-	public void getClaimAsStringList_unknownClaim_emptyList() {
+	void getClaimAsStringList_unknownClaim_emptyList() {
 		assertThat(cut.getClaimAsStringList("anything")).isEqualTo(Collections.emptyList());
 	}
 
 	@Test
-	public void getExpiration() {
+	void getExpiration() {
 		assertThat(cut.getExpiration()).isEqualTo(Instant.ofEpochSecond(1572060769L));
 	}
 
 	@Test
-	public void tokenWithExpirationInTheFuture_isNotExpired() {
+	void tokenWithExpirationInTheFuture_isNotExpired() {
 		AbstractToken doesNotExpireSoon = new MockTokenBuilder().withExpiration(MockTokenBuilder.NO_EXPIRE_DATE)
 				.build();
 		when(doesNotExpireSoon.isExpired()).thenCallRealMethod();
@@ -92,12 +92,12 @@ public class AbstractTokenTest {
 	}
 
 	@Test
-	public void tokenWithExpirationInThePast_isExpired() {
+	void tokenWithExpirationInThePast_isExpired() {
 		assertThat(cut.isExpired()).isTrue();
 	}
 
 	@Test
-	public void tokenWithoutExpirationDate_isExpired() {
+	void tokenWithoutExpirationDate_isExpired() {
 		AbstractToken tokenWithoutExpiration = new MockTokenBuilder().withExpiration(null).build();
 		when(tokenWithoutExpiration.isExpired()).thenCallRealMethod();
 
@@ -105,7 +105,7 @@ public class AbstractTokenTest {
 	}
 
 	@Test
-	public void tokenWithLongExpiration_isNotExpired() {
+	void tokenWithLongExpiration_isNotExpired() {
 		AbstractToken tokenWithNoExpiration = new MockTokenBuilder().withExpiration(MockTokenBuilder.NO_EXPIRE_DATE)
 				.build();
 		when(tokenWithNoExpiration.isExpired()).thenCallRealMethod();
@@ -114,38 +114,38 @@ public class AbstractTokenTest {
 	}
 
 	@Test
-	public void getNotBefore_notContained_shouldBeNull() {
+	void getNotBefore_notContained_shouldBeNull() {
 		assertThat(String.valueOf(cut.getNotBefore().toEpochMilli())).startsWith("1572017569"); // consider iat
 	}
 
 	@Test
-	public void getTokenValue() {
+	void getTokenValue() {
 		assertThat(cut.getTokenValue()).isEqualTo(jwtString);
 	}
 
 	@Test
-	public void getJsonObject() {
+	void getJsonObject() {
 		JsonObject externalAttributes = cut.getClaimAsJsonObject(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE);
 		assertThat(externalAttributes.getAsString(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ENHANCER)).isEqualTo("XSUAA");
 	}
 
 	@Test
-	public void getJsonObject_claimsIsNotAnObject_throwsException() {
+	void getJsonObject_claimsIsNotAnObject_throwsException() {
 		assertThatThrownBy(() -> cut.getClaimAsJsonObject("client_id")).isInstanceOf(JsonParsingException.class);
 	}
 
 	@Test
-	public void getJsonObject_claimsDoesNotExist_isNull() {
+	void getJsonObject_claimsDoesNotExist_isNull() {
 		assertThat(cut.getClaimAsJsonObject("doesNotExist")).isNull();
 	}
 
 	@Test
-	public void toString_doesNotContainEncodedToken() {
+	void toString_doesNotContainEncodedToken() {
 		assertThat(cut.toString()).doesNotContain(cut.getTokenValue());
 	}
 
 	@Test
-	public void toString_containsTokenContent() {
+	void toString_containsTokenContent() {
 		assertThat(cut.toString())
 				.contains(cut.getHeaderParameterAsString(TokenHeader.JWKS_URL))
 				.contains(cut.getHeaderParameterAsString(TokenHeader.KEY_ID))
@@ -156,13 +156,27 @@ public class AbstractTokenTest {
 	}
 
 	@Test
-	public void isXsuaaToken() {
+	void isXsuaaToken() {
 		assertThat(((AbstractToken) cut).isXsuaaToken()).isTrue();
+	}
+
+	@Test
+	void getTenantId() {
+		AbstractToken token = Mockito.mock(AbstractToken.class);
+		when(token.hasClaim(SAP_GLOBAL_APP_TID)).thenReturn(true);
+		when(token.getClaimAsString(SAP_GLOBAL_ZONE_ID)).thenReturn("zone-id");
+		when(token.getClaimAsString(SAP_GLOBAL_APP_TID)).thenReturn("app-tid");
+		when(token.getAppTid()).thenCallRealMethod();
+		assertThat(token.getAppTid()).isEqualTo("app-tid");
+
+		when(token.hasClaim(SAP_GLOBAL_APP_TID)).thenReturn(false);
+		when(token.getClaimAsString(SAP_GLOBAL_ZONE_ID)).thenReturn("zone-id");
+		assertThat(token.getAppTid()).isEqualTo("zone-id");
 	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { "cid", "", "    " })
-	public void getClientIdWithCidTest(String cid) throws InvalidTokenException {
+	void getClientIdWithCidTest(String cid) throws InvalidTokenException {
 		AbstractToken token = Mockito.mock(AbstractToken.class);
 		when(token.getAudiences()).thenReturn(Collections.emptySet());
 		when(token.getClaimAsString(AUTHORIZATION_PARTY)).thenReturn(null);
@@ -178,7 +192,7 @@ public class AbstractTokenTest {
 
 	@ParameterizedTest
 	@MethodSource("clientIdTestArguments")
-	public void getClientIdTest(String azp, Set<String> aud, String expectedClientId,
+	void getClientIdTest(String azp, Set<String> aud, String expectedClientId,
 			Class<InvalidTokenException> expectedException) throws InvalidTokenException {
 		AbstractToken token = Mockito.mock(AbstractToken.class);
 		when(token.getAudiences()).thenReturn(aud);

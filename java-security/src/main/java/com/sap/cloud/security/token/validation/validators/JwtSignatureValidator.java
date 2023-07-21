@@ -81,7 +81,7 @@ class JwtSignatureValidator implements Validator<Token> {
 			zoneIdForTokenKeys = token.getZoneId();
 			if (isTenantIdCheckEnabled && !token.getIssuer().equals("" + configuration.getUrl())
 					&& zoneIdForTokenKeys == null) {
-				return createInvalid("Error occurred during signature validation: OIDC token must provide zone_uuid.");
+				return createInvalid("Error occurred during signature validation: OIDC token must provide app_tid.");
 			}
 		}
 		try {
@@ -160,7 +160,7 @@ class JwtSignatureValidator implements Validator<Token> {
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId,
-				URI.create(tokenKeysUrl), fallbackPublicKey, zoneId);
+				URI.create(tokenKeysUrl), fallbackPublicKey, zoneId, configuration.getClientId());
 	}
 
 	private static class Validation {
@@ -177,14 +177,14 @@ class JwtSignatureValidator implements Validator<Token> {
 
 		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
 				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey,
-				@Nullable String zoneId) {
+				@Nullable String zoneId, String clientId) {
 			ValidationResult validationResult;
 
 			validationResult = setSupportedJwtAlgorithm(tokenAlgorithm);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
-			validationResult = setPublicKey(tokenKeyService, tokenKeyId, tokenKeysUrl, zoneId);
+			validationResult = setPublicKey(tokenKeyService, tokenKeyId, tokenKeysUrl, zoneId, clientId);
 			if (validationResult.isErroneous()) {
 				if (fallbackPublicKey != null) {
 					try {
@@ -220,9 +220,9 @@ class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		private ValidationResult setPublicKey(OAuth2TokenKeyServiceWithCache tokenKeyService, String keyId,
-				URI keyUri, String zoneId) {
+				URI keyUri, String zoneId, String clientId) {
 			try {
-				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri, zoneId);
+				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri, zoneId, clientId);
 			} catch (OAuth2ServiceException e) {
 				return createInvalid("Error retrieving Json Web Keys from Identity Service: {}.", e.getMessage());
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

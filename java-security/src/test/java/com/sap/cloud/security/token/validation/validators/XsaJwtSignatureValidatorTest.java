@@ -22,8 +22,7 @@ import java.net.URI;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 public class XsaJwtSignatureValidatorTest {
@@ -51,8 +50,8 @@ public class XsaJwtSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(eq(JKU_URI), any()))
-				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+				.retrieveTokenKeys(eq(JKU_URI), any(), isNull()))
+						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,

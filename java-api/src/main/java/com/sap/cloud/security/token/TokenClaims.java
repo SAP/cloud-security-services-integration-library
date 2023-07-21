@@ -33,7 +33,15 @@ public final class TokenClaims {
 	 */
 	public static final String SAP_GLOBAL_SCIM_ID = "scim_id";
 	public static final String SAP_GLOBAL_USER_ID = "user_uuid";
-	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // tenant GUID
+
+
+	/**
+	 * @deprecated Use {@link TokenClaims#SAP_GLOBAL_APP_TID} instead.
+	 */
+	@Deprecated(forRemoval = true)
+	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // legacy claim
+	public static final String SAP_GLOBAL_APP_TID = "app_tid"; // tenant GUID
+
 	public static final String GROUPS = "groups"; // scim groups
 	public static final String AUTHORIZATION_PARTY = "azp"; // Authorization party contains OAuth client identifier
 	public static final String CNF = "cnf"; // X509 certificate ("cnf" (confirmation)) claim
@@ -46,7 +54,7 @@ public final class TokenClaims {
 
 		public static final String ORIGIN = "origin";
 		public static final String GRANT_TYPE = "grant_type"; // OAuth grant type used for token creation
-		public static final String ZONE_ID = "zid"; // tenant GUID -> SAP_GLOBAL_ZONE_ID
+		public static final String ZONE_ID = "zid"; // tenant GUID same value as SAP_GLOBAL_APP_TID
 		public static final String CLIENT_ID = "cid"; // avoid using directly, make use of Token#getClientId() instead
 		public static final String SCOPES = "scope"; // list of scopes including app id, e.g. "my-app!t123.Display"
 		public static final String ISSUED_AT = "iat";

@@ -27,7 +27,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class IdTokenSignatureValidatorTest {
@@ -39,9 +38,10 @@ public class IdTokenSignatureValidatorTest {
 	OAuth2ServiceEndpointsProvider endpointsProviderMock;
 	private OidcConfigurationService oidcConfigurationServiceMock;
 	private static final URI JKU_URI = URI.create("https://application.myauth.com/jwks_uri");
-	private static final String ZONE_UUID = "0987654321";
+	private static final String APP_TID = "the-app-tid";
 	private static final URI DISCOVERY_URI = URI
 			.create("https://application.myauth.com" + OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT);
+	private static final String CLIENT_ID = "client-id";
 
 	@Before
 	public void setup() throws IOException {
@@ -53,6 +53,7 @@ public class IdTokenSignatureValidatorTest {
 
 		mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.getService()).thenReturn(Service.IAS);
+		when(mockConfiguration.getClientId()).thenReturn(CLIENT_ID);
 
 		endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(JKU_URI);
@@ -63,8 +64,8 @@ public class IdTokenSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(eq(JKU_URI), eq(ZONE_UUID)))
-				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+				.retrieveTokenKeys(JKU_URI, APP_TID, CLIENT_ID))
+						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,
@@ -79,7 +80,7 @@ public class IdTokenSignatureValidatorTest {
 	}
 
 	@Test
-	public void validationFails_WhenEndpointProvidesNullJku() throws OAuth2ServiceException {
+	public void validationFails_WhenEndpointProvidesNullJku() {
 		when(endpointsProviderMock.getJwksUri()).thenReturn(null);
 
 		ValidationResult result = cut.validate(iasToken);
@@ -102,7 +103,7 @@ public class IdTokenSignatureValidatorTest {
 	@Test
 	public void validationFails_whenOAuthServerIsUnavailable_JKS() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any())).thenThrow(OAuth2ServiceException.class);
+				.retrieveTokenKeys(any(), any(), any())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken);
 		assertThat(result.isErroneous(), is(true));
@@ -111,7 +112,7 @@ public class IdTokenSignatureValidatorTest {
 	}
 
 	@Test
-	public void validationFails_whenNoMatchingKey() throws IOException {
+	public void validationFails_whenNoMatchingKey() {
 		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-2",
 				JKU_URI.toString(), null, null);
 		assertThat(result.isErroneous(), is(true));

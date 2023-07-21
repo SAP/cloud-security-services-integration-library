@@ -59,8 +59,8 @@ public class XsuaaJwtSignatureValidatorTest {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
-						isNull()))
-				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+						isNull(), isNull()))
+								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
 				mockConfiguration,

@@ -188,12 +188,22 @@ public interface Token extends Serializable {
 	}
 
 	/**
-	 * Returns the Zone identifier, which can be used as tenant discriminator
+	 * @deprecated use {@link Token#getAppTid()} instead
+	 */
+	@Deprecated
+	default String getZoneId() {
+		return getAppTid();
+	}
+
+	/**
+	 * Returns the app tenant identifier, which can be used as tenant discriminator
 	 * (tenant guid).
 	 *
-	 * @return the unique Zone identifier.
+	 * @return the unique application tenant identifier.
 	 */
-	String getZoneId();
+	default String getAppTid(){
+		return hasClaim(SAP_GLOBAL_APP_TID) ? getClaimAsString(SAP_GLOBAL_APP_TID) : getClaimAsString(SAP_GLOBAL_ZONE_ID);
+	}
 
 	/**
 	 * Returns the OAuth2 client identifier of the authentication token if present.
@@ -271,7 +281,6 @@ public interface Token extends Serializable {
 	 * Example: <br>
 	 * <code>
 	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
-	 *
 	 *     token.getAttributeFromClaimAsString(EXTERNAL_ATTRIBUTE, EXTERNAL_ATTRIBUTE_SUBACCOUNTID);
 	 *     </code>
 	 *
@@ -296,7 +305,6 @@ public interface Token extends Serializable {
 	 * Example: <br>
 	 * <code>
 	 *     import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
-	 *
 	 *     token.getAttributeFromClaimAsString(XS_USER_ATTRIBUTES, "custom_role");
 	 *     </code>
 	 *
