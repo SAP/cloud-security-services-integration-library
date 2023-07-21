@@ -70,7 +70,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 			} else {
 				throw OAuth2ServiceException.builder("Error retrieving token keys for x-app_tid " + tenantId)
 						.withUri(tokenKeysEndpointUri)
-						.withHeaders(X_APP_TID + "=" + tenantId)
+						.withHeaders(X_APP_TID + "=" + tenantId + ", " + X_CLIENT_ID + "=" + clientId)
 						.withStatusCode(statusCode)
 						.withResponseBody(bodyAsString)
 						.build();
