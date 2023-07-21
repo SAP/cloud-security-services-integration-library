@@ -55,7 +55,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.source.plugin.version>3.3.0</maven.source.plugin.version>
+		<maven.source.plugin.version>3.2.1</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
 		<spring.boot.version>2.7.14</spring.boot.version>
 		<spring.core.version>5.3.29</spring.core.version>
