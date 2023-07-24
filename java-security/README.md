@@ -40,6 +40,7 @@ To be able to validate tokens it performs the following tasks:
 ## Requirements
 - Java 17
 - [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
+- Tomcat 10 or any other servlet that supports Jakarta API
 
 ## Table of Contents
 1. [Setup](#setup)
