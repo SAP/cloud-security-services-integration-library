@@ -7,14 +7,14 @@
 
 # SAP BTP Security Services Integration Libraries
 This repository offers a comprehensive set of libraries designed to simplify the integration of [SAP Business Technology Platform](https://www.sap.com/products/technology-platform.html) (SAP BTP) security services (XSUAA and Identity Services).
-Tailored to support Java EE and Spring Boot applications running on Cloud Foundry or Kubernetes environments.
+Tailored to support Jakarta EE and Spring Boot applications running on Cloud Foundry or Kubernetes environments.
 The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token validation for tokens issued by XSUAA and Identity Services. In addition, it offers a token-client library to easily fetch tokens without cumbersome setup for http requests. Finally, it offers testing utility that mocks Xsuaa and Identity service behaviour and makes it easy to write integration and unit tests.
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
 2. [Usage](#usage)
    - [2.1 Token Validation](#21-token-validation)
-     - [2.1.1 Java EE web applications](#211-Java-EE-web-applications)
+     - [2.1.1 Jakarta EE web applications](#211-Jakarta-EE-web-applications)
      - [2.1.2 Spring Boot applications](#212-spring-boot-web-applications)
    - [2.2 Token Flows](#22-token-flows-for-token-retrievals)
    - [2.3 Testing utilities](#23-testing-utilities)
@@ -51,10 +51,10 @@ Key features:
 * Automatic OAuth2 service configuration based on SAP BTP service bindings found in the environment
 * OAuth2 Token Validation based on these service configurations
 * Easy access to principal and token claims within request handlers
-* Automatic or sample integrations for common web application frameworks (i.e. Java EE / Spring Security)
+* Automatic or sample integrations for common web application frameworks (i.e. Jakarta EE / Spring Security)
 
-#### 2.1.1. Java EE web applications
-Developers who need OAuth2 token validation and token access in their Java EE applications can utilize the [java-security](./java-security) library. This library simplifies the process of acquiring token information such as principal and audiences from the security context and takes over token validation for tokens issued by Xsuaa or Identity services.
+#### 2.1.1. Jakarta EE web applications
+Developers who need OAuth2 token validation and token access in their Jakarta EE applications can utilize the [java-security](./java-security) library. This library simplifies the process of acquiring token information such as principal and audiences from the security context and takes over token validation for tokens issued by Xsuaa or Identity services.
 This library is also integrated in SAP Java Buildpack. 
 
 In the table below you'll find links to detailed information.
@@ -97,7 +97,7 @@ In the table below you'll find links to detailed information.
 
 | Library                                   | Usage Examples                                                                                                                                                                                                                                         | 
 |-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [token-client](/token-client)             | [java-tokenclient-usage](samples/java-tokenclient-usage) demonstrates usage of token client library in Java EE application<br/>   [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) demonstrates usage in Spring Boot application     |              
+| [token-client](/token-client)             | [java-tokenclient-usage](samples/java-tokenclient-usage) demonstrates usage of token client library in Jakarta EE application<br/>   [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) demonstrates usage in Spring Boot application     |              
 
 ### 2.3 Testing utilities
 For authentication/authorization flow testing purposes there is [java-security-test](/java-security-test) library at your disposal that can be used for unit and integration tests to test the Xsuaa or Identity service client functionality in the application. 
@@ -107,14 +107,14 @@ With this library you can test end to end all your secured endpoints or app logi
 Key features:
 * Generates and signs tokens with user provided attributes
 * Provides a pre-configured local authorization server that mocks communication with the BTP security services to validate self-generated tokens
-* For Java EE application sets up a local application server that is pre-configured with a security filter matching self-generated tokens. It can be configured to serve the servlets you want to test with mocked authorization
+* For Jakarta EE application sets up a local application server that is pre-configured with a security filter matching self-generated tokens. It can be configured to serve the servlets you want to test with mocked authorization
 
 
 In the table below you'll find links to detailed information.
 
 | Library                                   | Usage Examples                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 
 |-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [java-security-test](/java-security-test) | [Integration test code snippet](/samples/spring-security-hybrid-usage/src/test/java/sample/spring/security/junitjupiter/TestControllerIasTest.java) for Spring application <br/>[Integration test code snippet](/samples/java-security-usage/src/test/java/com/sap/cloud/security/samples/HelloJavaServletIntegrationTest.java) for Java EE web.xml based servlets <br/>  [Integration test code snippet](/samples/java-security-usage-ias/src/test/java/com/sap/cloud/security/samples/ias/HelloJavaServletIntegrationTest.java) for Java EE annotation based servlets <br/>    |
+| [java-security-test](/java-security-test) | [Integration test code snippet](/samples/spring-security-hybrid-usage/src/test/java/sample/spring/security/junitjupiter/TestControllerIasTest.java) for Spring application <br/>[Integration test code snippet](/samples/java-security-usage/src/test/java/com/sap/cloud/security/samples/HelloJavaServletIntegrationTest.java) for Jakarta EE web.xml based servlets <br/>  [Integration test code snippet](/samples/java-security-usage-ias/src/test/java/com/sap/cloud/security/samples/ias/HelloJavaServletIntegrationTest.java) for Jakarta EE annotation based servlets <br/>    |
 
 ## Installation
 The SAP Cloud Security Services Integration is published to maven central: https://search.maven.org/search?q=com.sap.cloud.security and is available as a Maven dependency. Add the following BOM to your dependency management in your `pom.xml`:
