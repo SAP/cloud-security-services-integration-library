@@ -1,6 +1,6 @@
 # SAP BTP Java Security Client Library
 
-This library provides a Token Validation utility for Java EE applications. Tokens issued by SAP BTP Identity service and Xsuaa services are supported. Moreover, Identity tokens issued by multiple tenants can also be validated.
+This library provides a Token Validation utility for Jakarta EE applications. Tokens issued by SAP BTP Identity service and Xsuaa services are supported. Moreover, Identity tokens issued by multiple tenants can also be validated.
 
 To be able to validate tokens it performs the following tasks:
 - Loads Identity Service Configuration from `VCAP_SERVICES` in Cloud Foundry or from secrets in Kubernetes environment into the [`OAuth2ServiceConfiguration`](/java-api/src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java). The [`Environments`](/env/src/main/java/com/sap/cloud/security/config/Environments.java) serves as central entry point to get access to the `OAuth2ServiceConfiguration`.
