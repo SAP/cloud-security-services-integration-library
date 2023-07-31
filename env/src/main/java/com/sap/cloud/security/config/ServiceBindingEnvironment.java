@@ -74,6 +74,7 @@ public class ServiceBindingEnvironment implements Environment {
 	 * <li>BROKER</li>
 	 * <li>SPACE</li>
 	 * <li>DEFAULT</li>
+	 * <li><other or missing plan></li>
 	 * </ul>
 	 */
 	@Nullable
@@ -81,10 +82,13 @@ public class ServiceBindingEnvironment implements Environment {
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
 		List<ServiceConstants.Plan> planOrder = List.of(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.BROKER,
 				ServiceConstants.Plan.SPACE, ServiceConstants.Plan.DEFAULT);
+		Function<OAuth2ServiceConfiguration, ServiceConstants.Plan> getConfigPlan = config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN));
+		List<OAuth2ServiceConfiguration> xsuaaConfigurations = getServiceConfigurationsAsList().get(XSUAA);
 
-		return getServiceConfigurationsAsList().get(XSUAA).stream()
-				.min(Comparator.comparingInt(config -> planOrder.indexOf(ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)))))
-				.orElse(null);
+		return xsuaaConfigurations.stream()
+				.filter(config -> planOrder.contains(getConfigPlan.apply(config)))
+				.min(Comparator.comparingInt(config -> planOrder.indexOf(getConfigPlan.apply(config))))
+				.orElseGet(() -> xsuaaConfigurations.stream().findFirst().orElse(null));
 	}
 
 	@Override
