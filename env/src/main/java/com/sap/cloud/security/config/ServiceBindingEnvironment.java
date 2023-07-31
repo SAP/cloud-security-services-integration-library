@@ -74,7 +74,7 @@ public class ServiceBindingEnvironment implements Environment {
 	 * <li>BROKER</li>
 	 * <li>SPACE</li>
 	 * <li>DEFAULT</li>
-	 * <li><other or missing plan></li>
+	 * <li>&lt;other or missing plan&gt;</li>
 	 * </ul>
 	 */
 	@Nullable
