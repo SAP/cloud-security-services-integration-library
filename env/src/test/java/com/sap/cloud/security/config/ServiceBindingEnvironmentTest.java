@@ -133,36 +133,6 @@ class ServiceBindingEnvironmentTest {
 	}
 
 	@Test
-	void getServiceConfigurationsWithPlanMerger() {
-		Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> configs = cutIas
-				.getServiceConfigurations((a, b) -> a);
-		assertThat(configs.get(Service.XSUAA).entrySet(), is((empty())));
-		assertThat(configs.get(Service.IAS).entrySet(), hasSize(1));
-
-		configs = cutXsuaa.getServiceConfigurations((a, b) -> a);
-		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(1));
-		assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
-
-		configs = cutMultipleXsuaa.getServiceConfigurations((a, b) -> a);
-		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(2));
-		assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
-		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.BROKER));
-		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION));
-
-		configs = cutMultipleApplicationPlanXsuaa.getServiceConfigurations((a, b) -> a);
-		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(2));
-		assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
-		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.BROKER));
-		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION));
-
-		configs = cutMultipleApplicationPlanXsuaa.getServiceConfigurations((a, b) ->
-				"https://api2.uaadomain.org".equals((a.getProperty(ServiceConstants.XSUAA.API_URL))) ? a : b
-		);
-		assertEquals(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION).getProperty(ServiceConstants.XSUAA.API_URL),
-				"https://api2.uaadomain.org");
-	}
-
-	@Test
 	void getConfigurationOfXsuaaInstanceInXsaSystem() {
 		ServiceBindingEnvironment cut = new ServiceBindingEnvironment(
 				new SapVcapServicesServiceBindingAccessor(any -> vcapXsa))

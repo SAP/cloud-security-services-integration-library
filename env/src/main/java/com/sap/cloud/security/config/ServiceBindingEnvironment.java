@@ -12,7 +12,6 @@ import com.sap.cloud.security.json.DefaultJsonObject;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -136,32 +135,14 @@ public class ServiceBindingEnvironment implements Environment {
 	 * Gives access to all service configurations parsed from the environment. The
 	 * service configurations are parsed on the first access, then cached.
 	 *
-	 * Note that the result only contains one service configuration per service plan.
-	 * If you use multiple identical service plans, you can use {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()}
-	 * to get all configurations or use {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()} with a custom merge function
-	 * to decide which configuration to return for each plan.
+	 * Note that the result contains only one service configuration per service plan.
+	 * If you use multiple identical service plans, and you need to access a specific configuration, use
+	 * {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()} to get a complete list of configurations.
 	 *
-	 * @return the service configurations grouped first by service, then by service
-	 *         plan.
+	 * @return the service configurations grouped first by service, then by service plan.
 	 */
 	@Override
 	public Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations() {
-		return getServiceConfigurations((a, b) -> a);
-	}
-
-	/**
-	 * Gives access to all service configurations parsed from the environment. The
-	 * service configurations are parsed on the first access, then cached.
-	 *
-	 * Note that this method only contains one service configuration per service plan.
-	 * To decide which configuration to return for each service plan when more than one configuration
-	 * with the same service plan is found, the given merge function is used to resolves collisions.
-	 *
-	 * @return the service configurations grouped first by service, then by service
-	 *         plan.
-	 */
-	public Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations(
-			BinaryOperator<OAuth2ServiceConfiguration> servicePlanMerger) {
 		if (serviceConfigurations == null) {
 			this.readServiceConfigurations();
 		}
@@ -176,7 +157,7 @@ public class ServiceBindingEnvironment implements Environment {
 					.collect(Collectors.toMap(
 							config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)),
 							Function.identity(),
-							servicePlanMerger
+							(a, b) -> a
 					));
 
 			result.put(service, planConfigurations);
