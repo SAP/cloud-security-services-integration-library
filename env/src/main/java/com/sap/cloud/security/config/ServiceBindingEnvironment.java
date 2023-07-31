@@ -11,9 +11,8 @@ import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
 import com.sap.cloud.security.json.DefaultJsonObject;
 
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ import static com.sap.cloud.security.config.ServiceConstants.VCAP_APPLICATION;
 public class ServiceBindingEnvironment implements Environment {
 	private final ServiceBindingAccessor serviceBindingAccessor;
 	private UnaryOperator<String> environmentVariableReader = System::getenv;
-	private Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> serviceConfigurations;
+	private Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
 
 	/**
 	 * Uses the
@@ -80,17 +79,17 @@ public class ServiceBindingEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-		return Stream
-				.of(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.BROKER, ServiceConstants.Plan.SPACE,
-						ServiceConstants.Plan.DEFAULT)
-				.map(plan -> getServiceConfigurations().get(XSUAA).get(plan))
-				.filter(Objects::nonNull)
-				.findFirst().orElse(null);
+		List<ServiceConstants.Plan> planOrder = List.of(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.BROKER,
+				ServiceConstants.Plan.SPACE, ServiceConstants.Plan.DEFAULT);
+
+		return getServiceConfigurationsAsList().get(XSUAA).stream()
+				.min(Comparator.comparingInt(config -> planOrder.indexOf(ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)))))
+				.orElse(null);
 	}
 
 	@Override
 	public int getNumberOfXsuaaConfigurations() {
-		return getServiceConfigurations().get(XSUAA).size();
+		return getServiceConfigurationsAsList().get(XSUAA).size();
 	}
 
 	/**
@@ -119,16 +118,67 @@ public class ServiceBindingEnvironment implements Environment {
 	 * Gives access to all service configurations parsed from the environment. The
 	 * service configurations are parsed on the first access, then cached.
 	 *
+	 * @return the service configurations grouped by service
+	 */
+	public Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList() {
+		if (serviceConfigurations == null) {
+			this.readServiceConfigurations();
+		}
+
+		return this.serviceConfigurations;
+	}
+
+	/**
+	 * Gives access to all service configurations parsed from the environment. The
+	 * service configurations are parsed on the first access, then cached.
+	 *
+	 * Note that the result only contains one service configuration per service plan.
+	 * If you use multiple identical service plans, you can use {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()}
+	 * to get all configurations or use {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()} with a custom merge function
+	 * to decide which configuration to return for each plan.
+	 *
 	 * @return the service configurations grouped first by service, then by service
 	 *         plan.
 	 */
 	@Override
 	public Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations() {
+		return getServiceConfigurations((a, b) -> a);
+	}
+
+	/**
+	 * Gives access to all service configurations parsed from the environment. The
+	 * service configurations are parsed on the first access, then cached.
+	 *
+	 * Note that this method only contains one service configuration per service plan.
+	 * To decide which configuration to return for each service plan when more than one configuration
+	 * with the same service plan is found, the given merge function is used to resolves collisions.
+	 *
+	 * @return the service configurations grouped first by service, then by service
+	 *         plan.
+	 */
+	public Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations(
+			BinaryOperator<OAuth2ServiceConfiguration> servicePlanMerger) {
 		if (serviceConfigurations == null) {
 			this.readServiceConfigurations();
 		}
 
-		return serviceConfigurations;
+		Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> result = new HashMap<>();
+
+		for (Map.Entry<Service, List<OAuth2ServiceConfiguration>> entry : serviceConfigurations.entrySet()) {
+			Service service = entry.getKey();
+			List<OAuth2ServiceConfiguration> configurations = entry.getValue();
+
+			Map<ServiceConstants.Plan, OAuth2ServiceConfiguration> planConfigurations = configurations.stream()
+					.collect(Collectors.toMap(
+							config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)),
+							Function.identity(),
+							servicePlanMerger
+					));
+
+			result.put(service, planConfigurations);
+		}
+
+		return result;
 	}
 
 	/** Parses the service configurations from the environment. */
@@ -142,9 +192,7 @@ public class ServiceBindingEnvironment implements Environment {
 						.filter(Objects::nonNull)
 						.map(builder -> builder.runInLegacyMode(runInLegacyMode()))
 						.map(OAuth2ServiceConfigurationBuilder::build)
-						.collect(
-								Collectors.toMap(config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)),
-										Function.identity()))));
+						.collect(Collectors.toList())));
 	}
 
 	/**
