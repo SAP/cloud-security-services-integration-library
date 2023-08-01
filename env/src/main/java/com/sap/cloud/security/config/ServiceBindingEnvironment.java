@@ -73,7 +73,6 @@ public class ServiceBindingEnvironment implements Environment {
 	 * <li>BROKER</li>
 	 * <li>SPACE</li>
 	 * <li>DEFAULT</li>
-	 * <li>&lt;other or missing plan&gt;</li>
 	 * </ul>
 	 */
 	@Nullable
@@ -87,7 +86,7 @@ public class ServiceBindingEnvironment implements Environment {
 		return xsuaaConfigurations.stream()
 				.filter(config -> planOrder.contains(getConfigPlan.apply(config)))
 				.min(Comparator.comparingInt(config -> planOrder.indexOf(getConfigPlan.apply(config))))
-				.orElseGet(() -> xsuaaConfigurations.stream().findFirst().orElse(null));
+				.orElse(null);
 	}
 
 	@Override
