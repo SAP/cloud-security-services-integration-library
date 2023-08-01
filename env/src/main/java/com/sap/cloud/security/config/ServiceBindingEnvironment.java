@@ -135,7 +135,7 @@ public class ServiceBindingEnvironment implements Environment {
 	 * service configurations are parsed on the first access, then cached.
 	 *
 	 * Note that the result contains only one service configuration per service plan and does not contain configurations
-	 * with a service plan other than those from {@link ServiceConstants#Plan}.
+	 * with a service plan other than those from {@link ServiceConstants}#Plan.
 	 * Use {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()} to get a complete list of configurations.
 	 *
 	 * @return the service configurations grouped first by service, then by service plan.
