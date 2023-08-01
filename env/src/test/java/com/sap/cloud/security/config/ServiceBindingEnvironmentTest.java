@@ -19,7 +19,7 @@ class ServiceBindingEnvironmentTest {
 	private static ServiceBindingEnvironment cutXsuaa;
 	private static ServiceBindingEnvironment cutMultipleXsuaa;
 	private static ServiceBindingEnvironment cutMultipleApplicationPlanXsuaa;
-
+	private static ServiceBindingEnvironment cutUnknownServicePlanXsuaa;
 	private static String vcapXsa;
 
 	@BeforeAll
@@ -28,6 +28,7 @@ class ServiceBindingEnvironmentTest {
 		String multipleXsuaaConfigurations = IOUtils.resourceToString("/vcapXsuaaServiceMultipleBindings.json", UTF_8);
 		String multipleXsuaaApplicationPlanConfigurations = IOUtils.resourceToString("/vcapXsuaaServiceMultipleApplicationPlanBindings.json", UTF_8);
 		String singleIasConfiguration = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
+		String unknownXsuaaPlanConfig = IOUtils.resourceToString("/vcapUnknownServicePlan.json", UTF_8);
 		vcapXsa = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
 
 		cutIas = new ServiceBindingEnvironment(
@@ -38,6 +39,8 @@ class ServiceBindingEnvironmentTest {
 				new SapVcapServicesServiceBindingAccessor(any -> multipleXsuaaConfigurations));
 		cutMultipleApplicationPlanXsuaa = new ServiceBindingEnvironment(
 				new SapVcapServicesServiceBindingAccessor(any -> multipleXsuaaApplicationPlanConfigurations));
+		cutUnknownServicePlanXsuaa = new ServiceBindingEnvironment(
+				new SapVcapServicesServiceBindingAccessor(any -> unknownXsuaaPlanConfig));
 	}
 
 	@Test
@@ -46,17 +49,21 @@ class ServiceBindingEnvironmentTest {
 		assertEquals(1, cutXsuaa.getNumberOfXsuaaConfigurations());
 		assertEquals(2, cutMultipleXsuaa.getNumberOfXsuaaConfigurations());
 		assertEquals(3, cutMultipleApplicationPlanXsuaa.getNumberOfXsuaaConfigurations());
+		assertEquals(1, cutUnknownServicePlanXsuaa.getNumberOfXsuaaConfigurations());
 	}
 
 	@Test
 	void getXsuaaConfiguration() {
 		assertNull(cutIas.getXsuaaConfiguration());
 		assertNotNull(cutXsuaa.getXsuaaConfiguration());
+		assertNotNull(cutUnknownServicePlanXsuaa.getXsuaaConfiguration());
 		assertEquals(Service.XSUAA, cutXsuaa.getXsuaaConfiguration().getService());
 		assertThat(cutMultipleXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN),
 				equalToIgnoringCase(ServiceConstants.Plan.APPLICATION.toString()));
 		assertThat(cutMultipleApplicationPlanXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN),
 				equalToIgnoringCase(ServiceConstants.Plan.APPLICATION.toString()));
+		assertThat(cutMultipleApplicationPlanXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.XSUAA.APP_ID),
+				equalTo("na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066"));
 	}
 
 	@Test
@@ -106,6 +113,9 @@ class ServiceBindingEnvironmentTest {
 		configs = cutMultipleApplicationPlanXsuaa.getServiceConfigurationsAsList();
 		assertThat(configs.get(Service.XSUAA), hasSize(3));
 		assertThat(configs.get(Service.IAS), hasSize(0));
+
+		configs = cutUnknownServicePlanXsuaa.getServiceConfigurationsAsList();
+		assertThat(configs.get(Service.XSUAA), hasSize(1));
 	}
 
 	@Test
@@ -128,8 +138,12 @@ class ServiceBindingEnvironmentTest {
 		configs = cutMultipleApplicationPlanXsuaa.getServiceConfigurations();
 		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(2));
 		assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
+		assertThat(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION).getProperty(ServiceConstants.XSUAA.APP_ID), equalTo("na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066"));
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.BROKER));
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION));
+
+		configs = cutUnknownServicePlanXsuaa.getServiceConfigurations();
+		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(1));
 	}
 
 	@Test

@@ -78,14 +78,14 @@ public class ServiceBindingEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-		List<ServiceConstants.Plan> planOrder = List.of(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.BROKER,
+		List<ServiceConstants.Plan> orderedServicePlans = List.of(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.BROKER,
 				ServiceConstants.Plan.SPACE, ServiceConstants.Plan.DEFAULT);
 		Function<OAuth2ServiceConfiguration, ServiceConstants.Plan> getConfigPlan = config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN));
 		List<OAuth2ServiceConfiguration> xsuaaConfigurations = getServiceConfigurationsAsList().get(XSUAA);
 
 		return xsuaaConfigurations.stream()
-				.filter(config -> planOrder.contains(getConfigPlan.apply(config)))
-				.min(Comparator.comparingInt(config -> planOrder.indexOf(getConfigPlan.apply(config))))
+				.filter(config -> orderedServicePlans.contains(getConfigPlan.apply(config)))
+				.min(Comparator.comparingInt(config -> orderedServicePlans.indexOf(getConfigPlan.apply(config))))
 				.orElse(null);
 	}
 
@@ -176,7 +176,7 @@ public class ServiceBindingEnvironment implements Environment {
 						.filter(Objects::nonNull)
 						.map(builder -> builder.runInLegacyMode(runInLegacyMode()))
 						.map(OAuth2ServiceConfigurationBuilder::build)
-						.collect(Collectors.toList())));
+						.toList()));
 	}
 
 	/**
