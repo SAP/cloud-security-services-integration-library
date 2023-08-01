@@ -80,12 +80,12 @@ public class ServiceBindingEnvironment implements Environment {
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
 		List<ServiceConstants.Plan> orderedServicePlans = List.of(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.BROKER,
 				ServiceConstants.Plan.SPACE, ServiceConstants.Plan.DEFAULT);
-		Function<OAuth2ServiceConfiguration, ServiceConstants.Plan> getConfigPlan = config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN));
 		List<OAuth2ServiceConfiguration> xsuaaConfigurations = getServiceConfigurationsAsList().get(XSUAA);
 
 		return xsuaaConfigurations.stream()
-				.filter(config -> orderedServicePlans.contains(getConfigPlan.apply(config)))
-				.min(Comparator.comparingInt(config -> orderedServicePlans.indexOf(getConfigPlan.apply(config))))
+				.filter(config -> getServicePlan(config) != null)
+				.filter(config -> orderedServicePlans.contains(getServicePlan(config)))
+				.min(Comparator.comparingInt(config -> orderedServicePlans.indexOf(getServicePlan(config))))
 				.orElse(null);
 	}
 
@@ -134,9 +134,9 @@ public class ServiceBindingEnvironment implements Environment {
 	 * Gives access to all service configurations parsed from the environment. The
 	 * service configurations are parsed on the first access, then cached.
 	 *
-	 * Note that the result contains only one service configuration per service plan.
-	 * If you use multiple identical service plans, and you need to access a specific configuration, use
-	 * {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()} to get a complete list of configurations.
+	 * Note that the result contains only one service configuration per service plan and does not contain configurations
+	 * with a service plan other than those from {@link ServiceConstants#Plan}.
+	 * Use {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()} to get a complete list of configurations.
 	 *
 	 * @return the service configurations grouped first by service, then by service plan.
 	 */
@@ -153,6 +153,7 @@ public class ServiceBindingEnvironment implements Environment {
 			List<OAuth2ServiceConfiguration> configurations = entry.getValue();
 
 			Map<ServiceConstants.Plan, OAuth2ServiceConfiguration> planConfigurations = configurations.stream()
+					.filter(config -> getServicePlan(config) != null)
 					.collect(Collectors.toMap(
 							config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)),
 							Function.identity(),
@@ -186,6 +187,15 @@ public class ServiceBindingEnvironment implements Environment {
 	 */
 	private void clearServiceConfigurations() {
 		this.serviceConfigurations = null;
+	}
+
+	@Nullable
+	private ServiceConstants.Plan getServicePlan(OAuth2ServiceConfiguration config) {
+		try {
+			return ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN));
+		} catch(IllegalArgumentException e) {
+			return null;
+		}
 	}
 
 	private boolean runInLegacyMode() {

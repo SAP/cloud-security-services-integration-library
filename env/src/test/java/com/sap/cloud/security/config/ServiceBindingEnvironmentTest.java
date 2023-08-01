@@ -56,7 +56,7 @@ class ServiceBindingEnvironmentTest {
 	void getXsuaaConfiguration() {
 		assertNull(cutIas.getXsuaaConfiguration());
 		assertNotNull(cutXsuaa.getXsuaaConfiguration());
-		assertNotNull(cutUnknownServicePlanXsuaa.getXsuaaConfiguration());
+		assertNull(cutUnknownServicePlanXsuaa.getXsuaaConfiguration());
 		assertEquals(Service.XSUAA, cutXsuaa.getXsuaaConfiguration().getService());
 		assertThat(cutMultipleXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN),
 				equalToIgnoringCase(ServiceConstants.Plan.APPLICATION.toString()));
@@ -143,7 +143,8 @@ class ServiceBindingEnvironmentTest {
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION));
 
 		configs = cutUnknownServicePlanXsuaa.getServiceConfigurations();
-		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(1));
+		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(0));
+		assertThat(cutUnknownServicePlanXsuaa.getServiceConfigurationsAsList().get(Service.XSUAA), hasSize(1));
 	}
 
 	@Test
