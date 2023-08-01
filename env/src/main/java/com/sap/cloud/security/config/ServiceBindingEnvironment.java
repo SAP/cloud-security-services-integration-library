@@ -146,7 +146,7 @@ public class ServiceBindingEnvironment implements Environment {
 			this.readServiceConfigurations();
 		}
 
-		Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> result = new HashMap<>();
+		Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> result = new EnumMap<>(Service.class);
 
 		for (Map.Entry<Service, List<OAuth2ServiceConfiguration>> entry : serviceConfigurations.entrySet()) {
 			Service service = entry.getKey();
