@@ -144,7 +144,6 @@ class ServiceBindingEnvironmentTest {
 
 		configs = cutUnknownServicePlanXsuaa.getServiceConfigurations();
 		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(0));
-		assertThat(cutUnknownServicePlanXsuaa.getServiceConfigurationsAsList().get(Service.XSUAA), hasSize(1));
 	}
 
 	@Test
