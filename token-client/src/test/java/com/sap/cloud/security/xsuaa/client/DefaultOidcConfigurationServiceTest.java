@@ -93,7 +93,8 @@ public class DefaultOidcConfigurationServiceTest {
 		assertThatThrownBy(this::retrieveEndpoints)
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorMessage)
-				.extracting("httpStatusCode").isEqualTo(0);
+				.extracting(OAuth2ServiceException.class::cast)
+				.extracting(OAuth2ServiceException::getHttpStatusCode).isEqualTo(0);
 	}
 
 	@Test
