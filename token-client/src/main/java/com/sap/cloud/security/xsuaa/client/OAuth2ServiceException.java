@@ -37,6 +37,16 @@ public class OAuth2ServiceException extends IOException {
 		super(message);
 		this.httpStatusCode = httpStatusCode != null ? httpStatusCode : 0;
 	}
+	
+	/**
+	 * Returns the HTTP status code of the failed OAuth2 service request or
+	 * {@code 0} e.g. in case the service wasn't called at all.
+	 *
+	 * @return status code or 0
+	 */
+	public Integer getHttpStatusCode() {
+		return httpStatusCode;
+	}
 
 	/**
 	 * Creates an exception.
