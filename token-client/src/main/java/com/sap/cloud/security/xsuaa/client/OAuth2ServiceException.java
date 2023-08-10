@@ -8,6 +8,8 @@ package com.sap.cloud.security.xsuaa.client;
 import java.io.IOException;
 import java.io.Serial;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +22,7 @@ public class OAuth2ServiceException extends IOException {
 	@Serial
 	private static final long serialVersionUID = 1L;
 	private Integer httpStatusCode = 0;
+	private final List<String> headers = new ArrayList<>();
 
 	public OAuth2ServiceException(String message) {
 		super(message);
@@ -37,7 +40,23 @@ public class OAuth2ServiceException extends IOException {
 		super(message);
 		this.httpStatusCode = httpStatusCode != null ? httpStatusCode : 0;
 	}
-	
+
+	/**
+	 * Creates an exception.
+	 *
+	 * @param message
+	 *            the error message
+	 * @param httpStatusCode
+	 *            the status code of the HTTP service request
+	 * @param headers
+	 * 	          the headers of the HTTP service request
+	 */
+
+	OAuth2ServiceException(String message, Integer httpStatusCode, List<String> headers) {
+		this(message, httpStatusCode);
+		this.headers.addAll(headers);
+	}
+
 	/**
 	 * Returns the HTTP status code of the failed OAuth2 service request or
 	 * {@code 0} e.g. in case the service wasn't called at all.
@@ -46,6 +65,14 @@ public class OAuth2ServiceException extends IOException {
 	 */
 	public Integer getHttpStatusCode() {
 		return httpStatusCode;
+	}
+
+	/**
+	 * Returns the HTTP headers of the failed OAuth2 service request
+	 * @return list of HTTP headers
+	 */
+	public List<String> getHeaders() {
+		return this.headers;
 	}
 
 	/**
@@ -63,7 +90,8 @@ public class OAuth2ServiceException extends IOException {
 		private Integer httpStatusCode;
 		private URI serverUri;
 		private String responseBody;
-		private String headers;
+		private final List<String> headers = new ArrayList<>();
+		private String headersString;
 
 		public Builder(String message) {
 			this.message = message;
@@ -92,21 +120,26 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		public Builder withHeaders(String... headers) {
-			this.headers = "[";
+			StringBuilder sb = new StringBuilder();
+			sb.append("[");
 			for (String header : headers) {
-				this.headers += header;
+				if (header != null) {
+					this.headers.add(header);
+				}
+				sb.append(header);
 			}
-			this.headers += "]";
+			sb.append("]");
+			this.headersString = sb.toString();
 			return this;
 		}
 
 		public OAuth2ServiceException build() {
-			String message = Stream
+			String m = Stream
 					.of(this.message, createUriMessage(), createStatusCodeMessage(), createResponseBodyMessage(),
 							createHeaderMessage())
 					.filter(Objects::nonNull)
 					.collect(Collectors.joining(". "));
-			return new OAuth2ServiceException(message, httpStatusCode);
+			return new OAuth2ServiceException(m, httpStatusCode, headers);
 		}
 
 		private String createResponseBodyMessage() {
@@ -122,7 +155,7 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		private String createHeaderMessage() {
-			return headers == null ? null : "Headers " + headers;
+			return headersString == null ? null : "Headers " + headersString;
 		}
 	}
 }
