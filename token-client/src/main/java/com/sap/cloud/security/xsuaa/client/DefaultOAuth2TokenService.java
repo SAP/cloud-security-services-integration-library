@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -71,9 +72,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		try {
 			return executeRequest(httpPost);
 		} catch (IOException | URISyntaxException e) {
-			if (e instanceof OAuth2ServiceException)
-				throw (OAuth2ServiceException) e;
-
+			if (e instanceof OAuth2ServiceException oAuth2Exception)
+				throw oAuth2Exception;
 			throw new OAuth2ServiceException("Unexpected error retrieving JWT token: " + e.getMessage());
 		}
 	}
@@ -95,6 +95,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 				throw OAuth2ServiceException.builder("Error retrieving JWT token")
 						.withStatusCode(statusCode)
 						.withUri(requestUri)
+						.withHeaders(Arrays.toString(response.getAllHeaders()))
 						.withResponseBody(body)
 						.build();
 			}
