@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Serial;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -120,16 +121,11 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		public Builder withHeaders(String... headers) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("[");
-			for (String header : headers) {
-				if (header != null) {
-					this.headers.add(header);
-				}
-				sb.append(header);
-			}
-			sb.append("]");
-			this.headersString = sb.toString();
+			List<String> headerList = Arrays.stream(headers).filter(Objects::nonNull).toList();
+
+			this.headers.addAll(headerList);
+			this.headersString = headerList.stream().collect(Collectors.joining(", ", "[", "]"));
+
 			return this;
 		}
 
