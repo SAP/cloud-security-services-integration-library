@@ -25,13 +25,11 @@ class OAuth2ServiceExceptionTest {
         assertIterableEquals(headers, builtWithHeaders.getHeaders());
         assertTrue(builtWithHeaders.getMessage().contains(SERVICE_EXCEPTION));
         assertTrue(builtWithHeaders.getMessage().contains("[header1=value1, header2=value2]"));
-        assertTrue(builtWithHeaders.getHeaders().toString().contains("[header1=value1, header2=value2]"));
         assertEquals(400, builtWithHeaders.getHttpStatusCode());
 
         assertIterableEquals(headers, createdWithHeaders.getHeaders());
         assertTrue(createdWithHeaders.getMessage().contains(SERVICE_EXCEPTION));
         assertFalse(createdWithHeaders.getMessage().contains("[header1=value1, header2=value2]"));
-        assertTrue(createdWithHeaders.getHeaders().toString().contains("[header1=value1, header2=value2]"));
         assertEquals(400, createdWithHeaders.getHttpStatusCode());
     }
 }
