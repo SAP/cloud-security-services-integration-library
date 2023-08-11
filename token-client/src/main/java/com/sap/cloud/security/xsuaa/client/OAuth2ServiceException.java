@@ -7,6 +7,9 @@ package com.sap.cloud.security.xsuaa.client;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,6 +21,7 @@ public class OAuth2ServiceException extends IOException {
 
 	private static final long serialVersionUID = 1L;
 	private Integer httpStatusCode = 0;
+	private final List<String> headers = new ArrayList<>();
 
 	public OAuth2ServiceException(String message) {
 		super(message);
@@ -41,9 +45,15 @@ public class OAuth2ServiceException extends IOException {
 	 *
 	 * @param message
 	 *            the error message
+	 * @param httpStatusCode
+	 *            the status code of the HTTP service request
+	 * @param headers
+	 * 	          the headers of the HTTP service request
 	 */
-	public static Builder builder(String message) {
-		return new Builder(message);
+
+	OAuth2ServiceException(String message, Integer httpStatusCode, List<String> headers) {
+		this(message, httpStatusCode);
+		this.headers.addAll(headers);
 	}
 
 	/**
@@ -56,20 +66,39 @@ public class OAuth2ServiceException extends IOException {
 		return httpStatusCode;
 	}
 
+	/**
+	 * Returns the HTTP headers of the failed OAuth2 service request
+	 * @return list of HTTP headers
+	 */
+	public List<String> getHeaders() {
+		return this.headers;
+	}
+
+	/**
+	 * Creates an exception.
+	 *
+	 * @param message
+	 *            the error message
+	 */
+	public static Builder builder(String message) {
+		return new Builder(message);
+	}
+
 	public static class Builder {
-		private String message;
+		private final String message;
 		private Integer httpStatusCode;
 		private URI serverUri;
 		private String responseBody;
-		private String headers;
+		private final List<String> headers = new ArrayList<>();
+		private String headersString;
 
 		public Builder(String message) {
 			this.message = message;
 		}
 
 		/**
-		 * Parameterizes the Exception with a HTTP status code.
-		 * 
+		 * Parameterizes the Exception with an HTTP status code.
+		 *
 		 * @param httpStatusCode
 		 *            the http status code
 		 * @return the builder
@@ -90,21 +119,21 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		public Builder withHeaders(String... headers) {
-			this.headers = "[";
-			for (String header : headers) {
-				this.headers += header;
-			}
-			this.headers += "]";
+			List<String> headerList = Arrays.stream(headers).filter(Objects::nonNull).collect(Collectors.toList());
+
+			this.headers.addAll(headerList);
+			this.headersString = headerList.stream().collect(Collectors.joining(", ", "[", "]"));
+
 			return this;
 		}
 
 		public OAuth2ServiceException build() {
-			String message = Stream
+			String m = Stream
 					.of(this.message, createUriMessage(), createStatusCodeMessage(), createResponseBodyMessage(),
 							createHeaderMessage())
 					.filter(Objects::nonNull)
 					.collect(Collectors.joining(". "));
-			return new OAuth2ServiceException(message, httpStatusCode);
+			return new OAuth2ServiceException(m, httpStatusCode, headers);
 		}
 
 		private String createResponseBodyMessage() {
@@ -120,7 +149,7 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		private String createHeaderMessage() {
-			return headers == null ? null : "Headers " + headers;
+			return headersString == null ? null : "Headers " + headersString;
 		}
 
 	}
