@@ -15,8 +15,8 @@ class OAuth2ServiceExceptionTest {
 
     @BeforeAll
     static void setup() {
-        headers = List.of("header1", "header2");
-        builtWithHeaders = OAuth2ServiceException.builder(SERVICE_EXCEPTION).withHeaders(headers.toArray(String[]::new)).withStatusCode(400).build();
+        headers = List.of("header1=value1", "header2=value2");
+        builtWithHeaders = OAuth2ServiceException.builder(SERVICE_EXCEPTION).withHeaders(headers.toArray(String[]::new)).build();
         createdWithHeaders = new OAuth2ServiceException(SERVICE_EXCEPTION, 400, headers);
     }
 
@@ -24,13 +24,13 @@ class OAuth2ServiceExceptionTest {
     void testWithHeaders() {
         assertIterableEquals(headers, builtWithHeaders.getHeaders());
         assertTrue(builtWithHeaders.getMessage().contains(SERVICE_EXCEPTION));
-        assertTrue(builtWithHeaders.getMessage().contains("[header1, header2]"));
+        assertTrue(builtWithHeaders.getMessage().contains("[header1=value1, header2=value2]"));
         assertTrue(builtWithHeaders.getHeaders().toString().contains("[header1, header2]"));
         assertEquals(400, builtWithHeaders.getHttpStatusCode());
 
         assertIterableEquals(headers, createdWithHeaders.getHeaders());
         assertTrue(createdWithHeaders.getMessage().contains(SERVICE_EXCEPTION));
-        assertFalse(createdWithHeaders.getMessage().contains("[header1, header2]"));
+        assertFalse(createdWithHeaders.getMessage().contains("[header1=value1, header2=value2]"));
         assertTrue(createdWithHeaders.getHeaders().toString().contains("[header1, header2]"));
         assertEquals(400, createdWithHeaders.getHttpStatusCode());
     }
