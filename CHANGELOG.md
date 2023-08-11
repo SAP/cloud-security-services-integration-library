@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.1.2
+- [token-client] 
+  - `OAuth2ServiceException` has been extended with getter method `getHeaders()` that gives the access to failed request's response headers
+  - `XsuaaOAuth2TokenService` and `DefaultOAuth2TokenService` add the response headers and status code to the thrown `OAuth2ServiceException`
+
 ## 3.1.1
 - [env] 
   - ``ServiceBindingEnvironment`` has been extended with a method `getServiceConfigurationsAsList()` that returns a list of all available service configurations parsed from environment

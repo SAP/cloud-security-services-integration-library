@@ -16,7 +16,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-hybrid-usage</artifactId>
-	<version>3.1.1</version>
+	<version>3.1.2</version>
 
 	<properties>
 		<!-- 
@@ -24,11 +24,11 @@
       		in first line of the pom.xml. 
       		See: https://stackoverflow.com/questions/56142369/why-am-i-getting-unknown-error-in-line-1-of-pom-xml 
       	-->
-    	<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
+    	<maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.1.1</sap.cloud.security.version>
+		<sap.cloud.security.version>3.1.2</sap.cloud.security.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 	</properties>
 
