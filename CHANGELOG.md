@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.14.1
+- [token-client]
+  - `OAuth2ServiceException` has been extended with getter method `getHeaders()` that gives the access to failed request's response headers
+  - `XsuaaOAuth2TokenService` and `DefaultOAuth2TokenService` add the response headers and status code to the thrown `OAuth2ServiceException`
+
+#### Dependency upgrades
+- Bump btp-environment-variable-access from 0.8.0 to 0.9.0
+
 ## 2.14.0
 #### :exclamation: IMPORTANT Update
 The `zone_uuid` claim in Identity service tokens has been deprecated and is now replaced by the `app_tid` claim. You should use the `app_tid` claim to identify the unique tenant id, which was previously referred to as the zone.
