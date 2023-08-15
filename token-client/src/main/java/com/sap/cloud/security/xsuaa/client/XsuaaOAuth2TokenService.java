@@ -23,6 +23,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -70,12 +72,12 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 			String warningMsg = String.format(
 					"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
 					ex.getStatusCode(), ex.getResponseBodyAsString());
-			throw new OAuth2ServiceException(warningMsg);
+			throw new OAuth2ServiceException(warningMsg, ex.getStatusCode().value(), getHeaders(ex.getResponseHeaders()));
 		} catch (HttpServerErrorException ex) {
 			String warningMsg = String.format("Server error while obtaining access token from XSUAA (%s): %s",
 					ex.getStatusCode(), ex.getResponseBodyAsString());
 			LOGGER.error(warningMsg, ex);
-			throw new OAuth2ServiceException(warningMsg);
+			throw new OAuth2ServiceException(warningMsg, ex.getStatusCode().value(), getHeaders(ex.getResponseHeaders()));
 		} catch (ResourceAccessException ex) {
 			String warningMsg = String.format(
 					"RestClient isn't configured properly - Error while obtaining access token from XSUAA (%s): %s",
@@ -95,15 +97,21 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 		return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken, tokenType);
 	}
 
+	private static List<String> getHeaders(org.springframework.http.HttpHeaders ex) {
+		if (ex != null){
+			return ex.toSingleValueMap().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList();
+		}
+		return Collections.emptyList();
+	}
+
 	/**
-	 * Creates a copy of the given map or an new empty map of type MultiValueMap.
+	 * Creates a copy of the given map or a new empty map of type MultiValueMap.
 	 *
 	 * @return a new @link{MultiValueMap} that contains all entries of the optional
 	 *         map.
 	 */
 	private MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
-		@SuppressWarnings("unchecked")
-		MultiValueMap<String, String> formData = new LinkedMultiValueMap();
+		MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
 		if (parameters != null) {
 			parameters.forEach(formData::add);
 		}

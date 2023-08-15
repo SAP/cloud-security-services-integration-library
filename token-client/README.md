@@ -49,7 +49,7 @@ In context of a Spring Boot application you can leverage autoconfiguration provi
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.2</version>
 </dependency>
 ```
 In context of Spring Applications you will need the following dependencies:
@@ -57,7 +57,7 @@ In context of Spring Applications you will need the following dependencies:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.2</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -124,7 +124,7 @@ See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [H
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.2</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>

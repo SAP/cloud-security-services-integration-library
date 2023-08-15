@@ -1,6 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.1.2
+- [token-client] 
+  - `OAuth2ServiceException` has been extended with getter method `getHeaders()` that gives the access to failed request's response headers
+  - `XsuaaOAuth2TokenService` and `DefaultOAuth2TokenService` add the response headers and status code to the thrown `OAuth2ServiceException`
+
+## 3.1.1
+- [env] 
+  - ``ServiceBindingEnvironment`` has been extended with a method `getServiceConfigurationsAsList()` that returns a list of all available service configurations parsed from environment
+  - in case of multiple service configurations of the same service plans `ServiceBindingEnvironment.getXsuaaConfiguration()` and `ServiceBindingEnvironment.getServiceConfigurations()` will return the first one from the list.
+  This adjustment ensures that the logic is in line with the 2.x major version.
+- [token-client] reverted removal of ``OAuth2ServiceException.getHttpStatusCode()``  
+ 
+#### Dependency upgrades
+- Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from 0.8.0 to 0.9.0
+
 ## 3.1.0
 #### :exclamation: IMPORTANT Update 
 The `zone_uuid` claim in Identity service tokens has been deprecated and is now replaced by the `app_tid` claim. You should use the `app_tid` claim to identify the unique tenant id, which was previously referred to as the zone.
