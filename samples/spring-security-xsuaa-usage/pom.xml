@@ -31,7 +31,6 @@
 		<java.version>17</java.version>
 		<sap.cloud.security.version>3.1.2</sap.cloud.security.version>
 		<http.client5>5.2.1</http.client5>
-		<junit.engine>5.10.0</junit.engine>
 	</properties>
 
 	<dependencyManagement>
@@ -75,13 +74,11 @@
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>${junit.engine}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>${junit.engine}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
