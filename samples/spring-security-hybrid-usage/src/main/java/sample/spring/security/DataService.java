@@ -26,7 +26,7 @@ public class DataService {
      *
      */
     String readSensitiveData() {
-        String zoneId = SpringSecurityContext.getToken().getZoneId();
-        return "You got the sensitive data for zone '" + zoneId + "'.";
+        String appTid = SpringSecurityContext.getToken().getAppTid();
+        return "You got the sensitive data for tenant '" + appTid + "'.";
     }
 }

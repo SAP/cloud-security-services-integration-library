@@ -62,7 +62,7 @@ class TestControllerIasTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 
-		assertTrue(response.contains("You got the sensitive data for zone 'the-app-tid'."));
+		assertTrue(response.contains("You got the sensitive data for tenant 'the-app-tid'."));
 	}
 
 	@Test
