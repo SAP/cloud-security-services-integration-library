@@ -31,6 +31,7 @@
 		<java.version>17</java.version>
 		<sap.cloud.security.version>3.1.2</sap.cloud.security.version>
 		<http.client5>5.2.1</http.client5>
+		<junit.version>5.10.0</junit.version>
 	</properties>
 
 	<dependencyManagement>
@@ -74,12 +75,13 @@
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>5.9.2</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -94,7 +96,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M4</version>
+				<version>3.1.2</version>
 			</plugin>
 			<plugin>
 				<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
