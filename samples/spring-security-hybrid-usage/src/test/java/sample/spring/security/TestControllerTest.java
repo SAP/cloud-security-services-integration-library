@@ -65,7 +65,7 @@ public class TestControllerTest {
                 .andReturn().getResponse().getContentAsString();
 
         assertTrue(response.contains("sb-clientId!t0815"));
-        assertTrue(response.contains("the-zone-id"));
+        assertTrue(response.contains("the-app-tid"));
     }
 
     @Test
@@ -74,13 +74,13 @@ public class TestControllerTest {
                 .perform(get("/method").with(bearerToken(jwtXsuaa)))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        assertTrue(response.contains("You got the sensitive data for zone 'the-zone-id'."));
+        assertTrue(response.contains("You got the sensitive data for tenant 'the-zone-id'."));
 
         response = mvc
                 .perform(get("/method").with(bearerToken(jwtIas)))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        assertTrue(response.contains("You got the sensitive data for zone 'the-zone-id'."));
+        assertTrue(response.contains("You got the sensitive data for tenant 'the-app-tid'."));
     }
 
     @Test
