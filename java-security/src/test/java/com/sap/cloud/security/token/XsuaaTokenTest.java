@@ -79,7 +79,7 @@ public class XsuaaTokenTest {
 	}
 
 	@Test
-	public void getPrincipalNoGrantTypeTest() {
+	public void getPrincipalGrantTypeIsNull() {
 		XsuaaToken tokenMock = Mockito.mock(XsuaaToken.class);
 		Mockito.when(tokenMock.getGrantType()).thenReturn(null);
 		Mockito.when(tokenMock.getClaimAsString(ORIGIN)).thenReturn("sap");
