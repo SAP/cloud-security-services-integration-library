@@ -11,6 +11,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -109,7 +110,9 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 				throw OAuth2ServiceException.builder("Error retrieving JWT token")
 						.withStatusCode(statusCode)
 						.withUri(httpPost.getURI())
-						.withHeaders(Arrays.toString(response.getAllHeaders()))
+						.withHeaders(response.getAllHeaders() != null ? Arrays.stream(response.getAllHeaders()).map(
+										Header::toString)
+								.toArray(String[]::new) : null)
 						.withResponseBody(responseBodyAsString)
 						.build();
 			}

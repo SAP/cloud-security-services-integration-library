@@ -9,6 +9,7 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -22,7 +23,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
@@ -64,9 +67,34 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
+				.hasMessageContaining("Request headers [x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, User-Agent: token-client/3.1.2]")
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
-				.hasMessageContaining("Headers [x-app_tid=92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id=client-id]");
+				.hasMessageContaining("Response Headers [testHeader: testValue]")
+				.hasMessageContaining("Http status code 400");
+	}
+
+	@Test
+	public void retrieveTokenKeys_responseNotOk_throwsException_noAppTid() throws IOException {
+		String errorDescription = "Something went wrong";
+		CloseableHttpResponse response = HttpClientTestFactory
+				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
+
+		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
+				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, CLIENT_ID));
+
+		assertThat(e.getHeaders()).contains("testHeader: testValue");
+		assertThat(e.getHttpStatusCode()).isEqualTo(400);
+		assertThat(e.getMessage())
+				.contains(errorDescription)
+				.contains("Request headers [User-Agent: token-client/3.1.2].")
+				.contains("Response Headers [testHeader: testValue]")
+				.contains("Http status code 400")
+				.contains("Server URI https://tokenKeys.io/token_keys");
 	}
 
 	@Test

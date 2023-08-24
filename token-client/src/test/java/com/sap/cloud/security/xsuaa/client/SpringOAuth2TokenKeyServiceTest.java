@@ -14,13 +14,17 @@ import org.mockito.Mockito;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestOperations;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -74,11 +78,34 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public void retrieveTokenKeys_badResponse_throwsException() {
 		String errorMessage = "useful error message";
 		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID))
-				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
-				.hasMessageContaining(String.valueOf(HttpStatus.BAD_REQUEST.value()))
-				.hasMessageContaining(errorMessage);
+
+		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
+				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID));
+
+		assertThat(e.getMessage())
+				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
+				.contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
+				.contains("Request headers [Accept: application/json, User-Agent: token-client/3.1.2, x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id]")
+				.contains("Response Headers ")
+				.contains(errorMessage);
+		assertThat(e.getHttpStatusCode()).isEqualTo(400);
+		assertThat(e.getHeaders()).hasSize(1);
+		assertThat(e.getHeaders()).contains("Content-Type: application/json");
+	}
+
+	@Test
+	public void retrieveTokenKeys_badResponse_noAppTid() {
+		String errorMessage = "useful error message";
+		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
+
+		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
+				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, CLIENT_ID));
+
+		assertThat(e.getMessage())
+				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
+				.contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
+				.contains("Request headers [Accept: application/json, User-Agent: token-client/3.1.2]") //if app_tid is missing the x-app_tid and x-client_id headers shouldn't be sent
+				.contains(errorMessage);
 	}
 
 	private void mockResponse() {
@@ -86,7 +113,9 @@ public class SpringOAuth2TokenKeyServiceTest {
 	}
 
 	private void mockResponse(String responseAsString, HttpStatus httpStatus) {
-		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, httpStatus);
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+		headers.add("Content-Type", "application/json");
+		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, headers, httpStatus);
 		when(restOperationsMock.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
 				.thenReturn(stringResponseEntity);
 	}
