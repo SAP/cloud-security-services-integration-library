@@ -5,15 +5,17 @@
  */
 package com.sap.cloud.security.xsuaa.util;
 
-import static org.mockito.Mockito.when;
-
+import org.apache.http.Header;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicStatusLine;
 import org.mockito.Mockito;
+
+import static org.mockito.Mockito.when;
 
 public class HttpClientTestFactory {
 
@@ -21,6 +23,9 @@ public class HttpClientTestFactory {
 		CloseableHttpResponse response = Mockito.mock(CloseableHttpResponse.class);
 		when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, statusCode, null));
 		when(response.getEntity()).thenReturn(new StringEntity(responseAsJson, ContentType.APPLICATION_JSON));
+		Header[] headers = new Header[1];
+		headers[0] = new BasicHeader("testHeader", "testValue");
+		when(response.getAllHeaders()).thenReturn(headers);
 		return response;
 	}
 

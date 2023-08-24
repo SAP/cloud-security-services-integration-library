@@ -17,6 +17,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_APP_TID;
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_CLIENT_ID;
@@ -43,41 +44,51 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId)
 			throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+		headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
+		if (tenantId != null && clientId != null) {
+			headers.set(X_APP_TID, tenantId);
+			headers.set(X_CLIENT_ID, clientId);
+		}
 		try {
-			// create headers
-			HttpHeaders headers = new HttpHeaders();
-			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-			headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
-			if (tenantId != null) {
-				headers.set(X_APP_TID, tenantId);
-			}
-			if (clientId != null) {
-				headers.set(X_CLIENT_ID, clientId);
-			}
 			ResponseEntity<String> response = restOperations.exchange(
-					tokenKeysEndpointUri, GET, new HttpEntity(headers), String.class);
+					tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
 				LOGGER.debug("Successfully retrieved token keys from {} for tenant '{}'", tokenKeysEndpointUri, tenantId);
 				return response.getBody();
 			} else {
-				throw OAuth2ServiceException.builder("Error retrieving token keys")
+				throw OAuth2ServiceException.builder(
+								"Error retrieving token keys. Request headers [" + headers.entrySet().stream()
+										.map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
+										.collect(Collectors.joining(", ")) + "]")
 						.withUri(tokenKeysEndpointUri)
-						.withHeaders(X_APP_TID + "=" + tenantId)
+						.withHeaders(response.getHeaders().size() != 0 ? response.getHeaders().entrySet().stream().map(
+										h -> h.getKey() + ": " + String.join(",", h.getValue()))
+								.toArray(String[]::new) : null)
 						.withStatusCode(response.getStatusCodeValue())
 						.withResponseBody(response.getBody())
 						.build();
 			}
 		} catch (HttpStatusCodeException ex) {
-			throw OAuth2ServiceException.builder("Error retrieving token keys")
+			throw OAuth2ServiceException.builder(
+							"Error retrieving token keys. Request headers [" + headers.entrySet().stream()
+							.map(h -> h.getKey() + ": " + String.join(",", h.getValue())))
 					.withUri(tokenKeysEndpointUri)
-					.withHeaders(X_APP_TID + "=" + tenantId)
+					.withHeaders(ex.getResponseHeaders() != null ? ex.getResponseHeaders().entrySet().stream().map(
+									h -> h.getKey() + ": " + String.join(",", h.getValue()))
+							.toArray(String[]::new) : null)
 					.withStatusCode(ex.getStatusCode().value())
 					.withResponseBody(ex.getResponseBodyAsString())
 					.build();
 		} catch (Exception e) {
-			throw OAuth2ServiceException.builder("Unexpected error retrieving token keys: " + e.getMessage())
-					.withUri(tokenKeysEndpointUri)
-					.build();
+			if (e instanceof OAuth2ServiceException oAuth2ServiceException) {
+				throw oAuth2ServiceException;
+			} else {
+				throw OAuth2ServiceException.builder("Unexpected error retrieving token keys: " + e.getMessage())
+						.withUri(tokenKeysEndpointUri)
+						.build();
+			}
 		}
 	}
 

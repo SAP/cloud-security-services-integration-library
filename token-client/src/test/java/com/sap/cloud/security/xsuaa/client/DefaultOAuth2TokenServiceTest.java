@@ -5,19 +5,6 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
-import static java.util.Collections.emptyMap;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.util.Map;
-
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -43,6 +30,20 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Map;
+
+import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
+import static java.util.Collections.emptyMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultOAuth2TokenServiceTest {
@@ -146,11 +147,14 @@ public class DefaultOAuth2TokenServiceTest {
 			return responseHandler.handleResponse(response);
 		});
 
-		assertThatThrownBy(() -> requestAccessToken(emptyMap()))
-				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(unauthorizedResponseText)
-				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString())
-				.extracting("httpStatusCode").isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
+				() -> requestAccessToken(emptyMap()));
+
+		assertThat(e.getHeaders().get(0)).isEqualTo("testHeader: testValue");
+		assertThat(e.getHttpStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+		assertThat(e.getMessage())
+				.contains(unauthorizedResponseText)
+				.contains(TOKEN_ENDPOINT_URI.toString());
 	}
 
 	@Test
