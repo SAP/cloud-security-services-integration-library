@@ -13,16 +13,18 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 
+import static com.sap.cloud.security.token.TokenClaims.USER_NAME;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 public class XsuaaTokenTest {
 
-	private XsuaaToken clientCredentialsToken;
-	private XsuaaToken userToken;
+	private final XsuaaToken clientCredentialsToken;
+	private final XsuaaToken userToken;
 
 	public XsuaaTokenTest() throws IOException {
 		clientCredentialsToken = new XsuaaToken(
@@ -32,13 +34,9 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void constructor_raiseIllegalArgumentExceptions() {
-		assertThatThrownBy(() -> {
-			new XsuaaToken("");
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
+		assertThatThrownBy(() -> new XsuaaToken("")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
 
-		assertThatThrownBy(() -> {
-			new XsuaaToken("abc");
-		}).isInstanceOf(IllegalArgumentException.class)
+		assertThatThrownBy(() -> new XsuaaToken("abc")).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");
 	}
 
@@ -78,6 +76,19 @@ public class XsuaaTokenTest {
 		assertThat(clientCredentialsToken.getClientId()).isEqualTo("sap_osb");
 		assertThat(clientCredentialsToken.getPrincipal()).isNotNull();
 		assertThat(clientCredentialsToken.getPrincipal().getName()).isEqualTo("client/sap_osb");
+	}
+
+	@Test
+	public void getPrincipalGrantTypeIsNull() {
+		XsuaaToken tokenMock = Mockito.mock(XsuaaToken.class);
+		Mockito.when(tokenMock.getGrantType()).thenReturn(null);
+		Mockito.when(tokenMock.getClaimAsString(ORIGIN)).thenReturn("sap");
+		Mockito.when(tokenMock.getClaimAsString(USER_NAME)).thenReturn("user");
+		Mockito.when(tokenMock.getPrincipal()).thenCallRealMethod();
+		Mockito.when(tokenMock.createPrincipalByName(anyString())).thenCallRealMethod();
+
+		assertThat(tokenMock.getPrincipal()).isNotNull();
+		assertThat(tokenMock.getPrincipal().getName()).isEqualTo("user/sap/user");
 	}
 
 	@Test
