@@ -70,7 +70,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
-				.hasMessageContaining("Request headers [x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, User-Agent: token-client/3.1.2]")
+				.hasMessageContaining("Request headers [x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, User-Agent: token-client/")
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
 				.hasMessageContaining("Response Headers [testHeader: testValue]")
@@ -94,7 +94,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		assertThat(e.getHttpStatusCode()).isEqualTo(400);
 		assertThat(e.getMessage())
 				.contains(errorDescription)
-				.contains("Request headers [User-Agent: token-client/3.1.2].")
+				.contains("Request headers [User-Agent: token-client/")
 				.contains("Response Headers [testHeader: testValue]")
 				.contains("Http status code 400")
 				.contains("Server URI https://tokenKeys.io/token_keys");
