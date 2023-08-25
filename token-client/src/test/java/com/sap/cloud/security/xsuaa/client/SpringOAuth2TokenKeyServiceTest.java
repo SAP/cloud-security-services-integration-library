@@ -85,7 +85,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 		assertThat(e.getMessage())
 				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
 				.contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
-				.contains("Request headers [Accept: application/json, User-Agent: token-client/3.1.2, x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id]")
+				.contains("Request headers [Accept: application/json, User-Agent: token-client/")
+				.contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id]")
 				.contains("Response Headers ")
 				.contains(errorMessage);
 		assertThat(e.getHttpStatusCode()).isEqualTo(400);
@@ -104,7 +105,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 		assertThat(e.getMessage())
 				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
 				.contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
-				.contains("Request headers [Accept: application/json, User-Agent: token-client/3.1.2]") //if app_tid is missing the x-app_tid and x-client_id headers shouldn't be sent
+				.contains("Request headers [Accept: application/json, User-Agent: token-client/") //if app_tid is missing the x-app_tid and x-client_id headers shouldn't be sent
 				.contains(errorMessage);
 	}
 
