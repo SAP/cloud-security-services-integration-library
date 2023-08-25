@@ -14,12 +14,12 @@
 
 	<artifactId>spring-xsuaa-it</artifactId>
 	<name>spring-xsuaa-it</name>
-	<version>3.1.2</version>
+	<version>3.1.3</version>
 
 	<properties>
 		<mockwebserver.version>4.10.0</mockwebserver.version>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.1.2</sap.cloud.security.version>
+		<sap.cloud.security.version>3.1.3</sap.cloud.security.version>
 	</properties>
 
 	<dependencyManagement>
