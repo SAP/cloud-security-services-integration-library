@@ -22,17 +22,31 @@ In case you have configured your `TokenAuthenticationConverter` with `setLocalSc
 
 **Before**
 ```java
-Converter<Jwt, AbstractAuthenticationToken> customJwtAuthenticationConverter() {
+@Configuration
+@EnableWebSecurity
+public class SecurityConfiguration {
+
+  Converter<Jwt, AbstractAuthenticationToken> customJwtAuthenticationConverter() {
     TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
     converter.setLocalScopeAsAuthorities(true);
     return converter;
+  }
+  ...
 }
 ```
 
 **After**
 ```java
-@Autowired
-Converter<Jwt, AbstractAuthenticationToken> authConverter;
+@Configuration
+@EnableWebSecurity
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" }) // might be auto-configured in a future release
+public class SecurityConfiguration {
+
+  @Autowired
+  Converter<Jwt, AbstractAuthenticationToken> authConverter;
+  
+  ...
+}
 ```
 
 ## Access VCAP_SERVICES values
