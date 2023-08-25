@@ -11,6 +11,7 @@ import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -61,25 +62,22 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
 		LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} ", tokenKeysEndpointUri,
 				request.getAllHeaders());
-		try {
-			return httpClient.execute(request, response -> {
-				int statusCode = response.getStatusLine().getStatusCode();
-				LOGGER.debug("Received statusCode {}", statusCode);
-				String body = HttpClientUtil.extractResponseBodyAsString(response);
-				if (statusCode != HttpStatus.SC_OK) {
-					throw OAuth2ServiceException.builder("Error retrieving token keys. Request headers " + Arrays.stream(request.getAllHeaders()).collect(
-							Collectors.toList()))
-							.withUri(tokenKeysEndpointUri)
-							.withHeaders(response.getAllHeaders() != null ?
-									Arrays.stream(response.getAllHeaders()).map(Header::toString).toArray(String[]::new) : null)
-							.withStatusCode(statusCode)
-							.withResponseBody(body)
-							.build();
-				}
-
+		try (CloseableHttpResponse response = httpClient.execute(request)) {
+			String body = HttpClientUtil.extractResponseBodyAsString(response);
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode == HttpStatus.SC_OK) {
 				LOGGER.debug("Successfully retrieved token keys from {} for tenant '{}'", tokenKeysEndpointUri, tenantId);
 				return body;
-			});
+			} else {
+				throw OAuth2ServiceException.builder("Error retrieving token keys. Request headers " + Arrays.stream(request.getAllHeaders()).collect(
+								Collectors.toList()))
+						.withUri(tokenKeysEndpointUri)
+						.withHeaders(response.getAllHeaders() != null ?
+								Arrays.stream(response.getAllHeaders()).map(Header::toString).toArray(String[]::new) : null)
+						.withStatusCode(statusCode)
+						.withResponseBody(body)
+						.build();
+			}
 		} catch (IOException e) {
 			if (e instanceof OAuth2ServiceException) {
 				throw (OAuth2ServiceException) e;

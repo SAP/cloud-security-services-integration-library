@@ -9,7 +9,6 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -67,7 +66,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
-				.hasMessageContaining("Request headers [x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, User-Agent: token-client/3.1.2]")
+				.hasMessageContaining("Request headers [x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, User-Agent: token-client/")
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
 				.hasMessageContaining("Response Headers [testHeader: testValue]")
@@ -79,10 +78,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
-			ResponseHandler responseHandler = invocation.getArgument(1);
-			return responseHandler.handleResponse(response);
-		});
+		when(httpClient.execute(any())).thenReturn(response);
 
 		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
 				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, CLIENT_ID));
@@ -91,7 +87,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		assertThat(e.getHttpStatusCode()).isEqualTo(400);
 		assertThat(e.getMessage())
 				.contains(errorDescription)
-				.contains("Request headers [User-Agent: token-client/3.1.2].")
+				.contains("Request headers [User-Agent: token-client/")
 				.contains("Response Headers [testHeader: testValue]")
 				.contains("Http status code 400")
 				.contains("Server URI https://tokenKeys.io/token_keys");
