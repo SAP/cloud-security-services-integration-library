@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file.
 
 #### Dependency upgrades
 - Bump spring.security.version from 6.1.2 to 6.1.3
-
+- Bump spring.boot.version from 3.1.2 to 3.1.3
 
 ## 3.1.2
 - [token-client] 
