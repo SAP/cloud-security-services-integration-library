@@ -40,6 +40,7 @@ import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -130,11 +131,14 @@ public class DefaultOAuth2TokenServiceTest {
 				.createHttpResponse(unauthorizedResponseText, HttpStatus.SC_UNAUTHORIZED);
 		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(response);
 
-		assertThatThrownBy(() -> requestAccessToken(emptyMap()))
-				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(unauthorizedResponseText)
-				.hasMessageContaining(TOKEN_ENDPOINT_URI.toString())
-				.extracting("httpStatusCode").isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
+				() -> requestAccessToken(emptyMap()));
+
+		assertThat(e.getHeaders().get(0)).isEqualTo("testHeader: testValue");
+		assertThat(e.getHttpStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+		assertThat(e.getMessage())
+				.contains(unauthorizedResponseText)
+				.contains(TOKEN_ENDPOINT_URI.toString());
 	}
 
 	@Test

@@ -22,7 +22,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
@@ -64,9 +66,31 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
+				.hasMessageContaining("Request headers [x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, User-Agent: token-client/")
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
-				.hasMessageContaining("Headers [x-app_tid=92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id=client-id]");
+				.hasMessageContaining("Response Headers [testHeader: testValue]")
+				.hasMessageContaining("Http status code 400");
+	}
+
+	@Test
+	public void retrieveTokenKeys_responseNotOk_throwsException_noAppTid() throws IOException {
+		String errorDescription = "Something went wrong";
+		CloseableHttpResponse response = HttpClientTestFactory
+				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
+		when(httpClient.execute(any())).thenReturn(response);
+
+		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
+				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, CLIENT_ID));
+
+		assertThat(e.getHeaders()).contains("testHeader: testValue");
+		assertThat(e.getHttpStatusCode()).isEqualTo(400);
+		assertThat(e.getMessage())
+				.contains(errorDescription)
+				.contains("Request headers [User-Agent: token-client/")
+				.contains("Response Headers [testHeader: testValue]")
+				.contains("Http status code 400")
+				.contains("Server URI https://tokenKeys.io/token_keys");
 	}
 
 	@Test
