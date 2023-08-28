@@ -75,6 +75,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 	 * @return the {@link CloseableHttpClient} instance.
 	 */
 	@Bean
+	@Conditional(PropertyConditions.class)
 	public CloseableHttpClient tokenFlowHttpClient(XsuaaServiceConfiguration xsuaaConfig) {
 		logger.info(
 				"If the performance for the token validation is degrading provide your own well configured HttpClientFactory implementation");
