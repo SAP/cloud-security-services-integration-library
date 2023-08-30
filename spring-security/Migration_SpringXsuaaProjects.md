@@ -171,7 +171,7 @@ xsuaaToken.getCloneServiceInstanceId();
 
 The table below gives an overview of the methods that are not directly available in the new ```Token``` interface, but can be accessed via the ``XsuaaTokenComp`` decorator class.
 
-<details><br>
+<br>
  
 | `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa only? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
 |-------------------------|---|-----------------------------------------------------------------------------------------------|
@@ -194,7 +194,6 @@ The table below gives an overview of the methods that are not directly available
 > :bulb: In case the ```Xsuaa only?``` flag is set, the method returns "null" in case of Id token from identity service.  
 > :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor to `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
 
-</details>
  
 #### Spring's `Jwt` methods
 
