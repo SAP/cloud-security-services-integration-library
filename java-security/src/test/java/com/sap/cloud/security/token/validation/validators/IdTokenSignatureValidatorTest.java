@@ -42,6 +42,7 @@ public class IdTokenSignatureValidatorTest {
 	private static final URI DISCOVERY_URI = URI
 			.create("https://application.myauth.com" + OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT);
 	private static final String CLIENT_ID = "client-id";
+	private static final String AZP = "T000310";
 
 	@Before
 	public void setup() throws IOException {
@@ -64,7 +65,7 @@ public class IdTokenSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(JKU_URI, APP_TID, CLIENT_ID))
+				.retrieveTokenKeys(JKU_URI, APP_TID, CLIENT_ID, AZP))
 						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
@@ -103,7 +104,7 @@ public class IdTokenSignatureValidatorTest {
 	@Test
 	public void validationFails_whenOAuthServerIsUnavailable_JKS() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any(), any())).thenThrow(OAuth2ServiceException.class);
+				.retrieveTokenKeys(any(), any(), any(), any())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken);
 		assertThat(result.isErroneous(), is(true));
@@ -114,7 +115,7 @@ public class IdTokenSignatureValidatorTest {
 	@Test
 	public void validationFails_whenNoMatchingKey() {
 		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-2",
-				JKU_URI.toString(), null, null);
+				JKU_URI.toString(), null, null, null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString(

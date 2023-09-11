@@ -8,6 +8,7 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
@@ -76,6 +77,7 @@ class JwtSignatureValidator implements Validator<Token> {
 		String jwksUri;
 		String keyId;
 		String appTidForTokenKeys = null;
+		String azpForTokenKeys = null;
 
 		if (Service.IAS == configuration.getService()) {
 			appTidForTokenKeys = token.getAppTid();
@@ -83,11 +85,12 @@ class JwtSignatureValidator implements Validator<Token> {
 					&& appTidForTokenKeys == null) {
 				return createInvalid("Error occurred during signature validation: OIDC token must provide app_tid.");
 			}
+			azpForTokenKeys = token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY);
 		}
 		try {
 			jwksUri = getOrRequestJwksUri(token);
 			String fallbackPublicKey = null;
-			if (configuration != null && configuration.hasProperty("verificationkey")) {
+			if (configuration.hasProperty("verificationkey")) {
 				fallbackPublicKey = configuration.getProperty("verificationkey");
 			}
 			keyId = getOrDefaultKeyId(token);
@@ -96,7 +99,8 @@ class JwtSignatureValidator implements Validator<Token> {
 					keyId,
 					jwksUri,
 					fallbackPublicKey,
-					appTidForTokenKeys);
+					appTidForTokenKeys,
+					azpForTokenKeys);
 		} catch (OAuth2ServiceException | IllegalArgumentException e) {
 			return createInvalid("Error occurred during jwks uri determination: {}", e.getMessage());
 		}
@@ -153,14 +157,14 @@ class JwtSignatureValidator implements Validator<Token> {
 
 	// for testing
 	ValidationResult validate(String token, String tokenAlgorithm, String tokenKeyId, String tokenKeysUrl,
-			@Nullable String fallbackPublicKey, @Nullable String zoneId) {
+			@Nullable String fallbackPublicKey, @Nullable String appTid, @Nullable String azp) {
 		assertHasText(token, "token must not be null or empty.");
 		assertHasText(tokenAlgorithm, "tokenAlgorithm must not be null or empty.");
 		assertHasText(tokenKeyId, "tokenKeyId must not be null or empty.");
 		assertHasText(tokenKeysUrl, "tokenKeysUrl must not be null or empty.");
 
 		return Validation.getInstance().validate(tokenKeyService, token, tokenAlgorithm, tokenKeyId,
-				URI.create(tokenKeysUrl), fallbackPublicKey, zoneId, configuration.getClientId());
+				URI.create(tokenKeysUrl), fallbackPublicKey, appTid, configuration.getClientId(), azp);
 	}
 
 	private static class Validation {
@@ -176,15 +180,15 @@ class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		ValidationResult validate(OAuth2TokenKeyServiceWithCache tokenKeyService, String token,
-				String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey,
-				@Nullable String zoneId, String clientId) {
+								  String tokenAlgorithm, String tokenKeyId, URI tokenKeysUrl, @Nullable String fallbackPublicKey,
+								  @Nullable String appTid, String clientId, String azp) {
 			ValidationResult validationResult;
 
 			validationResult = setSupportedJwtAlgorithm(tokenAlgorithm);
 			if (validationResult.isErroneous()) {
 				return validationResult;
 			}
-			validationResult = setPublicKey(tokenKeyService, tokenKeyId, tokenKeysUrl, zoneId, clientId);
+			validationResult = setPublicKey(tokenKeyService, tokenKeyId, tokenKeysUrl, appTid, clientId, azp);
 			if (validationResult.isErroneous()) {
 				if (fallbackPublicKey != null) {
 					try {
@@ -220,9 +224,9 @@ class JwtSignatureValidator implements Validator<Token> {
 		}
 
 		private ValidationResult setPublicKey(OAuth2TokenKeyServiceWithCache tokenKeyService, String keyId,
-				URI keyUri, String zoneId, String clientId) {
+											  URI keyUri, String zoneId, String clientId, String azp) {
 			try {
-				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri, zoneId, clientId);
+				this.publicKey = tokenKeyService.getPublicKey(jwtSignatureAlgorithm, keyId, keyUri, zoneId, clientId, azp);
 			} catch (OAuth2ServiceException e) {
 				return createInvalid("Error retrieving Json Web Keys from Identity Service: {}.", e.getMessage());
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException e) {

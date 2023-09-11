@@ -37,11 +37,12 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	private static final String APP_TID = "app_tid";
 	private TestCacheTicker testCacheTicker;
 	private static final String CLIENT_ID = "client_id";
+	private static final String AZP = "azp";
 
 	@Before
 	public void setup() throws IOException {
 		tokenKeyServiceMock = mock(OAuth2TokenKeyService.class);
-		when(tokenKeyServiceMock.retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNotNull(), any()))
+		when(tokenKeyServiceMock.retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNotNull(), any(), any()))
 				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
 
 		testCacheTicker = new TestCacheTicker();
@@ -83,22 +84,22 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 
 	@Test
 	public void retrieveTokenKeys() throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		PublicKey key1 = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
-		PublicKey key2 = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "other-zone-id", CLIENT_ID);
+		PublicKey key1 = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
+		PublicKey key2 = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "other-zone-id", CLIENT_ID, AZP);
 
 		assertThat(String.valueOf(key1.getAlgorithm())).isEqualTo("RSA");
 		assertThat(String.valueOf(key2.getAlgorithm())).isEqualTo("RSA");
-		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
-		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(TOKEN_KEYS_URI, "other-zone-id", CLIENT_ID);
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(TOKEN_KEYS_URI, "other-zone-id", CLIENT_ID, AZP);
 	}
 
 	@Test
 	public void getCachedTokenKeys() throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		PublicKey key = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
-		PublicKey cachedKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
+		PublicKey key = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
+		PublicKey cachedKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
 
 		assertThat(cachedKey).isNotNull().isSameAs(key);
-		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), any(), eq(CLIENT_ID));
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), any(), eq(CLIENT_ID), eq(AZP));
 	}
 
 	@Test
@@ -112,11 +113,11 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 
 	@Test
 	public void requestFails_throwsException() throws OAuth2ServiceException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any(), any()))
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any(), any(), any()))
 				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
 
 		assertThatThrownBy(() -> {
-			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
+			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
 		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Currently unavailable");
 	}
 
@@ -128,28 +129,28 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		PublicKey cachedKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID);
 
 		assertThat(cachedKey).isNotNull();
-		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), eq(APP_TID), any());
+		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), eq(APP_TID), isNull(), isNull());
 	}
 
 	@Test
-	public void getCachedTokenKeys_noZoneId() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNull(), eq(CLIENT_ID)))
+	public void getCachedTokenKeys_noAppTid_noAzp() throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		when(tokenKeyServiceMock.retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNull(), eq(CLIENT_ID), isNull()))
 				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
-		PublicKey key = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, null, CLIENT_ID);
-		PublicKey cachedKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, null, CLIENT_ID);
+		PublicKey key = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, null, CLIENT_ID, null);
+		PublicKey cachedKey = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, null, CLIENT_ID, null);
 
 		assertThat(cachedKey).isNotNull().isSameAs(key);
-		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNull(), eq(CLIENT_ID));
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), isNull(), eq(CLIENT_ID), isNull());
 	}
 
 	@Test
 	public void retrieveTokenKeys_doesRequestKeysAgainAfterCacheExpired()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
 		testCacheTicker.advance(CACHE_CONFIGURATION.getCacheDuration()); // just expired
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
 
-		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID));
+		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID), eq(AZP));
 	}
 
 	@Test
@@ -171,48 +172,48 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	@Test
 	public void retrieveTokenKeysForNewKeyId()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "not-seen-yet", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "not-seen-yet", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
 
-		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID));
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID), eq(AZP));
 	}
 
 	@Test
-	public void retrieveTokenKeysForNewZoneId()
+	public void retrieveTokenKeysForNewAppTid()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID + "-2", CLIENT_ID);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID + "-2", CLIENT_ID, AZP);
 
-		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), any(), any());
-		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID));
-		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(APP_TID + "-2"), eq(CLIENT_ID));
+		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), any(), any(), any());
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID), eq(AZP));
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(APP_TID + "-2"), eq(CLIENT_ID), eq(AZP));
 	}
 
 	@Test
-	public void retrieveTokenKeysForAnotherInvalidZoneId()
+	public void retrieveTokenKeysDoesNotCacheOnServerException()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq("invalid-tenant"), eq(CLIENT_ID)))
-				.thenThrow(new OAuth2ServiceException("Invalid app_tid provided"));
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq("invalid-tenant"), eq(CLIENT_ID), eq(AZP)))
+				.thenThrow(new OAuth2ServiceException("Invalid parameters provided"));
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID);
 
 		assertThatThrownBy(() -> {
-			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-tenant", CLIENT_ID);
+			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-tenant", CLIENT_ID, AZP);
 		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
-		assertThatThrownBy(() -> {
-			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-tenant", CLIENT_ID);
-		}).isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageStartingWith("Keys not accepted for app_tid invalid-tenant");
 
-		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq("invalid-tenant"), eq(CLIENT_ID));
+		assertThatThrownBy(() -> {
+			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-tenant", CLIENT_ID, AZP);
+		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
+
+		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq("invalid-tenant"), eq(CLIENT_ID), eq(AZP));
 	}
 
 	@Test
 	public void retrieveTokenKeysForNewEndpoint()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID);
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", URI.create("http://another/url"), APP_TID, CLIENT_ID);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", URI.create("http://another/url"), APP_TID, CLIENT_ID, AZP);
 
-		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID));
+		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID), eq(AZP));
 	}
 
 	private OAuth2TokenKeyServiceWithCache createCut(TokenKeyCacheConfiguration cacheConfiguration) {

@@ -35,6 +35,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public static final URI TOKEN_KEYS_ENDPOINT_URI = URI.create("https://token.endpoint.io/token_keys");
 	public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	public static final String CLIENT_ID = "client-id";
+	public static final String AZP = "azp";
 
 	private RestOperations restOperationsMock;
 	private SpringOAuth2TokenKeyService cut;
@@ -67,7 +68,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public void retrieveTokenKeys_usesGivenURI() throws OAuth2ServiceException {
 		mockResponse();
 
-		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID);
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID, AZP);
 
 		Mockito.verify(restOperationsMock, times(1))
 				.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), argThat(httpEntityContainsMandatoryHeaders()),
@@ -80,13 +81,13 @@ public class SpringOAuth2TokenKeyServiceTest {
 		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
 
 		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
-				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID));
+				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID, AZP));
 
 		assertThat(e.getMessage())
 				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
 				.contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
 				.contains("Request headers [Accept: application/json, User-Agent: token-client/")
-				.contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id]")
+				.contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, x-azp: azp")
 				.contains("Response Headers ")
 				.contains(errorMessage);
 		assertThat(e.getHttpStatusCode()).isEqualTo(400);
@@ -100,7 +101,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
 
 		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
-				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, CLIENT_ID));
+				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, CLIENT_ID, AZP));
 
 		assertThat(e.getMessage())
 				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
@@ -125,7 +126,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 		return (httpGet) -> {
 			boolean correctClientId = httpGet.getHeaders().get(HttpHeaders.X_CLIENT_ID).get(0).equals(CLIENT_ID);
 			boolean correctAppTid = httpGet.getHeaders().get(HttpHeaders.X_APP_TID).get(0).equals(APP_TID);
-			return correctAppTid && correctClientId;
+			boolean correctAzp = httpGet.getHeaders().get(HttpHeaders.X_AZP).get(0).equals(AZP);
+			return correctAppTid && correctClientId && correctAzp;
 		};	}
 
 }

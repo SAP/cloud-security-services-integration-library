@@ -53,10 +53,9 @@ public class JwtSignatureValidatorTest {
 		when(mockConfiguration.getService()).thenReturn(Service.IAS);
 		when(mockConfiguration.getClientId()).thenReturn("client-id");
 
-
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any(), isNotNull()))
+				.retrieveTokenKeys(any(), any(), isNotNull(), any()))
 						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
@@ -75,33 +74,33 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validate_throwsWhenTokenIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate(null, "RS256", "default-kid-ias", DUMMY_JKU_URI.toString(), null, null);
+			cut.validate(null, "RS256", "default-kid-ias", DUMMY_JKU_URI.toString(), null, null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
 	}
 
 	@Test
 	public void validate_throwsWhenAlgorithmIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", null, "default-kid-ias", DUMMY_JKU_URI.toString(), null, null);
+			cut.validate("eyJhbGciOiJSUzI1NiJ9", null, "default-kid-ias", DUMMY_JKU_URI.toString(), null, null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenAlgorithm");
 	}
 
 	@Test
 	public void validate_throwsWhenKeyIdIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "", DUMMY_JKU_URI.toString(), null, null);
+			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "", DUMMY_JKU_URI.toString(), null, null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenKeyId");
 	}
 
 	@Test
 	public void validate_throwsWhenKeysUrlIsNull() {
 		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "default-kid-ias", "", null, null);
+			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "default-kid-ias", "", null, null, null);
 		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenKeysUrl");
 	}
 
 	@Test
-	public void validationFails_WhenZoneIdIsNull() {
+	public void validationFails_WhenAppTidIsNull() {
 		ValidationResult validationResult = cut.validate(iasPaasToken);
 		assertTrue(validationResult.isErroneous());
 		assertThat(validationResult.getErrorDescription(),
@@ -109,7 +108,7 @@ public class JwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validate_whenZoneIdIsNull_withDisabledZoneId() {
+	public void validate_whenAppTidIsNull_withDisabledAppTid() {
 		JwtSignatureValidator cut = new JwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance()
@@ -151,7 +150,7 @@ public class JwtSignatureValidatorTest {
 				.append(tokenHeaderPayloadSignature[1]).toString();
 
 		ValidationResult result = cut.validate(tokenWithNoSignature, "RS256", "default-kid-ias",
-				DUMMY_JKU_URI.toString(), null, null);
+				DUMMY_JKU_URI.toString(), null, null, null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
@@ -160,7 +159,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
 		ValidationResult validationResult = cut.validate(iasToken.getTokenValue(), "ES123", "default-kid-ias",
-				"https://myauth.com/jwks_uri", null, null);
+				"https://myauth.com/jwks_uri", null, null, null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm 'ES123' is not supported."));
@@ -169,7 +168,7 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNone() {
 		ValidationResult validationResult = cut.validate(iasToken.getTokenValue(), "NONE", "default-kid-ias",
-				"https://myauth.com/jwks_uri", null, null);
+				"https://myauth.com/jwks_uri", null, null, null);
 		assertThat(validationResult.isErroneous(), is(true));
 		assertThat(validationResult.getErrorDescription(),
 				startsWith("Jwt token with signature algorithm 'NONE' is not supported."));
@@ -178,10 +177,10 @@ public class JwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenOAuthServerIsUnavailable() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any(), any())).thenThrow(OAuth2ServiceException.class);
+				.retrieveTokenKeys(any(), any(), any(), any())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-ias",
-				"http://unavailable.com/token_keys", null, null);
+				"http://unavailable.com/token_keys", null, null, null);
 		assertThat(result.isErroneous(), is(true));
 		assertThat(result.getErrorDescription(),
 				containsString("Error retrieving Json Web Keys from Identity Service"));

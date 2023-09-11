@@ -25,8 +25,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_APP_TID;
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_CLIENT_ID;
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.*;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
@@ -46,18 +45,22 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	@Override
 	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId)
 			throws OAuth2ServiceException {
-		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, null);
+		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, null, null);
 	}
 
 	@Override
 	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId) throws OAuth2ServiceException {
+		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, clientId, null);
+	}
+
+	@Override
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId, @Nullable String azp) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri); // lgtm[java/ssrf] tokenKeysEndpointUri is validated
 																	// as part of XsuaaJkuValidator in java-security
-		if (tenantId != null && clientId != null) {
-			request.addHeader(X_APP_TID, tenantId);
-			request.addHeader(X_CLIENT_ID, clientId);
-		}
+		request.addHeader(X_APP_TID, tenantId);
+		request.addHeader(X_CLIENT_ID, clientId);
+		request.addHeader(X_AZP, azp);
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
 		LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} ", tokenKeysEndpointUri,

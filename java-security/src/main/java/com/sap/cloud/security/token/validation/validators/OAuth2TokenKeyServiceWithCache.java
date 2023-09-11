@@ -103,36 +103,12 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Returns the cached key by id and type or requests the keys from the jwks URI
-	 * of the identity service.
-	 *
-	 * @param keyAlgorithm
-	 *            the Key Algorithm of the Access Token.
-	 * @param keyId
-	 *            the Key Id of the Access Token.
-	 * @param keyUri
-	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
-	 *            specific).
-	 * @param appTid
-	 *            the unique identifier of the tenant
-	 * @return a PublicKey
-	 * @throws OAuth2ServiceException
-	 *             in case the call to the jwks endpoint of the identity service
-	 *             failed.
-	 * @throws InvalidKeySpecException
-	 *             in case the PublicKey generation for the json web key failed.
-	 * @throws NoSuchAlgorithmException
-	 *             in case the algorithm of the json web key is not supported.
-	 *
+	 * Returns {@link OAuth2TokenKeyServiceWithCache#getPublicKey(JwtSignatureAlgorithm, String, URI, String, String, String)} with clientId = null and azp = null.
 	 */
 	@Nullable
 	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		assertNotNull(keyAlgorithm, "keyAlgorithm must not be null.");
-		assertHasText(keyId, "keyId must not be null.");
-		assertNotNull(keyUri, "keyUrl must not be null.");
-
-		return getPublicKey(keyAlgorithm, keyId, keyUri, appTid, null);
+		return getPublicKey(keyAlgorithm, keyId, keyUri, appTid, null, null);
 	}
 
 	/**
@@ -148,9 +124,10 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *            specific).
 	 * @param appTid
 	 *            the unique identifier of the tenant
-	 *
 	 * @param clientId
-	 * 				client id from the service configuration
+	 *			  client id from the service configuration
+	 * @param azp
+	 * 			  azp claim from the token
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service
@@ -161,31 +138,42 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *             in case the algorithm of the json web key is not supported.
 	 *
 	 */
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid, String clientId)
+	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid, String clientId, String azp)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		assertNotNull(keyAlgorithm, "keyAlgorithm must not be null.");
 		assertHasText(keyId, "keyId must not be null.");
 		assertNotNull(keyUri, "keyUrl must not be null.");
 
-		JsonWebKeySet keySet = getCache().getIfPresent(keyUri.toString());
-		if (keySet == null || !keySet.containsAppTid(appTid)) {
-			keySet = retrieveTokenKeysAndUpdateCache(keyUri, appTid, keySet, clientId); // creates and updates cache entries
-		}
-		if (keySet == null || keySet.getAll().isEmpty()) {
-			LOGGER.error("Retrieved no token keys from {}", keyUri);
+		CacheKey cacheKey = new CacheKey(keyUri, appTid, clientId, azp);
+		JsonWebKeySet jwks = getCache().getIfPresent(cacheKey.toString());
+
+        if(jwks == null) {
+            jwks = retrieveTokenKeysAndUpdateCache(cacheKey);
+        }
+
+		if (jwks == null || jwks.getAll().isEmpty()) {
+			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", keyUri);
 			return null;
 		}
-		if (!keySet.isAppTidAccepted(appTid)) {
-			throw new OAuth2ServiceException("Keys not accepted for app_tid " + appTid);
-		}
-		for (JsonWebKey jwk : keySet.getAll()) {
+
+		for (JsonWebKey jwk : jwks.getAll()) {
 			if (keyId.equals(jwk.getId()) && jwk.getKeyAlgorithm().equals(keyAlgorithm)) {
 				return jwk.getPublicKey();
 			}
 		}
-		LOGGER.warn("No matching key found. Keys cached: {}", keySet);
+
+		LOGGER.warn("No matching key found. Cached keys: {}", jwks);
 		return null;
 	}
+
+    private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey) throws OAuth2ServiceException {
+            String jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), cacheKey.appTid(), cacheKey.clientId(), cacheKey.azp());
+
+            JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson);
+            getCache().put(cacheKey.toString(), keySet);
+
+            return keySet;
+    }
 
 	private TokenKeyCacheConfiguration getCheckedConfiguration(CacheConfiguration cacheConfiguration) {
 		Assertions.assertNotNull(cacheConfiguration, "CacheConfiguration must not be null!");
@@ -214,26 +202,6 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 			duration = currentDuration;
 		}
 		return TokenKeyCacheConfiguration.getInstance(duration, size, cacheConfiguration.isCacheStatisticsEnabled());
-	}
-
-	private JsonWebKeySet retrieveTokenKeysAndUpdateCache(URI jwksUri, String appTid,
-			@Nullable JsonWebKeySet keySetCached, String clientId)
-			throws OAuth2ServiceException {
-		String jwksJson;
-		try {
-			jwksJson = getTokenKeyService().retrieveTokenKeys(jwksUri, appTid, clientId);
-		} catch (OAuth2ServiceException e) {
-			if (keySetCached != null) {
-				keySetCached.withAppTid(appTid, false);
-			}
-			throw e;
-		}
-		if (keySetCached != null) {
-			return keySetCached.withAppTid(appTid, true);
-		}
-		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson).withAppTid(appTid, true);
-		getCache().put(jwksUri.toString(), keySet);
-		return keySet;
 	}
 
 	private Cache<String, JsonWebKeySet> getCache() {
@@ -275,4 +243,17 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		return getCacheConfiguration().isCacheStatisticsEnabled() ? getCache().stats() : null;
 	}
 
+	record CacheKey (URI keyUri, String appTid, String clientId, String azp) {
+		public String toString() {
+			String appTid = this.appTid != null ? this.appTid : "";
+			String clientId = this.clientId != null ? this.clientId : "";
+			String azp = this.azp != null ? this.azp : "";
+
+			return String.format("%d:%s:%d:%s:%d:%s:%d:%s",
+					keyUri.toString().length(), keyUri,
+					appTid.length(), appTid,
+					clientId.length(), clientId,
+					azp.length(), appTid);
+		}
+	}
 }

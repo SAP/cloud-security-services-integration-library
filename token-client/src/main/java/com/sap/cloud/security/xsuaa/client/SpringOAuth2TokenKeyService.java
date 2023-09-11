@@ -19,8 +19,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_APP_TID;
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_CLIENT_ID;
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 
 public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
@@ -37,20 +36,27 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	@Override
 	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId)
 			throws OAuth2ServiceException {
-		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, null);
+		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, null, null);
 	}
 
 	@Override
 	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId)
 			throws OAuth2ServiceException {
+		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, clientId, null);
+	}
+
+	@Override
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId, @Nullable String azp)
+			throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
-		if (tenantId != null && clientId != null) {
-			headers.set(X_APP_TID, tenantId);
-			headers.set(X_CLIENT_ID, clientId);
-		}
+
+		headers.set(X_APP_TID, tenantId);
+		headers.set(X_CLIENT_ID, clientId);
+		headers.set(X_AZP, azp);
+
 		try {
 			ResponseEntity<String> response = restOperations.exchange(
 					tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);

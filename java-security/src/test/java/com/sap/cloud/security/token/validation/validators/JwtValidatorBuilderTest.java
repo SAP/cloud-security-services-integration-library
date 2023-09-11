@@ -127,7 +127,7 @@ public class JwtValidatorBuilderTest {
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
 
-		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any(), any()))
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any(), any(), any()))
 				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://application.myauth.com/jwks_uri"));
 		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);

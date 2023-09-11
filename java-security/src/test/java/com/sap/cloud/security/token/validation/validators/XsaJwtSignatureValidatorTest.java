@@ -50,7 +50,7 @@ public class XsaJwtSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(eq(JKU_URI), any(), isNull()))
+				.retrieveTokenKeys(eq(JKU_URI), any(), isNull(), any()))
 						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new JwtSignatureValidator(
