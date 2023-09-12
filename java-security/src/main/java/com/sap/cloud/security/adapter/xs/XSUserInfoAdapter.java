@@ -15,7 +15,10 @@ import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.GrantType;
 import com.sap.cloud.security.xsuaa.Assertions;
-import com.sap.cloud.security.xsuaa.client.*;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import com.sap.xsa.security.container.XSTokenRequest;
@@ -138,8 +141,7 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getZoneId() {
-		return accessToken.hasClaim(SAP_GLOBAL_ZONE_ID) ? accessToken.getClaimAsString(SAP_GLOBAL_ZONE_ID)
-				: getClaimValue(ZONE_ID);
+		return getClaimValue(ZONE_ID);
 	}
 
 	@Override
