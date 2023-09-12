@@ -254,7 +254,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 					keyUri.toString().length(), keyUri,
 					appTid.length(), appTid,
 					clientId.length(), clientId,
-					azp.length(), appTid);
+					azp.length(), azp);
 		}
 	}
 }
