@@ -151,7 +151,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
             jwks = retrieveTokenKeysAndUpdateCache(cacheKey);
         }
 
-		if (jwks == null || jwks.getAll().isEmpty()) {
+		if (jwks.getAll().isEmpty()) {
 			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", keyUri);
 			return null;
 		}
@@ -244,6 +244,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	record CacheKey (URI keyUri, String appTid, String clientId, String azp) {
+		@Override
 		public String toString() {
 			String appTid = this.appTid != null ? this.appTid : "";
 			String clientId = this.clientId != null ? this.clientId : "";
