@@ -7,9 +7,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,7 +15,8 @@ import java.util.stream.Stream;
 class JsonWebKeySet {
 
 	private final Set<JsonWebKey> jsonWebKeys = new HashSet<>();
-	private final Map<String, Boolean> appTidAccepted = new HashMap<>();
+	@Deprecated
+	private final Set<String> appTidAccepted = new HashSet<>();
 
 	@Nullable
 	public JsonWebKey getKeyByAlgorithmAndId(JwtSignatureAlgorithm keyAlgorithm, String keyId) {
@@ -45,16 +44,24 @@ class JsonWebKeySet {
 				.filter(jwk -> kid.equals(jwk.getId()));
 	}
 
+	@Deprecated
 	public boolean containsAppTid(String appTid) {
-		return appTidAccepted.containsKey(appTid);
+		return appTidAccepted.contains(appTid);
 	}
 
+	@Deprecated
 	public boolean isAppTidAccepted(String appTid) {
-		return appTidAccepted.get(appTid);
+		return appTidAccepted.contains(appTid);
 	}
 
+	@Deprecated
 	public JsonWebKeySet withAppTid(String appTid, boolean isAccepted) {
-		appTidAccepted.put(appTid, isAccepted);
+		if(isAccepted) {
+			appTidAccepted.add(appTid);
+		} else {
+			appTidAccepted.remove(appTid);
+		}
+
 		return this;
 	}
 

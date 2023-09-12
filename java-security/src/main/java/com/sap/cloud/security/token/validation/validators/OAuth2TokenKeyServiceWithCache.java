@@ -169,7 +169,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
     private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey) throws OAuth2ServiceException {
             String jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), cacheKey.appTid(), cacheKey.clientId(), cacheKey.azp());
 
-            JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson);
+            JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson).withAppTid(cacheKey.appTid(), true);
             getCache().put(cacheKey.toString(), keySet);
 
             return keySet;
