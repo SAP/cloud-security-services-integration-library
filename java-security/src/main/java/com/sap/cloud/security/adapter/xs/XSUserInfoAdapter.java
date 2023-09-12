@@ -141,14 +141,6 @@ public class XSUserInfoAdapter implements XSUserInfo {
 
 	@Override
 	public String getZoneId() {
-		if(accessToken.hasClaim(SAP_GLOBAL_APP_TID)) {
-			return accessToken.getClaimAsString(SAP_GLOBAL_APP_TID);
-		}
-
-		if(accessToken.hasClaim(SAP_GLOBAL_ZONE_ID)) {
-			return accessToken.getClaimAsString(SAP_GLOBAL_ZONE_ID);
-		}
-
 		return getClaimValue(ZONE_ID);
 	}
 
