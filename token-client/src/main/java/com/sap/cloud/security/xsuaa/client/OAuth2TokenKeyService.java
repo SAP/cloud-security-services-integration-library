@@ -69,5 +69,7 @@ public interface OAuth2TokenKeyService {
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId, @Nullable String azp) throws OAuth2ServiceException;
+	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId, @Nullable String azp) throws OAuth2ServiceException {
+		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId);
+	}
 }
