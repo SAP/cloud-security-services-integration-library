@@ -2,6 +2,7 @@
 [![Maven Build main](https://github.com/SAP/cloud-security-services-integration-library/actions/workflows/maven-build.yml/badge.svg?branch=main)](https://github.com/SAP/cloud-security-services-integration-library/actions/workflows/maven-build.yml)
 [![Fosstars security rating](https://raw.githubusercontent.com/SAP/cloud-security-xsuaa-integration/fosstars-report/fosstars_badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/blob/fosstars-report/fosstars_report.md)
 [![CodeQL](https://github.com/SAP/cloud-security-xsuaa-integration/workflows/CodeQL/badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/actions?query=workflow%3ACodeQL)
+[![Project Map](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/sapcloudsecurityservicesintegrationlibrary/)
 
 
 
