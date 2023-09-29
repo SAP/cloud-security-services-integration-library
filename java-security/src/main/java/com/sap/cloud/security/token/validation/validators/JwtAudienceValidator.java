@@ -115,7 +115,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 				}
 			}
 		}
-		logger.info("The audiences that are derived from the token: {}.", audiences);
+		logger.debug("The audiences that are derived from the token: {}.", audiences);
 		return audiences;
 	}
 
