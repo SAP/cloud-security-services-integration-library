@@ -87,7 +87,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 
         URI jkuUri = endpointsProvider.getJwksUri();
         if (jkuUri == null) {
-            throw new IllegalArgumentException("Token signature can not be validated as OIDC .well-known response did not contain JWKS URI.");
+            throw new IllegalArgumentException("OIDC .well-known response did not contain JWKS URI.");
         }
 
         return jkuUri;
