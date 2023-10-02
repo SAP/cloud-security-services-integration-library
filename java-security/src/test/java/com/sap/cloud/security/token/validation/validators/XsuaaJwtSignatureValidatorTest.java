@@ -62,7 +62,7 @@ public class XsuaaJwtSignatureValidatorTest {
 						isNull(), isNull(), isNull()))
 								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
-		cut = new JwtSignatureValidator(
+		cut = new XsuaaJwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
@@ -84,8 +84,7 @@ public class XsuaaJwtSignatureValidatorTest {
 		Token tokenWithoutJkuButIssuer = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Token does not provide the required 'jku' header or issuer claim."));
+		assertThat(result.getErrorDescription(), containsString("Token does not contain the mandatory " + JsonWebKeyConstants.JKU_HEADER + " header"));
 	}
 
 	@Test
@@ -111,8 +110,7 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Fallback with configured 'verificationkey' was not successful."));
+		assertThat(result.getErrorDescription(), containsString("Fallback validation key"));
 	}
 
 	@Test
@@ -123,10 +121,8 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Signature of Jwt Token is not valid"));
-		assertThat(result.getErrorDescription(),
-				containsString("(Signature: CetA62rQSNRj93S9mqaHrKJyzONKeEKcEJ9O5wObRD_"));
+		assertThat(result.getErrorDescription(), containsString("Signature of Jwt Token is not valid"));
+		assertThat(result.getErrorDescription(), containsString("(Signature: CetA62rQSNRj93S9mqaHrKJyzONKeEKcEJ9O5wObRD_"));
 	}
 
 }

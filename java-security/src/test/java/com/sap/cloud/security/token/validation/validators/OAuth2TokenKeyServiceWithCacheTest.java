@@ -116,9 +116,8 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any(), any(), any()))
 				.thenThrow(new OAuth2ServiceException("Currently unavailable"));
 
-		assertThatThrownBy(() -> {
-			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
-		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Currently unavailable");
+		assertThatThrownBy(() -> cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP))
+				.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Currently unavailable");
 	}
 
 	@Test
@@ -173,7 +172,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	public void retrieveTokenKeysForNewKeyId()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
-		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "not-seen-yet", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
+		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-1", TOKEN_KEYS_URI, APP_TID, CLIENT_ID, AZP);
 
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(APP_TID), eq(CLIENT_ID), eq(AZP));
 	}
@@ -196,13 +195,11 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 				.thenThrow(new OAuth2ServiceException("Invalid parameters provided"));
 		cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID);
 
-		assertThatThrownBy(() -> {
-			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-tenant", CLIENT_ID, AZP);
-		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
+		assertThatThrownBy(() -> cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-tenant", CLIENT_ID, AZP)).
+				isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
 
-		assertThatThrownBy(() -> {
-			cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-tenant", CLIENT_ID, AZP);
-		}).isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
+		assertThatThrownBy(() -> cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, "invalid-tenant", CLIENT_ID, AZP))
+		.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
 
 		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq("invalid-tenant"), eq(CLIENT_ID), eq(AZP));
 	}

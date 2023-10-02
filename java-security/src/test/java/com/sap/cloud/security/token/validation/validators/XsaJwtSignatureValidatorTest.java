@@ -53,7 +53,7 @@ public class XsaJwtSignatureValidatorTest {
 				.retrieveTokenKeys(eq(JKU_URI), any(), isNull(), any()))
 						.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
-		cut = new JwtSignatureValidator(
+		cut = new XsuaaJwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()

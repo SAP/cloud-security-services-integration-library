@@ -163,7 +163,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		}
 
 		LOGGER.warn("No matching key found. Cached keys: {}", jwks);
-		return null;
+		throw new IllegalArgumentException("Key with kid " + keyId + " not found in JWKS.");
 	}
 
     private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey) throws OAuth2ServiceException {

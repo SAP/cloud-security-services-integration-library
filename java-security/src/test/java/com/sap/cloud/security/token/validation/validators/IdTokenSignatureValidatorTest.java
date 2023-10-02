@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 public class IdTokenSignatureValidatorTest {
@@ -68,7 +69,7 @@ public class IdTokenSignatureValidatorTest {
 				.retrieveTokenKeys(JKU_URI, APP_TID, CLIENT_ID, AZP))
 						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
-		cut = new JwtSignatureValidator(
+		cut = new SapIdJwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
@@ -86,8 +87,7 @@ public class IdTokenSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(iasToken);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Error occurred during jwks uri determination"));
+		assertThat(result.getErrorDescription(), containsString("OIDC .well-known response did not contain JWKS URI"));
 	}
 
 	@Test
@@ -97,8 +97,7 @@ public class IdTokenSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(iasToken);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Error occurred during jwks uri determination"));
+		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
 	}
 
 	@Test
@@ -108,18 +107,18 @@ public class IdTokenSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(iasToken);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Error retrieving Json Web Keys from Identity Service"));
+		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
 	}
 
 	@Test
 	public void validationFails_whenNoMatchingKey() {
-		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-2",
-				JKU_URI.toString(), null, null, null);
+		String otherKid = "someOtherKid";
+		Token tokenSpy = Mockito.spy(iasToken);
+		doReturn(otherKid).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.KID_HEADER);
+
+		ValidationResult result = cut.validate(tokenSpy);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString(
-						"There is no Json Web Token Key with keyId 'default-kid-2' and type 'RSA' found"));
+		assertThat(result.getErrorDescription(), containsString("Key with kid " + otherKid + " not found in JWKS"));
 	}
 
 }
