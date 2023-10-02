@@ -84,7 +84,7 @@ public class XsuaaJwtSignatureValidatorTest {
 		Token tokenWithoutJkuButIssuer = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("Token does not contain the mandatory " + JsonWebKeyConstants.JKU_HEADER + " header"));
+		assertThat(result.getErrorDescription(), containsString("Token does not contain the mandatory " + JsonWebKeyConstants.JKU_PARAMETER_NAME + " header"));
 	}
 
 	@Test

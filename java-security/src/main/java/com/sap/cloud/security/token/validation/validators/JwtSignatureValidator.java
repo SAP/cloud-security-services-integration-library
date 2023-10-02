@@ -19,7 +19,7 @@ import java.util.Base64;
 
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
-import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.ALG_HEADER;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.ALG_PARAMETER_NAME;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -51,8 +51,8 @@ abstract class JwtSignatureValidator implements Validator<Token> {
         }
 
         JwtSignatureAlgorithm algorithm = JwtSignatureAlgorithm.RS256;
-        if (token.hasHeaderParameter(ALG_HEADER)) {
-            String algHeader = token.getHeaderParameterAsString(ALG_HEADER);
+        if (token.hasHeaderParameter(ALG_PARAMETER_NAME)) {
+            String algHeader = token.getHeaderParameterAsString(ALG_PARAMETER_NAME);
             algorithm = JwtSignatureAlgorithm.fromValue(algHeader);
             if (algorithm == null) {
                 return createInvalid("JWT token validation with signature algorithm '" + algHeader + "' is not supported.");

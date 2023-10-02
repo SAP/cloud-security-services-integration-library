@@ -39,14 +39,14 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
 
 
     private PublicKey fetchPublicKey(Token token, JwtSignatureAlgorithm algorithm) throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-        String keyId = configuration.isLegacyMode() ? KEY_ID_VALUE_LEGACY : token.getHeaderParameterAsString(KID_HEADER);
+        String keyId = configuration.isLegacyMode() ? KEY_ID_VALUE_LEGACY : token.getHeaderParameterAsString(KID_PARAMETER_NAME);
         if (keyId == null) {
-            throw new IllegalArgumentException("Token does not contain the mandatory " + KID_HEADER + " header.");
+            throw new IllegalArgumentException("Token does not contain the mandatory " + KID_PARAMETER_NAME + " header.");
         }
 
-        String jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : token.getHeaderParameterAsString(JKU_HEADER);
+        String jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : token.getHeaderParameterAsString(JKU_PARAMETER_NAME);
         if (jwksUri == null) {
-            throw new IllegalArgumentException("Token does not contain the mandatory " + JKU_HEADER + " header.");
+            throw new IllegalArgumentException("Token does not contain the mandatory " + JKU_PARAMETER_NAME + " header.");
         }
 
         return tokenKeyService.getPublicKey(algorithm, keyId, URI.create(jwksUri), null, null, null);

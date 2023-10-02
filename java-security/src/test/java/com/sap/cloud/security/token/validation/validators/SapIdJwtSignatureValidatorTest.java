@@ -87,7 +87,7 @@ public class SapIdJwtSignatureValidatorTest {
 	@Test
 	public void validate_throwsWhenAlgorithmIsNull() {
         Token tokenSpy = Mockito.spy(iasToken);
-        doReturn(null).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_HEADER);
+        doReturn(null).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
 
 		ValidationResult validationResult = cut.validate(tokenSpy);
 		assertTrue(validationResult.isErroneous());
@@ -97,7 +97,7 @@ public class SapIdJwtSignatureValidatorTest {
 	@Test
 	public void validate_throwsWhenKeyIdIsNull() {
         Token tokenSpy = Mockito.spy(iasToken);
-        doReturn(null).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.KID_HEADER);
+        doReturn(null).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.KID_PARAMETER_NAME);
 
 		ValidationResult validationResult = cut.validate(tokenSpy);
 		assertTrue(validationResult.isErroneous());
@@ -174,7 +174,7 @@ public class SapIdJwtSignatureValidatorTest {
 	public void validationFails_whenTokenAlgorithmIsNotSupported() {
         Token tokenSpy = Mockito.spy(iasToken);
 		String unsupportedAlgorithm = "UnsupportedAlgorithm";
-		doReturn(unsupportedAlgorithm).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_HEADER);
+		doReturn(unsupportedAlgorithm).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
 
         ValidationResult validationResult = cut.validate(tokenSpy);
 
@@ -185,7 +185,7 @@ public class SapIdJwtSignatureValidatorTest {
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNone() {
         Token tokenSpy = Mockito.spy(iasToken);
-        doReturn("NONE").when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_HEADER);
+        doReturn("NONE").when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
 
         ValidationResult validationResult = cut.validate(tokenSpy);
 

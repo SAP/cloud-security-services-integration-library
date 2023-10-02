@@ -14,7 +14,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
-import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KID_HEADER;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KID_PARAMETER_NAME;
 
 
 class SapIdJwtSignatureValidator extends JwtSignatureValidator {
@@ -40,8 +40,8 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
     @Override
     protected PublicKey getPublicKey(Token token, JwtSignatureAlgorithm algorithm) throws OAuth2ServiceException {
         String keyId = DEFAULT_KEY_ID;
-        if (token.hasHeaderParameter(KID_HEADER)) {
-            keyId = token.getHeaderParameterAsString(KID_HEADER);
+        if (token.hasHeaderParameter(KID_PARAMETER_NAME)) {
+            keyId = token.getHeaderParameterAsString(KID_PARAMETER_NAME);
         }
 
         URI jkuUri = getJwksUri(token);

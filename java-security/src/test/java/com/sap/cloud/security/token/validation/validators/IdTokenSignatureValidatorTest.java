@@ -114,7 +114,7 @@ public class IdTokenSignatureValidatorTest {
 	public void validationFails_whenNoMatchingKey() {
 		String otherKid = "someOtherKid";
 		Token tokenSpy = Mockito.spy(iasToken);
-		doReturn(otherKid).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.KID_HEADER);
+		doReturn(otherKid).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.KID_PARAMETER_NAME);
 
 		ValidationResult result = cut.validate(tokenSpy);
 		assertThat(result.isErroneous(), is(true));
