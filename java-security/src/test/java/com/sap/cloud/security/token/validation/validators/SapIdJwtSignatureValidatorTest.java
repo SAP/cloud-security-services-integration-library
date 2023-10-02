@@ -110,7 +110,7 @@ public class SapIdJwtSignatureValidatorTest {
 
 		ValidationResult validationResult = cut.validate(iasToken);
 		assertTrue(validationResult.isErroneous());
-		assertThat(validationResult.getErrorDescription(), containsString("Token signature can not be validated as OIDC .well-known response did not contain JWKS URI."));
+		assertThat(validationResult.getErrorDescription(), containsString("OIDC .well-known response did not contain JWKS URI."));
 	}
 
 	@Test
