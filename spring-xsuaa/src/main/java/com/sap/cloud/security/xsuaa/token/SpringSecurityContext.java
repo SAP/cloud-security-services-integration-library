@@ -30,7 +30,7 @@ public class SpringSecurityContext {
 	 *             <p>
 	 *             Note: This method is introduced with xsuaa spring client lib.
 	 */
-	static public Token getToken() {
+	public static Token getToken() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null) {
@@ -41,7 +41,7 @@ public class SpringSecurityContext {
 			return (Token) principal;
 		}
 		throw new AccessDeniedException(
-				"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token' " + principal);
+				"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token'. Found instead a principal of type " + principal.getClass());
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class SpringSecurityContext {
 	 *            the extractor used to turn Jwt scopes into Spring Security
 	 *            authorities.
 	 */
-	static public void init(String encodedJwtToken, JwtDecoder xsuaaJwtDecoder,
+	public static void init(String encodedJwtToken, JwtDecoder xsuaaJwtDecoder,
 			AuthoritiesExtractor authoritiesExtractor) {
 		Assert.isInstanceOf(XsuaaJwtDecoder.class, xsuaaJwtDecoder,
 				"Passed JwtDecoder instance must be of type 'XsuaaJwtDecoder'");
@@ -74,7 +74,7 @@ public class SpringSecurityContext {
 	 * Cleans up the Spring Security Context {@link SecurityContextHolder} and
 	 * release thread locals for Garbage Collector to avoid memory leaks resources.
 	 */
-	static public void clear() {
+	public static void clear() {
 		SecurityContextHolder.clearContext();
 	}
 }

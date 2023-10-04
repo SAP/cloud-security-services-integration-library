@@ -56,7 +56,7 @@ public class SpringSecurityContext {
 			return (Token) principal;
 		}
 		throw new AccessDeniedException(
-				"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token' " + principal);
+				"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token'. Found instead a principal of type " + principal.getClass());
 	}
 
 	/**
