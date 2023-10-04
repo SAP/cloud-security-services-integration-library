@@ -68,6 +68,10 @@ abstract class JwtSignatureValidator implements Validator<Token> {
             return createInvalid("Token signature can not be validated because: {}", e.getMessage());
         }
 
+        if(publicKey == null) {
+            return createInvalid("Token signature can not be validated because JWKS was empty.");
+        }
+
         return validateSignature(token, publicKey, algorithm);
     }
 

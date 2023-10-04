@@ -20,21 +20,27 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
 
     @Override
     protected PublicKey getPublicKey(Token token, JwtSignatureAlgorithm algorithm) throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+        PublicKey key = null;
+
         try {
-            return fetchPublicKey(token, algorithm);
+            key = fetchPublicKey(token, algorithm);
         } catch (OAuth2ServiceException | InvalidKeySpecException | NoSuchAlgorithmException | IllegalArgumentException e) {
             if (!configuration.hasProperty(FALLBACK_KEY)) {
                 throw e;
-            } else {
-                String fallbackKey = configuration.getProperty(FALLBACK_KEY);
-
-                try {
-                    return JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, fallbackKey);
-                } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-                    throw new IllegalArgumentException("Fallback validation key supplied via " + FALLBACK_KEY + " property in service credentials could not be used: {}", ex);
-                }
             }
         }
+
+        if(key == null && configuration.hasProperty(FALLBACK_KEY)) {
+            String fallbackKey = configuration.getProperty(FALLBACK_KEY);
+
+            try {
+                key = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, fallbackKey);
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+                throw new IllegalArgumentException("Fallback validation key supplied via " + FALLBACK_KEY + " property in service credentials could not be used: {}", ex);
+            }
+        }
+
+        return key;
     }
 
 
@@ -49,6 +55,6 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
             throw new IllegalArgumentException("Token does not contain the mandatory " + JKU_PARAMETER_NAME + " header.");
         }
 
-        return tokenKeyService.getPublicKey(algorithm, keyId, URI.create(jwksUri), null, null, null);
+        return tokenKeyService.getPublicKey(algorithm, keyId, URI.create(jwksUri), null, configuration.getClientId(), null);
     }
 }
