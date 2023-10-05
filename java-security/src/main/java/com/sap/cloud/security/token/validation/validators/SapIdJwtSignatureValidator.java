@@ -16,7 +16,9 @@ import java.security.spec.InvalidKeySpecException;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KID_PARAMETER_NAME;
 
-
+/**
+ * Jwt Signature validator for OIDC tokens issued by Identity service
+ */
 class SapIdJwtSignatureValidator extends JwtSignatureValidator {
     private boolean isTenantIdCheckEnabled = true;
 

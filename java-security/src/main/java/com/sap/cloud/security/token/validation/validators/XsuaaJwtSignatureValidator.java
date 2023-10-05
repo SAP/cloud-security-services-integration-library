@@ -11,6 +11,9 @@ import java.security.spec.InvalidKeySpecException;
 
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.*;
 
+/**
+ * Jwt Signature validator for Access tokens issued by Xsuaa service
+ */
 class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
     public static final String FALLBACK_KEY = "verificationkey";
 
