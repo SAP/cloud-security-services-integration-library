@@ -4,16 +4,16 @@
 [![CodeQL](https://github.com/SAP/cloud-security-services-integration-library/workflows/CodeQL/badge.svg)](https://github.com/SAP/cloud-security-xsuaa-integration/actions?query=workflow%3ACodeQL)
 
 # :warning: Announcement of End of Support for our Spring Libraries
-As support for [Spring Boot 2.x](https://spring.io/projects/spring-boot#support) and [Spring Framework 5.x](https://spring.io/projects/spring-framework#support) comes to an end, we will also discontinue support for our Spring-dependent artifacts. This means that, beyond the end of support date for affected libraries, we will not provide any bug fixes nor security patches.
+As support for [Spring Boot 2.x](https://spring.io/projects/spring-boot#support) and [Spring Security 5.x](https://spring.io/projects/spring-security#support) comes to an end, we will also discontinue support for our Spring-dependent artifacts. This means that, beyond the end of support date for affected libraries, we will not provide any bug fixes nor security patches.
 
 We recommend upgrading to our [3.x major release](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main), which supports Spring Boot 3.x, Spring Framework 6.x, and Java 17. For assistance with the migration process, please refer to our [migration guide](./MIGRATION_TO_3.x.md).
 
 | ArtifactId                                  | Version | End of Support |
 |---------------------------------------------|---------|----------------|
-| spring-xsuaa                                | 2.x     | Dec, 2025      |
-| spring-xsuaa-test                           | 2.x     | Dec, 2025      |
+| spring-xsuaa                                | 2.x     | Nov, 2023      |
+| spring-xsuaa-test                           | 2.x     | Nov, 2023      |
 | xsuaa-spring-boot-starter                   | 2.x     | Nov, 2023      |
-| spring-security                             | 2.x     | Dec, 2025      |
+| spring-security                             | 2.x     | Nov, 2023      |
 | resourceserver-security-spring-boot-starter | 2.x     | Nov, 2023      |
 
 # Description
