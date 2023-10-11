@@ -1,6 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 
@@ -15,7 +16,7 @@ import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConst
  * Jwt Signature validator for Access tokens issued by Xsuaa service
  */
 class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
-    public static final String FALLBACK_KEY = "verificationkey";
+    public static final String FALLBACK_KEY = ServiceConstants.XSUAA.VERIFICATION_KEY;
 
     XsuaaJwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService, OidcConfigurationServiceWithCache oidcConfigurationService) {
         super(configuration, tokenKeyService, oidcConfigurationService);
