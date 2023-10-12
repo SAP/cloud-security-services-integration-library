@@ -4,11 +4,14 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Collections;
+import java.util.Map;
 
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.*;
 
@@ -59,6 +62,7 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
             throw new IllegalArgumentException("Token does not contain the mandatory " + JKU_PARAMETER_NAME + " header.");
         }
 
-        return tokenKeyService.getPublicKey(algorithm, keyId, URI.create(jwksUri), null, configuration.getClientId(), null);
+        Map<String, String> params = Collections.singletonMap(HttpHeaders.X_ZID, token.getAppTid());
+        return tokenKeyService.getPublicKey(algorithm, keyId, URI.create(jwksUri), params);
     }
 }

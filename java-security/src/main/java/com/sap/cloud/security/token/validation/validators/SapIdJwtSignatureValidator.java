@@ -6,12 +6,15 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KID_PARAMETER_NAME;
@@ -46,12 +49,13 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
         }
 
         URI jkuUri = getJwksUri(token);
-        String appTid = token.getAppTid();
-        String clientId = configuration.getClientId();
-        String azp = token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY);
+        Map<String, String> params = new HashMap<>(3, 1);
+        params.put(HttpHeaders.X_APP_TID, token.getAppTid());
+        params.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
+        params.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
 
         try {
-            return tokenKeyService.getPublicKey(algorithm, keyId, jkuUri, appTid, clientId, azp);
+            return tokenKeyService.getPublicKey(algorithm, keyId, jkuUri, params);
         } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
             throw new IllegalArgumentException(e);
         }
@@ -59,7 +63,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 
     private URI getJwksUri(Token token) throws OAuth2ServiceException {
         String domain = token.getIssuer();
-        if(domain == null) {
+        if (domain == null) {
             throw new IllegalArgumentException("Token does not contain mandatory " + TokenClaims.ISSUER + " header.");
         }
 
@@ -83,7 +87,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
         URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(domain);
 
         OAuth2ServiceEndpointsProvider endpointsProvider = oidcConfigurationService.getOrRetrieveEndpoints(discoveryUri);
-        if(endpointsProvider == null) {
+        if (endpointsProvider == null) {
             throw new OAuth2ServiceException("OIDC .well-known configuration could not be retrieved.");
         }
 

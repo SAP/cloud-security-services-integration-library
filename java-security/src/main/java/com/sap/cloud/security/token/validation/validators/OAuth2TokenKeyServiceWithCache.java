@@ -13,6 +13,7 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -103,12 +106,12 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Returns {@link OAuth2TokenKeyServiceWithCache#getPublicKey(JwtSignatureAlgorithm, String, URI, String, String, String)} with clientId = null and azp = null.
+	 * Returns {@link OAuth2TokenKeyServiceWithCache#getPublicKey(JwtSignatureAlgorithm, String, URI, Map)} with {@link HttpHeaders#X_APP_TID} = appTid inside params.
 	 */
 	@Nullable
 	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		return getPublicKey(keyAlgorithm, keyId, keyUri, appTid, null, null);
+		return getPublicKey(keyAlgorithm, keyId, keyUri, Map.of(HttpHeaders.X_APP_TID, appTid));
 	}
 
 	/**
@@ -122,12 +125,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * @param keyUri
 	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
 	 *            specific).
-	 * @param appTid
-	 *            the unique identifier of the tenant
-	 * @param clientId
-	 *			  client id from the service configuration
-	 * @param azp
-	 * 			  azp claim from the token
+	 * @param params
+	 *            additional parameters that are sent along with the request. Use constants from {@link HttpHeaders} for the parameter keys.
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service
@@ -138,13 +137,13 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *             in case the algorithm of the json web key is not supported.
 	 *
 	 */
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid, String clientId, String azp)
+	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, Map<String, String> params)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		assertNotNull(keyAlgorithm, "keyAlgorithm must not be null.");
 		assertHasText(keyId, "keyId must not be null.");
 		assertNotNull(keyUri, "keyUrl must not be null.");
 
-		CacheKey cacheKey = new CacheKey(keyUri, appTid, clientId, azp);
+		CacheKey cacheKey = new CacheKey(keyUri, params);
 		JsonWebKeySet jwks = getCache().getIfPresent(cacheKey.toString());
 
         if(jwks == null) {
@@ -167,7 +166,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
     private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey) throws OAuth2ServiceException {
-            String jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), cacheKey.appTid(), cacheKey.clientId(), cacheKey.azp());
+            String jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), cacheKey.params());
 
             JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson);
             getCache().put(cacheKey.toString(), keySet);
@@ -243,18 +242,17 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		return getCacheConfiguration().isCacheStatisticsEnabled() ? getCache().stats() : null;
 	}
 
-	record CacheKey (URI keyUri, String appTid, String clientId, String azp) {
+	record CacheKey (URI keyUri, Map<String, String> params) {
 		@Override
 		public String toString() {
-			String appTid = this.appTid != null ? this.appTid : "";
-			String clientId = this.clientId != null ? this.clientId : "";
-			String azp = this.azp != null ? this.azp : "";
+			// e.g. app_tid:<app_tid>|client_id:<client_id>|azp:<azp>
+			String paramString = params.entrySet().stream()
+					.filter(e -> e.getValue() != null)
+					.map(e -> e.getKey() + ":" + e.getValue())
+					.collect(Collectors.joining("|"));
 
-			return String.format("%d:%s:%d:%s:%d:%s:%d:%s",
-					keyUri.toString().length(), keyUri,
-					appTid.length(), appTid,
-					clientId.length(), clientId,
-					azp.length(), azp);
+			// e.g. url:<url>|app_tid:<app_tid>|client_id:<client_id>|azp:<azp>
+			return String.format("url:%s|%s", keyUri, paramString);
 		}
 	}
 }

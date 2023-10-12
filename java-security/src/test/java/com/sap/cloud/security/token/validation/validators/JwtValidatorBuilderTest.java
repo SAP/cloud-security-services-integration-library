@@ -35,6 +35,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -127,7 +128,7 @@ public class JwtValidatorBuilderTest {
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
 
-		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any(), any(), any()))
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), anyMap()))
 				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://application.myauth.com/jwks_uri"));
 		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);

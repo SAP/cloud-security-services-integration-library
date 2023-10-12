@@ -14,12 +14,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.*;
 import static org.springframework.http.HttpMethod.GET;
 
 public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
@@ -34,34 +33,22 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId)
-			throws OAuth2ServiceException {
-		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, null, null);
-	}
-
-	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId)
-			throws OAuth2ServiceException {
-		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, clientId, null);
-	}
-
-	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId, @Nullable String azp)
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params)
 			throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
-		headers.set(X_APP_TID, tenantId);
-		headers.set(X_CLIENT_ID, clientId);
-		headers.set(X_AZP, azp);
+		for(Map.Entry<String, String> p : params.entrySet()) {
+			headers.set(p.getKey(), p.getValue());
+		}
 
 		try {
 			ResponseEntity<String> response = restOperations.exchange(
 					tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
-				LOGGER.debug("Successfully retrieved token keys from {} for tenant '{}'", tokenKeysEndpointUri, tenantId);
+				LOGGER.debug("Successfully retrieved token keys from {} for params '{}'", tokenKeysEndpointUri, params);
 				return response.getBody();
 			} else {
 				throw OAuth2ServiceException.builder(
@@ -72,7 +59,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 						.withHeaders(response.getHeaders().size() != 0 ? response.getHeaders().entrySet().stream().map(
 										h -> h.getKey() + ": " + String.join(",", h.getValue()))
 								.toArray(String[]::new) : null)
-						.withStatusCode(response.getStatusCodeValue())
+						.withStatusCode(response.getStatusCode().value())
 						.withResponseBody(response.getBody())
 						.build();
 			}

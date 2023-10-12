@@ -30,7 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +58,7 @@ public class SapIdJwtSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any(), isNotNull(), any()))
+				.retrieveTokenKeys(any(), anyMap()))
 						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
 		endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
@@ -195,7 +195,7 @@ public class SapIdJwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_whenOAuthServerIsUnavailable() throws OAuth2ServiceException {
-		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any(), any(), any())).thenThrow(OAuth2ServiceException.class);
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), anyMap())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken);
 		assertThat(result.isErroneous(), is(true));

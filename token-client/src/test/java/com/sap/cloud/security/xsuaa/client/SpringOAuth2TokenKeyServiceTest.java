@@ -21,6 +21,7 @@ import org.springframework.web.client.RestOperations;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -36,6 +37,10 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	public static final String CLIENT_ID = "client-id";
 	public static final String AZP = "azp";
+	private static final Map<String, String> PARAMS = Map.of(
+			HttpHeaders.X_APP_TID, APP_TID,
+			HttpHeaders.X_CLIENT_ID, CLIENT_ID,
+			HttpHeaders.X_AZP, AZP);
 
 	private RestOperations restOperationsMock;
 	private SpringOAuth2TokenKeyService cut;
@@ -68,7 +73,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public void retrieveTokenKeys_usesGivenURI() throws OAuth2ServiceException {
 		mockResponse();
 
-		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID, AZP);
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
 		Mockito.verify(restOperationsMock, times(1))
 				.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), argThat(httpEntityContainsMandatoryHeaders()),
@@ -81,33 +86,20 @@ public class SpringOAuth2TokenKeyServiceTest {
 		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
 
 		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
-				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID, AZP));
+				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS));
 
 		assertThat(e.getMessage())
 				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
 				.contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
 				.contains("Request headers [Accept: application/json, User-Agent: token-client/")
-				.contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, x-azp: azp")
+				.contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
+				.contains("x-client_id: client-id")
+				.contains("x-azp: azp")
 				.contains("Response Headers ")
 				.contains(errorMessage);
 		assertThat(e.getHttpStatusCode()).isEqualTo(400);
 		assertThat(e.getHeaders()).hasSize(1);
 		assertThat(e.getHeaders()).contains("Content-Type: application/json");
-	}
-
-	@Test
-	public void retrieveTokenKeys_badResponse_noAppTid() {
-		String errorMessage = "useful error message";
-		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
-
-		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
-				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, CLIENT_ID, AZP));
-
-		assertThat(e.getMessage())
-				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
-				.contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
-				.contains("Request headers [Accept: application/json, User-Agent: token-client/") //if app_tid is missing the x-app_tid and x-client_id headers shouldn't be sent
-				.contains(errorMessage);
 	}
 
 	private void mockResponse() {
