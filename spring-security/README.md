@@ -66,7 +66,7 @@ These (spring) dependencies need to be provided:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.1.3</version>
+    <version>3.2.0</version>
 </dependency>
 ```
 

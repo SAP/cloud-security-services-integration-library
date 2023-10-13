@@ -67,7 +67,7 @@ To be able to validate tokens it performs the following tasks:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>3.1.3</version>
+    <version>3.2.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents.client5</groupId>
