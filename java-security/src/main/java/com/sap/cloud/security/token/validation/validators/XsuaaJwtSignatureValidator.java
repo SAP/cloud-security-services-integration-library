@@ -19,35 +19,26 @@ import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConst
  * Jwt Signature validator for Access tokens issued by Xsuaa service
  */
 class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
-    public static final String FALLBACK_KEY = ServiceConstants.XSUAA.VERIFICATION_KEY;
-
     XsuaaJwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService, OidcConfigurationServiceWithCache oidcConfigurationService) {
         super(configuration, tokenKeyService, oidcConfigurationService);
     }
 
     @Override
     protected PublicKey getPublicKey(Token token, JwtSignatureAlgorithm algorithm) throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-        PublicKey key = null;
-
         try {
-            key = fetchPublicKey(token, algorithm);
+            return fetchPublicKey(token, algorithm);
         } catch (OAuth2ServiceException | InvalidKeySpecException | NoSuchAlgorithmException | IllegalArgumentException e) {
-            if (!configuration.hasProperty(FALLBACK_KEY)) {
+            if (!configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
                 throw e;
             }
         }
 
-        if(key == null && configuration.hasProperty(FALLBACK_KEY)) {
-            String fallbackKey = configuration.getProperty(FALLBACK_KEY);
-
-            try {
-                key = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, fallbackKey);
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-                throw new IllegalArgumentException("Fallback validation key supplied via " + FALLBACK_KEY + " property in service credentials could not be used: {}", ex);
-            }
+        String fallbackKey = configuration.getProperty(ServiceConstants.XSUAA.VERIFICATION_KEY);
+        try {
+            return JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, fallbackKey);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+            throw new IllegalArgumentException("Fallback validation key supplied via " + ServiceConstants.XSUAA.VERIFICATION_KEY + " property in service credentials could not be used: {}", ex);
         }
-
-        return key;
     }
 
 
