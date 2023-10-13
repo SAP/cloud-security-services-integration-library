@@ -19,14 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_APP_TID;
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_CLIENT_ID;
+import java.util.Map;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
@@ -44,19 +41,12 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId)
-			throws OAuth2ServiceException {
-		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, null);
-	}
-
-	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId) throws OAuth2ServiceException {
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
-		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri); // lgtm[java/ssrf] tokenKeysEndpointUri is validated
-																	// as part of XsuaaJkuValidator in java-security
-		if (tenantId != null && clientId != null) {
-			request.addHeader(X_APP_TID, tenantId);
-			request.addHeader(X_CLIENT_ID, clientId);
+		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
+
+		for(Map.Entry<String, String> p : params.entrySet()) {
+			request.addHeader(p.getKey(), p.getValue());
 		}
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
@@ -77,7 +67,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 							.build();
 				}
 
-				LOGGER.debug("Successfully retrieved token keys from {} for tenant '{}'", tokenKeysEndpointUri, tenantId);
+				LOGGER.debug("Successfully retrieved token keys from {} with params {}.", tokenKeysEndpointUri, params);
 				return body;
 			});
 		} catch (IOException e) {

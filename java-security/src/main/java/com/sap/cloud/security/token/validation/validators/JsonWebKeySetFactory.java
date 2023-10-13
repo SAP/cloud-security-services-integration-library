@@ -35,14 +35,14 @@ class JsonWebKeySetFactory {
 		String publicExponent = null;
 
 		String keyType = key.getString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
-		if (key.has(JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME)) {
-			keyAlgorithm = key.getString(JsonWebKeyConstants.ALGORITHM_PARAMETER_NAME);
+		if (key.has(JsonWebKeyConstants.ALG_PARAMETER_NAME)) {
+			keyAlgorithm = key.getString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
 		}
 		if (key.has(JsonWebKeyConstants.VALUE_PARAMETER_NAME)) {
 			pemEncodedPublicKey = key.getString(JsonWebKeyConstants.VALUE_PARAMETER_NAME);
 		}
-		if (key.has(JsonWebKeyConstants.KEY_ID_PARAMETER_NAME)) {
-			keyId = key.getString(JsonWebKeyConstants.KEY_ID_PARAMETER_NAME);
+		if (key.has(JsonWebKeyConstants.KID_PARAMETER_NAME)) {
+			keyId = key.getString(JsonWebKeyConstants.KID_PARAMETER_NAME);
 		}
 		if (key.has(JsonWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME)) {
 			modulus = key.getString(JsonWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME);

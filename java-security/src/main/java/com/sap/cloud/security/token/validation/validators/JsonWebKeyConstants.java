@@ -16,10 +16,10 @@ class JsonWebKeyConstants {
 	// Parameter names as defined in https://tools.ietf.org/html/rfc7517
 	static final String KEYS_PARAMETER_NAME = "keys";
 	static final String KEY_TYPE_PARAMETER_NAME = "kty";
-	static final String ALGORITHM_PARAMETER_NAME = "alg";
+	static final String ALG_PARAMETER_NAME = "alg";
 	static final String VALUE_PARAMETER_NAME = "value";
-	static final String KEYS_URL_PARAMETER_NAME = "jku";
-	static final String KEY_ID_PARAMETER_NAME = "kid";
+	static final String JKU_PARAMETER_NAME = "jku";
+	static final String KID_PARAMETER_NAME = "kid";
 
 	// Legacy Token Key ID
 	static final String KEY_ID_VALUE_LEGACY = "legacy-token-key";
