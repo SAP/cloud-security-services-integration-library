@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *<p>
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.xsuaa.client;
@@ -9,6 +9,7 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -21,10 +22,10 @@ import org.springframework.http.HttpMethod;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
@@ -35,6 +36,11 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	public static final URI TOKEN_KEYS_ENDPOINT_URI = URI.create("https://tokenKeys.io/token_keys");
 	public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	public static final String CLIENT_ID = "client-id";
+	public static final String AZP = "azp";
+	private static final Map<String, String> PARAMS = Map.of(
+			HttpHeaders.X_APP_TID, APP_TID,
+			HttpHeaders.X_CLIENT_ID, CLIENT_ID,
+			HttpHeaders.X_AZP, AZP);
 	private final String jsonWebKeysAsString;
 
 	private DefaultOAuth2TokenKeyService cut;
@@ -63,34 +69,17 @@ public class DefaultOAuth2TokenKeyServiceTest {
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClient.execute(any())).thenReturn(response);
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
-				.hasMessageContaining("Request headers [x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c, x-client_id: client-id, User-Agent: token-client/")
+				.hasMessageContaining("Request headers [")
+				.hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
+				.hasMessageContaining("x-client_id: client-id")
+				.hasMessageContaining("x-azp: azp")
 				.hasMessageContaining("'Something went wrong'")
 				.hasMessageContaining("Error retrieving token keys")
 				.hasMessageContaining("Response Headers [testHeader: testValue]")
 				.hasMessageContaining("Http status code 400");
-	}
-
-	@Test
-	public void retrieveTokenKeys_responseNotOk_throwsException_noAppTid() throws IOException {
-		String errorDescription = "Something went wrong";
-		CloseableHttpResponse response = HttpClientTestFactory
-				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClient.execute(any())).thenReturn(response);
-
-		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
-				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, CLIENT_ID));
-
-		assertThat(e.getHeaders()).contains("testHeader: testValue");
-		assertThat(e.getHttpStatusCode()).isEqualTo(400);
-		assertThat(e.getMessage())
-				.contains(errorDescription)
-				.contains("Request headers [User-Agent: token-client/")
-				.contains("Response Headers [testHeader: testValue]")
-				.contains("Http status code 400")
-				.contains("Server URI https://tokenKeys.io/token_keys");
 	}
 
 	@Test
@@ -100,7 +89,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClient.execute(any())).thenReturn(response);
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, null, null))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, Collections.emptyMap()))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorDescription)
 				.hasMessageContaining("'Something went wrong'")
@@ -109,7 +98,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, APP_TID, null))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, PARAMS))
 				.isInstanceOf(IllegalArgumentException.class);
 	}
 
@@ -118,28 +107,30 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorMessage = "useful error message";
 		when(httpClient.execute(any())).thenThrow(new IOException(errorMessage));
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID))
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorMessage);
 	}
 
 	@Test
-	public void retrieveTokenKeys_executesHttpGetRequestWithCorrectURI() throws IOException {
+	public void retrieveTokenKeys_executesCorrectHttpGetRequest() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
 		when(httpClient.execute(any())).thenReturn(response);
 
-		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, APP_TID, CLIENT_ID);
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
-		Mockito.verify(httpClient, times(1)).execute(argThat(isHttpGetAndContainsCorrectURI()));
+		Mockito.verify(httpClient, times(1)).execute(argThat(isCorrectHttpGetRequest()),
+				any(ResponseHandler.class));
 	}
 
-	private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
+	private ArgumentMatcher<HttpUriRequest> isCorrectHttpGetRequest() {
 		return (httpGet) -> {
 			boolean hasCorrectURI = httpGet.getURI().equals(TOKEN_KEYS_ENDPOINT_URI);
 			boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
 			boolean correctTenantHeader = httpGet.getFirstHeader(HttpHeaders.X_APP_TID).getValue().equals(APP_TID);
 			boolean correctClientId = httpGet.getFirstHeader(HttpHeaders.X_CLIENT_ID).getValue().equals(CLIENT_ID);
-			return hasCorrectURI && correctMethod && correctTenantHeader && correctClientId;
+			boolean correctAzp = httpGet.getFirstHeader(HttpHeaders.X_AZP).getValue().equals(AZP);
+			return hasCorrectURI && correctMethod && correctTenantHeader && correctClientId && correctAzp;
 		};
 	}
 }
