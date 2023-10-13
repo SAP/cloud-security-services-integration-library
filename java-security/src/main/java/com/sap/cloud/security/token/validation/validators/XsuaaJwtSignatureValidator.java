@@ -1,7 +1,7 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.ServiceConstants;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -30,17 +30,17 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
         try {
             key = fetchPublicKey(token, algorithm);
         } catch (OAuth2ServiceException | InvalidKeySpecException | NoSuchAlgorithmException | IllegalArgumentException e) {
-            if (!configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
+            if (!configuration.hasProperty(CFConstants.XSUAA.VERIFICATION_KEY)) {
                 throw e;
             }
         }
 
-        if (key == null && configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
-            String fallbackKey = configuration.getProperty(ServiceConstants.XSUAA.VERIFICATION_KEY);
+        if (key == null && configuration.hasProperty(CFConstants.XSUAA.VERIFICATION_KEY)) {
+            String fallbackKey = configuration.getProperty(CFConstants.XSUAA.VERIFICATION_KEY);
             try {
                 key = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, fallbackKey);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-                throw new IllegalArgumentException("Fallback validation key supplied via " + ServiceConstants.XSUAA.VERIFICATION_KEY + " property in service credentials could not be used: {}", ex);
+                throw new IllegalArgumentException("Fallback validation key supplied via " + CFConstants.XSUAA.VERIFICATION_KEY + " property in service credentials could not be used: {}", ex);
             }
         }
 

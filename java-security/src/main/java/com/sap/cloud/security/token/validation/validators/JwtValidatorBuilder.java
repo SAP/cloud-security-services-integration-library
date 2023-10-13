@@ -236,7 +236,7 @@ public class JwtValidatorBuilder {
 		}
 
 		defaultValidators.add(signatureValidator);
-		defaultValidators.add(Objects.requireNonNullElseGet(customAudienceValidator, this::createAudienceValidator));
+		defaultValidators.add(customAudienceValidator != null ? customAudienceValidator : createAudienceValidator());
 
 		return defaultValidators;
 	}

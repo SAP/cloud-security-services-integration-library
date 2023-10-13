@@ -24,6 +24,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
@@ -58,7 +59,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				LOGGER.debug("Received statusCode {}", statusCode);
 				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 				if (statusCode != HttpStatus.SC_OK) {
-					throw OAuth2ServiceException.builder("Error retrieving token keys. Request headers " + Arrays.stream(request.getAllHeaders()).toList())
+					throw OAuth2ServiceException.builder("Error retrieving token keys. Request headers " + Arrays.stream(request.getAllHeaders()).collect(Collectors.toList()))
 							.withUri(tokenKeysEndpointUri)
 							.withHeaders(response.getAllHeaders() != null ?
 									Arrays.stream(response.getAllHeaders()).map(Header::toString).toArray(String[]::new) : null)

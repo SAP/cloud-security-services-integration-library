@@ -21,6 +21,7 @@ import org.springframework.web.client.RestOperations;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,10 +38,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	public static final String CLIENT_ID = "client-id";
 	public static final String AZP = "azp";
-	private static final Map<String, String> PARAMS = Map.of(
-			HttpHeaders.X_APP_TID, APP_TID,
-			HttpHeaders.X_CLIENT_ID, CLIENT_ID,
-			HttpHeaders.X_AZP, AZP);
+	private static final Map<String, String> PARAMS = new HashMap<>(3, 1);
 
 	private RestOperations restOperationsMock;
 	private SpringOAuth2TokenKeyService cut;
@@ -53,6 +51,9 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	@Before
 	public void setUp() {
+		PARAMS.put(HttpHeaders.X_APP_TID, APP_TID);
+		PARAMS.put(HttpHeaders.X_CLIENT_ID, CLIENT_ID);
+		PARAMS.put(HttpHeaders.X_AZP, AZP);
 		restOperationsMock = mock(RestOperations.class);
 		cut = new SpringOAuth2TokenKeyService(restOperationsMock);
 	}
