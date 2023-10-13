@@ -24,15 +24,17 @@ import java.net.URI;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
-public class JwtSignatureValidatorTest {
+public class SapIdJwtSignatureValidatorTest {
 	private Token iasToken;
 	private Token iasPaasToken;
 	private static final URI DUMMY_JKU_URI = URI.create("https://application.myauth.com/jwks_uri");
@@ -41,6 +43,7 @@ public class JwtSignatureValidatorTest {
 	private OAuth2TokenKeyService tokenKeyServiceMock;
 	private OAuth2ServiceConfiguration mockConfiguration;
 	private OidcConfigurationService oidcConfigServiceMock;
+	private OAuth2ServiceEndpointsProvider endpointsProviderMock;
 
 	@Before
 	public void setup() throws IOException {
@@ -53,19 +56,18 @@ public class JwtSignatureValidatorTest {
 		when(mockConfiguration.getService()).thenReturn(Service.IAS);
 		when(mockConfiguration.getClientId()).thenReturn("client-id");
 
-
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any(), isNotNull()))
+				.retrieveTokenKeys(any(), anyMap()))
 						.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 
-		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
+		endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(DUMMY_JKU_URI);
 
 		oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
 		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
 
-		cut = new JwtSignatureValidator(
+		cut = new SapIdJwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
@@ -74,43 +76,54 @@ public class JwtSignatureValidatorTest {
 
 	@Test
 	public void validate_throwsWhenTokenIsNull() {
-		assertThatThrownBy(() -> {
-			cut.validate(null, "RS256", "default-kid-ias", DUMMY_JKU_URI.toString(), null, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("token");
+        Token tokenSpy = Mockito.spy(iasToken);
+        doReturn(null).when(tokenSpy).getTokenValue();
+
+		ValidationResult validationResult = cut.validate(tokenSpy);
+		assertTrue(validationResult.isErroneous());
+		assertThat(validationResult.getErrorDescription(), containsString("JWT token validation failed because token content was null."));
 	}
 
 	@Test
 	public void validate_throwsWhenAlgorithmIsNull() {
-		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", null, "default-kid-ias", DUMMY_JKU_URI.toString(), null, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenAlgorithm");
+        Token tokenSpy = Mockito.spy(iasToken);
+        doReturn(null).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
+
+		ValidationResult validationResult = cut.validate(tokenSpy);
+		assertTrue(validationResult.isErroneous());
+		assertThat(validationResult.getErrorDescription(), containsString("JWT token validation with signature algorithm 'null' is not supported"));
 	}
 
 	@Test
 	public void validate_throwsWhenKeyIdIsNull() {
-		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "", DUMMY_JKU_URI.toString(), null, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenKeyId");
+        Token tokenSpy = Mockito.spy(iasToken);
+        doReturn(null).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.KID_PARAMETER_NAME);
+
+		ValidationResult validationResult = cut.validate(tokenSpy);
+		assertTrue(validationResult.isErroneous());
+		assertThat(validationResult.getErrorDescription(), containsString("keyId must not be null"));
 	}
 
 	@Test
 	public void validate_throwsWhenKeysUrlIsNull() {
-		assertThatThrownBy(() -> {
-			cut.validate("eyJhbGciOiJSUzI1NiJ9", "RS256", "default-kid-ias", "", null, null);
-		}).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("tokenKeysUrl");
+		when(endpointsProviderMock.getJwksUri()).thenReturn(null);
+
+		ValidationResult validationResult = cut.validate(iasToken);
+		assertTrue(validationResult.isErroneous());
+		assertThat(validationResult.getErrorDescription(), containsString("OIDC .well-known response did not contain JWKS URI."));
 	}
 
 	@Test
-	public void validationFails_WhenZoneIdIsNull() {
+	public void validationFails_WhenAppTidIsNull() {
 		ValidationResult validationResult = cut.validate(iasPaasToken);
 		assertTrue(validationResult.isErroneous());
 		assertThat(validationResult.getErrorDescription(),
-				startsWith("Error occurred during signature validation: OIDC token must provide app_tid."));
+				containsString("OIDC token must provide a valid app_tid header when issuer has a different domain than the url from the service credentials."));
 	}
 
 	@Test
-	public void validate_whenZoneIdIsNull_withDisabledZoneId() {
-		JwtSignatureValidator cut = new JwtSignatureValidator(
+	public void validate_whenAppTidIsNull_withDisabledAppTid() {
+		SapIdJwtSignatureValidator cut = new SapIdJwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance()
 						.withTokenKeyService(tokenKeyServiceMock),
@@ -149,42 +162,44 @@ public class JwtSignatureValidatorTest {
 		String tokenWithNoSignature = new StringBuilder(tokenHeaderPayloadSignature[0])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[1]).toString();
+        Token tokenSpy = Mockito.spy(iasToken);
+        doReturn(tokenWithNoSignature).when(tokenSpy).getTokenValue();
 
-		ValidationResult result = cut.validate(tokenWithNoSignature, "RS256", "default-kid-ias",
-				DUMMY_JKU_URI.toString(), null, null);
+		ValidationResult result = cut.validate(tokenSpy);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Jwt token does not consist of 'header'.'payload'.'signature'."));
+		assertThat(result.getErrorDescription(), containsString("Jwt token does not consist of three sections: 'header'.'payload'.'signature'."));
 	}
 
 	@Test
-	public void validationFails_whenTokenAlgorithmIsNotRSA256() {
-		ValidationResult validationResult = cut.validate(iasToken.getTokenValue(), "ES123", "default-kid-ias",
-				"https://myauth.com/jwks_uri", null, null);
+	public void validationFails_whenTokenAlgorithmIsNotSupported() {
+        Token tokenSpy = Mockito.spy(iasToken);
+		String unsupportedAlgorithm = "UnsupportedAlgorithm";
+		doReturn(unsupportedAlgorithm).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
+
+        ValidationResult validationResult = cut.validate(tokenSpy);
+
 		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(),
-				startsWith("Jwt token with signature algorithm 'ES123' is not supported."));
+		assertThat(validationResult.getErrorDescription(), startsWith("JWT token validation with signature algorithm '" + unsupportedAlgorithm + "' is not supported."));
 	}
 
 	@Test
 	public void validationFails_whenTokenAlgorithmIsNone() {
-		ValidationResult validationResult = cut.validate(iasToken.getTokenValue(), "NONE", "default-kid-ias",
-				"https://myauth.com/jwks_uri", null, null);
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(),
-				startsWith("Jwt token with signature algorithm 'NONE' is not supported."));
+        Token tokenSpy = Mockito.spy(iasToken);
+        doReturn("NONE").when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
+
+        ValidationResult validationResult = cut.validate(tokenSpy);
+
+        assertThat(validationResult.isErroneous(), is(true));
+        assertThat(validationResult.getErrorDescription(), startsWith("JWT token validation with signature algorithm 'NONE' is not supported."));
 	}
 
 	@Test
 	public void validationFails_whenOAuthServerIsUnavailable() throws OAuth2ServiceException {
-		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), any(), any())).thenThrow(OAuth2ServiceException.class);
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), anyMap())).thenThrow(OAuth2ServiceException.class);
 
-		ValidationResult result = cut.validate(iasToken.getTokenValue(), "RS256", "default-kid-ias",
-				"http://unavailable.com/token_keys", null, null);
+		ValidationResult result = cut.validate(iasToken);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Error retrieving Json Web Keys from Identity Service"));
+		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
 	}
 
 }
