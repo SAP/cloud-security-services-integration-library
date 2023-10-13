@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.2.0
+- [token-client]
+
+#### Dependency upgrades
+- Bump io.projectreactor:reactor-core from 3.5.9 to 3.5.11
+- Bump spring.core.version from 6.0.11 to 6.0.13 
+- Bump spring.security.version from 6.1.3 to 6.1.4
+- Bump commons-io:commons-io from 2.13.0 to 2.14.0
+- Bump com.sap.cloud.environment.servicebinding from 0.9.0 to 0.10.0
+- Bump spring.boot.version from 3.1.3 to 3.1.4
+- Bump slf4j.api.version from 2.0.7 to 2.0.9
+
 ## 3.1.3
 - [java-security]
   - Fixes NPE when accessing `XsuaaToken.getPrincipal()` and `grantType` is null (#1261)
