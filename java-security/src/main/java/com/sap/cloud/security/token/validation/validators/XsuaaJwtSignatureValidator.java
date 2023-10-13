@@ -25,20 +25,26 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
 
     @Override
     protected PublicKey getPublicKey(Token token, JwtSignatureAlgorithm algorithm) throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+        PublicKey key = null;
+
         try {
-            return fetchPublicKey(token, algorithm);
+            key = fetchPublicKey(token, algorithm);
         } catch (OAuth2ServiceException | InvalidKeySpecException | NoSuchAlgorithmException | IllegalArgumentException e) {
             if (!configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
                 throw e;
             }
         }
 
-        String fallbackKey = configuration.getProperty(ServiceConstants.XSUAA.VERIFICATION_KEY);
-        try {
-            return JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, fallbackKey);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-            throw new IllegalArgumentException("Fallback validation key supplied via " + ServiceConstants.XSUAA.VERIFICATION_KEY + " property in service credentials could not be used: {}", ex);
+        if (key == null && configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
+            String fallbackKey = configuration.getProperty(ServiceConstants.XSUAA.VERIFICATION_KEY);
+            try {
+                key = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, fallbackKey);
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+                throw new IllegalArgumentException("Fallback validation key supplied via " + ServiceConstants.XSUAA.VERIFICATION_KEY + " property in service credentials could not be used: {}", ex);
+            }
         }
+
+        return key;
     }
 
 
