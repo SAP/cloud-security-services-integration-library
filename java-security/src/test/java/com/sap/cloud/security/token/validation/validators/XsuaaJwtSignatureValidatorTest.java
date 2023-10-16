@@ -13,6 +13,7 @@ import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +21,13 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -59,10 +60,10 @@ public class XsuaaJwtSignatureValidatorTest {
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
 				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
-						isNull(), isNull()))
+						eq(Collections.singletonMap(HttpHeaders.X_ZID, "uaa"))))
 								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
-		cut = new JwtSignatureValidator(
+		cut = new XsuaaJwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
@@ -84,8 +85,7 @@ public class XsuaaJwtSignatureValidatorTest {
 		Token tokenWithoutJkuButIssuer = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Token does not provide the required 'jku' header or issuer claim."));
+		assertThat(result.getErrorDescription(), containsString("Token does not contain the mandatory " + JsonWebKeyConstants.JKU_PARAMETER_NAME + " header"));
 	}
 
 	@Test
@@ -111,8 +111,7 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Fallback with configured 'verificationkey' was not successful."));
+		assertThat(result.getErrorDescription(), containsString("Fallback validation key"));
 	}
 
 	@Test
@@ -123,10 +122,8 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Signature of Jwt Token is not valid"));
-		assertThat(result.getErrorDescription(),
-				containsString("(Signature: CetA62rQSNRj93S9mqaHrKJyzONKeEKcEJ9O5wObRD_"));
+		assertThat(result.getErrorDescription(), containsString("Signature of Jwt Token is not valid"));
+		assertThat(result.getErrorDescription(), containsString("(Signature: CetA62rQSNRj93S9mqaHrKJyzONKeEKcEJ9O5wObRD_"));
 	}
 
 }

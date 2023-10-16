@@ -14,6 +14,7 @@ import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.util.HttpClientTestFactory;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -58,8 +59,11 @@ public class IasTokenAuthenticatorTest {
 		CloseableHttpResponse tokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 		when(httpClientMock.execute(any(HttpGet.class)))
-				.thenReturn(oidcResponse)
-				.thenReturn(tokenKeysResponse);
+				.thenReturn(oidcResponse);
+		when(httpClientMock.execute(any(HttpGet.class), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(tokenKeysResponse);
+		});
 
 		cut = new IasTokenAuthenticator()
 				.withServiceConfiguration(configuration)
