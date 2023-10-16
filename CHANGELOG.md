@@ -2,8 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 ## 3.2.0
-- [token-client]
-
+- [java-security]
+  - add x-azp header to IAS JWKS fetching and adjust JWKS cache key
+  - `OAuth2TokenKeyService` and `OAuth2TokenKeyServiceWithCache`
+    - Refactor API to use generic Map instead of explicit IAS-specific parameters
+    
 #### Dependency upgrades
 - Bump io.projectreactor:reactor-core from 3.5.9 to 3.5.11
 - Bump spring.core.version from 6.0.11 to 6.0.13 
