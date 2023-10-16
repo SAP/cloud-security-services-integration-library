@@ -69,7 +69,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClient.execute(any())).thenReturn(response);
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -89,7 +92,10 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorDescription = "Something went wrong";
 		CloseableHttpResponse response = HttpClientTestFactory
 				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
-		when(httpClient.execute(any())).thenReturn(response);
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, Collections.emptyMap()))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -107,7 +113,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	@Test
 	public void retrieveTokenKeys_errorOccurs_throwsServiceException() throws IOException {
 		String errorMessage = "useful error message";
-		when(httpClient.execute(any())).thenThrow(new IOException(errorMessage));
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenThrow(new IOException(errorMessage));
 
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
 				.isInstanceOf(OAuth2ServiceException.class)
@@ -117,7 +123,11 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	@Test
 	public void retrieveTokenKeys_executesCorrectHttpGetRequest() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString);
-		when(httpClient.execute(any())).thenReturn(response);
+
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
 
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 

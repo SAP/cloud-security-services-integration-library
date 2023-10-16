@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -162,7 +163,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	@Nullable
 	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		return getPublicKey(keyAlgorithm, keyId, keyUri, Map.of(HttpHeaders.X_APP_TID, appTid));
+		return getPublicKey(keyAlgorithm, keyId, keyUri, Collections.singletonMap(HttpHeaders.X_APP_TID, appTid));
 	}
 
 	/**
@@ -293,7 +294,23 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		return getCacheConfiguration().isCacheStatisticsEnabled() ? getCache().stats() : null;
 	}
 
-	record CacheKey (URI keyUri, Map<String, String> params) {
+	private static class CacheKey {
+		final private URI keyUri;
+		final private Map<String, String> params;
+
+		public CacheKey(URI keyUri, Map<String, String> params) {
+			this.keyUri = keyUri;
+			this.params = params;
+		}
+
+		public URI keyUri() {
+			return keyUri;
+		}
+
+		public Map<String, String> params() {
+			return params;
+		}
+
 		@Override
 		public String toString() {
 			// e.g. app_tid:<app_tid>|client_id:<client_id>|azp:<azp>

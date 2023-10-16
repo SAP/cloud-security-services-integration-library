@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -47,13 +48,14 @@ public class IdTokenSignatureValidatorTest {
 	private static final String APP_TID = "the-app-tid";
 	private static final String CLIENT_ID = "client-id";
 	private static final String AZP = "T000310";
-	private static final Map<String, String> PARAMS = Map.of(
-			HttpHeaders.X_APP_TID, APP_TID,
-			HttpHeaders.X_CLIENT_ID, CLIENT_ID,
-			HttpHeaders.X_AZP, AZP);
+	private static final Map<String, String> PARAMS = new HashMap<>(3, 1);
 
 	@Before
 	public void setup() throws IOException {
+		PARAMS.put(HttpHeaders.X_APP_TID, APP_TID);
+		PARAMS.put(HttpHeaders.X_CLIENT_ID, CLIENT_ID);
+		PARAMS.put(HttpHeaders.X_AZP, AZP);
+
 		/**
 		 * Header -------- { "alg": "RS256" } Payload -------- { "iss":
 		 * "https://application.myauth.com" }
