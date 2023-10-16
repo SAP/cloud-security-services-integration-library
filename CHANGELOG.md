@@ -5,8 +5,9 @@ All notable changes to this project will be documented in this file.
 - [token-client]
 
 #### Dependency upgrades
+- Bump org.json.version from 20230618 to 20231013
 - Bump io.projectreactor:reactor-core from 3.5.9 to 3.5.11
-- Bump spring.core.version from 6.0.11 to 6.0.13 
+- Bump spring.core.version from 6.0.11 to 6.0.13
 - Bump spring.security.version from 6.1.3 to 6.1.4
 - Bump commons-io:commons-io from 2.13.0 to 2.14.0
 - Bump com.sap.cloud.environment.servicebinding from 0.9.0 to 0.10.0
