@@ -19,6 +19,7 @@ public class CFConstants {
 	public static final String CLIENT_SECRET = "clientsecret";
 	public static final String CERTIFICATE = "certificate";
 	public static final String KEY = "key";
+	public static final String INSTANCE_NAME = "instance_name";
 
 	private CFConstants() {
 	}

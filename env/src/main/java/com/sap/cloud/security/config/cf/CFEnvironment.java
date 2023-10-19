@@ -185,6 +185,26 @@ public class CFEnvironment implements Environment {
 	public OAuth2ServiceConfiguration loadForServicePlan(Service service, Plan plan) {
 		return loadAllForService(service).stream()
 				.filter(configuration -> Plan.from(configuration.getProperty(CFConstants.SERVICE_PLAN)).equals(plan))
+				.sorted(new Comparator<OAuth2ServiceConfiguration>() {
+
+					@Override
+					public int compare(OAuth2ServiceConfiguration o1, OAuth2ServiceConfiguration o2) {
+						if (o1 == null && o2 == null) {
+							return 0;
+						}
+						if (o1 == null) {
+							return 1;
+						}
+						if (o2 == null) {
+							return -1;
+						}
+						
+						final String o1InstanceName = o1.getProperty(CFConstants.INSTANCE_NAME);
+						final String o2InstanceName = o2.getProperty(CFConstants.INSTANCE_NAME);
+						
+						return o1InstanceName.compareTo(o2InstanceName);
+					}
+				})
 				.findFirst()
 				.orElse(null);
 	}
