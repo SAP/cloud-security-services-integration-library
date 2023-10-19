@@ -15,6 +15,7 @@ import com.sap.cloud.security.util.HttpClientTestFactory;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenFlowException;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -28,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import static com.github.stefanbirkner.systemlambda.SystemLambda.withEnvironmentVariable;
-import static com.sap.cloud.security.config.cf.CFConstants.*;
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,7 +64,10 @@ public class XsuaaTokenAuthenticatorTest {
 
 		CloseableHttpResponse xsuaaTokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
-		when(mockHttpClient.execute(any(HttpGet.class))).thenReturn(xsuaaTokenKeysResponse);
+		when(mockHttpClient.execute(any(HttpGet.class), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(xsuaaTokenKeysResponse);
+		});
 
 		CloseableHttpResponse xsuaaTokenResponse = HttpClientTestFactory
 				.createHttpResponse(

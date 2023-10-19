@@ -215,30 +215,28 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 
+		JwtSignatureValidator signatureValidator = null;
+		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
+		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
 		if (configuration.getService() == XSUAA) {
 			if (!configuration.isLegacyMode()) {
 				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
 			}
-		} else if (configuration.getService() == IAS && configuration.getDomains() != null
-				&& !configuration.getDomains().isEmpty()) {
-			defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
-		}
-		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
-		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
-		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(
-				configuration,
-				tokenKeyServiceWithCache,
-				getOidcConfigurationServiceWithCache());
 
-		if (configuration.getService() == IAS && isTenantIdCheckDisabled) {
-			signatureValidator.disableTenantIdCheck();
+			signatureValidator = new XsuaaJwtSignatureValidator(configuration, tokenKeyServiceWithCache, getOidcConfigurationServiceWithCache());
+		} else if (configuration.getService() == IAS) {
+			if(configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
+				defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
+			}
+
+			signatureValidator = new SapIdJwtSignatureValidator(configuration, tokenKeyServiceWithCache, getOidcConfigurationServiceWithCache());
+			if(isTenantIdCheckDisabled) {
+				((SapIdJwtSignatureValidator) signatureValidator).disableTenantIdCheck();
+			}
 		}
+
 		defaultValidators.add(signatureValidator);
-
-		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
-		if (customAudienceValidator == null) {
-			defaultValidators.add(createAudienceValidator());
-		}
+		defaultValidators.add(customAudienceValidator != null ? customAudienceValidator : createAudienceValidator());
 
 		return defaultValidators;
 	}
