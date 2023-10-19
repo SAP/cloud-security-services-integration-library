@@ -449,8 +449,19 @@ public class JwtGenerator {
 	}
 
 	private String createTokenAsString() {
-		String header = base64Encode(jsonHeader.toString().getBytes());
-		String payload = base64Encode(jsonPayload.toString().getBytes());
+		//Sort the header and payload to get a deterministic Token each time
+		//Ensure keys and values are correctly formatted as JSON strings
+		JSONObject jsonObject = new JSONObject();
+		List<String> headerlist = new ArrayList<>();
+		jsonHeader.keySet().forEach(key -> headerlist.add("\"" + key.toString() + "\":" + jsonObject.valueToString(jsonHeader.get(key))));
+		Collections.sort(headerlist);
+		String header = "{" + String.join(", ", headerlist) + "}";
+		List<String> payloadlist = new ArrayList<>();
+		jsonPayload.keySet().forEach(key -> payloadlist.add("\"" + key.toString() + "\":" + jsonObject.valueToString(jsonPayload.get(key))));
+		Collections.sort(payloadlist);
+		String payload = "{" + String.join(", ", payloadlist) + "}";
+		header = base64Encode(header.getBytes());
+		payload = base64Encode(payload.getBytes());
 		String headerAndPayload = header + DOT + payload;
 		String signature = calculateSignature(headerAndPayload);
 		return headerAndPayload + DOT + signature;

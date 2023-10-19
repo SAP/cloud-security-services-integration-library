@@ -227,7 +227,7 @@ class XsuaaTokenCompTest {
 	@Test
 	void getAppToken() {
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		assertThat(token.getAppToken(), startsWith("eyJqa3UiOiJodHRwOi8vbG9jYWx"));
+		assertThat(token.getAppToken(), startsWith("eyJhbGciOiJSUzI1NiIsICJqa3U"));
 	}
 
 	@Test
