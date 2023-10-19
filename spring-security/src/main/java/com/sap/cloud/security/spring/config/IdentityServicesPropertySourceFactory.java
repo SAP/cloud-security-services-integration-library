@@ -102,13 +102,14 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 	@Nonnull
 	private Properties getIasProperties(Environment environment) {
 		Properties properties = new Properties();
-		if (environment.getIasConfiguration() != null) {
+		final OAuth2ServiceConfiguration iasConfiguration = environment.getIasConfiguration();
+		if (iasConfiguration != null) {
 			for (String key : IAS_ATTRIBUTES) {
-				if (environment.getIasConfiguration().hasProperty(key)) { // will not find "domains" among properties
-					properties.put(IAS_PREFIX + key, environment.getIasConfiguration().getProperty(key));
+				if (iasConfiguration.hasProperty(key)) { // will not find "domains" among properties
+					properties.put(IAS_PREFIX + key, iasConfiguration.getProperty(key));
 				}
 			}
-			properties.put(IAS_PREFIX + DOMAINS, environment.getIasConfiguration().getDomains());
+			properties.put(IAS_PREFIX + DOMAINS, iasConfiguration.getDomains());
 		}
 		return properties;
 	}
