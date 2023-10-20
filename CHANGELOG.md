@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
     - Refactor API to use generic Map instead of explicit IAS-specific parameters
 
 #### Dependency upgrades
+- Bump org.json.version from 20230618 to 20231013
 - Bump spring.security.version from 5.8.6 to 5.8.7
 - Bump spring.boot.version from 2.7.15 to 2.7.16
 - Bump spring.core.version from 5.3.29 to 5.3.30
