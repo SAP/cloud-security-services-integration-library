@@ -9,13 +9,13 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.2.0</version>
+		<version>3.2.1</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
 	<artifactId>spring-security</artifactId>
 	<packaging>jar</packaging>
-	<version>3.2.0</version>
+	<version>3.2.1</version>
 
 	<dependencies>
 		<dependency>
