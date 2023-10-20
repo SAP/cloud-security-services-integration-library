@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.2.1
+Hot fix for the CVE-2023-5072
+
+#### Dependency upgrades
+- Bump spring.boot.version from 3.1.4 to 3.1.5
+- Bump log4j2.version from 2.20.0 to 2.21.0
+- Bump spring.security.version from 6.1.4 to 6.1.5
+- Bump org.json:json from 20230618 to 20231013
+
 ## 3.2.0
 - [java-security]
   - add x-azp header to IAS JWKS fetching and adjust JWKS cache key
