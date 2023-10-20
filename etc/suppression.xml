@@ -4,6 +4,15 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <suppress>
         <notes><![CDATA[
+        suppresses CVE-2023-5072 as it has been fixed by the latest release 20231013 https://nvd.nist.gov/vuln/detail/CVE-2023-5072
+        file name: json-20231013.jar
+        ]]>
+        </notes>
+        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-5072</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
         suppresses CVE-2022-45688 as the affected method is not called by code of this project.
         added a test to https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/env/src/test/java/com/sap/cloud/security/json/DefaultJsonObjectTest.java#L225 to check for vulnerability.
         file name: json-20220924.jar
