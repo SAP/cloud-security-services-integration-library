@@ -5,29 +5,37 @@
  */
 package com.sap.cloud.security.config.cf;
 
-import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.json.DefaultJsonObject;
-import com.sap.cloud.security.json.JsonObject;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static com.sap.cloud.security.config.cf.CFConstants.CLIENT_SECRET;
+import static com.sap.cloud.security.config.cf.CFConstants.CREDENTIALS;
+import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
+import static com.sap.cloud.security.config.cf.CFConstants.INSTANCE_NAME;
+import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
+import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
-import static com.sap.cloud.security.config.cf.CFConstants.*;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants.Plan;
+import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
+import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
 
 public class CFEnvironmentTest {
 
 	private final String vcapXsuaa;
 	private final String vcapMultipleXsuaa;
+	private final String vcapFourXsuaa;
 	private final String vcapIas;
 	private final String vcapXsa;
 	private CFEnvironment cut;
@@ -37,6 +45,7 @@ public class CFEnvironmentTest {
 		vcapMultipleXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceMultipleBindings.json", UTF_8);
 		vcapIas = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
 		vcapXsa = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
+		vcapFourXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceFourBindings.json", UTF_8);
 	}
 
 	@Before
@@ -232,4 +241,24 @@ public class CFEnvironmentTest {
 		cut = CFEnvironment.getInstance((str) -> xsuaaBinding);
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 	}
+	
+	@Test
+	public void getConfigurationOfFourInstance() {
+		cut = CFEnvironment.getInstance((str) -> vcapFourXsuaa);
+
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(4);
+		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
+		OAuth2ServiceConfiguration brokerServConfig = cut.getXsuaaConfigurationForTokenExchange();
+
+		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
+		assertThat(appServConfig.getProperty(INSTANCE_NAME)).isEqualTo("xsuaa-app");
+
+		assertThat(brokerServConfig).isNotEqualTo(appServConfig);
+		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
+		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
+		assertThat(brokerServConfig.getProperty(INSTANCE_NAME)).isEqualTo("xsuaa-broker");
+	}
+
 }
