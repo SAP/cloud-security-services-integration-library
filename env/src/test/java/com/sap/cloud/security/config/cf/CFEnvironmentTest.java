@@ -36,6 +36,7 @@ public class CFEnvironmentTest {
 	private final String vcapXsuaa;
 	private final String vcapMultipleXsuaa;
 	private final String vcapFourXsuaa;
+	private final String vcapFourXsuaaReverseOrder;
 	private final String vcapIas;
 	private final String vcapXsa;
 	private CFEnvironment cut;
@@ -46,6 +47,7 @@ public class CFEnvironmentTest {
 		vcapIas = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
 		vcapXsa = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
 		vcapFourXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceFourBindings.json", UTF_8);
+		vcapFourXsuaaReverseOrder = IOUtils.resourceToString("/vcapXsuaaServiceFourBindingsReverseOrder.json", UTF_8);
 	}
 
 	@Before
@@ -245,6 +247,25 @@ public class CFEnvironmentTest {
 	@Test
 	public void getConfigurationOfFourInstance() {
 		cut = CFEnvironment.getInstance((str) -> vcapFourXsuaa);
+
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(4);
+		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
+		OAuth2ServiceConfiguration brokerServConfig = cut.getXsuaaConfigurationForTokenExchange();
+
+		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
+		assertThat(appServConfig.getProperty(INSTANCE_NAME)).isEqualTo("xsuaa-app");
+
+		assertThat(brokerServConfig).isNotEqualTo(appServConfig);
+		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
+		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
+		assertThat(brokerServConfig.getProperty(INSTANCE_NAME)).isEqualTo("xsuaa-broker");
+	}
+	
+	@Test
+	public void getConfigurationOfFourInstanceReverseOrder() {
+		cut = CFEnvironment.getInstance((str) -> vcapFourXsuaaReverseOrder);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(4);
 		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();

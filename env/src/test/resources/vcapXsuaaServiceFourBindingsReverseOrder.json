@@ -1,0 +1,118 @@
+{
+  "xsuaa": [
+    {
+      "binding_name": null,
+      "credentials": {
+        "apiurl": "https://api.uaadomain.org",
+        "clientid": "sb-na-d7a3278d-5e07-40e9-92ae-546bbfd9cddf!t8066",
+        "clientsecret": "xyzLRlbbb9oextvpmS6bfpQXLk=",
+        "identityzone": "id-test-zone",
+        "identityzoneid": "a179bf0f-5a57-2276-a3f0-94c6d79bd05b",
+        "sburl": "https://internal-xsuaa.uaadomain.org",
+        "tenantid": "a179bf0f-5a57-2276-a3f0-94c6d79bd05b",
+        "tenantmode": "shared",
+        "uaadomain": "uaadomain.org",
+        "url": "https://id-test-zone.uaadomain.org",
+        "verificationkey": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAABBBQ8AMIIBCgKCAQEAx/jN5v1mp/TVn9nTQoYVIUfCsUDHa3Upr5tDZC7mzlTrN2PnwruzyS7w1Jd+StqwW4/vn87ua2YlZzU8Ob0jR4lbOPCKaHIi0kyNtJXQvQ7LZPG8epQLbx0IIP/WLVVVtB8bL5OWuHma3pUnibbmATtbOh5LksQ2zLMngEjUF52JQyzTpjoQkahp0BNe/drlAqO253keiY63FL6belKjJGmSqdnotSXxB2ym+HQ0ShaNvTFLEvi2+ObkyjGWgFpQaoCcGq0KX0y0mPzOvdFsNT+rBFdkHiK+Jl638Sbim1z9fItFbH9hiVwY37R9rLtH1YKi3PuATMjf/DJ7mUluDQIDAQAB-----END PUBLIC KEY-----",
+        "xsappname": "na-d7a3278d-5e07-40e9-92ae-546bbfd9cddf!t8066"
+      },
+      "instance_name": "xsuaa-app2",
+      "label": "xsuaa",
+      "name": "xsuaa-app2",
+      "plan": "application",
+      "provider": null,
+      "syslog_drain_url": null,
+      "tags": [
+        "xsuaa"
+      ],
+      "volume_mounts": []
+    },
+    {
+      "binding_name": null,
+      "credentials": {
+        "apiurl": "https://api.uaadomain.org",
+        "certificate": "",
+        "key": "",
+        "clientid": "sb-xsuaa-broker2!b8066",
+        "clientsecret": "xyzEXArNzp3tccATO99CZsRKESY=",
+        "identityzone": "id-test-zone",
+        "identityzoneid": "a179bf0f-5a57-2276-a3f0-94c6d79bd05b",
+        "sburl": "https://internal-xsuaa.uaadomain.org",
+        "tenantid": "a179bf0f-5a57-2276-a3f0-94c6d79bd05b",
+        "tenantmode": "dedicated",
+        "trustedclientidsuffix": "|xsuaa-broker!b8066",
+        "uaadomain": "uaadomain.org",
+        "url": "https://id-test-zone.uaadomain.org",
+        "verificationkey": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAABBBQ8AMIIBCgKCAQEAx/jN5v1mp/TVn9nTQoYVIUfCsUDHa3Upr5tDZC7mzlTrN2PnwruzyS7w1Jd+StqwW4/vn87ua2YlZzU8Ob0jR4lbOPCKaHIi0kyNtJXQvQ7LZPG8epQLbx0IIP/WLVVVtB8bL5OWuHma3pUnibbmATtbOh5LksQ2zLMngEjUF52JQyzTpjoQkahp0BNe/drlAqO253keiY63FL6belKjJGmSqdnotSXxB2ym+HQ0ShaNvTFLEvi2+ObkyjGWgFpQaoCcGq0KX0y0mPzOvdFsNT+rBFdkHiK+Jl638Sbim1z9fItFbH9hiVwY37R9rLtH1YKi3PuATMjf/DJ7mUluDQIDAQAB-----END PUBLIC KEY-----",
+        "xsappname": "xsuaa-broker2!b8066"
+      },
+      "instance_name": "xsuaa-broker2",
+      "label": "xsuaa",
+      "name": "xsuaa-broker2",
+      "plan": "broker",
+      "provider": null,
+      "syslog_drain_url": null,
+      "tags": [
+        "xsuaa"
+      ],
+      "volume_mounts": []
+    },
+    {
+      "binding_name": null,
+      "credentials": {
+        "apiurl": "https://api.uaadomain.org",
+        "clientid": "sb-na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066",
+        "clientsecret": "1idLRlbbb9oextvpmS6bfpQXLk=",
+        "identityzone": "id-test-zone",
+        "identityzoneid": "a179bf0f-5a57-2276-a3f0-94c6d79bd05b",
+        "sburl": "https://internal-xsuaa.uaadomain.org",
+        "tenantid": "a179bf0f-5a57-2276-a3f0-94c6d79bd05b",
+        "tenantmode": "shared",
+        "uaadomain": "uaadomain.org",
+        "url": "https://id-test-zone.uaadomain.org",
+        "verificationkey": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAABBBQ8AMIIBCgKCAQEAx/jN5v1mp/TVn9nTQoYVIUfCsUDHa3Upr5tDZC7mzlTrN2PnwruzyS7w1Jd+StqwW4/vn87ua2YlZzU8Ob0jR4lbOPCKaHIi0kyNtJXQvQ7LZPG8epQLbx0IIP/WLVVVtB8bL5OWuHma3pUnibbmATtbOh5LksQ2zLMngEjUF52JQyzTpjoQkahp0BNe/drlAqO253keiY63FL6belKjJGmSqdnotSXxB2ym+HQ0ShaNvTFLEvi2+ObkyjGWgFpQaoCcGq0KX0y0mPzOvdFsNT+rBFdkHiK+Jl638Sbim1z9fItFbH9hiVwY37R9rLtH1YKi3PuATMjf/DJ7mUluDQIDAQAB-----END PUBLIC KEY-----",
+        "xsappname": "na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066"
+      },
+      "instance_name": "xsuaa-app",
+      "label": "xsuaa",
+      "name": "xsuaa-app",
+      "plan": "application",
+      "provider": null,
+      "syslog_drain_url": null,
+      "tags": [
+        "xsuaa"
+      ],
+      "volume_mounts": []
+    },
+    {
+      "binding_name": null,
+      "credentials": {
+        "apiurl": "https://api.uaadomain.org",
+        "certificate": "",
+        "key": "",
+        "clientid": "sb-xsuaa-broker!b8066",
+        "clientsecret": "sppEXArNzp3tccATO99CZsRKESY=",
+        "identityzone": "id-test-zone",
+        "identityzoneid": "a179bf0f-5a57-2276-a3f0-94c6d79bd05b",
+        "sburl": "https://internal-xsuaa.uaadomain.org",
+        "tenantid": "a179bf0f-5a57-2276-a3f0-94c6d79bd05b",
+        "tenantmode": "dedicated",
+        "trustedclientidsuffix": "|xsuaa-broker!b8066",
+        "uaadomain": "uaadomain.org",
+        "url": "https://id-test-zone.uaadomain.org",
+        "verificationkey": "-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAABBBQ8AMIIBCgKCAQEAx/jN5v1mp/TVn9nTQoYVIUfCsUDHa3Upr5tDZC7mzlTrN2PnwruzyS7w1Jd+StqwW4/vn87ua2YlZzU8Ob0jR4lbOPCKaHIi0kyNtJXQvQ7LZPG8epQLbx0IIP/WLVVVtB8bL5OWuHma3pUnibbmATtbOh5LksQ2zLMngEjUF52JQyzTpjoQkahp0BNe/drlAqO253keiY63FL6belKjJGmSqdnotSXxB2ym+HQ0ShaNvTFLEvi2+ObkyjGWgFpQaoCcGq0KX0y0mPzOvdFsNT+rBFdkHiK+Jl638Sbim1z9fItFbH9hiVwY37R9rLtH1YKi3PuATMjf/DJ7mUluDQIDAQAB-----END PUBLIC KEY-----",
+        "xsappname": "xsuaa-broker!b8066"
+      },
+      "instance_name": "xsuaa-broker",
+      "label": "xsuaa",
+      "name": "xsuaa-broker",
+      "plan": "broker",
+      "provider": null,
+      "syslog_drain_url": null,
+      "tags": [
+        "xsuaa"
+      ],
+      "volume_mounts": []
+    }
+  ]
+}
