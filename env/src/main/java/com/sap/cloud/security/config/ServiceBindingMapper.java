@@ -14,7 +14,7 @@ import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
-import static com.sap.cloud.security.config.cf.CFConstants.INSTANCE_NAME;;
+import static com.sap.cloud.security.config.cf.CFConstants.NAME;;
 
 @Deprecated
 public class ServiceBindingMapper {
@@ -39,8 +39,11 @@ public class ServiceBindingMapper {
 		TypedMapView credentials = TypedMapView.ofCredentials(b);
 		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
 				.withProperties(credentials.getEntries(String.class))
-				.withProperty(INSTANCE_NAME, b.getName().orElse("UNDEFINED")) // TODO: Clarify what is the expected K8S behavior here
 				.withProperty(SERVICE_PLAN, b.getServicePlan().orElse(K8sConstants.Plan.APPLICATION.name()).toUpperCase());
+		
+		if (b.getName().isPresent()) {
+			builder = builder.withProperty(NAME, b.getName().get());
+		}
 		
 		if (IAS.equals(service)) {
 			parseDomains(builder, credentials);

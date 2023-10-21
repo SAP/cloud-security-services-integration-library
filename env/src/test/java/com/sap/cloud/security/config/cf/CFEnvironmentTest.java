@@ -8,7 +8,7 @@ package com.sap.cloud.security.config.cf;
 import static com.sap.cloud.security.config.cf.CFConstants.CLIENT_SECRET;
 import static com.sap.cloud.security.config.cf.CFConstants.CREDENTIALS;
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
-import static com.sap.cloud.security.config.cf.CFConstants.INSTANCE_NAME;
+import static com.sap.cloud.security.config.cf.CFConstants.NAME;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
 import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -254,13 +254,13 @@ public class CFEnvironmentTest {
 
 		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
 		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
-		assertThat(appServConfig.getProperty(INSTANCE_NAME)).isEqualTo("xsuaa-app");
+		assertThat(appServConfig.getProperty(NAME)).isEqualTo("xsuaa-app");
 
 		assertThat(brokerServConfig).isNotEqualTo(appServConfig);
 		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
 		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
-		assertThat(brokerServConfig.getProperty(INSTANCE_NAME)).isEqualTo("xsuaa-broker");
+		assertThat(brokerServConfig.getProperty(NAME)).isEqualTo("xsuaa-broker");
 	}
 	
 	@Test
@@ -273,13 +273,13 @@ public class CFEnvironmentTest {
 
 		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
 		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
-		assertThat(appServConfig.getProperty(INSTANCE_NAME)).isEqualTo("xsuaa-app");
+		assertThat(appServConfig.getProperty(NAME)).isEqualTo("xsuaa-app");
 
 		assertThat(brokerServConfig).isNotEqualTo(appServConfig);
 		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
 		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
-		assertThat(brokerServConfig.getProperty(INSTANCE_NAME)).isEqualTo("xsuaa-broker");
+		assertThat(brokerServConfig.getProperty(NAME)).isEqualTo("xsuaa-broker");
 	}
 
 }

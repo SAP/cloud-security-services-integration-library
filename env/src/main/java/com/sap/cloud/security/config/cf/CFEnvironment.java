@@ -199,8 +199,15 @@ public class CFEnvironment implements Environment {
 							return -1;
 						}
 						
-						final String o1InstanceName = o1.getProperty(CFConstants.INSTANCE_NAME);
-						final String o2InstanceName = o2.getProperty(CFConstants.INSTANCE_NAME);
+						/*
+						 * Note that we know here that we are in a CF Environment!
+						 * The CF Environment variables always contain an instance_name property.
+						 * The call ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder
+						 * ensured that the property was transfered.
+						 */
+						
+						final String o1InstanceName = o1.getProperty(CFConstants.NAME);
+						final String o2InstanceName = o2.getProperty(CFConstants.NAME);
 						
 						return o1InstanceName.compareTo(o2InstanceName);
 					}
