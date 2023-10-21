@@ -14,7 +14,7 @@ import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
-import static com.sap.cloud.security.config.cf.CFConstants.NAME;;
+import static com.sap.cloud.security.config.cf.CFConstants.NAME;
 
 @Deprecated
 public class ServiceBindingMapper {
