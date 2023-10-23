@@ -13,6 +13,7 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -25,6 +26,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.times;
 
 /**
@@ -72,7 +74,7 @@ public class JavaSSRFAttackTest {
 
 		assertThat(result.isValid()).isEqualTo(isValid);
 		ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture());
+		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), isA(ResponseHandler.class));
 		HttpUriRequest request = httpUriRequestCaptor.getValue();
 		assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
 	}
