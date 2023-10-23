@@ -7,6 +7,7 @@ package com.sap.cloud.security.spring.config;
 
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -76,19 +77,22 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 	@Nonnull
 	private Properties getXsuaaProperties(Environment environment, boolean multipleXsuaaServicesBound) {
 		Properties properties = new Properties();
-		if (environment.getXsuaaConfiguration() != null) {
+		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
+		if (xsuaaConfiguration != null) {
 			String xsuaaPrefix = multipleXsuaaServicesBound ? PROPERTIES_KEY + ".xsuaa[0]." : XSUAA_PREFIX;
 			for (String key : XSUAA_ATTRIBUTES) {
-				if (environment.getXsuaaConfiguration().hasProperty(key)) {
-					properties.put(xsuaaPrefix + key, environment.getXsuaaConfiguration().getProperty(key));
+				if (xsuaaConfiguration.hasProperty(key)) {
+					properties.put(xsuaaPrefix + key, xsuaaConfiguration.getProperty(key));
 				}
 			}
 		}
 		if (multipleXsuaaServicesBound) {
+			final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = 
+					environment.getXsuaaConfigurationForTokenExchange();
 			for (String key : XSUAA_ATTRIBUTES) {
-				if (environment.getXsuaaConfigurationForTokenExchange().hasProperty(key)) {
+				if (xsuaaConfigurationForTokenExchange.hasProperty(key)) {
 					properties.put(PROPERTIES_KEY + ".xsuaa[1]." + key,
-							environment.getXsuaaConfigurationForTokenExchange().getProperty(key));
+							xsuaaConfigurationForTokenExchange.getProperty(key));
 				}
 			}
 		}
@@ -98,13 +102,14 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 	@Nonnull
 	private Properties getIasProperties(Environment environment) {
 		Properties properties = new Properties();
-		if (environment.getIasConfiguration() != null) {
+		final OAuth2ServiceConfiguration iasConfiguration = environment.getIasConfiguration();
+		if (iasConfiguration != null) {
 			for (String key : IAS_ATTRIBUTES) {
-				if (environment.getIasConfiguration().hasProperty(key)) { // will not find "domains" among properties
-					properties.put(IAS_PREFIX + key, environment.getIasConfiguration().getProperty(key));
+				if (iasConfiguration.hasProperty(key)) { // will not find "domains" among properties
+					properties.put(IAS_PREFIX + key, iasConfiguration.getProperty(key));
 				}
 			}
-			properties.put(IAS_PREFIX + DOMAINS, environment.getIasConfiguration().getDomains());
+			properties.put(IAS_PREFIX + DOMAINS, iasConfiguration.getDomains());
 		}
 		return properties;
 	}
