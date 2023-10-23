@@ -35,8 +35,8 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
             }
         }
 
-        if (key == null && configuration.hasProperty(CFConstants.XSUAA.VERIFICATION_KEY)) {
-            String fallbackKey = configuration.getProperty(CFConstants.XSUAA.VERIFICATION_KEY);
+        String fallbackKey = configuration.hasProperty(CFConstants.XSUAA.VERIFICATION_KEY) ? configuration.getProperty(CFConstants.XSUAA.VERIFICATION_KEY) : null;
+        if (key == null && fallbackKey != null) {
             try {
                 key = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256, fallbackKey);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
