@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
@@ -34,6 +35,7 @@ public class CFEnvironment implements Environment {
 	private ServiceBindingAccessor serviceBindingAccessor;
 	private UnaryOperator<String> environmentVariableReader = System::getenv;
 	private final Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
+	private boolean serviceSorted = false;
 
 	private CFEnvironment() {
 		serviceConfigurations = new EnumMap<>(Service.class);
@@ -63,6 +65,12 @@ public class CFEnvironment implements Environment {
 		CFEnvironment instance = new CFEnvironment();
 		instance.environmentVariableReader = vcapProvider;
 		instance.serviceBindingAccessor = new SapVcapServicesServiceBindingAccessor(vcapProvider);
+		
+		String serviceSortedConfigValue = vcapProvider.apply("COM_SAP_CLOUD_SECURITY_CONFIG_SERVICE_SORTED");
+		if (serviceSortedConfigValue != null && serviceSortedConfigValue.compareToIgnoreCase("true") == 0) {
+			instance.serviceSorted = true;
+		}
+		
 		instance.readServiceConfigurations();
 		return instance;
 	}
@@ -183,46 +191,50 @@ public class CFEnvironment implements Environment {
 	 */
 	@Nullable
 	public OAuth2ServiceConfiguration loadForServicePlan(Service service, Plan plan) {
-		return loadAllForService(service).stream()
-				.filter(configuration -> Plan.from(configuration.getProperty(CFConstants.SERVICE_PLAN)).equals(plan))
-				.sorted(new Comparator<OAuth2ServiceConfiguration>() {
+		Stream<OAuth2ServiceConfiguration> stream = loadAllForService(service).stream()
+			.filter(configuration -> Plan.from(configuration.getProperty(CFConstants.SERVICE_PLAN)).equals(plan));
+		
+		if (this.serviceSorted) {
+			stream = stream.sorted(new Comparator<OAuth2ServiceConfiguration>() {
 
-					@Override
-					public int compare(OAuth2ServiceConfiguration o1, OAuth2ServiceConfiguration o2) {
-						if (o1 == null && o2 == null) {
-							return 0;
-						}
-						if (o1 == null) {
-							return 1;
-						}
-						if (o2 == null) {
-							return -1;
-						}
-						
-						/*
-						 * Note that we know here that we are in a CF Environment!
-						 * The CF Environment variables always contain a "name" property.
-						 * The call ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder
-						 * ensured that the property was transfered.
-						 */
-						
-						final String o1Name = o1.getProperty(CFConstants.NAME);
-						final String o2Name = o2.getProperty(CFConstants.NAME);
-						
-						if (o1Name == null && o2Name == null) {
-							return 0;
-						}
-						if (o1Name == null) {
-							return 1;
-						}
-						if (o2Name == null) {
-							return -1;
-						}
-						
-						return o1Name.compareTo(o2Name);
+				@Override
+				public int compare(OAuth2ServiceConfiguration o1, OAuth2ServiceConfiguration o2) {
+					if (o1 == null && o2 == null) {
+						return 0;
 					}
-				})
-				.findFirst()
+					if (o1 == null) {
+						return 1;
+					}
+					if (o2 == null) {
+						return -1;
+					}
+					
+					/*
+					 * Note that we know here that we are in a CF Environment!
+					 * The CF Environment variables always contain a "name" property.
+					 * The call ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder
+					 * ensured that the property was transfered.
+					 */
+					
+					final String o1Name = o1.getProperty(CFConstants.NAME);
+					final String o2Name = o2.getProperty(CFConstants.NAME);
+					
+					if (o1Name == null && o2Name == null) {
+						return 0;
+					}
+					if (o1Name == null) {
+						return 1;
+					}
+					if (o2Name == null) {
+						return -1;
+					}
+					
+					return o1Name.compareTo(o2Name);
+				}
+			});
+		}
+		
+		return stream.findFirst()
 				.orElse(null);
 	}
 
