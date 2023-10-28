@@ -192,6 +192,15 @@ IdentityServiceConfiguration identityServiceConfiguration;
 
 Alternatively, you can also access the information with `Environments.getCurrent()`, which is provided with `java-security`.
 
+#### [Optional] Having More Than One XSUAA Service Instance per Plan in Cloud Foundry
+
+In case that you have more than one XSUAA service instances per plan (e. g. two service instances of plan `application` or two service instances of plan `broker`), then by default the library will pick an arbitrary one of them.
+
+To prevent this in a Cloud Foundry environment and to ensure that the library will pick the service instance, whose `name` attribute in the `VCAP_SERVICES` is lexicographically the lower one, set the variable `COM_SAP_CLOUD_SECURITY_CONFIG_SERVICE_SORTED` to `true` (four letters, case insensitive). Note that this variable must be set in the same environment (typically the application program environment, in rare cases also Java system properties) where the `VCAP_SERVICES` is provided. Setting it in another environment will cause that setting is ignored silently.
+
+The configuration option has been introduced due to avoid possible compatibility issues.
+
+
 ### [Optional] Audit Logging
 In case you have implemented a central Exception Handler as described with [Baeldung Tutorial: Error Handling for REST with Spring](https://www.baeldung.com/exception-handling-for-rest-with-spring) you may want to emit logs to the audit log service in case of `AccessDeniedException`s.
 
