@@ -310,5 +310,42 @@ public class CFEnvironmentTest {
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
 		assertThat(brokerServConfig.getProperty(NAME)).isEqualTo("xsuaa-broker");
 	}
+	
+	private String vcapFourXsuaaGetEnvReverseOrderNotSorted(String key) {
+		if (key.equals(CFConstants.VCAP_SERVICES)) {
+			return vcapFourXsuaaReverseOrder;
+		}
+		if (key.equals(CFConstants.VCAP_APPLICATION)) {
+			return "{}";
+		}
+		if (key.equals(CFConstants.CONFIG_SERVICE_SORTED)) {
+			return null;
+		}
+		Assertions.fail(String.format("Request to unknown environment variable %s", key));
+		return null; // never reached, but required due to formal reasons
+	}
+	
+	@Test
+	public void getConfigurationOfFourInstanceReverseOrderNotSorted() {
+		/*
+		 * Backward compatibility test case: If the configuration option
+		 * is not set, then the old logic shall still be used.
+		 */
+		cut = CFEnvironment.getInstance(this::vcapFourXsuaaGetEnvReverseOrderNotSorted);
+
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(4);
+		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
+		OAuth2ServiceConfiguration brokerServConfig = cut.getXsuaaConfigurationForTokenExchange();
+
+		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
+		assertThat(appServConfig.getProperty(NAME)).isEqualTo("xsuaa-app2");
+
+		assertThat(brokerServConfig).isNotEqualTo(appServConfig);
+		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
+		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
+		assertThat(brokerServConfig.getProperty(NAME)).isEqualTo("xsuaa-broker2");
+	}
 
 }
