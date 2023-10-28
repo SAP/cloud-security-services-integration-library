@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -244,9 +245,23 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 	}
 	
+	private String vcapFourXsuaaGetEnv(String key) {
+		if (key.equals(CFConstants.VCAP_SERVICES)) {
+			return vcapFourXsuaa;
+		}
+		if (key.equals(CFConstants.VCAP_APPLICATION)) {
+			return "{}";
+		}
+		if (key.equals(CFConstants.CONFIG_SERVICE_SORTED)) {
+			return "true";
+		}
+		Assertions.fail(String.format("Request to unknown environment variable %s", key));
+		return null; // never reached, but required due to formal reasons
+	}
+	
 	@Test
 	public void getConfigurationOfFourInstance() {
-		cut = CFEnvironment.getInstance((str) -> vcapFourXsuaa);
+		cut = CFEnvironment.getInstance(this::vcapFourXsuaaGetEnv);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(4);
 		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
@@ -263,9 +278,23 @@ public class CFEnvironmentTest {
 		assertThat(brokerServConfig.getProperty(NAME)).isEqualTo("xsuaa-broker");
 	}
 	
+	private String vcapFourXsuaaGetEnvReverseOrder(String key) {
+		if (key.equals(CFConstants.VCAP_SERVICES)) {
+			return vcapFourXsuaaReverseOrder;
+		}
+		if (key.equals(CFConstants.VCAP_APPLICATION)) {
+			return "{}";
+		}
+		if (key.equals(CFConstants.CONFIG_SERVICE_SORTED)) {
+			return "true";
+		}
+		Assertions.fail(String.format("Request to unknown environment variable %s", key));
+		return null; // never reached, but required due to formal reasons
+	}
+	
 	@Test
 	public void getConfigurationOfFourInstanceReverseOrder() {
-		cut = CFEnvironment.getInstance((str) -> vcapFourXsuaaReverseOrder);
+		cut = CFEnvironment.getInstance(this::vcapFourXsuaaGetEnvReverseOrder);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(4);
 		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
