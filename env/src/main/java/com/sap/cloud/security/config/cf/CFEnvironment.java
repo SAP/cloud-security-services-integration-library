@@ -65,7 +65,7 @@ public class CFEnvironment implements Environment {
 		instance.environmentVariableReader = vcapProvider;
 		instance.serviceBindingAccessor = new SapVcapServicesServiceBindingAccessor(vcapProvider);
 		
-		String serviceSortedConfigValue = vcapProvider.apply(CFConstants.CONFIG_SERVICE_SORTED);
+		final String serviceSortedConfigValue = vcapProvider.apply(CFConstants.CONFIG_SERVICE_SORTED);
 		if (serviceSortedConfigValue != null && serviceSortedConfigValue.compareToIgnoreCase("true") == 0) {
 			instance.serviceSorted = true;
 		}
