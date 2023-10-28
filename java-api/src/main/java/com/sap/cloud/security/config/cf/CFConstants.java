@@ -12,6 +12,8 @@ package com.sap.cloud.security.config.cf;
 public class CFConstants {
 	public static final String VCAP_SERVICES = "VCAP_SERVICES";
 	public static final String VCAP_APPLICATION = "VCAP_APPLICATION";
+	public static final String CONFIG_SERVICE_SORTED = "COM_SAP_CLOUD_SECURITY_CONFIG_SERVICE_SORTED";
+	
 	public static final String CREDENTIALS = "credentials";
 	public static final String SERVICE_PLAN = "plan";
 	public static final String URL = "url";

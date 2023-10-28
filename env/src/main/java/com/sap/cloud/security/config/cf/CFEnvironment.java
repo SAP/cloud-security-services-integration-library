@@ -31,7 +31,6 @@ import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
  * parsing the {@code VCAP_SERVICES} system environment variable.
  */
 public class CFEnvironment implements Environment {
-
 	private ServiceBindingAccessor serviceBindingAccessor;
 	private UnaryOperator<String> environmentVariableReader = System::getenv;
 	private final Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurations;
@@ -66,7 +65,7 @@ public class CFEnvironment implements Environment {
 		instance.environmentVariableReader = vcapProvider;
 		instance.serviceBindingAccessor = new SapVcapServicesServiceBindingAccessor(vcapProvider);
 		
-		String serviceSortedConfigValue = vcapProvider.apply("COM_SAP_CLOUD_SECURITY_CONFIG_SERVICE_SORTED");
+		String serviceSortedConfigValue = vcapProvider.apply(CFConstants.CONFIG_SERVICE_SORTED);
 		if (serviceSortedConfigValue != null && serviceSortedConfigValue.compareToIgnoreCase("true") == 0) {
 			instance.serviceSorted = true;
 		}
@@ -234,8 +233,7 @@ public class CFEnvironment implements Environment {
 			});
 		}
 		
-		return stream.findFirst()
-				.orElse(null);
+		return stream.findFirst().orElse(null);
 	}
 
 	/**
