@@ -6,8 +6,14 @@
 package sample.spring.security;
 
 import com.sap.cloud.security.spring.config.IdentityServicesPropertySourceFactory;
+import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
+import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
+import com.sap.cloud.security.spring.token.authentication.XsuaaTokenAuthorizationConverter;
 import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,13 +27,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.APP_ID;
 
 @Configuration
 @EnableWebSecurity(debug = true) // TODO "debug" may include sensitive information. Do not use in a production system!
@@ -35,8 +45,10 @@ import java.util.stream.Collectors;
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
 public class SecurityConfiguration {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfiguration.class);
+
     @Autowired
-    Converter<Jwt, AbstractAuthenticationToken> authConverter; // Required only when Xsuaa is used
+    XsuaaServiceConfigurations configs;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -59,6 +71,22 @@ public class SecurityConfiguration {
         return http.build();
     }
 
+	@Bean
+	public Converter<Jwt, AbstractAuthenticationToken> authConverter() {
+        LOGGER.info("accessing third service configuration with xsappname={}", configs.getConfigurations().get(2).getProperty(APP_ID));
+		return new XsuaaTokenAuthorizationConverter(configs.getConfigurations().get(2).getProperty(APP_ID));
+	}
+
+    @Bean
+    public JwtDecoder customJwtDecoder() {
+        TokenCacheConfiguration cache = TokenCacheConfiguration.getInstance(Duration.ofMinutes(15), 500,
+                Duration.ofMinutes(1), true);
+        return new JwtDecoderBuilder()
+                .withXsuaaServiceConfiguration(configs.getConfigurations().get(0))
+                .withCacheConfiguration(cache)
+                .build();
+    }
+
     /**
      * Workaround for hybrid use case until Cloud Authorization Service is globally available.
      */
@@ -66,7 +94,7 @@ public class SecurityConfiguration {
 
         public AbstractAuthenticationToken convert(Jwt jwt) {
             if (jwt.hasClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
-                return authConverter.convert(jwt);
+                return authConverter().convert(jwt);
             }
             return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
         }

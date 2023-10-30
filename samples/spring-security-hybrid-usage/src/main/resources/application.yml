@@ -4,7 +4,7 @@
 # Setting Log Levels
 logging.level:
   com.sap: DEBUG                      # set SAP-class loggers to DEBUG.
-  org.springframework: ERROR          # set to DEBUG to see all beans loaded and auto-config conditions met.
+  org.springframework: DEBUG          # set to DEBUG to see all beans loaded and auto-config conditions met.
   org.springframework.security: DEBUG # set to ERROR for production setups. 
   org.springframework.web: DEBUG      # set to ERROR for production setups.
           
@@ -15,3 +15,17 @@ server:
 # Enable to make Spring Boot log debug information.
 # debug: true
 
+sap.security.services:
+  xsuaa[0]:
+    clientid: cid1
+    uaadomain: localhost
+    xsappname: name1
+    url:       http://localhost
+  xsuaa[1]:
+    clientid: cid2
+    uaadomain: localhost
+    xsappname: name2
+  xsuaa[2]:
+    clientid: cid3
+    uaadomain: localhost
+    xsappname: name3
