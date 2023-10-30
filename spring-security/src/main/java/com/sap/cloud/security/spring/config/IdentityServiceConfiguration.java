@@ -11,6 +11,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("sap.security.services.identity")
 public class IdentityServiceConfiguration extends OAuth2ServiceConfigurationProperties {
 
+
+	public void setProoftoken_url(String prooftoken_url) {
+		builder.withProperty("prooftoken_url", prooftoken_url);
+	}
+
 	/**
 	 * Creates a new instance to map configuration of a dedicated identity service.
 	 *

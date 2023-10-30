@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.client.DefaultHttpClientFactory;
+import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -17,6 +19,7 @@ import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,7 @@ public class JwtValidatorBuilder {
 	private boolean isTenantIdCheckDisabled;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidatorBuilder.class);
+	private CloseableHttpClient httpClient;
 
 	private JwtValidatorBuilder() {
 		// use getInstance factory method
@@ -149,6 +153,7 @@ public class JwtValidatorBuilder {
 		if (httpClient != null) {
 			this.oidcConfigurationService = new DefaultOidcConfigurationService(httpClient);
 			this.tokenKeyService = new DefaultOAuth2TokenKeyService(httpClient);
+			this.httpClient = httpClient;
 		}
 		return this;
 	}
@@ -233,6 +238,13 @@ public class JwtValidatorBuilder {
 			if(isTenantIdCheckDisabled) {
 				((SapIdJwtSignatureValidator) signatureValidator).disableTenantIdCheck();
 			}
+			if(configuration.getProperty("prooftoken_url")!=null){
+				if (httpClient != null) {
+					defaultValidators.add(new App2ServiceValidator(configuration,httpClient));
+				}else {
+					defaultValidators.add(new App2ServiceValidator(configuration));
+				}
+				}
 		}
 
 		defaultValidators.add(signatureValidator);

@@ -54,7 +54,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 					"key", "credential-type", "certurl"));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList("clientid", "clientsecret", "domains", "url"));
+			.asList("clientid", "clientsecret", "domains", "url", "prooftoken_url", "certificate", "key",  "credential-type"));
 
 	@Override
 	@SuppressWarnings("squid:S2259") // false positive
