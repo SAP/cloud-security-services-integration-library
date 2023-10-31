@@ -1,7 +1,6 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.client.DefaultHttpClientFactory;
-import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.Token;
@@ -9,7 +8,6 @@ import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.json.JSONArray;
 import org.slf4j.Logger;
@@ -21,11 +19,10 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.*;
-
 public class ProofTokenDataRetriever implements Runnable{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProofTokenDataRetriever.class);
+    public static final int POLL_TIME = 1000 * 60; // poll time in ms
     private Map<String, ProofTokenData> proofTokenDataMap = new HashMap<>();
     private ClientIdentity clientIdentity = null;
     private String proofTokenEndpoint = null;
@@ -81,11 +78,11 @@ public class ProofTokenDataRetriever implements Runnable{
         while(doRun){
             try{
                 readProofTokenData();
-                Thread.sleep(1000);
+                Thread.sleep(POLL_TIME); // every minute
             } catch (IOException | InterruptedException e) {
                 LOGGER.warn("Failed retrieving proof token data from {} due to ",proofTokenEndpoint,e.getMessage(),e);
                 try {
-                    Thread.sleep(120*1000);
+                    Thread.sleep(1000*60);
                 } catch (InterruptedException ex) {
                    LOGGER.debug("interrupted",ex);
                 }
