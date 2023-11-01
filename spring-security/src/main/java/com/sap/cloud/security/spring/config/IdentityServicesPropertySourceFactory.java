@@ -88,17 +88,21 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 	
 	@Nonnull
 	private void mapXsuaaProperties(Environment environment) {
-		
-		final boolean multipleXsuaaServicesBound = environment.getNumberOfXsuaaConfigurations() > 1;
-		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
-		if (xsuaaConfiguration != null) {
-			String xsuaaPrefix = multipleXsuaaServicesBound ? PROPERTIES_KEY + ".xsuaa[0]." : XSUAA_PREFIX;
-			mapXsuaaAttributesSingleInstance(this.properties, xsuaaConfiguration, xsuaaPrefix);
+		final int numberOfXsuaaConfigurations = environment.getNumberOfXsuaaConfigurations();
+		if (numberOfXsuaaConfigurations == 0) {
+			return;
 		}
 		
-		if (multipleXsuaaServicesBound) {
-			final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = 
-					environment.getXsuaaConfigurationForTokenExchange();
+		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
+		if (numberOfXsuaaConfigurations == 1) {
+			mapXsuaaAttributesSingleInstance(this.properties, xsuaaConfiguration, XSUAA_PREFIX);
+			return;
+		}
+		
+		mapXsuaaAttributesSingleInstance(this.properties, xsuaaConfiguration, PROPERTIES_KEY + ".xsuaa[0].");
+
+		final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = environment.getXsuaaConfigurationForTokenExchange();
+		if (xsuaaConfigurationForTokenExchange != null) {
 			mapXsuaaAttributesSingleInstance(this.properties, xsuaaConfigurationForTokenExchange, PROPERTIES_KEY + ".xsuaa[1].");
 		}
 	}
