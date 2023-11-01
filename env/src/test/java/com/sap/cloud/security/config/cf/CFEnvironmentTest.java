@@ -33,6 +33,7 @@ public class CFEnvironmentTest {
 
 	private final String vcapXsuaa;
 	private final String vcapMultipleXsuaa;
+	private final String vcapFourXsuaa;
 	private final String vcapIas;
 	private final String vcapXsa;
 
@@ -41,6 +42,7 @@ public class CFEnvironmentTest {
 		vcapMultipleXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceMultipleBindings.json", UTF_8);
 		vcapIas = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
 		vcapXsa = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
+		vcapFourXsuaa = IOUtils.resourceToString("/vcapXsuaaServiceFourBindings.json", UTF_8);
 	}
 
 	@Test
@@ -291,5 +293,30 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaConfigurations()).isNotNull();
 		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
+	}
+	
+	@Test
+	public void getConfigurationOfFourInstances() {
+		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(vcapFourXsuaa)::getEnv);
+
+		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(4);
+		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
+		OAuth2ServiceConfiguration brokerServConfig = cut.getXsuaaConfigurationForTokenExchange();
+
+		assertThat(appServConfig.getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(appServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
+
+		assertThat(brokerServConfig).isNotEqualTo(appServConfig);
+		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
+		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
+		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
+
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(4);
+
+		final List<OAuth2ServiceConfiguration> xsuaaConfigurations = cut.getXsuaaConfigurations();
+		
+		assertThat(xsuaaConfigurations.stream().anyMatch(e -> e == appServConfig)).isTrue();
+		assertThat(xsuaaConfigurations.stream().anyMatch(e -> e == brokerServConfig)).isTrue();
 	}
 }
