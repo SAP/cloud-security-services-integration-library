@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 
@@ -78,10 +80,10 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		return new PropertiesPropertySource(name == null ? PROPERTIES_KEY : name, this.properties);
 	}
 
-	private static void mapXsuaaAttributesSingleInstance(Properties properties, final OAuth2ServiceConfiguration oAuth2ServiceConfiguration, final String prefix) {
+	private void mapXsuaaAttributesSingleInstance(final OAuth2ServiceConfiguration oAuth2ServiceConfiguration, final String prefix) {
 		for (String key : XSUAA_ATTRIBUTES) {
 			if (oAuth2ServiceConfiguration.hasProperty(key)) {
-				properties.put(prefix + key, oAuth2ServiceConfiguration.getProperty(key));
+				this.properties.put(prefix + key, oAuth2ServiceConfiguration.getProperty(key));
 			}
 		}
 	}
@@ -93,17 +95,57 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 			return;
 		}
 		
+		/*
+		 * Special case: We only have exactly one XSUAA Service Configuration in place.
+		 * Then we do not use an array for describing the properties.
+		 */
 		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
 		if (numberOfXsuaaConfigurations == 1) {
-			mapXsuaaAttributesSingleInstance(this.properties, xsuaaConfiguration, XSUAA_PREFIX);
+			mapXsuaaAttributesSingleInstance(xsuaaConfiguration, XSUAA_PREFIX);
 			return;
 		}
 		
-		mapXsuaaAttributesSingleInstance(this.properties, xsuaaConfiguration, PROPERTIES_KEY + ".xsuaa[0].");
-
+		/*
+		 * Case "multiple XSUAA Service Configurations": 
+		 * The first two items in the array have a special meaning:
+		 * - Item 0 is exclusively used for "an arbitrary Xsuaa configuration" of plan "application"
+		 * - Item 1 is exclusively used for "an arbitrary Xsuaa configuration" of plan "broker"
+		 */
+		mapXsuaaAttributesSingleInstance(xsuaaConfiguration, PROPERTIES_KEY + ".xsuaa[0].");
+		
 		final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = environment.getXsuaaConfigurationForTokenExchange();
 		if (xsuaaConfigurationForTokenExchange != null) {
-			mapXsuaaAttributesSingleInstance(this.properties, xsuaaConfigurationForTokenExchange, PROPERTIES_KEY + ".xsuaa[1].");
+			mapXsuaaAttributesSingleInstance(xsuaaConfigurationForTokenExchange, PROPERTIES_KEY + ".xsuaa[1].");
+		}
+		/*
+		 * Note: In case no instance of plan "broker" is defined, but there are multiple
+		 * instances of plan "application", then xsuaa[1] is left blank!
+		 */
+		
+		/*
+		 * For all other items coming thereafter, there is no order defined anymore.
+		 * However, we must not duplicate the instances...
+		 */
+		final List<OAuth2ServiceConfiguration> allXsuaaConfigurations = environment.getXsuaaConfigurations();
+		
+		Stream<OAuth2ServiceConfiguration> xsuaaConfigurationsStream = allXsuaaConfigurations.stream();
+		if (xsuaaConfiguration != null) {
+			xsuaaConfigurationsStream = xsuaaConfigurationsStream.filter(e -> e != xsuaaConfiguration);
+		}
+		if (xsuaaConfigurationForTokenExchange != null) {
+			xsuaaConfigurationsStream = xsuaaConfigurationsStream.filter(e -> e != xsuaaConfigurationForTokenExchange);
+		}
+		
+		
+		/* Usage for ".forEach" would have been preferred here,
+		 * but Closures in JDK8 do not permit accessing non-final attributes.
+		 */
+		final List<OAuth2ServiceConfiguration> additionalOAuth2ServiceConfigurationList = xsuaaConfigurationsStream.collect(Collectors.toList());
+		
+		int position = 2;
+		for (OAuth2ServiceConfiguration additionalOAuth2ServiceConfiguration : additionalOAuth2ServiceConfigurationList) {
+			final String prefix = String.format(PROPERTIES_KEY + ".xsuaa[%d].", position++);
+			this.mapXsuaaAttributesSingleInstance(additionalOAuth2ServiceConfiguration, prefix);
 		}
 	}
 
