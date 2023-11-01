@@ -20,7 +20,9 @@ import java.util.*;
 
 import static com.sap.cloud.environment.servicebinding.SapServiceOperatorLayeredServiceBindingAccessor.DEFAULT_PARSING_STRATEGIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class K8sEnvironmentTest {
 
@@ -86,6 +88,7 @@ class K8sEnvironmentTest {
 		assertEquals(0, cut.getNumberOfXsuaaConfigurations());
 		assertNull(cut.getIasConfiguration());
 		assertNull(cut.getXsuaaConfiguration());
+		assertTrue(cut.getXsuaaConfigurations().isEmpty());
 	}
 
 	@Test
@@ -98,6 +101,7 @@ class K8sEnvironmentTest {
 		assertEquals(0, cut.getNumberOfXsuaaConfigurations());
 		assertNull(cut.getIasConfiguration());
 		assertNull(cut.getXsuaaConfiguration());
+		assertTrue(cut.getXsuaaConfigurations().isEmpty());
 	}
 
 	@Test
@@ -112,6 +116,15 @@ class K8sEnvironmentTest {
 		assertEquals(0, cut.getNumberOfXsuaaConfigurations());
 		assertNull(cut.getIasConfiguration());
 		assertNull(cut.getXsuaaConfiguration());
+		assertTrue(cut.getXsuaaConfigurations().isEmpty());
 	}
+	
+	@Test
+	void getXsuaaConfigurations() {
+		cut = K8sEnvironment.getInstance();
+		assertNotNull(cut.getXsuaaConfigurations());
+		assertEquals(2, cut.getXsuaaConfigurations().size());
+	}
+
 
 }

@@ -5,24 +5,31 @@
  */
 package com.sap.cloud.security.config.cf;
 
-import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.json.DefaultJsonObject;
-import com.sap.cloud.security.json.JsonObject;
+import static com.sap.cloud.security.config.cf.CFConstants.CLIENT_SECRET;
+import static com.sap.cloud.security.config.cf.CFConstants.CREDENTIALS;
+import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
+import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
+import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.function.UnaryOperator;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.function.UnaryOperator;
-
-import static com.sap.cloud.security.config.cf.CFConstants.*;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants.Plan;
+import com.sap.cloud.security.config.cf.CFConstants.XSUAA;
+import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
 
 public class CFEnvironmentTest {
 
@@ -73,6 +80,8 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isNull();
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -89,6 +98,9 @@ public class CFEnvironmentTest {
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(1);
+		
 		assertThat(cut.getIasConfiguration()).isNull();
 	}
 
@@ -112,6 +124,9 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(1);
 	}
 
 	@Test
@@ -129,6 +144,13 @@ public class CFEnvironmentTest {
 		assertThat(brokerServConfig.getService()).isEqualTo(Service.XSUAA);
 		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(2);
+		
+		List<OAuth2ServiceConfiguration> xsuaaConfigurations = cut.getXsuaaConfigurations();
+		assertThat(xsuaaConfigurations.get(0)).isSameAs(appServConfig);
+		assertThat(xsuaaConfigurations.get(1)).isSameAs(brokerServConfig);
 	}
 
 	@Test
@@ -156,6 +178,9 @@ public class CFEnvironmentTest {
 
 		assertThat(serviceConfiguration).isNotNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(2);
 	}
 
 	@Test
@@ -166,6 +191,9 @@ public class CFEnvironmentTest {
 
 		assertThat(serviceConfiguration).isNotNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(2);
 	}
 
 	@Test
@@ -178,6 +206,9 @@ public class CFEnvironmentTest {
 		assertThat(cut.loadForServicePlan(Service.IAS, Plan.DEFAULT)).isNull();
 		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
 		assertThat(cut.getIasConfiguration()).isNull();
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(0);
 	}
 
 	@Test
@@ -200,6 +231,10 @@ public class CFEnvironmentTest {
 
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
 		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(2);
+
 	}
 
 	@Test
@@ -208,6 +243,9 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -216,6 +254,9 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
+
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -224,6 +265,9 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -231,5 +275,8 @@ public class CFEnvironmentTest {
 		String xsuaaBinding = "{\"\": [{ \"credentials\": null }]}";
 		cut = CFEnvironment.getInstance((str) -> xsuaaBinding);
 		assertThat(cut.getXsuaaConfiguration()).isNull();
+		
+		assertThat(cut.getXsuaaConfigurations()).isNotNull();
+		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
 	}
 }

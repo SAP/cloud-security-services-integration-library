@@ -5,20 +5,33 @@
  */
 package com.sap.cloud.security.config.k8s;
 
-import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
-import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
-import com.sap.cloud.security.config.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
-import static com.sap.cloud.security.config.k8s.K8sConstants.Plan;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
+import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.ServiceBindingMapper;
+import com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 
 /**
  * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
@@ -118,6 +131,12 @@ public class K8sEnvironment implements Environment {
 	@Override
 	public int getNumberOfXsuaaConfigurations() {
 		return getServiceConfigurationsOf(Service.XSUAA).size();
+	}
+
+	@Override
+	public List<OAuth2ServiceConfiguration> getXsuaaConfigurations() {
+		Collection<OAuth2ServiceConfiguration> serviceConfigCollection = getServiceConfigurationsOf(Service.XSUAA).values();
+		return new ArrayList<>(serviceConfigCollection);
 	}
 
 }
