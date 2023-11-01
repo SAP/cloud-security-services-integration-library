@@ -65,42 +65,45 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 				&& resource.getResource().getFilename() != null && !resource.getResource().getFilename().isEmpty()) {
 			environment = Environments.readFromInput(resource.getResource().getInputStream());
 		}
-		boolean multipleXsuaaServicesBound = environment.getNumberOfXsuaaConfigurations() > 1;
-
-		Properties properties = getXsuaaProperties(environment, multipleXsuaaServicesBound);
+		
+		Properties properties = getXsuaaProperties(environment);
 		properties.putAll(getIasProperties(environment));
 		logger.debug("Parsed {} properties from identity services. {}", properties.size(),
 				properties.stringPropertyNames());
+		
 		return new PropertiesPropertySource(PROPERTIES_KEY, properties);
 	}
 
+	private static void mapXsuaaAttributesSingleInstance(Properties properties, final OAuth2ServiceConfiguration oAuth2ServiceConfiguration, final String prefix) {
+		for (String key : XSUAA_ATTRIBUTES) {
+			if (oAuth2ServiceConfiguration.hasProperty(key)) {
+				properties.put(prefix + key, oAuth2ServiceConfiguration.getProperty(key));
+			}
+		}
+	}
+	
 	@Nonnull
-	private Properties getXsuaaProperties(Environment environment, boolean multipleXsuaaServicesBound) {
+	private static Properties getXsuaaProperties(Environment environment) {
+		
 		Properties properties = new Properties();
+		
+		final boolean multipleXsuaaServicesBound = environment.getNumberOfXsuaaConfigurations() > 1;
 		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
 		if (xsuaaConfiguration != null) {
 			String xsuaaPrefix = multipleXsuaaServicesBound ? PROPERTIES_KEY + ".xsuaa[0]." : XSUAA_PREFIX;
-			for (String key : XSUAA_ATTRIBUTES) {
-				if (xsuaaConfiguration.hasProperty(key)) {
-					properties.put(xsuaaPrefix + key, xsuaaConfiguration.getProperty(key));
-				}
-			}
+			mapXsuaaAttributesSingleInstance(properties, xsuaaConfiguration, xsuaaPrefix);
 		}
+		
 		if (multipleXsuaaServicesBound) {
 			final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = 
 					environment.getXsuaaConfigurationForTokenExchange();
-			for (String key : XSUAA_ATTRIBUTES) {
-				if (xsuaaConfigurationForTokenExchange.hasProperty(key)) {
-					properties.put(PROPERTIES_KEY + ".xsuaa[1]." + key,
-							xsuaaConfigurationForTokenExchange.getProperty(key));
-				}
-			}
+			mapXsuaaAttributesSingleInstance(properties, xsuaaConfigurationForTokenExchange, PROPERTIES_KEY + ".xsuaa[1].");
 		}
 		return properties;
 	}
 
 	@Nonnull
-	private Properties getIasProperties(Environment environment) {
+	private static Properties getIasProperties(Environment environment) {
 		Properties properties = new Properties();
 		final OAuth2ServiceConfiguration iasConfiguration = environment.getIasConfiguration();
 		if (iasConfiguration != null) {
