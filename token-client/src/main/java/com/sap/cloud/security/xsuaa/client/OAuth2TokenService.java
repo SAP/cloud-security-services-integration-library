@@ -15,6 +15,7 @@ import java.util.Map;
 /**
  * Retrieves OAuth2 Access Tokens as documented here:
  * https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token
+ * Note that the XSUAA API might differ slightly from these specs which is why not all parameters from the Cloud Foundry UAA documentation are configurable via this library.
  */
 public interface OAuth2TokenService {
 
