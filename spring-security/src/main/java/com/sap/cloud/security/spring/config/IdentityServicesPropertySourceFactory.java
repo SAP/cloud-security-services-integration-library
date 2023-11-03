@@ -108,19 +108,17 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		/*
 		 * Case "multiple XSUAA Service Configurations": 
 		 * The first two items in the array have a special meaning:
-		 * - Item 0 is exclusively used for "an arbitrary Xsuaa configuration" of plan "application"
-		 * - Item 1 is exclusively used for "an arbitrary Xsuaa configuration" of plan "broker"
+		 * - Item 0 is exclusively used for "an arbitrary Xsuaa configuration" of plan "application".
+		 * - Item 1 is optionally used for "an arbitrary Xsuaa configuration" of plan "broker" used for token exchange.
 		 */
 		mapXsuaaAttributesSingleInstance(xsuaaConfiguration, PROPERTIES_KEY + ".xsuaa[0].");
 		
+		int position = 1;
 		final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = environment.getXsuaaConfigurationForTokenExchange();
 		if (xsuaaConfigurationForTokenExchange != null) {
 			mapXsuaaAttributesSingleInstance(xsuaaConfigurationForTokenExchange, PROPERTIES_KEY + ".xsuaa[1].");
+			position = 2;
 		}
-		/*
-		 * Note: In case no instance of plan "broker" is defined, but there are multiple
-		 * instances of plan "application", then xsuaa[1] is left blank!
-		 */
 		
 		/*
 		 * For all other items coming thereafter, there is no order defined anymore.
@@ -142,7 +140,6 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		 */
 		final List<OAuth2ServiceConfiguration> additionalOAuth2ServiceConfigurationList = xsuaaConfigurationsStream.collect(Collectors.toList());
 		
-		int position = 2;
 		for (OAuth2ServiceConfiguration additionalOAuth2ServiceConfiguration : additionalOAuth2ServiceConfigurationList) {
 			final String prefix = String.format(PROPERTIES_KEY + ".xsuaa[%d].", position++);
 			this.mapXsuaaAttributesSingleInstance(additionalOAuth2ServiceConfiguration, prefix);

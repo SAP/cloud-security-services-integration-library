@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
 @SpringBootTest(classes = { BrokerHoleTestConfigurationFromFile.class })
-class IdentityServicesPropertySourceFactoryBrokerHoleTest {
+class IdentityServicesPropertySourceFactoryBrokerNoHoleTest {
 
 	@Autowired
 	BrokerHoleTestConfigurationFromFile configuration;
@@ -34,13 +34,13 @@ class IdentityServicesPropertySourceFactoryBrokerHoleTest {
 		assertEquals("", configuration.unknown0);
 
 		/* Index 1 */
-		assertEquals("none", configuration.xsuaaClientId1);
-		assertEquals("none", configuration.xsuaaClientSecret1);
+		assertEquals("client-id", configuration.xsuaaClientId1);
+		assertEquals("client-secret", configuration.xsuaaClientSecret1);
+		assertEquals("xsappname", configuration.xsuaaAppName1);
 
 		/* Index 2 */
-		assertEquals("client-id", configuration.xsuaaClientId2);
-		assertEquals("client-secret", configuration.xsuaaClientSecret2);
-		assertEquals("xsappname", configuration.xsuaaAppName2);
+		assertEquals("none", configuration.xsuaaClientId2);
+		assertEquals("none", configuration.xsuaaClientSecret2);
 		
 		/* IAS */
 		assertEquals("client-id-ias", configuration.identityClientId);
@@ -85,17 +85,17 @@ class BrokerHoleTestConfigurationFromFile {
 	@Value("${sap.security.services.xsuaa[1].clientsecret:none}")
 	public String xsuaaClientSecret1;
 
+	@Value("${sap.security.services.xsuaa[1].xsappname}")
+	public String xsuaaAppName1;
 	
 	/* Index 2 */
 	
-	@Value("${sap.security.services.xsuaa[2].clientid:}")
+	@Value("${sap.security.services.xsuaa[2].clientid:none}")
 	public String xsuaaClientId2;
 
-	@Value("${sap.security.services.xsuaa[2].clientsecret:}")
+	@Value("${sap.security.services.xsuaa[2].clientsecret:none}")
 	public String xsuaaClientSecret2;
 	
-	@Value("${sap.security.services.xsuaa[2].xsappname:}")
-	public String xsuaaAppName2;
 
 	
 	/* IAS */
