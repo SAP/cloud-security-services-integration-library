@@ -6,6 +6,7 @@
 package com.sap.cloud.security.config;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -68,11 +69,11 @@ public interface Environment {
 	OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange();
 	
 	/**
-	 * Return all available OAuth service configuration of Xsuaa identity service instance (regardless of the plan).
-	 * 
-	 * @return a list of OAuth service configurations or an empty list, in case there is no such instance
+	 * Gives access to all service configurations parsed from the environment. 
+	 *
+	 * @return the service configurations grouped by service
 	 */
 	@Nullable
-	List<OAuth2ServiceConfiguration> getXsuaaConfigurations();
+	Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList();
 
 }

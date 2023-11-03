@@ -5,17 +5,8 @@
  */
 package com.sap.cloud.security.spring.config;
 
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.Environments;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertiesPropertySource;
-import org.springframework.core.env.PropertySource;
-import org.springframework.core.io.support.EncodedResource;
-import org.springframework.core.io.support.PropertySourceFactory;
+import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +15,19 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
+import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.support.EncodedResource;
+import org.springframework.core.io.support.PropertySourceFactory;
+
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 
 /**
  * Part of Auto Configuration {@code HybridIdentityServicesAutoConfiguration}
@@ -124,7 +127,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		 * For all other items coming thereafter, there is no order defined anymore.
 		 * However, we must not duplicate the instances...
 		 */
-		final List<OAuth2ServiceConfiguration> allXsuaaConfigurations = environment.getXsuaaConfigurations();
+		final List<OAuth2ServiceConfiguration> allXsuaaConfigurations = environment.getServiceConfigurationsAsList().get(Service.XSUAA);
 		
 		Stream<OAuth2ServiceConfiguration> xsuaaConfigurationsStream = allXsuaaConfigurations.stream();
 		if (xsuaaConfiguration != null) {

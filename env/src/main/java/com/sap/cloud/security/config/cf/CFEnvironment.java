@@ -12,6 +12,7 @@ import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -181,12 +182,6 @@ public class CFEnvironment implements Environment {
 		return getXsuaaConfiguration();
 	}
 
-	@Override
-	public List<OAuth2ServiceConfiguration> getXsuaaConfigurations() {
-		return loadAllForService(XSUAA);
-	}
-
-	
 	/**
 	 * Loads the configuration for a dedicated service plan.
 	 *
@@ -205,6 +200,12 @@ public class CFEnvironment implements Environment {
 				.orElse(null);
 	}
 
+	@Override
+	public Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList() {
+		/* Clone map to protect inner state of serviceConfiguration against modification by the caller */
+		return new HashMap<>(serviceConfigurations);
+	}
+	
 	/**
 	 * Loads all configurations of all service instances of the dedicated service.
 	 *

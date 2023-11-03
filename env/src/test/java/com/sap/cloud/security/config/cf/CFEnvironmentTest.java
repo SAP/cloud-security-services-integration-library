@@ -105,8 +105,10 @@ public class CFEnvironmentTest {
 
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isNull();
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(0);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(1);
 	}
 
 	@Test
@@ -125,8 +127,10 @@ public class CFEnvironmentTest {
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(1);
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(1);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 
 		assertThat(cut.getIasConfiguration()).isNull();
 	}
@@ -146,8 +150,10 @@ public class CFEnvironmentTest {
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(1);
 		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isSameAs(cut.getXsuaaConfiguration());
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(1);
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(1);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -166,12 +172,15 @@ public class CFEnvironmentTest {
 		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
+		
+		final List<OAuth2ServiceConfiguration> serviceConfigList = cut.getServiceConfigurationsAsList().get(Service.XSUAA);
+		assertThat(serviceConfigList.size()).isEqualTo(2);
 
-		List<OAuth2ServiceConfiguration> xsuaaConfigurations = cut.getXsuaaConfigurations();
-		assertThat(xsuaaConfigurations.get(0)).isSameAs(appServConfig);
-		assertThat(xsuaaConfigurations.get(1)).isSameAs(brokerServConfig);
+		assertThat(serviceConfigList.get(0)).isSameAs(appServConfig);
+		assertThat(serviceConfigList.get(1)).isSameAs(brokerServConfig);
 	}
 
 	@Test
@@ -198,8 +207,10 @@ public class CFEnvironmentTest {
 		assertThat(serviceConfiguration).isNotNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -211,8 +222,10 @@ public class CFEnvironmentTest {
 		assertThat(serviceConfiguration).isNotNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -226,8 +239,10 @@ public class CFEnvironmentTest {
 		assertThat(CFEnvironment.getInstance().getXsuaaConfiguration()).isNull();
 		assertThat(cut.getIasConfiguration()).isNull();
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(0);
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(0);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -247,9 +262,10 @@ public class CFEnvironmentTest {
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
 		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(2);
-
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -259,8 +275,10 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(0);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -270,8 +288,10 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(0);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -281,8 +301,10 @@ public class CFEnvironmentTest {
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isZero();
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(0);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 
 	@Test
@@ -291,8 +313,10 @@ public class CFEnvironmentTest {
 		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(xsuaaBinding)::getEnv);
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().isEmpty()).isTrue();
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(0);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 	}
 	
 	@Test
@@ -311,10 +335,12 @@ public class CFEnvironmentTest {
 		assertThat(Plan.from(brokerServConfig.getProperty(SERVICE_PLAN))).isEqualTo(Plan.BROKER);
 		assertThat(brokerServConfig).isSameAs(cut.getXsuaaConfigurationForTokenExchange());
 
-		assertThat(cut.getXsuaaConfigurations()).isNotNull();
-		assertThat(cut.getXsuaaConfigurations().size()).isEqualTo(4);
+		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
+		assertThat(cut.getServiceConfigurationsAsList().size()).isEqualTo(2);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.XSUAA).size()).isEqualTo(4);
+		assertThat(cut.getServiceConfigurationsAsList().get(Service.IAS).size()).isEqualTo(0);
 
-		final List<OAuth2ServiceConfiguration> xsuaaConfigurations = cut.getXsuaaConfigurations();
+		final List<OAuth2ServiceConfiguration> xsuaaConfigurations = cut.getServiceConfigurationsAsList().get(Service.XSUAA);
 		
 		assertThat(xsuaaConfigurations.stream().anyMatch(e -> e == appServConfig)).isTrue();
 		assertThat(xsuaaConfigurations.stream().anyMatch(e -> e == brokerServConfig)).isTrue();

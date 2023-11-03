@@ -7,12 +7,13 @@ package com.sap.cloud.security.config.k8s;
 
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -134,9 +135,15 @@ public class K8sEnvironment implements Environment {
 	}
 
 	@Override
-	public List<OAuth2ServiceConfiguration> getXsuaaConfigurations() {
-		Collection<OAuth2ServiceConfiguration> serviceConfigCollection = getServiceConfigurationsOf(Service.XSUAA).values();
-		return new ArrayList<>(serviceConfigCollection);
+	public Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList() {
+		final Map<Service, List<OAuth2ServiceConfiguration>> resultMap = new HashMap<>();
+		for (Entry<Service, Map<String, OAuth2ServiceConfiguration>> e : this.serviceConfigurations.entrySet()) {
+			final Service service = e.getKey();
+			final Map<String, OAuth2ServiceConfiguration> serviceConfigMap = e.getValue();
+			resultMap.put(service, new LinkedList<>(serviceConfigMap.values()));
+		}
+		
+		return resultMap;
 	}
 
 }
