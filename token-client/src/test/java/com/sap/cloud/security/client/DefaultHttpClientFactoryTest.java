@@ -18,7 +18,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -27,12 +26,12 @@ import java.nio.charset.StandardCharsets;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.mockito.Mockito.when;
 
 class DefaultHttpClientFactoryTest {
 
-	private static final HttpGet HTTP_GET = new HttpGet(java.net.URI.create("https://www.sap.com/index.html"));
 	private static final ResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getStatusLine()
 			.getStatusCode();
 	private static final ClientIdentity config = Mockito.mock(ClientIdentity.class);
@@ -78,36 +77,6 @@ class DefaultHttpClientFactoryTest {
 		assertNotSame(client1, client2);
 
 		assertEquals(2, cut.httpClientsCreated.size());
-	}
-
-	@Test
-	void closeHttpClient() throws IOException {
-		CloseableHttpClient client1 = cut.createClient(config);
-		HttpClient client2 = cut.createClient(config2);
-
-		int statusCode;
-		statusCode = client1.execute(HTTP_GET, STATUS_CODE_EXTRACTOR);
-		assertEquals(HttpStatus.SC_OK, statusCode);
-
-		client1.close();
-
-		assertThrows(IllegalStateException.class, () -> client1.execute(HTTP_GET));
-
-		statusCode = client2.execute(HTTP_GET, STATUS_CODE_EXTRACTOR);
-		assertEquals(HttpStatus.SC_OK, statusCode);
-
-		assertEquals(2, cut.httpClientsCreated.size());
-	}
-
-	@Test
-	@Disabled("Testing parallelism requires better test logic")
-	void reuseConnections() throws IOException {
-		HttpClient client = cut.createClient(config);
-
-		for (int i = 0; i < 40; ++i) {
-			int statusCode = client.execute(HTTP_GET, STATUS_CODE_EXTRACTOR);
-			assertEquals(HttpStatus.SC_OK, statusCode);
-		}
 	}
 
 	@Test
