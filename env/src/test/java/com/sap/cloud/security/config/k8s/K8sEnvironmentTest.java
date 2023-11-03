@@ -127,12 +127,12 @@ class K8sEnvironmentTest {
 	}
 	
 	@Test
-	void getXsuaaConfigurations() {
+	void getServiceConfigurationsAsList() {
 		cut = K8sEnvironment.getInstance();
 		Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurationsAsList = cut.getServiceConfigurationsAsList();
 		assertNotNull(serviceConfigurationsAsList);
 		assertEquals(2, serviceConfigurationsAsList.size());
 		assertEquals(2, serviceConfigurationsAsList.get(Service.XSUAA).size());
-		assertTrue(serviceConfigurationsAsList.get(Service.IAS).isEmpty());
+		assertEquals(1, serviceConfigurationsAsList.get(Service.IAS).size());
 	}
 }
