@@ -53,7 +53,7 @@ class IdentityServicesPropertySourceFactoryBrokerNoHoleTest {
 
 @Configuration
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = {
-		"classpath:xsuaaBindingsWithHole.json" })
+		"classpath:xsuaaBindingsTwoApplicationsNoBroker.json" })
 class BrokerHoleTestConfigurationFromFile {
 
 	/* Index 0 */
