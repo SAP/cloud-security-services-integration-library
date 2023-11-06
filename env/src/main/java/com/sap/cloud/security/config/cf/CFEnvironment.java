@@ -5,35 +5,24 @@
  */
 package com.sap.cloud.security.config.cf;
 
-import static com.sap.cloud.security.config.Service.IAS;
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
-import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
-
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
 import com.sap.cloud.security.annotation.Beta;
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.ServiceBindingMapper;
+import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.config.cf.CFConstants.Plan;
 import com.sap.cloud.security.json.DefaultJsonObject;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collectors;
+
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.config.cf.CFConstants.VCAP_APPLICATION;
+import static com.sap.cloud.security.config.cf.CFConstants.VCAP_SERVICES;
 
 /**
  * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
@@ -203,7 +192,7 @@ public class CFEnvironment implements Environment {
 	@Override
 	public Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList() {
 		/* Clone map to protect inner state of serviceConfiguration against modification by the caller */
-		return new HashMap<>(serviceConfigurations);
+		return new EnumMap<>(serviceConfigurations);
 	}
 	
 	/**

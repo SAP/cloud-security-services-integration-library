@@ -5,34 +5,20 @@
  */
 package com.sap.cloud.security.config.k8s;
 
-import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
-
-import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
+import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
+import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
+import com.sap.cloud.security.config.*;
+import com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
-import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.ServiceBindingMapper;
-import com.sap.cloud.security.config.k8s.K8sConstants.Plan;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 
 /**
  * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
@@ -136,14 +122,8 @@ public class K8sEnvironment implements Environment {
 
 	@Override
 	public Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList() {
-		final Map<Service, List<OAuth2ServiceConfiguration>> resultMap = new HashMap<>();
-		for (Entry<Service, Map<String, OAuth2ServiceConfiguration>> e : this.serviceConfigurations.entrySet()) {
-			final Service service = e.getKey();
-			final Map<String, OAuth2ServiceConfiguration> serviceConfigMap = e.getValue();
-			resultMap.put(service, new LinkedList<>(serviceConfigMap.values()));
-		}
-		
-		return resultMap;
+		return this.serviceConfigurations.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> new ArrayList<>(entry.getValue().values())));
 	}
 
 }
