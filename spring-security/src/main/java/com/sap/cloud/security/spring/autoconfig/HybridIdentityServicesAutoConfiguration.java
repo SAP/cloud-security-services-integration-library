@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.spring.autoconfig;
 
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
@@ -21,6 +22,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+
+import java.util.List;
 
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET;
 
@@ -76,9 +79,16 @@ public class HybridIdentityServicesAutoConfiguration {
 		@ConditionalOnProperty("sap.security.services.xsuaa[0].uaadomain")
 		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
+
+			// Use only primary XSUAA config and up to 1 more config of type BROKER to stay backward-compatible now that XsuaaServiceConfigurations contains all XSUAA configurations
+			List<XsuaaServiceConfiguration> usedXsuaaConfigs = xsuaaConfigs.getConfigurations().subList(0, 2);
+			if(usedXsuaaConfigs.size() == 2 && !CFConstants.Plan.BROKER.name().equals(usedXsuaaConfigs.get(1).getProperty(CFConstants.SERVICE_PLAN))) {
+				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
+			}
+
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
-					.withXsuaaServiceConfigurations(xsuaaConfigs.getConfigurations())
+					.withXsuaaServiceConfigurations(usedXsuaaConfigs)
 					.build();
 		}
 
