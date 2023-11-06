@@ -5,18 +5,10 @@
  */
 package com.sap.cloud.security.spring.config;
 
-import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nonnull;
-
+import com.sap.cloud.security.config.Environment;
+import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -24,10 +16,15 @@ import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.PropertySourceFactory;
 
-import com.sap.cloud.security.config.Environment;
-import com.sap.cloud.security.config.Environments;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.Service;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
+import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
 
 /**
  * Part of Auto Configuration {@code HybridIdentityServicesAutoConfiguration}
@@ -90,16 +87,15 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 			}
 		}
 	}
-	
-	@Nonnull
-	private void mapXsuaaProperties(Environment environment) {
+
+	private void mapXsuaaProperties(@Nonnull Environment environment) {
 		final int numberOfXsuaaConfigurations = environment.getNumberOfXsuaaConfigurations();
 		if (numberOfXsuaaConfigurations == 0) {
 			return;
 		}
 		
 		/*
-		 * Special case: We only have exactly one XSUAA Service Configuration in place.
+		 * Case "single XSUAA service configuration":
 		 * Then we do not use an array for describing the properties.
 		 */
 		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
@@ -109,10 +105,10 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		}
 		
 		/*
-		 * Case "multiple XSUAA Service Configurations": 
-		 * The first two items in the array have a special meaning:
-		 * - Item 0 is exclusively used for "an arbitrary Xsuaa configuration" of plan "application".
-		 * - Item 1 is optionally used for "an arbitrary Xsuaa configuration" of plan "broker" used for token exchange.
+		 * Case "multiple XSUAA service configurations":
+		 * For historic reasons, the first two items in the array have a special meaning:
+		 * - Item 0 is exclusively used for environment.getXsuaaConfiguration() ("an arbitrary Xsuaa configuration" of plan "application").
+		 * - Item 1 is optionally used for environment.getXsuaaConfigurationForTokenExchange() ("an arbitrary Xsuaa configuration" of plan "broker").
 		 */
 		mapXsuaaAttributesSingleInstance(xsuaaConfiguration, PROPERTIES_KEY + ".xsuaa[0].");
 		
@@ -122,35 +118,26 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 			mapXsuaaAttributesSingleInstance(xsuaaConfigurationForTokenExchange, PROPERTIES_KEY + ".xsuaa[1].");
 			position = 2;
 		}
-		
+
 		/*
 		 * For all other items coming thereafter, there is no order defined anymore.
 		 * However, we must not duplicate the instances...
 		 */
-		final List<OAuth2ServiceConfiguration> allXsuaaConfigurations = environment.getServiceConfigurationsAsList().get(Service.XSUAA);
-		
-		Stream<OAuth2ServiceConfiguration> xsuaaConfigurationsStream = allXsuaaConfigurations.stream();
-		if (xsuaaConfiguration != null) {
-			xsuaaConfigurationsStream = xsuaaConfigurationsStream.filter(e -> e != xsuaaConfiguration);
-		}
-		if (xsuaaConfigurationForTokenExchange != null) {
-			xsuaaConfigurationsStream = xsuaaConfigurationsStream.filter(e -> e != xsuaaConfigurationForTokenExchange);
-		}
-		
-		
-		/* Usage for ".forEach" would have been preferred here,
-		 * but Closures in JDK8 do not permit accessing non-final attributes.
+		final List<OAuth2ServiceConfiguration> additionalOAuth2ServiceConfigurationList = environment.getServiceConfigurationsAsList().get(Service.XSUAA)
+				.stream()
+				.filter(e -> e != xsuaaConfiguration && e != xsuaaConfigurationForTokenExchange)
+				.collect(Collectors.toList());
+
+		/* Usage of ".forEach" would have been preferred here,
+		 * but Closures in JDK8 do not permit accessing non-final "position".
 		 */
-		final List<OAuth2ServiceConfiguration> additionalOAuth2ServiceConfigurationList = xsuaaConfigurationsStream.collect(Collectors.toList());
-		
 		for (OAuth2ServiceConfiguration additionalOAuth2ServiceConfiguration : additionalOAuth2ServiceConfigurationList) {
 			final String prefix = String.format(PROPERTIES_KEY + ".xsuaa[%d].", position++);
 			this.mapXsuaaAttributesSingleInstance(additionalOAuth2ServiceConfiguration, prefix);
 		}
 	}
 
-	@Nonnull
-	private void mapIasProperties(Environment environment) {
+	private void mapIasProperties(@Nonnull Environment environment) {
 		final OAuth2ServiceConfiguration iasConfiguration = environment.getIasConfiguration();
 		if (iasConfiguration != null) {
 			for (String key : IAS_ATTRIBUTES) {
