@@ -8,6 +8,7 @@ package com.sap.cloud.security.config.k8s;
 import com.sap.cloud.environment.servicebinding.api.DefaultServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.security.config.*;
+import com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
-import static com.sap.cloud.security.config.k8s.K8sConstants.Plan;
 
 /**
  * Loads the OAuth configuration ({@link OAuth2ServiceConfiguration}) of a
@@ -118,6 +118,12 @@ public class K8sEnvironment implements Environment {
 	@Override
 	public int getNumberOfXsuaaConfigurations() {
 		return getServiceConfigurationsOf(Service.XSUAA).size();
+	}
+
+	@Override
+	public Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList() {
+		return this.serviceConfigurations.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> new ArrayList<>(entry.getValue().values())));
 	}
 
 }

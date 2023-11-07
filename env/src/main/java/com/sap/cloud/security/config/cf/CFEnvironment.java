@@ -189,6 +189,12 @@ public class CFEnvironment implements Environment {
 				.orElse(null);
 	}
 
+	@Override
+	public Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList() {
+		/* Clone map to protect inner state of serviceConfiguration against modification by the caller */
+		return new EnumMap<>(serviceConfigurations);
+	}
+	
 	/**
 	 * Loads all configurations of all service instances of the dedicated service.
 	 *

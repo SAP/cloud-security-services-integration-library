@@ -8,6 +8,7 @@ package com.sap.cloud.security.spring.config;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 
@@ -57,6 +59,8 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
 			.asList(new String[] { "clientid", "clientsecret", "domains", "url" }));
 
+	private Properties properties;
+	
 	@Override
 	@SuppressWarnings("squid:S2259") // false positive
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
@@ -65,53 +69,84 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 				&& resource.getResource().getFilename() != null && !resource.getResource().getFilename().isEmpty()) {
 			environment = Environments.readFromInput(resource.getResource().getInputStream());
 		}
-		boolean multipleXsuaaServicesBound = environment.getNumberOfXsuaaConfigurations() > 1;
-
-		Properties properties = getXsuaaProperties(environment, multipleXsuaaServicesBound);
-		properties.putAll(getIasProperties(environment));
-		logger.debug("Parsed {} properties from identity services. {}", properties.size(),
-				properties.stringPropertyNames());
-		return new PropertiesPropertySource(PROPERTIES_KEY, properties);
+		
+		this.properties = new Properties();
+		
+		mapXsuaaProperties(environment);
+		mapIasProperties(environment);
+		logger.debug("Parsed {} properties from identity services. {}", this.properties.size(),
+				this.properties.stringPropertyNames());
+		
+		return new PropertiesPropertySource(name == null ? PROPERTIES_KEY : name, this.properties);
 	}
 
-	@Nonnull
-	private Properties getXsuaaProperties(Environment environment, boolean multipleXsuaaServicesBound) {
-		Properties properties = new Properties();
+	private void mapXsuaaAttributesSingleInstance(final OAuth2ServiceConfiguration oAuth2ServiceConfiguration, final String prefix) {
+		for (String key : XSUAA_ATTRIBUTES) {
+			if (oAuth2ServiceConfiguration.hasProperty(key)) {
+				this.properties.put(prefix + key, oAuth2ServiceConfiguration.getProperty(key));
+			}
+		}
+	}
+
+	private void mapXsuaaProperties(@Nonnull Environment environment) {
+		final int numberOfXsuaaConfigurations = environment.getNumberOfXsuaaConfigurations();
+		if (numberOfXsuaaConfigurations == 0) {
+			return;
+		}
+		
+		/*
+		 * Case "single XSUAA service configuration":
+		 * Then we do not use an array for describing the properties.
+		 */
 		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
-		if (xsuaaConfiguration != null) {
-			String xsuaaPrefix = multipleXsuaaServicesBound ? PROPERTIES_KEY + ".xsuaa[0]." : XSUAA_PREFIX;
-			for (String key : XSUAA_ATTRIBUTES) {
-				if (xsuaaConfiguration.hasProperty(key)) {
-					properties.put(xsuaaPrefix + key, xsuaaConfiguration.getProperty(key));
-				}
-			}
+		if (numberOfXsuaaConfigurations == 1) {
+			mapXsuaaAttributesSingleInstance(xsuaaConfiguration, XSUAA_PREFIX);
+			return;
 		}
-		if (multipleXsuaaServicesBound) {
-			final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = 
-					environment.getXsuaaConfigurationForTokenExchange();
-			for (String key : XSUAA_ATTRIBUTES) {
-				if (xsuaaConfigurationForTokenExchange.hasProperty(key)) {
-					properties.put(PROPERTIES_KEY + ".xsuaa[1]." + key,
-							xsuaaConfigurationForTokenExchange.getProperty(key));
-				}
-			}
+		
+		/*
+		 * Case "multiple XSUAA service configurations":
+		 * For historic reasons, the first two items in the array have a special meaning:
+		 * - Item 0 is exclusively used for environment.getXsuaaConfiguration() ("an arbitrary Xsuaa configuration" of plan "application").
+		 * - Item 1 is optionally used for environment.getXsuaaConfigurationForTokenExchange() ("an arbitrary Xsuaa configuration" of plan "broker").
+		 */
+		mapXsuaaAttributesSingleInstance(xsuaaConfiguration, PROPERTIES_KEY + ".xsuaa[0].");
+		
+		int position = 1;
+		final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = environment.getXsuaaConfigurationForTokenExchange();
+		if (xsuaaConfigurationForTokenExchange != null) {
+			mapXsuaaAttributesSingleInstance(xsuaaConfigurationForTokenExchange, PROPERTIES_KEY + ".xsuaa[1].");
+			position = 2;
 		}
-		return properties;
+
+		/*
+		 * For all other items coming thereafter, there is no order defined anymore.
+		 * However, we must not duplicate the instances...
+		 */
+		final List<OAuth2ServiceConfiguration> remainingXsuaaConfigurations = environment.getServiceConfigurationsAsList().get(Service.XSUAA)
+				.stream()
+				.filter(e -> e != xsuaaConfiguration && e != xsuaaConfigurationForTokenExchange)
+				.collect(Collectors.toList());
+
+		/* Usage of ".forEach" would have been preferred here,
+		 * but Closures in JDK8 do not permit accessing non-final "position".
+		 */
+		for (OAuth2ServiceConfiguration config : remainingXsuaaConfigurations) {
+			final String prefix = String.format(PROPERTIES_KEY + ".xsuaa[%d].", position++);
+			this.mapXsuaaAttributesSingleInstance(config, prefix);
+		}
 	}
 
-	@Nonnull
-	private Properties getIasProperties(Environment environment) {
-		Properties properties = new Properties();
+	private void mapIasProperties(@Nonnull Environment environment) {
 		final OAuth2ServiceConfiguration iasConfiguration = environment.getIasConfiguration();
 		if (iasConfiguration != null) {
 			for (String key : IAS_ATTRIBUTES) {
 				if (iasConfiguration.hasProperty(key)) { // will not find "domains" among properties
-					properties.put(IAS_PREFIX + key, iasConfiguration.getProperty(key));
+					this.properties.put(IAS_PREFIX + key, iasConfiguration.getProperty(key));
 				}
 			}
-			properties.put(IAS_PREFIX + DOMAINS, iasConfiguration.getDomains());
+			this.properties.put(IAS_PREFIX + DOMAINS, iasConfiguration.getDomains());
 		}
-		return properties;
 	}
 
 }

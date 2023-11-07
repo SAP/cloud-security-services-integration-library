@@ -5,6 +5,9 @@
  */
 package com.sap.cloud.security.config;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -29,7 +32,7 @@ public interface Environment {
 	Type getType();
 
 	/**
-	 * Return OAuth service configuration of Xsuaa identity service instance.
+	 * Return the primary OAuth service configuration of Xsuaa identity service instance.
 	 * 
 	 * @return the OAuth service configuration or null, in case there is no instance
 	 */
@@ -45,7 +48,7 @@ public interface Environment {
 	OAuth2ServiceConfiguration getIasConfiguration();
 
 	/**
-	 * Returns number of Xsuaa identity service instances.
+	 * Returns the number of Xsuaa identity service instances.
 	 *
 	 * @return the number Xsuaa identity service instances.
 	 *
@@ -54,7 +57,7 @@ public interface Environment {
 
 	/**
 	 * In case there is only one Xsuaa identity service instance, this one gets
-	 * returned. In case there are multiple bindings the one of plan "broker" gets
+	 * returned. In case there are multiple bindings the primary one of plan "broker" gets
 	 * returned.
 	 *
 	 * @return the service configuration to be used for token exchange
@@ -64,5 +67,13 @@ public interface Environment {
 	 */
 	@Nullable
 	OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange();
+	
+	/**
+	 * Gives access to all service configurations parsed from the environment. 
+	 *
+	 * @return the service configurations grouped by service
+	 */
+	@Nullable
+	Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList();
 
 }

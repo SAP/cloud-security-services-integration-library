@@ -11,6 +11,7 @@ import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.environment.servicebinding.api.ServiceBindingAccessor;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -20,7 +21,9 @@ import java.util.*;
 
 import static com.sap.cloud.environment.servicebinding.SapServiceOperatorLayeredServiceBindingAccessor.DEFAULT_PARSING_STRATEGIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class K8sEnvironmentTest {
 
@@ -86,6 +89,9 @@ class K8sEnvironmentTest {
 		assertEquals(0, cut.getNumberOfXsuaaConfigurations());
 		assertNull(cut.getIasConfiguration());
 		assertNull(cut.getXsuaaConfiguration());
+		assertEquals(2, cut.getServiceConfigurationsAsList().size());
+		assertTrue(cut.getServiceConfigurationsAsList().get(Service.XSUAA).isEmpty());
+		assertTrue(cut.getServiceConfigurationsAsList().get(Service.IAS).isEmpty());
 	}
 
 	@Test
@@ -98,6 +104,9 @@ class K8sEnvironmentTest {
 		assertEquals(0, cut.getNumberOfXsuaaConfigurations());
 		assertNull(cut.getIasConfiguration());
 		assertNull(cut.getXsuaaConfiguration());
+		assertEquals(2, cut.getServiceConfigurationsAsList().size());
+		assertTrue(cut.getServiceConfigurationsAsList().get(Service.XSUAA).isEmpty());
+		assertTrue(cut.getServiceConfigurationsAsList().get(Service.IAS).isEmpty());
 	}
 
 	@Test
@@ -112,6 +121,18 @@ class K8sEnvironmentTest {
 		assertEquals(0, cut.getNumberOfXsuaaConfigurations());
 		assertNull(cut.getIasConfiguration());
 		assertNull(cut.getXsuaaConfiguration());
+		assertEquals(2, cut.getServiceConfigurationsAsList().size());
+		assertTrue(cut.getServiceConfigurationsAsList().get(Service.XSUAA).isEmpty());
+		assertTrue(cut.getServiceConfigurationsAsList().get(Service.IAS).isEmpty());
 	}
-
+	
+	@Test
+	void getServiceConfigurationsAsList() {
+		cut = K8sEnvironment.getInstance();
+		Map<Service, List<OAuth2ServiceConfiguration>> serviceConfigurationsAsList = cut.getServiceConfigurationsAsList();
+		assertNotNull(serviceConfigurationsAsList);
+		assertEquals(2, serviceConfigurationsAsList.size());
+		assertEquals(2, serviceConfigurationsAsList.get(Service.XSUAA).size());
+		assertEquals(1, serviceConfigurationsAsList.get(Service.IAS).size());
+	}
 }
