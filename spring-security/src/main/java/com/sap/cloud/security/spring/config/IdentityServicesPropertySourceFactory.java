@@ -123,7 +123,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		 * For all other items coming thereafter, there is no order defined anymore.
 		 * However, we must not duplicate the instances...
 		 */
-		final List<OAuth2ServiceConfiguration> additionalOAuth2ServiceConfigurationList = environment.getServiceConfigurationsAsList().get(Service.XSUAA)
+		final List<OAuth2ServiceConfiguration> remainingXsuaaConfigurations = environment.getServiceConfigurationsAsList().get(Service.XSUAA)
 				.stream()
 				.filter(e -> e != xsuaaConfiguration && e != xsuaaConfigurationForTokenExchange)
 				.collect(Collectors.toList());
@@ -131,9 +131,9 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		/* Usage of ".forEach" would have been preferred here,
 		 * but Closures in JDK8 do not permit accessing non-final "position".
 		 */
-		for (OAuth2ServiceConfiguration additionalOAuth2ServiceConfiguration : additionalOAuth2ServiceConfigurationList) {
+		for (OAuth2ServiceConfiguration config : remainingXsuaaConfigurations) {
 			final String prefix = String.format(PROPERTIES_KEY + ".xsuaa[%d].", position++);
-			this.mapXsuaaAttributesSingleInstance(additionalOAuth2ServiceConfiguration, prefix);
+			this.mapXsuaaAttributesSingleInstance(config, prefix);
 		}
 	}
 
