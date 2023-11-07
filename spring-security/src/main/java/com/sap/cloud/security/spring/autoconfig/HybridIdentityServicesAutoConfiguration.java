@@ -83,9 +83,11 @@ public class HybridIdentityServicesAutoConfiguration {
 		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
 
-			// Use only primary XSUAA config and up to 1 more config of type BROKER to stay backward-compatible now that XsuaaServiceConfigurations contains all XSUAA configurations
-			List<XsuaaServiceConfiguration> usedXsuaaConfigs = xsuaaConfigs.getConfigurations().subList(0, 2);
-			if(usedXsuaaConfigs.size() == 2 && !ServiceConstants.Plan.BROKER.name().equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
+			/* Use only primary XSUAA config and up to 1 more config of type BROKER to stay backward-compatible now that XsuaaServiceConfigurations contains all XSUAA
+			configurations instead of only two. */
+			List<XsuaaServiceConfiguration> allXsuaaConfigs = xsuaaConfigs.getConfigurations();
+			List<XsuaaServiceConfiguration> usedXsuaaConfigs = allXsuaaConfigs.subList(0, Math.min(2, allXsuaaConfigs.size()));
+			if (usedXsuaaConfigs.size() == 2 && !ServiceConstants.Plan.BROKER.name().equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
 				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
 			}
 
