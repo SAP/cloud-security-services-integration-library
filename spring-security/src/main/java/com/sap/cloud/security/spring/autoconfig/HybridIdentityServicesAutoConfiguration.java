@@ -84,7 +84,7 @@ public class HybridIdentityServicesAutoConfiguration {
 			configurations instead of only two. */
 			List<XsuaaServiceConfiguration> allXsuaaConfigs = xsuaaConfigs.getConfigurations();
 			List<XsuaaServiceConfiguration> usedXsuaaConfigs = allXsuaaConfigs.subList(0, Math.min(2, allXsuaaConfigs.size()));
-			if (usedXsuaaConfigs.size() == 2 && !CFConstants.Plan.BROKER.name().equals(usedXsuaaConfigs.get(1).getProperty(CFConstants.SERVICE_PLAN))) {
+			if (usedXsuaaConfigs.size() == 2 && !CFConstants.Plan.BROKER.toString().equals(usedXsuaaConfigs.get(1).getProperty(CFConstants.SERVICE_PLAN))) {
 				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
 			}
 
