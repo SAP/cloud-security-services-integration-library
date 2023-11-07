@@ -63,15 +63,15 @@ public class CFEnvironmentTest {
 		assertThat(credentialsMap).hasSize(10).containsEntry(CLIENT_SECRET, "secret");
 	}
 
-	private static class EnvironmentMocking {
+	private static class MockEnvironment {
 		private String vcapServices = "{}";
 		private String vcapApplication = "{}";
 
-		public EnvironmentMocking(String vcapServices) {
+		public MockEnvironment(String vcapServices) {
 			this.vcapServices = vcapServices;
 		}
 
-		public EnvironmentMocking(String vcapServices, String vcapApplication) {
+		public MockEnvironment(String vcapServices, String vcapApplication) {
 			this.vcapServices = vcapServices;
 			this.vcapApplication = vcapApplication;
 		}
@@ -94,7 +94,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getConfigurationOfOneIasInstance() {
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(vcapIas)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(vcapIas)::getEnv);
 
 		assertThat(cut.getIasConfiguration()).isSameAs(cut.getIasConfiguration());
 		assertThat(cut.getIasConfiguration().getService()).isEqualTo(Service.IAS);
@@ -113,7 +113,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getConfigurationOfOneXsuaaInstance() {
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(vcapXsuaa)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(vcapXsuaa)::getEnv);
 
 		assertThat(cut.getXsuaaConfiguration()).isSameAs(cut.getXsuaaConfiguration());
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
@@ -137,7 +137,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getConfigurationOfXsuaaInstanceInXsaSystem() {
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(vcapXsa, "{\"xs_api\": \"anyvalue\"}")::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(vcapXsa, "{\"xs_api\": \"anyvalue\"}")::getEnv);
 
 		assertThat(cut.getXsuaaConfiguration().getService()).isEqualTo(Service.XSUAA);
 		assertThat(Plan.from(cut.getXsuaaConfiguration().getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
@@ -158,7 +158,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getConfigurationOfMultipleInstance() {
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(vcapMultipleXsuaa)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(vcapMultipleXsuaa)::getEnv);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(2);
 		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
@@ -185,7 +185,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getConfigurationByPlan() {
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(vcapMultipleXsuaa)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(vcapMultipleXsuaa)::getEnv);
 
 		OAuth2ServiceConfiguration appServConfig = cut.loadForServicePlan(Service.XSUAA, Plan.APPLICATION);
 		OAuth2ServiceConfiguration brokerServConfig = cut.loadForServicePlan(Service.XSUAA, Plan.BROKER);
@@ -215,7 +215,7 @@ public class CFEnvironmentTest {
 
 	@Test
 	public void getXsuaaServiceConfiguration_prioritizesSystemProperties() {
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(vcapXsuaa)::getEnv, new EnvironmentMocking(vcapMultipleXsuaa)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(vcapXsuaa)::getEnv, new MockEnvironment(vcapMultipleXsuaa)::getEnv);
 
 		OAuth2ServiceConfiguration serviceConfiguration = cut.getXsuaaConfiguration();
 
@@ -248,7 +248,7 @@ public class CFEnvironmentTest {
 	@Test
 	public void loadXsuaa_UseApplicationOverBroker() {
 		final String allBindings = "{\"xsuaa\": [" + "{\"plan\": \"broker\", \"credentials\": {}}," + "{\"plan\": \"application\", \"credentials\": {}}]}";
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(allBindings)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(allBindings)::getEnv);
 
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
 		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.APPLICATION);
@@ -257,7 +257,7 @@ public class CFEnvironmentTest {
 	@Test
 	public void loadXsuaaLegacy() {
 		final String allBindings = "{\"xsuaa\": [" + "{\"plan\": \"default\", \"credentials\": {}}," + "{\"plan\": \"space\", \"credentials\": {}}]}";
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(allBindings)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(allBindings)::getEnv);
 
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
 		assertThat(Plan.from(config.getProperty(SERVICE_PLAN))).isEqualTo(Plan.SPACE);
@@ -310,7 +310,7 @@ public class CFEnvironmentTest {
 	@Test
 	public void getXsuaaConfiguration_vcapServicesNoServiceName_doesNotThrowExceptions() {
 		String xsuaaBinding = "{\"\": [{ \"credentials\": null }]}";
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(xsuaaBinding)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(xsuaaBinding)::getEnv);
 		assertThat(cut.getXsuaaConfiguration()).isNull();
 
 		assertThat(cut.getServiceConfigurationsAsList()).isNotNull();
@@ -321,7 +321,7 @@ public class CFEnvironmentTest {
 	
 	@Test
 	public void getConfigurationOfFourInstances() {
-		final CFEnvironment cut = CFEnvironment.getInstance(new EnvironmentMocking(vcapFourXsuaa)::getEnv);
+		final CFEnvironment cut = CFEnvironment.getInstance(new MockEnvironment(vcapFourXsuaa)::getEnv);
 
 		assertThat(cut.getNumberOfXsuaaConfigurations()).isEqualTo(4);
 		OAuth2ServiceConfiguration appServConfig = cut.getXsuaaConfiguration();
