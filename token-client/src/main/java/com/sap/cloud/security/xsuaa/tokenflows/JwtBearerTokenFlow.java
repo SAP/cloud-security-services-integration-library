@@ -140,6 +140,16 @@ public class JwtBearerTokenFlow {
 	}
 
 	/**
+	 * Can be used to change the format of the returned token to opaque.
+	 *
+	 * @return this builder.
+	 */
+	public JwtBearerTokenFlow enableOpaqueResponse() {
+		optionalParameters.put("token_format", "opaque");
+		return this;
+	}
+
+	/**
 	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
 	 * token is returned.
 	 *
