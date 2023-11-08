@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.16.0
+- [env]
+  - add Environment#getServiceConfigurationsAsList to retrieve all service configurations as lists mapped by service (XSUAA/IAS)
+- [spring-security]
+  - IdentityServicesPropertySourceFactory now populates Spring properties with ALL Xsuaa configurations found in the environment instead of only one (arbitrary) configuration of service plan 'application' and one (optional, arbitrary) additional one of service plan 'broker'.
+  - XsuaaServiceConfigurations#getConfigurations now contains ALL Xsuaa configurations found as a result of the previous change
+  - HybridIdentityServicesAutoConfiguration was adjusted for backward compatibility to still create a JwtDecoder that uses the same XSUAA configurations as before for token validation (one of plan 'application' and an optional one of plan 'broker')
+
 ## 2.15.0
 - [java-security]
   - add x-azp header to IAS JWKS fetching and adjust JWKS cache key
