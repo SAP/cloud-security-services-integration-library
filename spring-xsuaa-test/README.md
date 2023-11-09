@@ -31,7 +31,7 @@ This includes for example a `JwtGenerator` that generates JSON Web Tokens (JWT) 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa-test</artifactId>
-    <version>3.2.0</version>
+    <version>3.2.1</version>
     <scope>test</scope>
 </dependency>
 
