@@ -9,6 +9,13 @@ All notable changes to this project will be documented in this file.
   - XsuaaServiceConfigurations#getConfigurations now contains ALL Xsuaa configurations found as a result of the previous change
   - HybridIdentityServicesAutoConfiguration was adjusted for backward compatibility to still create a JwtDecoder that uses the same XSUAA configurations as before for token validation (one of plan 'application' and an optional one of plan 'broker')
 
+#### Dependency upgrades
+- Bump spring.security.version from 5.8.7 to 5.8.8
+- Bump spring.boot.version from 2.7.16 to 2.7.17
+- Bump log4j2 from 2.20.0 to 2.21.1
+- Bump com.sap.cloud.environment.servicebinding from 0.10.0 to 0.10.1
+- Bump commons-io from 2.14.0 to 2.15.0
+
 ## 2.15.0
 - [java-security]
   - add x-azp header to IAS JWKS fetching and adjust JWKS cache key
