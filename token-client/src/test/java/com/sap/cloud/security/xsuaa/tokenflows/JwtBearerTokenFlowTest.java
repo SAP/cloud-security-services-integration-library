@@ -127,6 +127,20 @@ public class JwtBearerTokenFlowTest {
 	}
 
 	@Test
+	public void execute_withOpaqueTokenFormat() throws TokenFlowException, OAuth2ServiceException {
+		ArgumentCaptor<Map<String, String>> optionalParametersCaptor = ArgumentCaptor.forClass(Map.class);
+
+		cut.setOpaqueTokenFormat(true).execute();
+
+		verify(tokenService, times(1))
+				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(),
+						optionalParametersCaptor.capture(), anyBoolean());
+
+		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
+		assertThat(optionalParameters).containsEntry("token_format", "opaque");
+	}
+
+	@Test
 	public void execute_withAdditionalAuthorities() throws TokenFlowException, OAuth2ServiceException {
 		Map<String, String> additionalAuthorities = new HashMap<>();
 		additionalAuthorities.put("DummyAttribute", "DummyAttributeValue");
