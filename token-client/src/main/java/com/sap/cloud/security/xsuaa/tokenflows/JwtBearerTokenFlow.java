@@ -145,8 +145,7 @@ public class JwtBearerTokenFlow {
 	/**
 	 * Can be used to change the format of the returned token.
 	 *
-	 * @param opaque
-	 *            - allows both enabling or disabling the opaque format {@code true}.
+	 * @param opaque enables opaque token format when set to {@code true}.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow setOpaqueTokenFormat(boolean opaque) {
