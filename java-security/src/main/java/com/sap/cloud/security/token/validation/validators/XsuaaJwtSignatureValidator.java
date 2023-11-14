@@ -13,6 +13,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
 import java.util.Map;
 
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.*;
 
 /**
@@ -54,12 +55,13 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
             throw new IllegalArgumentException("Token does not contain the mandatory " + KID_PARAMETER_NAME + " header.");
         }
 
-        String jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : token.getHeaderParameterAsString(JKU_PARAMETER_NAME);
+        String jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : configuration.getProperty(UAA_DOMAIN) + "/token_keys";
         if (jwksUri == null) {
             throw new IllegalArgumentException("Token does not contain the mandatory " + JKU_PARAMETER_NAME + " header.");
         }
-
+        URI uri = URI.create(jwksUri);
+        uri =  uri.isAbsolute() ? uri : URI.create("https://" + jwksUri);
         Map<String, String> params = Collections.singletonMap(HttpHeaders.X_ZID, token.getAppTid());
-        return tokenKeyService.getPublicKey(algorithm, keyId, URI.create(jwksUri), params);
+        return tokenKeyService.getPublicKey(algorithm, keyId, uri, params);
     }
 }

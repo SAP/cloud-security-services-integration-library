@@ -23,11 +23,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -56,11 +56,12 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.getService()).thenReturn(Service.XSUAA);
+		when(mockConfiguration.getProperty(UAA_DOMAIN)).thenReturn("authentication.stagingaws.hanavlab.ondemand.com");
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
-						eq(Map.of(HttpHeaders.X_ZID, "uaa"))))
+				.retrieveTokenKeys(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys"),
+						Map.of(HttpHeaders.X_ZID, "uaa")))
 								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new XsuaaJwtSignatureValidator(
@@ -92,15 +93,16 @@ public class XsuaaJwtSignatureValidatorTest {
 	public void generatedToken_SignatureMatchesVerificationkey() {
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
 		when(mockConfiguration.getProperty("verificationkey")).thenReturn(
-				"-----BEGIN PUBLIC KEY-----\n" +
-						"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/\n" +
-						"2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTN\n" +
-						"VTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9Y\n" +
-						"oU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GP\n" +
-						"n38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0\n" +
-						"frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4\n" +
-						"oQIDAQAB\n" +
-						"-----END PUBLIC KEY-----");
+				"""
+						-----BEGIN PUBLIC KEY-----
+						MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/
+						2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTN
+						VTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9Y
+						oU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GP
+						n38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0
+						frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4
+						oQIDAQAB
+						-----END PUBLIC KEY-----""");
 		assertThat(cut.validate(xsuaaTokenSignedWithVerificationKey).isValid(), is(true));
 	}
 
