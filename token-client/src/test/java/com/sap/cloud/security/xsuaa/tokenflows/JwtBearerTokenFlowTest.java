@@ -139,6 +139,32 @@ public class JwtBearerTokenFlowTest {
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(), any(), eq(false));
 	}
 
+	@Test
+	public void execute_withOpaqueTokenFormat() throws TokenFlowException, OAuth2ServiceException {
+		final String OPAQUE = "opaque";
+		final String TOKEN_FORMAT = "token_format";
+		ArgumentCaptor<Map<String, String>> optionalParametersCaptor = ArgumentCaptor.forClass(Map.class);
+
+		cut.token(exchangeToken).execute();
+		verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(),
+						optionalParametersCaptor.capture(), anyBoolean());
+		assertThat(optionalParametersCaptor.getValue()).doesNotContainEntry(TOKEN_FORMAT, OPAQUE);
+
+
+		cut.setOpaqueTokenFormat(true).execute();
+		verify(mockTokenService, times(2))
+				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(),
+						optionalParametersCaptor.capture(), anyBoolean());
+		assertThat(optionalParametersCaptor.getValue()).containsEntry(TOKEN_FORMAT, OPAQUE);
+
+		cut.setOpaqueTokenFormat(false).execute();
+		verify(mockTokenService, times(3))
+				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(),
+						optionalParametersCaptor.capture(), anyBoolean());
+		assertThat(optionalParametersCaptor.getValue()).doesNotContainEntry(TOKEN_FORMAT, OPAQUE);
+	}
+
 	 @Test
 	public void execute_withAdditionalAuthorities() throws TokenFlowException, OAuth2ServiceException {
 		OAuth2TokenResponse mockedResponse = mockRetrieveAccessToken();

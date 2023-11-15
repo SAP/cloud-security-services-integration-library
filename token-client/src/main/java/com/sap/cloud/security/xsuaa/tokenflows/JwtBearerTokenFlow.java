@@ -15,6 +15,8 @@ import java.util.Map;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_FORMAT;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_TYPE_OPAQUE;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 
 /**
@@ -33,6 +35,7 @@ public class JwtBearerTokenFlow {
     private List<String> scopes = new ArrayList<>();
     private String subdomain;
     private boolean disableCache;
+	private boolean opaque = false;
 
     public JwtBearerTokenFlow(@Nonnull OAuth2TokenService tokenService,
                               @Nonnull OAuth2ServiceEndpointsProvider endpointsProvider,
@@ -143,6 +146,17 @@ public class JwtBearerTokenFlow {
         return this;
     }
 
+	/**
+	 * Can be used to change the format of the returned token.
+	 *
+	 * @param opaque enables opaque token format when set to {@code true}.
+	 * @return this builder.
+	 */
+	public JwtBearerTokenFlow setOpaqueTokenFormat(boolean opaque) {
+		this.opaque = opaque;
+		return this;
+	}
+
     /**
      * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
      * token is returned.
@@ -159,6 +173,12 @@ public class JwtBearerTokenFlow {
         if (bearerToken == null) {
             throw new IllegalStateException("A bearerToken must be set before executing the flow.");
         }
+
+		if (opaque) {
+			optionalParameters.put(TOKEN_FORMAT, TOKEN_TYPE_OPAQUE);
+		} else {
+			optionalParameters.remove(TOKEN_FORMAT);
+		}
 
         String scopesParameter = String.join(" ", scopes);
         if (!scopesParameter.isEmpty()) {
