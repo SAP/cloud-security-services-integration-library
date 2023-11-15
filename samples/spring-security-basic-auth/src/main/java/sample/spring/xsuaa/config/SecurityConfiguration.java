@@ -36,18 +36,21 @@ public class SecurityConfiguration {
 		authEntryPoint.setRealmName("spring-security-basic-auth");
 
 		// @formatter:off
-		http
-				.httpBasic(basic -> basic.authenticationEntryPoint(authEntryPoint))
-				.authorizeHttpRequests(authz ->
-						authz
-								.requestMatchers("/fetchToken").hasAuthority("Display")
-								.requestMatchers("/health").permitAll()
-								.anyRequest().denyAll())
-				.sessionManagement(session -> session
-						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.oauth2ResourceServer(oauth2 -> oauth2
-						.bearerTokenResolver(tokenBrokerResolver)
-				.jwt(jwt -> jwt.jwtAuthenticationConverter(authConverter)));
+		http.authorizeHttpRequests()
+				.requestMatchers("/fetchToken").hasAuthority("Display")
+				.requestMatchers("/health").permitAll()
+				.anyRequest().denyAll()
+			.and()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and()
+				.exceptionHandling()
+				.authenticationEntryPoint(authEntryPoint)
+			.and()
+				.oauth2ResourceServer()
+				.bearerTokenResolver(tokenBrokerResolver)
+				.jwt()
+				.jwtAuthenticationConverter(authConverter);
 		// @formatter:on
 
 		return http.build();
