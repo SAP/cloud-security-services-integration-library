@@ -71,6 +71,11 @@
             <artifactId>resourceserver-security-spring-boot-starter</artifactId>
             <version>3.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.sap.cloud.security</groupId>
+            <artifactId>java-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -10,11 +10,10 @@ import com.sap.cloud.security.spring.config.IdentityServicesPropertySourceFactor
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
-import com.sap.cloud.security.spring.token.ReactiveTokenAuthenticationConverter
+//import com.sap.cloud.security.spring.token.ReactiveTokenAuthenticationConverter;
 //import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
 //import com.sap.cloud.security.xsuaa.token.ReactiveTokenAuthenticationConverter;
 //import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
-import com.sap.cloud.security.spring.token.authentication.ReactiveHybridJwtDecoder;
 import com.sap.cloud.security.token.TokenClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,25 +42,12 @@ public class SecurityConfiguration {
 
 	@Autowired
 	Converter<Jwt, AbstractAuthenticationToken> authConverter;
-	//Converter <Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> authConverter;
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	OAuth2ServiceConfiguration iasServiceConfiguration;
-
-	/*@Bean
-	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-		http.authorizeExchange()
-				.pathMatchers("/v1/sayHello").hasAuthority("Read")
-				.and().oauth2ResourceServer().jwt()
-				.jwtAuthenticationConverter(authConverter)
-				.jwtDecoder(new JwtDecoderBuilder()
-						.build());
-		return http.build();
-	}
-	*/
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
@@ -76,16 +62,6 @@ public class SecurityConfiguration {
 		return http.build();
 	}
 
-	//.withPostValidationActions(token -> logger.info("post validation action performed"))
-
-	/**
-	 * Customizes how GrantedAuthority are derived from a Jwt
-	 */
-	Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> getJwtAuthenticationConverter() {
-		ReactiveTokenAuthenticationConverter converter = new ReactiveTokenAuthenticationConverter(xsuaaServiceConfiguration);
-		converter.setLocalScopeAsAuthorities(true);
-		return converter;
-	}
 
 	/**
 	 * Workaround for hybrid use case until Cloud Authorization Service is globally available.
