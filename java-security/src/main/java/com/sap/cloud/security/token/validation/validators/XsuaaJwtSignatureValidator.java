@@ -14,7 +14,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
-import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.*;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KEY_ID_VALUE_LEGACY;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KID_PARAMETER_NAME;
 
 /**
  * Jwt Signature validator for Access tokens issued by Xsuaa service
@@ -56,9 +57,6 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
         }
 
         String jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : configuration.getProperty(UAA_DOMAIN) + "/token_keys";
-        if (jwksUri == null) {
-            throw new IllegalArgumentException("Token does not contain the mandatory " + JKU_PARAMETER_NAME + " header.");
-        }
         URI uri = URI.create(jwksUri);
         uri =  uri.isAbsolute() ? uri : URI.create("https://" + jwksUri);
         Map<String, String> params = Collections.singletonMap(HttpHeaders.X_ZID, token.getAppTid());

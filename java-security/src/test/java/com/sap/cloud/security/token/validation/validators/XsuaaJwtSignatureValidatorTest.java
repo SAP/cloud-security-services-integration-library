@@ -7,7 +7,6 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -74,19 +73,6 @@ public class XsuaaJwtSignatureValidatorTest {
 	@Test
 	public void xsuaa_RSASignatureMatchesJWKS() {
 		assertThat(cut.validate(xsuaaToken).isValid(), is(true));
-	}
-
-	@Test
-	public void validationFails_whenNoJkuHeaderButIssuerIsGiven() throws IOException {
-		/**
-		 *
-		 * Header -------- { "alg": "RS256" } Payload -------- { "iss":
-		 * "https://application.myauth.com" }
-		 */
-		Token tokenWithoutJkuButIssuer = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
-		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("Token does not contain the mandatory " + JsonWebKeyConstants.JKU_PARAMETER_NAME + " header"));
 	}
 
 	@Test
