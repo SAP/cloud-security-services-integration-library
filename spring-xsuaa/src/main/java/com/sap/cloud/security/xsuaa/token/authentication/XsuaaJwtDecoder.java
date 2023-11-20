@@ -8,6 +8,7 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -20,8 +21,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder.JwkSetUriJwtDeco
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -127,8 +126,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private Jwt verifyToken(String token, String jku, String kid, String uaaDomain) {
 		try {
 			canVerifyWithKey(jku, kid, uaaDomain);
-			validateJku(jku, uaaDomain);
-			return verifyWithKey(token, jku, kid);
+			return verifyWithKey(token, composeJku(uaaDomain), kid);
 		} catch (JwtValidationException ex) {
 			throw ex;
 		} catch (JwtException ex) {
@@ -142,33 +140,22 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 		List<String> nullParams = new ArrayList<>();
 		if (jku == null)
-			nullParams.add("jku");
+			nullParams.add(CLAIM_JKU);
 		if (kid == null)
-			nullParams.add("kid");
+			nullParams.add(CLAIM_KID);
 		if (uaadomain == null)
-			nullParams.add("uaadomain");
+			nullParams.add(ServiceConstants.XSUAA.UAA_DOMAIN);
 
 		throw new BadJwtException(String.format("Cannot verify with online token key, %s is null",
 				String.join(", ", nullParams)));
 	}
 
-	private void validateJku(String jku, String uaadomain) {
-		try {
-			URI jkuUri = new URI(jku);
-			if (jkuUri.getHost() == null) {
-				throw new BadJwtException("JKU of token is not valid");
-			} else if (!jkuUri.getHost().endsWith(uaadomain)) {
-				logger.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'.",
-						jku, uaadomain);
-				throw new BadJwtException("Do not trust 'jku' token header.");
-			} else if (!jkuUri.getPath().endsWith("token_keys") || hasText(jkuUri.getQuery())
-					|| hasText(jkuUri.getFragment())) {
-				logger.warn("Error: Do not trust jku '{}' because it contains invalid path, query or fragment.", jku);
-				throw new BadJwtException("Jwt token does not contain a valid 'jku' header parameter: " + jkuUri);
-			}
-		} catch (URISyntaxException e) {
-			throw new BadJwtException("JKU of token header is not valid");
+	private String composeJku(String uaaDomain) {
+		// uaaDomain in configuration is always without a schema, but for testing purpose http schema can be used
+		if (uaaDomain.startsWith("http://")){
+			return uaaDomain + "/token_keys";
 		}
+		return "https://" + uaaDomain + "/token_keys";
 	}
 
 	@java.lang.SuppressWarnings("squid:S2259")
