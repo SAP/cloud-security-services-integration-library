@@ -3,7 +3,7 @@ sap:
     services:
       xsuaa: # default configuration of the test XSUAA server from SecurityTest
         xsappname: xsapp!t0815
-        uaadomain: localhost
+        uaadomain: http://localhost:2222
         clientid: sb-clientId!t0815
         url: http://localhost
 spring:
