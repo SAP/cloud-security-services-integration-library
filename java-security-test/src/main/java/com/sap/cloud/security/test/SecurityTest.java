@@ -59,7 +59,7 @@ public class SecurityTest
 	// DEFAULTS
 	public static final String DEFAULT_APP_ID = "xsapp!t0815";
 	public static final String DEFAULT_CLIENT_ID = "sb-clientId!t0815";
-	public static final String DEFAULT_DOMAIN = "localhost";
+	public static final String DEFAULT_DOMAIN = "http://localhost";
 	public static final String DEFAULT_URL = "http://localhost";
 
 	protected static final String LOCALHOST_PATTERN = "http://localhost:%d";
@@ -84,18 +84,18 @@ public class SecurityTest
 		this.service = service;
 		this.keys = RSAKeys.generate();
 		this.wireMockServer = new WireMockServer(options().dynamicPort());
-		this.applicationServerOptions = ApplicationServerOptions.forService(service);
 	}
 
 	@Override
 	public SecurityTest useApplicationServer() {
-		return useApplicationServer(ApplicationServerOptions.forService(service));
+		this.useApplicationServer = true;
+		return this;
 	}
 
 	@Override
 	public SecurityTest useApplicationServer(ApplicationServerOptions applicationServerOptions) {
 		this.applicationServerOptions = applicationServerOptions;
-		useApplicationServer = true;
+		this.useApplicationServer = true;
 		return this;
 	}
 
@@ -266,13 +266,16 @@ public class SecurityTest
 	 *             if the stub cannot be initialized
 	 */
 	public void setup() throws Exception {
-		if (useApplicationServer && (applicationServer == null || !applicationServer.isStarted())) {
-			startApplicationServer();
-		}
 		if (!wireMockServer.isRunning()) {
 			wireMockServer.start();
 		} else {
 			wireMockServer.resetAll();
+		}
+		if (useApplicationServer && (applicationServer == null || !applicationServer.isStarted())) {
+			if (applicationServerOptions == null){
+				this.applicationServerOptions = ApplicationServerOptions.forService(service, wireMockServer.port());
+			}
+			startApplicationServer();
 		}
 		// TODO return JSON Media type
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
