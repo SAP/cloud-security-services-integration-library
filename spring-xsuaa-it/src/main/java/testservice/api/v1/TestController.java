@@ -63,7 +63,7 @@ public class TestController {
 		// email
 		assertEquals("max@example.com", token.getEmail());
 		// zone
-		assertTrue(token.getZoneId().endsWith("domain-id"));
+		assertTrue(token.getZoneId().endsWith("tenant"));
 		// ext attr
 		assertEquals("domain\\group1", token.getAdditionalAuthAttribute("external_group"));
 		assertEquals("abcd1234", token.getAdditionalAuthAttribute("external_id"));
