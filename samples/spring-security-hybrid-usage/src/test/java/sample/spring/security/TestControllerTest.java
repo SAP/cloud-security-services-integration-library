@@ -35,7 +35,7 @@ public class TestControllerTest {
     private String jwtIas;
 
     @ClassRule
-    public static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA);
+    public static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA).setPort(2223);
     @ClassRule
     public static SecurityTestRule ruleIas = SecurityTestRule.getInstance(Service.IAS);
 
