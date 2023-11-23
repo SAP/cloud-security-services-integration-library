@@ -56,10 +56,19 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
             throw new IllegalArgumentException("Token does not contain the mandatory " + KID_PARAMETER_NAME + " header.");
         }
 
-        String jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : configuration.getProperty(UAA_DOMAIN) + "/token_keys";
+        String zidQueryParam = composeZidQueryParameter(token);
+        String jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : configuration.getProperty(UAA_DOMAIN) + "/token_keys" + zidQueryParam;
         URI uri = URI.create(jwksUri);
         uri =  uri.isAbsolute() ? uri : URI.create("https://" + jwksUri);
         Map<String, String> params = Collections.singletonMap(HttpHeaders.X_ZID, token.getAppTid());
         return tokenKeyService.getPublicKey(algorithm, keyId, uri, params);
+    }
+
+    private String composeZidQueryParameter(Token token) {
+        String zid = token.getAppTid();
+        if (zid != null && !zid.isBlank()){
+            return "?zid=" + zid;
+        }
+        return "";
     }
 }
