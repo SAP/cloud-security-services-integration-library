@@ -28,7 +28,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -114,20 +116,20 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void getPreconfiguredJwtGenerator_tokenHasCorrectIssuer() {
+	public void getPreconfiguredJwtGenerator_tokenHasCorrectIssuer() throws MalformedURLException {
 		Token token = cut.getPreconfiguredJwtGenerator().createToken();
 
-		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(cut.base.wireMockServer.baseUrl());
+		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(new URL(cut.base.wireMockServer.baseUrl()).getHost());
 	}
 
 	@Test
-	public void getConfigurationBuilderFromFile_configurationHasCorrectUrl() {
+	public void getConfigurationBuilderFromFile_configurationHasCorrectUrl() throws MalformedURLException {
 		OAuth2ServiceConfiguration configuration = cut
 				.getOAuth2ServiceConfigurationBuilderFromFile("/vcapServices/vcapSimple.json")
 				.build();
 
 		assertThat(configuration.getUrl()).isNotNull();
-		assertThat(configuration.getUrl().toString()).isEqualTo(cut.base.wireMockServer.baseUrl());
+		assertThat(configuration.getUrl().toString()).isEqualTo(new URL(cut.base.wireMockServer.baseUrl()).getHost());
 	}
 
 	@Test
@@ -137,7 +139,7 @@ public class SecurityTestRuleTest {
 		String baseUrl = cut.base.wireMockServer.baseUrl();
 		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl, null).getJwksUri();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(jwksUrl.toString());
-		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
+		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(new URL(baseUrl).getHost());
 	}
 
 	@Test
