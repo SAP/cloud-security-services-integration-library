@@ -84,7 +84,7 @@ public class XsuaaIntegrationTest {
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isFalse();
 		assertThat(result.getErrorDescription()).startsWith(
-				"Issuer is not trusted because issuer 'http://auth.com' doesn't match any of these domains '[myauth.com]' of the identity provider");
+				"Issuer http://auth.com was not a trusted domain or a subdomain of the trusted domains [myauth.com].");
 	}
 
 	@Test@Ignore("to be fixed")

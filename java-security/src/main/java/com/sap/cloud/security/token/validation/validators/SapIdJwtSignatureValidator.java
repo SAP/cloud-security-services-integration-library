@@ -68,7 +68,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
         }
 
         if (isTenantIdCheckEnabled && !domain.equals("" + configuration.getUrl()) && token.getAppTid() == null) {
-            throw new IllegalArgumentException("OIDC token must provide a valid " + TokenClaims.SAP_GLOBAL_APP_TID + " header when issuer has a different domain than the url from the service credentials.");
+            throw new IllegalArgumentException("OIDC token must provide the " + TokenClaims.SAP_GLOBAL_APP_TID + " claim for tenant validation when issuer is not the same as the url from the service credentials.");
         }
 
 

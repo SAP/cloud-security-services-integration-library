@@ -144,7 +144,7 @@ public class SecurityTestRuleTest {
 	public void setKeys_invalidPath_throwsException() {
 		assertThatThrownBy(() -> SecurityTestRule.getInstance(XSUAA)
 				.setKeys("doesNotExist", "doesNotExist"))
-						.isInstanceOf(RuntimeException.class);
+				.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test

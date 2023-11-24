@@ -40,6 +40,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -169,7 +170,7 @@ public class SecurityTest
 			String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
-				.withDomains(URI.create(issuerUrl).getHost())
+				.withDomains(issuerUrl)
 				.withUrl(issuerUrl);
 	}
 
