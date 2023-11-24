@@ -6,7 +6,7 @@ sap:
     services:
       xsuaa[0]:
         xsappname: xsapp!t0815
-        uaadomain: localhost
+        uaadomain: http://localhost:2223
         clientid: sb-clientId!t0815
         clientsecret: pwd
         url: http://localhost

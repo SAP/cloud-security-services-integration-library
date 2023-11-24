@@ -5,13 +5,7 @@
  */
 package sample.spring.xsuaa.junitjupiter;
 
-import static com.sap.cloud.security.test.SecurityTest.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.sap.cloud.security.test.api.SecurityTestContext;
-import com.sap.cloud.security.test.extension.XsuaaExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,13 +18,18 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import static com.sap.cloud.security.test.SecurityTest.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = {
-		"xsuaa.uaadomain=" + DEFAULT_DOMAIN,
+		"xsuaa.uaadomain=" + DEFAULT_UAA_DOMAIN + ":2224",
 		"xsuaa.xsappname=" + DEFAULT_APP_ID,
 		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
-@ExtendWith(XsuaaExtension.class)
+@ExtendWith(XsuaaExtensionFixedPort.class)
 class TestControllerTest {
 
 	@Autowired

@@ -49,7 +49,8 @@ import java.util.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.sap.cloud.security.config.Service.*;
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
 public class SecurityTest
@@ -61,6 +62,7 @@ public class SecurityTest
 	public static final String DEFAULT_APP_ID = "xsapp!t0815";
 	public static final String DEFAULT_CLIENT_ID = "sb-clientId!t0815";
 	public static final String DEFAULT_DOMAIN = "localhost";
+	public static final String DEFAULT_UAA_DOMAIN = "http://localhost";
 	public static final String DEFAULT_URL = "http://localhost";
 
 	protected static final String LOCALHOST_PATTERN = "http://localhost:%d";
@@ -75,9 +77,9 @@ public class SecurityTest
 	// mock server
 	protected WireMockServer wireMockServer;
 	protected RSAKeys keys;
-	protected Service service;
+	protected final Service service;
 
-	protected String clientId = DEFAULT_CLIENT_ID;
+	protected static final String clientId = DEFAULT_CLIENT_ID;
 	protected String jwksUrl;
 	private String issuerUrl;
 
@@ -85,18 +87,18 @@ public class SecurityTest
 		this.service = service;
 		this.keys = RSAKeys.generate();
 		this.wireMockServer = new WireMockServer(options().dynamicPort());
-		this.applicationServerOptions = ApplicationServerOptions.forService(service);
 	}
 
 	@Override
 	public SecurityTest useApplicationServer() {
-		return useApplicationServer(ApplicationServerOptions.forService(service));
+		this.useApplicationServer = true;
+		return this;
 	}
 
 	@Override
 	public SecurityTest useApplicationServer(ApplicationServerOptions applicationServerOptions) {
 		this.applicationServerOptions = applicationServerOptions;
-		useApplicationServer = true;
+		this.useApplicationServer = true;
 		return this;
 	}
 
@@ -137,16 +139,18 @@ public class SecurityTest
 	@Override
 	public JwtGenerator getPreconfiguredJwtGenerator() {
 		JwtGenerator jwtGenerator = JwtGenerator.getInstance(service, clientId).withPrivateKey(keys.getPrivate());
+
 		if (jwksUrl == null || issuerUrl == null) {
 			LOGGER.warn("Method getPreconfiguredJwtGenerator was called too soon. Cannot set mock jwks/issuer url!");
 		}
-		switch (service) {
-		case XSUAA:
+
+		if (XSUAA.equals(service)) {
 			jwtGenerator
 					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
 					.withAppId(DEFAULT_APP_ID)
-					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_USER_TOKEN);
+					.withClaimValue(TokenClaims.XSUAA.GRANT_TYPE, OAuth2TokenServiceConstants.GRANT_TYPE_JWT_BEARER);
 		}
+
 		return jwtGenerator.withClaimValue(TokenClaims.ISSUER, issuerUrl);
 	}
 
@@ -261,18 +265,21 @@ public class SecurityTest
 	 *             if the stub cannot be initialized
 	 */
 	public void setup() throws Exception {
-		if (useApplicationServer && (applicationServer == null || !applicationServer.isStarted())) {
-			startApplicationServer();
-		}
 		if (!wireMockServer.isRunning()) {
 			wireMockServer.start();
 		} else {
 			wireMockServer.resetAll();
 		}
+		if (useApplicationServer && (applicationServer == null || !applicationServer.isStarted())) {
+			if (applicationServerOptions == null){
+				this.applicationServerOptions = ApplicationServerOptions.forService(service, wireMockServer.port());
+			}
+			startApplicationServer();
+		}
 		// TODO return JSON Media type
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				String.format(LOCALHOST_PATTERN, wireMockServer.port()), null);
-		wireMockServer.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
+		wireMockServer.stubFor(get(urlPathEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())
 						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));
 		wireMockServer.stubFor(get(urlEqualTo(DISCOVERY_ENDPOINT_DEFAULT))

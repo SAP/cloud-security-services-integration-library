@@ -77,7 +77,7 @@ class SpringXsuaaPerformanceIT {
 		final String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8);
 
 		XsuaaCredentials xsuaaCredentials = new XsuaaCredentials();
-		xsuaaCredentials.setUaaDomain(SecurityTest.DEFAULT_DOMAIN);
+		xsuaaCredentials.setUaaDomain(SecurityTest.DEFAULT_UAA_DOMAIN);
 		xsuaaCredentials.setClientId(SecurityTest.DEFAULT_CLIENT_ID);
 		xsuaaCredentials.setXsAppName(SecurityTest.DEFAULT_APP_ID);
 		xsuaaCredentials.setVerificationKey(publicKey.replace("\n", ""));

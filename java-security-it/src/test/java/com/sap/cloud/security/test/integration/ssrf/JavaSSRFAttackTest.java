@@ -7,6 +7,8 @@ package com.sap.cloud.security.test.integration.ssrf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.test.RSAKeys;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenHeader;
@@ -24,9 +26,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.times;
 
 /**
@@ -35,9 +38,9 @@ import static org.mockito.Mockito.times;
  * (Server Side Request Forgery)</a> attacks.
  *
  */
-public class JavaSSRFAttackTest {
+class JavaSSRFAttackTest {
 
-	private CloseableHttpClient httpClient = Mockito.spy(HttpClients.createDefault());
+	private final CloseableHttpClient httpClient = Mockito.spy(HttpClients.createDefault());
 
 	@RegisterExtension
 	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA).setPort(4242);
@@ -55,16 +58,27 @@ public class JavaSSRFAttackTest {
 	 */
 	@ParameterizedTest
 	@CsvSource({
+			"http://localhost:4242/token_keys,											true",
 			"http://localhost:4242/token_keys@malicious.ondemand.com/token_keys,		false",
-			"http://malicious.ondemand.com@localhost:4242/token_keys,					true",
 			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
 	})
-	public void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException {
-		OAuth2ServiceConfigurationBuilder configuration = extension.getContext()
-				.getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json");
-		Token token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
-				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
-				.createToken();
+	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid)
+			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		OAuth2ServiceConfigurationBuilder configuration =
+				extension.getContext()
+				.getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json")
+						.withProperty(CFConstants.XSUAA.UAA_DOMAIN, extension.getContext().getWireMockServer().baseUrl());
+		Token token;
+		if (isValid) {
+			token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.createToken();
+		} else {
+			token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.withPrivateKey(RSAKeys.loadPrivateKey("/random_private_key.txt"))
+					.createToken();
+		}
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder
 				.getInstance(configuration.build())
 				.withHttpClient(httpClient)
@@ -73,13 +87,12 @@ public class JavaSSRFAttackTest {
 		ValidationResult result = tokenValidator.validate(token);
 
 		assertThat(result.isValid()).isEqualTo(isValid);
+		ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+		ArgumentCaptor<ResponseHandler> responseHandlerCaptor = ArgumentCaptor.forClass(ResponseHandler.class);
 
-		if(isValid) {
-			ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-			Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), isA(ResponseHandler.class));
-			HttpUriRequest request = httpUriRequestCaptor.getValue();
-			assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
-		}
+		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), responseHandlerCaptor.capture());
+		HttpUriRequest request = httpUriRequestCaptor.getValue();
+		assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
 	}
 
 }
