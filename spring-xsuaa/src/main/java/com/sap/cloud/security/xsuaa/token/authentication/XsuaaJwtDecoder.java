@@ -110,10 +110,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	private Jwt verifyToken(JWT jwt) {
 		try {
-			String jku = tokenInfoExtractor.getJku(jwt);
 			String kid = tokenInfoExtractor.getKid(jwt);
 			String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
-			return verifyToken(jwt.getParsedString(), jku, kid, uaaDomain, getZid(jwt));
+			return verifyToken(jwt.getParsedString(), kid, uaaDomain, getZid(jwt));
 		} catch (BadJwtException e) {
 			if (e.getMessage().contains("Couldn't retrieve remote JWK set")
 					|| e.getMessage().contains("Cannot verify with online token key, uaadomain is")) {
@@ -141,9 +140,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return zid;
 	}
 
-	private Jwt verifyToken(String token, String jku, String kid, String uaaDomain, String zid) {
+	private Jwt verifyToken(String token, String kid, String uaaDomain, String zid) {
 		try {
-			canVerifyWithKey(jku, kid, uaaDomain);
+			canVerifyWithKey(kid, uaaDomain);
 			return verifyWithKey(token, composeJku(uaaDomain, zid), kid);
 		} catch (JwtValidationException ex) {
 			throw ex;
@@ -152,13 +151,11 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	private void canVerifyWithKey(String jku, String kid, String uaadomain) {
-		if (jku != null && kid != null && uaadomain != null) {
+	private void canVerifyWithKey(String kid, String uaadomain) {
+		if (kid != null && uaadomain != null) {
 			return;
 		}
 		List<String> nullParams = new ArrayList<>();
-		if (jku == null)
-			nullParams.add(CLAIM_JKU);
 		if (kid == null)
 			nullParams.add(CLAIM_KID);
 		if (uaadomain == null)
