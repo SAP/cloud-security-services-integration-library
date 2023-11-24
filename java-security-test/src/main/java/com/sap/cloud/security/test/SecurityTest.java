@@ -289,7 +289,7 @@ public class SecurityTest
 				.willReturn(aResponse().withBody(createDefaultOidcConfigurationResponse())
 						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));
 		jwksUrl = endpointsProvider.getJwksUri().toString();
-		issuerUrl = new URL(wireMockServer.baseUrl()).getHost();
+		issuerUrl = wireMockServer.baseUrl();
 	}
 
 	/**
