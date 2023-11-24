@@ -40,6 +40,7 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -278,7 +279,7 @@ public class SecurityTest
 				.willReturn(aResponse().withBody(createDefaultOidcConfigurationResponse())
 						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));
 		jwksUrl = endpointsProvider.getJwksUri().toString();
-		issuerUrl = wireMockServer.baseUrl();
+		issuerUrl = new URL(wireMockServer.baseUrl()).getHost();
 	}
 
 	/**
