@@ -166,7 +166,7 @@ public class SecurityTest
 			String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
-				.withDomains(URI.create(issuerUrl).getHost())
+				.withDomains(issuerUrl)
 				.withUrl(issuerUrl);
 	}
 
@@ -279,7 +279,7 @@ public class SecurityTest
 				.willReturn(aResponse().withBody(createDefaultOidcConfigurationResponse())
 						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));
 		jwksUrl = endpointsProvider.getJwksUri().toString();
-		issuerUrl = new URL(wireMockServer.baseUrl()).getHost();
+		issuerUrl = wireMockServer.baseUrl();
 	}
 
 	/**
