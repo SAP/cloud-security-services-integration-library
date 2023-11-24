@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.3.0
+- [java-security]
+  - [XSUAA/IAS] Adapt optimized server API
+- [spring-xsuaa]
+  - Adapt optimized server API
+
 ## 3.2.1
 Hot fix for the CVE-2023-5072
 
