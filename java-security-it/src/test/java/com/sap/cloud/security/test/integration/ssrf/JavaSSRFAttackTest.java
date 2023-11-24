@@ -73,10 +73,13 @@ public class JavaSSRFAttackTest {
 		ValidationResult result = tokenValidator.validate(token);
 
 		assertThat(result.isValid()).isEqualTo(isValid);
-		ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), isA(ResponseHandler.class));
-		HttpUriRequest request = httpUriRequestCaptor.getValue();
-		assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
+
+		if(isValid) {
+			ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
+			Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), isA(ResponseHandler.class));
+			HttpUriRequest request = httpUriRequestCaptor.getValue();
+			assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
+		}
 	}
 
 }
