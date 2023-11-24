@@ -128,7 +128,7 @@ public class ApplicationServerOptions {
 		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(clientId)
 				.withProperty(ServiceConstants.XSUAA.APP_ID, appId)
-				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, "http://" + SecurityTestRule.DEFAULT_DOMAIN + portPath)
+				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_UAA_DOMAIN + portPath)
 				.build();
 	}
 
