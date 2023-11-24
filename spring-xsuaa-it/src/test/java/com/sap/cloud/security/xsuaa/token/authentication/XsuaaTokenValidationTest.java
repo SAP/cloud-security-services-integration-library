@@ -5,11 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.token.authentication;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import com.sap.cloud.security.xsuaa.mock.JWTUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +16,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-
-import com.sap.cloud.security.xsuaa.mock.JWTUtil;
-
 import testservice.api.XsuaaITApplication;
 import testservice.api.v1.TestController;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(properties = {
@@ -39,36 +37,38 @@ public class XsuaaTokenValidationTest {
 	MockMvc mvc;
 
 	@Test
-	public void testToken_testdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
-				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
-				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
-	}
-
-	@Test
-	public void testToken_otherdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
+	void testToken_testdomain() throws Exception {
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				"testdomain", "tenant", null))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
-	public void test_Scope() throws Exception {
-		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
+	void testToken_otherdomain() throws Exception {
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				"otherdomain", "othertenant", null))))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
+	}
+
+	@Test
+	void test_Scope() throws Exception {
+		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt",
+				"otherdomain", "othertenant", null))))
 				.andExpect(status().isOk());
 	}
 
 	@Test
-	public void test_clientcredentialstoken() throws Exception {
+	void test_clientcredentialstoken() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
-						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
+						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa",
+								"legacy-token-key"))))
 				.andExpect(status().isOk()).andExpect(
 						content().string(containsString(".ewogICJqdGkiOiAiOGU3YjNiMDAtNzc1MS00YjQ2LTliMWEtNWE0NmEyY")));
 	}
 
 	@Test
-	public void test_insufficientScopedToken_isUnauthorized() throws Exception {
+	void test_insufficientScopedToken_isUnauthorized() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
 						.with(bearerToken(
@@ -77,7 +77,7 @@ public class XsuaaTokenValidationTest {
 	}
 
 	@Test
-	public void test_expiredToken_isUnauthorized() throws Exception {
+	void test_expiredToken_isUnauthorized() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
 						.with(bearerToken(JWTUtil.createJWT("/expired.txt", "uaa", "legacy-token-key"))))

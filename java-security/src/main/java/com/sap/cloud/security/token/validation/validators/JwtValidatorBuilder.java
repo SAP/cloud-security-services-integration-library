@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *<p> 
+ *<p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.token.validation.validators;
@@ -27,10 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 
 /**
- * Class used to build a token validator for a oauth service configuration
+ * Class used to build a token validator for an OAuth service configuration
  * {@link OAuth2ServiceConfiguration}. <br>
  * Custom validators can be added via {@link #with(Validator)} method.
  */
@@ -39,7 +38,7 @@ public class JwtValidatorBuilder {
 	private final Set<Validator<Token>> validators = new HashSet<>();
 	private final Set<ValidationListener> validationListeners = Collections.synchronizedSet(new HashSet<>());
 	private OAuth2ServiceConfiguration configuration;
-	private final Set<OAuth2ServiceConfiguration> otherConfigurations = Collections.synchronizedSet(new HashSet());
+	private final Set<OAuth2ServiceConfiguration> otherConfigurations = Collections.synchronizedSet(new HashSet<>());
 	private OidcConfigurationService oidcConfigurationService = null;
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
@@ -84,7 +83,7 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Use to configure the token key cache.
-	 * 
+	 *
 	 * @param tokenKeyCacheConfiguration
 	 *            the cache configuration
 	 * @return this builder
@@ -184,11 +183,11 @@ public class JwtValidatorBuilder {
 
 	/**
 	 * Disables tenant id check for JwtSignatureValidator. In case Jwt issuer claim
-	 * doesn't match with the url attribute from OAuth2ServiceConfiguration tenant id (zid)
-	 * claim needs to be present in token to ensure that the tenant belongs to this
-	 * issuer. This method disables the tenant id check. Use with caution as it relaxes
-	 * the validation rules! It is not recommended to disable this check for
-	 * standard Identity service setup.
+	 * doesn't match with the url attribute from OAuth2ServiceConfiguration tenant
+	 * id (zid) claim needs to be present in token to ensure that the tenant belongs
+	 * to this issuer. This method disables the tenant id check. Use with caution as
+	 * it relaxes the validation rules! It is not recommended to disable this check
+	 * for standard Identity service setup.
 	 *
 	 * @return this builder
 	 */
@@ -219,10 +218,6 @@ public class JwtValidatorBuilder {
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
 		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
 		if (configuration.getService() == XSUAA) {
-			if (!configuration.isLegacyMode()) {
-				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
-			}
-
 			signatureValidator = new XsuaaJwtSignatureValidator(configuration, tokenKeyServiceWithCache, getOidcConfigurationServiceWithCache());
 		} else if (configuration.getService() == IAS) {
 			if(configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {

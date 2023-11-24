@@ -5,14 +5,13 @@
  */
 package com.sap.cloud.security.xsuaa.mock;
 
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpStatus;
-
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.RecordedRequest;
 
 public class XsuaaMockPostProcessor implements EnvironmentPostProcessor {
 
@@ -30,7 +29,7 @@ public class XsuaaMockPostProcessor implements EnvironmentPostProcessor {
 		@Override
 		public MockResponse dispatch(RecordedRequest request) {
 			if ("/customdomain/token_keys".equals(request.getPath())) {
-				return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key-customdomain");
+				return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-customdomain");
 			}
 			if ("/testdomain/token_keys".equals(request.getPath())) {
 				return getResponseFromFile("/mock/testdomain_token_keys.json", HttpStatus.OK);

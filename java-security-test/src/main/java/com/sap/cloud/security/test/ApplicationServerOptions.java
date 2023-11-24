@@ -21,7 +21,8 @@ import com.sap.cloud.security.xsuaa.Assertions;
 public class ApplicationServerOptions {
 
 	private final TokenAuthenticator tokenAuthenticator;
-	private int port;
+	private final int port;
+	private static int tokenKeysPort;
 
 	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator) {
 		this(tokenAuthenticator, 0);
@@ -57,6 +58,27 @@ public class ApplicationServerOptions {
 	 *            the identity service
 	 * @return the application server options.
 	 */
+	public static ApplicationServerOptions forService(Service service, int jwksPort) {
+		tokenKeysPort = jwksPort;
+		ApplicationServerOptions instance;
+		switch (service) {
+		case XSUAA:
+			instance =  forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
+			break;
+		case IAS:
+			instance = new ApplicationServerOptions(new IasTokenAuthenticator()
+				.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+						.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
+						.withUrl("http://localhost")
+						.withDomains("localhost")
+						.build()));
+			break;
+		default:
+			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
+		}
+		return instance;
+	}
+
 	public static ApplicationServerOptions forService(Service service) {
 		ApplicationServerOptions instance;
 
@@ -113,10 +135,11 @@ public class ApplicationServerOptions {
 	}
 
 	private static OAuth2ServiceConfiguration createServiceConfiguration(String appId, String clientId) {
+		String portPath = tokenKeysPort != 0 ? ":" + tokenKeysPort : "";
 		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(clientId)
 				.withProperty(CFConstants.XSUAA.APP_ID, appId)
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_UAA_DOMAIN + portPath)
 				.build();
 	}
 

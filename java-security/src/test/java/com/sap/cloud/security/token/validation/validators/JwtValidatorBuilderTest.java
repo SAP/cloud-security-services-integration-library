@@ -58,8 +58,7 @@ public class JwtValidatorBuilderTest {
 		JwtValidatorBuilder builder_1 = JwtValidatorBuilder.getInstance(configuration);
 		JwtValidatorBuilder builder_2 = JwtValidatorBuilder.getInstance(configuration);
 		JwtValidatorBuilder builder_3 = JwtValidatorBuilder.getInstance(xsuaaConfigBuilder.build());
-		assertThat(builder_1).isSameAs(builder_2);
-		assertThat(builder_1).isSameAs(builder_3);
+		assertThat(builder_1).isSameAs(builder_2).isSameAs(builder_3);
 	}
 
 	@Test
@@ -79,10 +78,9 @@ public class JwtValidatorBuilderTest {
 				.getValidators();
 
 		assertThat(validators)
-				.hasSize(4)
+				.hasSize(3)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
 				.hasAtLeastOneElementOfType(JwtAudienceValidator.class)
-				.hasAtLeastOneElementOfType(XsuaaJkuValidator.class)
 				.hasAtLeastOneElementOfType(JwtSignatureValidator.class);
 	}
 
@@ -97,8 +95,7 @@ public class JwtValidatorBuilderTest {
 				.hasSize(3)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
 				.hasAtLeastOneElementOfType(JwtAudienceValidator.class)
-				.hasAtLeastOneElementOfType(JwtSignatureValidator.class)
-				.doesNotHaveAnyElementsOfTypes(XsuaaJkuValidator.class);
+				.hasAtLeastOneElementOfType(JwtSignatureValidator.class);
 	}
 
 	@Test
