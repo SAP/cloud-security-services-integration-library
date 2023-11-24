@@ -6,6 +6,7 @@
 package com.sap.cloud.security.test.integration.ssrf;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.RSAKeys;
 import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.TokenHeader;
@@ -24,6 +25,8 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF
  * (Server Side Request Forgery)</a> attacks.
  */
-public class SpringSSRFAttackTest {
+class SpringSSRFAttackTest {
 
 	private RestOperations restOperations = Mockito.spy(new RestTemplate());
 
@@ -56,11 +59,21 @@ public class SpringSSRFAttackTest {
 			"http://malicious.ondemand.com@localhost:4242/token_keys,					true",
 			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
 	})
-	public void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException {
-		String token = extension.getContext().getPreconfiguredJwtGenerator()
-				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
-				.createToken()
-				.getTokenValue();
+	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid)
+			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		String token;
+		if (isValid) {
+			token = extension.getContext().getPreconfiguredJwtGenerator()
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.createToken()
+					.getTokenValue();
+		} else {
+			token = extension.getContext().getPreconfiguredJwtGenerator()
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.withPrivateKey(RSAKeys.loadPrivateKey("/random_private_key.txt"))
+					.createToken()
+					.getTokenValue();
+		}
 		JwtDecoder jwtDecoder = new XsuaaJwtDecoderBuilder(
 				new XsuaaServiceConfigurationCustom(createXsuaaCredentials()))
 						.withRestOperations(restOperations)
@@ -80,7 +93,7 @@ public class SpringSSRFAttackTest {
 
 	private XsuaaCredentials createXsuaaCredentials() {
 		XsuaaCredentials xsuaaCredentials = new XsuaaCredentials();
-		xsuaaCredentials.setUaaDomain(SecurityTest.DEFAULT_DOMAIN);
+		xsuaaCredentials.setUaaDomain(extension.getContext().getWireMockServer().baseUrl());
 		xsuaaCredentials.setClientId(SecurityTest.DEFAULT_CLIENT_ID);
 		xsuaaCredentials.setXsAppName(SecurityTest.DEFAULT_APP_ID);
 		return xsuaaCredentials;

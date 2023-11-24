@@ -6,6 +6,7 @@
 package sample.spring.xsuaa;
 
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.extension.XsuaaExtension;
 import com.sap.cloud.security.token.Token;
@@ -23,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import sample.spring.xsuaa.config.TokenBrokerTestConfiguration;
+import sample.spring.xsuaa.config.XsuaaExtensionFixedPort;
 
 import java.net.URI;
 import java.util.Collection;
@@ -48,7 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(TokenBrokerTestConfiguration.class)
-@ExtendWith(XsuaaExtension.class)
+@ExtendWith(XsuaaExtensionFixedPort.class)
 public class SecurityConfigurationTest {
 	/** users for which the TokenBrokerResolver returns stubbed results. */
 	private enum User {MISSING_SCOPES, WRONG_SCOPE, VALID_SCOPE, VALID_SCOPE_ON_OTHER_ZONE}
@@ -59,6 +61,11 @@ public class SecurityConfigurationTest {
 	private MockMvc mockMvc;
 	@MockBean
 	private XsuaaOAuth2TokenService xsuaaTokenService;
+
+
+	static  {
+		XsuaaExtension.forService(Service.XSUAA).setPort(2222);
+	}
 
 	/** Configures the xsuaaTokenService with stub responses.
 	 *  For each user, a generated access token is returned if the user's name, password and zone are correct.

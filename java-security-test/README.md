@@ -66,7 +66,7 @@ import static com.sap.cloud.security.test.SecurityTest.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = { 
-		"xsuaa.uaadomain=" + DEFAULT_DOMAIN, 
+		"xsuaa.uaadomain=" + DEFAULT_UAA_DOMAIN, 
 		"xsuaa.xsappname=" + DEFAULT_APP_ID,
 		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
 @ExtendWith(XsuaaExtension.class)
