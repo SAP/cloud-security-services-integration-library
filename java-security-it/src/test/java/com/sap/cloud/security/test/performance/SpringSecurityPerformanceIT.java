@@ -106,7 +106,7 @@ class SpringSecurityPerformanceIT {
 
 	private OAuth2ServiceConfigurationBuilder createIasConfigurationBuilder() {
 		return OAuth2ServiceConfigurationBuilder.forService(IAS)
-				.withDomains(SecurityTest.DEFAULT_DOMAIN)
+				.withDomains(securityIasTest.getWireMockServer().baseUrl())
 				.withClientId(SecurityTest.DEFAULT_CLIENT_ID);
 	}
 }
