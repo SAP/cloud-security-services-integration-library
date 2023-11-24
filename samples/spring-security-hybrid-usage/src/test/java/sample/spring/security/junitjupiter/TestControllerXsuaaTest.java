@@ -6,7 +6,6 @@
 package sample.spring.security.junitjupiter;
 
 import com.sap.cloud.security.test.api.SecurityTestContext;
-import com.sap.cloud.security.test.extension.XsuaaExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +22,7 @@ import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.be
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ExtendWith(XsuaaExtension.class)
+@ExtendWith(XsuaaExtensionFixedPort.class)
 @ActiveProfiles("multixsuaa") // properties are provided with /resources/application-multixsuaa.yml
 class TestControllerXsuaaTest {
 

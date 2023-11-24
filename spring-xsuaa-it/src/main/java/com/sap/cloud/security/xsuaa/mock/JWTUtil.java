@@ -25,4 +25,10 @@ public class JWTUtil {
 		return jwtGenerator.createFromTemplate(pathToTemplate).getTokenValue();
 	}
 
+	public static String createJWT(String pathToTemplate, String subdomain, String zid, String keyId) throws IOException {
+		JwtGenerator jwtGenerator = new JwtGenerator("sb-java-hello-world", subdomain, zid)
+				.setJwtHeaderKeyId(keyId != null ? keyId : "legacy-token-key-" + subdomain);
+		return jwtGenerator.createFromTemplate(pathToTemplate).getTokenValue();
+	}
+
 }

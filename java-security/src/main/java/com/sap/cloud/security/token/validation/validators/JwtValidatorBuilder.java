@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
 
 /**
  * Class used to build a token validator for an OAuth service configuration
@@ -219,10 +218,6 @@ public class JwtValidatorBuilder {
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
 		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
 		if (configuration.getService() == XSUAA) {
-			if (!configuration.isLegacyMode()) {
-				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
-			}
-
 			signatureValidator = new XsuaaJwtSignatureValidator(configuration, tokenKeyServiceWithCache, getOidcConfigurationServiceWithCache());
 		} else if (configuration.getService() == IAS) {
 			if(configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {

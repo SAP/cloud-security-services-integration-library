@@ -27,16 +27,15 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 	@Override
 	public MockResponse dispatch(RecordedRequest request) {
 		// mock JWKS endpoints
-		if ("/testdomain/token_keys".equals(request.getPath())) {
-			String subdomain = "testdomain";
-			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-" + subdomain);
+		if ("/token_keys?zid=tenant".equals(request.getPath())) {
+			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-testdomain");
 		}
 
-		if ("/otherdomain/token_keys".equals(request.getPath())) {
+		if ("/token_keys?zid=othertenant".equals(request.getPath())) {
 			return getResponseFromFile(PATH_OTHER_DOMAIN_TOKEN_KEYS, HttpStatus.OK);
 		}
 
-		if (request.getPath().endsWith("/token_keys")) {
+		if (request.getPath().contains("/token_keys")) {
 			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key");
 		}
 

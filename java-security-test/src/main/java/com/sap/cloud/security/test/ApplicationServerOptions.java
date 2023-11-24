@@ -22,6 +22,7 @@ public class ApplicationServerOptions {
 
 	private final TokenAuthenticator tokenAuthenticator;
 	private final int port;
+	private static int tokenKeysPort;
 
 	private ApplicationServerOptions(TokenAuthenticator tokenAuthenticator) {
 		this(tokenAuthenticator, 0);
@@ -57,7 +58,8 @@ public class ApplicationServerOptions {
 	 *            the identity service
 	 * @return the application server options.
 	 */
-	public static ApplicationServerOptions forService(Service service) {
+	public static ApplicationServerOptions forService(Service service, int jwksPort) {
+		tokenKeysPort = jwksPort;
 		return switch (service) {
 		case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
 		case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
@@ -68,6 +70,21 @@ public class ApplicationServerOptions {
 						.build()));
 		default ->
 			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
+		};
+
+	}
+
+	public static ApplicationServerOptions forService(Service service) {
+		return switch (service) {
+			case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
+			case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
+					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
+							.withUrl("http://localhost")
+							.withDomains("localhost")
+							.build()));
+			default ->
+					throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		};
 
 	}
@@ -107,10 +124,11 @@ public class ApplicationServerOptions {
 	}
 
 	private static OAuth2ServiceConfiguration createServiceConfiguration(String appId, String clientId) {
+		String portPath = tokenKeysPort != 0 ? ":" + tokenKeysPort : "";
 		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
 				.withClientId(clientId)
 				.withProperty(ServiceConstants.XSUAA.APP_ID, appId)
-				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_DOMAIN)
+				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, SecurityTestRule.DEFAULT_UAA_DOMAIN + portPath)
 				.build();
 	}
 

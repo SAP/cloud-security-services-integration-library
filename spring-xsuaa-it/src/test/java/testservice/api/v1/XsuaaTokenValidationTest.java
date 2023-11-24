@@ -40,21 +40,21 @@ class XsuaaTokenValidationTest extends MockXsuaaServerConfiguration {
 	@Test
 	void testToken_testdomain() throws Exception {
 		 this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
-		 "testdomain"))))
+		 "testdomain", "tenant", null))))
 		 .andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
 	void testToken_otherdomain() throws Exception {
 		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
-				"otherdomain"))))
+				"otherdomain",  "othertenant", null))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
 	void test_Scope() throws Exception {
 		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt",
-				"otherdomain"))))
+				"otherdomain", "othertenant", null))))
 				.andExpect(status().isOk());
 	}
 
