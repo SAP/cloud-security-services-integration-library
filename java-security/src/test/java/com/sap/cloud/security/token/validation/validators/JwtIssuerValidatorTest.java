@@ -66,14 +66,14 @@ class JwtIssuerValidatorTest {
 
 	@Test
 	void validationFails_whenSubdomainHasMoreThan63Characters() {
-		for(String d : trustedDomains) {
+		for (String d : trustedDomains) {
 			when(token.getIssuer()).thenReturn("https://a." + d);
 			assertThat(cut.validate(token).isValid(), is(true));
 
-			when(token.getIssuer()).thenReturn("https://" + "a".repeat(63) + "." + d);
+			when(token.getIssuer()).thenReturn("https://" + String.join("", Collections.nCopies(63, "a")) + "." + d);
 			assertThat(cut.validate(token).isValid(), is(true));
 
-			when(token.getIssuer()).thenReturn("https://" + "a".repeat(64) + "." + d);
+			when(token.getIssuer()).thenReturn("https://" + String.join("", Collections.nCopies(64, "a")) + "." + d);
 			assertThat(cut.validate(token).isValid(), is(false));
 		}
 	}
