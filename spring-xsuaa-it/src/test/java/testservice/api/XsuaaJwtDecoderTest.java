@@ -5,6 +5,11 @@
  */
 package testservice.api;
 
+import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
+import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,13 +21,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
-import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaResourceServerJwkAutoConfiguration;
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
-import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
-
 import testservice.api.nohttp.MyEventHandler;
 import testservice.api.nohttp.SecurityConfiguration;
 
@@ -66,7 +64,7 @@ public class XsuaaJwtDecoderTest {
 
 	@Test
 	public void postValidationActionIsNotExecutedIfFail() {
-		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
+		String jwt = new JwtGenerator(clientId, "subdomain", "tenant").deriveAudiences(true)
 				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
 		try {
 			jwtDecoderWithPostAction.decode(jwt);

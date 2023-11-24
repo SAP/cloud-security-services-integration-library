@@ -5,9 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.mock;
 
-import java.io.IOException;
-
 import com.sap.cloud.security.xsuaa.test.JwtGenerator;
+
+import java.io.IOException;
 
 public class JWTUtil {
 
@@ -22,6 +22,13 @@ public class JWTUtil {
 	public static String createJWT(String pathToTemplate, String subdomain, String keyId) throws IOException {
 		JwtGenerator jwtGenerator = new JwtGenerator("sb-java-hello-world", subdomain)
 				.setJwtHeaderKeyId(keyId);
+		return jwtGenerator.createFromTemplate(pathToTemplate).getTokenValue();
+	}
+
+	public static String createJWT(String pathToTemplate, String subdomain, String zid, String keyId)
+			throws IOException {
+		JwtGenerator jwtGenerator = new JwtGenerator("sb-java-hello-world", subdomain, zid)
+				.setJwtHeaderKeyId(keyId != null ? keyId : "legacy-token-key-" + subdomain);
 		return jwtGenerator.createFromTemplate(pathToTemplate).getTokenValue();
 	}
 

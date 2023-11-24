@@ -7,7 +7,6 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
@@ -23,11 +22,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 
+import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -56,11 +55,12 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.getService()).thenReturn(Service.XSUAA);
+		when(mockConfiguration.getProperty(UAA_DOMAIN)).thenReturn("authentication.stagingaws.hanavlab.ondemand.com");
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
-						eq(Collections.singletonMap(HttpHeaders.X_ZID, "uaa"))))
+				.retrieveTokenKeys(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys?zid=uaa"),
+						Collections.singletonMap(HttpHeaders.X_ZID, "uaa")))
 								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
 		cut = new XsuaaJwtSignatureValidator(
@@ -73,19 +73,6 @@ public class XsuaaJwtSignatureValidatorTest {
 	@Test
 	public void xsuaa_RSASignatureMatchesJWKS() {
 		assertThat(cut.validate(xsuaaToken).isValid(), is(true));
-	}
-
-	@Test
-	public void validationFails_whenNoJkuHeaderButIssuerIsGiven() throws IOException {
-		/**
-		 *
-		 * Header -------- { "alg": "RS256" } Payload -------- { "iss":
-		 * "https://application.myauth.com" }
-		 */
-		Token tokenWithoutJkuButIssuer = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
-		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("Token does not contain the mandatory " + JsonWebKeyConstants.JKU_PARAMETER_NAME + " header"));
 	}
 
 	@Test

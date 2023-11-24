@@ -5,9 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.mock;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,28 +15,28 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.RecordedRequest;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class XsuaaRequestDispatcher extends Dispatcher {
 	protected static final String RESPONSE_404 = "Xsuaa mock authorization server does not support this request";
 	protected static final String RESPONSE_401 = "Xsuaa mock authorization server can't authenticate client/user";
 	protected static final String RESPONSE_500 = "Xsuaa mock authorization server can't process request";
-	protected static final String PATH_TOKEN_KEYS_TEMPLATE = "/mock/token_keys_template.json";
-	protected static final String PATH_PUBLIC_KEY = "/mock/publicKey.txt";
+	protected static final String PATH_TESTDOMAIN_TOKEN_KEYS = "/mockServer/testdomain_token_keys.json";
+	public static final String PATH_OTHER_DOMAIN_TOKEN_KEYS = "/mockServer/otherdomain_token_keys.json";
+	protected static final String PATH_PUBLIC_KEY = "/mockServer/publicKey.txt";
 	protected final Logger logger = LoggerFactory.getLogger(XsuaaRequestDispatcher.class);
-	private static int callCount = 0;
+	private static final int callCount = 0;
 
 	@Override
 	public MockResponse dispatch(RecordedRequest request) {
-		callCount++;
-		if ("/testdomain/token_keys".equals(request.getPath())) {
-			String subdomain = "testdomain";
-			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key-" + subdomain);
+		// mock JWKS endpoints
+		if ("/token_keys?zid=tenant".equals(request.getPath())) {
+			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-testdomain");
 		}
-		if (request.getPath().endsWith("/token_keys")) {
-			return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key");
+
+		if ("/token_keys?zid=othertenant".equals(request.getPath())) {
+			return getResponseFromFile(PATH_OTHER_DOMAIN_TOKEN_KEYS, HttpStatus.OK);
 		}
 		return getResponse(RESPONSE_404, HttpStatus.NOT_FOUND);
 	}
