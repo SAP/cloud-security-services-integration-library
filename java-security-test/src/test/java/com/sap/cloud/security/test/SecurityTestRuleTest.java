@@ -28,9 +28,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -116,20 +114,20 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void getPreconfiguredJwtGenerator_tokenHasCorrectIssuer() throws MalformedURLException {
+	public void getPreconfiguredJwtGenerator_tokenHasCorrectIssuer() {
 		Token token = cut.getPreconfiguredJwtGenerator().createToken();
 
-		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(new URL(cut.base.wireMockServer.baseUrl()).getHost());
+		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(cut.base.wireMockServer.baseUrl());
 	}
 
 	@Test
-	public void getConfigurationBuilderFromFile_configurationHasCorrectUrl() throws MalformedURLException {
+	public void getConfigurationBuilderFromFile_configurationHasCorrectUrl() {
 		OAuth2ServiceConfiguration configuration = cut
 				.getConfigurationBuilderFromFile("/vcapServices/vcapSimple.json")
 				.build();
 
 		assertThat(configuration.getUrl()).isNotNull();
-		assertThat(configuration.getUrl().toString()).isEqualTo(new URL(cut.base.wireMockServer.baseUrl()).getHost());
+		assertThat(configuration.getUrl().toString()).isEqualTo(cut.base.wireMockServer.baseUrl());
 	}
 
 	@Test
@@ -139,14 +137,14 @@ public class SecurityTestRuleTest {
 		String baseUrl = cut.base.wireMockServer.baseUrl();
 		URI jwksUrl = new XsuaaDefaultEndpoints(baseUrl, null).getJwksUri();
 		assertThat(token.getHeaderParameterAsString(TokenHeader.JWKS_URL)).isEqualTo(jwksUrl.toString());
-		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(new URL(baseUrl).getHost());
+		assertThat(token.getClaimAsString(TokenClaims.ISSUER)).isEqualTo(baseUrl);
 	}
 
 	@Test
 	public void setKeys_invalidPath_throwsException() {
 		assertThatThrownBy(() -> SecurityTestRule.getInstance(XSUAA)
 				.setKeys("doesNotExist", "doesNotExist"))
-						.isInstanceOf(RuntimeException.class);
+				.isInstanceOf(RuntimeException.class);
 	}
 
 	@Test
