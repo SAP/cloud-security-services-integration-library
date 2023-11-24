@@ -124,7 +124,7 @@ public class XsuaaJwtDecoderTest {
 		final JwtDecoder cut = new XsuaaJwtDecoderBuilder(configuration).build();
 
 		assertThatThrownBy(() -> cut.decode(ccToken)).isInstanceOf(JwtException.class)
-				.hasMessageContaining("Cannot verify with online token key, jku, kid, uaadomain is null");
+				.hasMessageContaining("Cannot verify with online token key, kid, uaadomain is null");
 	}
 
 }
