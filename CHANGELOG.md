@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.17.0
+
+- [java-security]
+  - [XSUAA/IAS] Adapt optimized server API
+- [spring-xsuaa]
+  - Adapt optimized server API
+
 ## 2.16.0
 - [env]
   - add Environment#getServiceConfigurationsAsList to retrieve all service configurations as lists mapped by service (XSUAA/IAS)
