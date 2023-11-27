@@ -11,6 +11,7 @@ import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceBindingMapper;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
@@ -38,7 +39,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -186,11 +186,15 @@ public class SecurityTest
 			LOGGER.warn("More than one OAuth2 service binding found in resource. Using configuration of first one!");
 		}
 
-		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper
-				.mapToOAuth2ServiceConfigurationBuilder(serviceBindings.get(0));
+		ServiceBinding binding = serviceBindings.get(0);
+		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(binding);
 		if (builder != null) {
 			// adjust domain and URL of the config to fit the mocked service instance
-			builder = builder.withDomains(URI.create(issuerUrl).getHost()).withUrl(issuerUrl);
+			builder = builder.withDomains(issuerUrl).withUrl(issuerUrl);
+
+			if(Objects.equals(Service.from(binding.getServiceName().get()), XSUAA)) {
+				builder.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, wireMockServer.baseUrl());
+			}
 		}
 
 		return builder;
