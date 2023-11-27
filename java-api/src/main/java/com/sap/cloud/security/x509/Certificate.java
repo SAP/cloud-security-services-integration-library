@@ -33,6 +33,10 @@ public interface Certificate {
 	 */
 	String getSubjectDN();
 
+	String getSubjectDN(String format);
+
+	String getIssuerDN(String format);
+
 	/**
 	 * Gets certificate subject DN map.
 	 *

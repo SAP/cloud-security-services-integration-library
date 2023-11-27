@@ -1,0 +1,39 @@
+[
+  {
+    "consumerClientId": "2d640305-5c07-40e8-9a18-92747754b099",
+    "consumedServiceInstanceIds": [
+      "01c8b1b7-3b0a-4579-b43d-efad0708275e"
+    ],
+    "consumedServiceInstances": [
+      {
+        "id": "01c8b1b7-3b0a-4579-b43d-efad0708275e",
+        "plan": {
+          "name": "application"
+        }
+      }
+    ],
+    "x509": [],
+    "providerClientId": "ccaf29f2-5b94-49b4-aa3b-17c9cc08b867"
+  },
+  {
+    "consumerClientId": "T000310",
+    "consumedServiceInstanceIds": [
+      "5f5395bb-7dc1-4791-803e-ea7cbc3d629a"
+    ],
+    "consumedServiceInstances": [
+      {
+        "id": "11-22-33",
+        "plan": {
+          "name": "application"
+        }
+      }
+    ],
+    "providerClientId": "ccaf29f2-5b94-49b4-aa3b-17c9cc08b867",
+    "x509": [
+      {
+        "dn": "CN=bdcd300c-b202-4a7a-bb95-2a7e6d15fe47/2b585405-d391-4986-b76d-b4f24685f3c8,L=aoxk2addh.accounts400.ondemand.com,OU=8e1affb2-62a1-43cc-a687-2ba75e4b3d84,OU=Canary,OU=SAP Cloud Platform Clients,O=SAP SE,C=DE",
+        "issuer": "CN=SAP Cloud Platform Client CA,OU=SAP Cloud Platform Clients,O=SAP SE,L=EU10-Canary,C=DE"
+      }
+    ]
+  },
+]

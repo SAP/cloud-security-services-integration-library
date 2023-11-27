@@ -68,6 +68,16 @@ public class X509Certificate implements Certificate {
 	}
 
 	@Override
+	public String getSubjectDN(String format) {
+		return x509.getSubjectX500Principal().getName(format);
+	}
+
+	@Override
+	public String getIssuerDN(String format) {
+		return x509.getIssuerX500Principal().getName(format);
+	}
+
+	@Override
 	public Map<String, String> getSubjectDNMap() {
 		return Stream.of(getSubjectDN().split(",")).collect(Collectors.toMap(
 				dn -> dn.split("=")[0].trim(),
