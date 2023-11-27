@@ -175,9 +175,9 @@ public class JwtBearerTokenFlow {
         }
 
 	if (opaque) {
-		optionalParameters.put(TOKEN_FORMAT, TOKEN_TYPE_OPAQUE);
+	    optionalParameters.put(TOKEN_FORMAT, TOKEN_TYPE_OPAQUE);
 	} else {
-		optionalParameters.remove(TOKEN_FORMAT);
+	    optionalParameters.remove(TOKEN_FORMAT);
 	}
 
         String scopesParameter = String.join(" ", scopes);
