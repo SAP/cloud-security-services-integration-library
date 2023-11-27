@@ -2,6 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.17.1
+#### Dependency upgrades
 - Bump spring.boot.version from 2.7.17 to 2.7.18
 
 ## 2.17.0
