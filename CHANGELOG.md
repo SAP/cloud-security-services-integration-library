@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.17.0
-**Breaking Change [java-security-test]**: To validate mocked XSUAA tokens issued by java-security-test module, the UAA_DOMAIN property of the service configuration must now include the port of the Wiremock server.\
+**Breaking Change ⚠️ [java-security-test]**: To validate mocked XSUAA tokens issued by java-security-test module, the UAA_DOMAIN property of the service configuration must now include the port of the Wiremock server.\
 Likewise for validating IAS tokens, the trusted *domains* array of the service configuration also needs to include the Wiremock URL including the port.\
 The full wiremock URL is available via SecurityTestContext#getWireMockServer#baseUrl.
 
