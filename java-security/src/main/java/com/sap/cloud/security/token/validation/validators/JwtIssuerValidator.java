@@ -69,14 +69,14 @@ class JwtIssuerValidator implements Validator<Token> {
 			return createInvalid("Issuer validation can not be performed because token does not contain an issuer claim.");
 		}
 
-		String issuerUrl = issuer.startsWith(HTTPS_SCHEME) ? issuer : HTTPS_SCHEME + issuer;
+		String issuerUrl = issuer.startsWith(HTTPS_SCHEME) || issuer.startsWith("http://localhost") ? issuer : HTTPS_SCHEME + issuer;
 		try {
 			new URL(issuerUrl);
 		} catch (MalformedURLException e) {
 			return createInvalid("Issuer validation can not be performed because token issuer is not a valid URL suitable for https.");
 		}
 
-		String issuerDomain = issuerUrl.substring(HTTPS_SCHEME.length());
+		String issuerDomain = issuerUrl.substring(issuerUrl.indexOf("://") + 3); // issuerUrl was validated above to begin either with http:// or https://
 		for(String d : domains) {
 			// a string that ends with .<trustedDomain> and contains 1-63 letters, digits or '-' before that for the subdomain
 			String validSubdomainPattern = String.format("^[a-zA-Z0-9-]{1,63}\\.%s$", Pattern.quote(d));

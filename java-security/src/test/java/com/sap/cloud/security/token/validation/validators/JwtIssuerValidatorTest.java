@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.is;
@@ -58,6 +59,20 @@ class JwtIssuerValidatorTest {
 	})
 	void validationSucceeds_forValidIssuers(String issuer) {
 		when(token.getIssuer()).thenReturn(issuer);
+
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isValid(), is(true));
+		assertThat(validationResult.isErroneous(), is(false));
+	}
+
+	/**
+	 * Test ensures that issuer validation also succeeds for servers running on http://localhost:<PORT>, e.g. when using java-security-test module.
+	 */
+	@Test
+	void supportsHttpLocalhostIssuers() {
+		String localDomain = "localhost:5555";
+		JwtIssuerValidator cut = new JwtIssuerValidator(List.of(localDomain));
+		when(token.getIssuer()).thenReturn("http://" + localDomain);
 
 		ValidationResult validationResult = cut.validate(token);
 		assertThat(validationResult.isValid(), is(true));
