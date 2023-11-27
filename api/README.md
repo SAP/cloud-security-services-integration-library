@@ -5,6 +5,6 @@
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>api</artifactId>
-    <version>2.17.0</version>
+    <version>2.17.1</version>
 </dependency>
 ```
