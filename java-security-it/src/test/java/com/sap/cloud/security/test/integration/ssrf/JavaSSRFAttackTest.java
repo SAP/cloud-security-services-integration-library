@@ -7,7 +7,6 @@ package com.sap.cloud.security.test.integration.ssrf;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.test.RSAKeys;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.Token;
@@ -66,8 +65,8 @@ class JavaSSRFAttackTest {
 			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		OAuth2ServiceConfigurationBuilder configuration =
 				extension.getContext()
-				.getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json")
-						.withProperty(CFConstants.XSUAA.UAA_DOMAIN, extension.getContext().getWireMockServer().baseUrl());
+				.getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json");
+
 		Token token;
 		if (isValid) {
 			token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
