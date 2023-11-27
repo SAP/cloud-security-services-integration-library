@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 Likewise for validating IAS tokens, the trusted *domains* array of the service configuration also needs to include the Wiremock URL including the port.\
 The full wiremock URL is available via SecurityTestContext#getWireMockServer#baseUrl.
 
-*Note*: If you are building your configuration via SecurityTestContext#getOAuth2ServiceConfigurationBuilderFromFile, this will already be preconfigured correctly, but you must not overwrite these properties with only "localhost".
+*Note*: Stating from version 2.17.1, if you are building your configuration via SecurityTestContext#getOAuth2ServiceConfigurationBuilderFromFile, this will already be preconfigured correctly, but you must not overwrite these properties with only "localhost".
 
 - [java-security]
   - [XSUAA/IAS] Adapt optimized server API
