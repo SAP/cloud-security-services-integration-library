@@ -38,8 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -191,7 +189,7 @@ public class SecurityTest
 				.mapToOAuth2ServiceConfigurationBuilder(serviceBindings.get(0));
 		if (builder != null) {
 			// adjust domain and URL of the config to fit the mocked service instance
-			builder = builder.withDomains(URI.create(issuerUrl).getHost()).withUrl(issuerUrl);
+			builder = builder.withDomains(issuerUrl).withUrl(issuerUrl);
 		}
 
 		return builder;
