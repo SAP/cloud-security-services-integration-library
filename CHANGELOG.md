@@ -2,6 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.17.0
+- Bump spring.boot.version from 2.7.17 to 2.7.18
+
+## 2.17.0
 - [java-security]
   - [XSUAA/IAS] Adapt optimized server API
 - [spring-xsuaa]
