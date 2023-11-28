@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 - Bump spring.boot.version from 2.7.17 to 2.7.18
 
 ## 2.17.0
+**Breaking Change ⚠️ [java-security-test]**: To validate mocked XSUAA tokens issued by java-security-test module, the UAA_DOMAIN property of the service configuration must now include the full address of the Wiremock server in the format *http://localhost:\<PORT\>*.\
+Likewise, for validating IAS tokens issued by the java-security-test module, the trusted *domains* array of the service configuration needs to include the Wiremock URL including the port but NOT the protocol, i.e. in the format *localhost:\<PORT\>*.\
+The full wiremock URL including *http://* and *\<PORT\>* is available via SecurityTestContext#getWireMockServer#baseUrl.
+
+*Note*: Stating from version 2.17.1, if you are building your configuration via SecurityTestContext#getOAuth2ServiceConfigurationBuilderFromFile, this will already be preconfigured correctly. Make sure, you do not overwrite these properties manually with an invalid value such as *localhost*.
+
 - [java-security]
   - [XSUAA/IAS] Adapt optimized server API
 - [spring-xsuaa]

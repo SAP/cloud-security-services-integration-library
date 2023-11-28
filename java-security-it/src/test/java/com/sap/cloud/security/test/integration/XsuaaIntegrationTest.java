@@ -18,7 +18,6 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import org.apache.commons.io.IOUtils;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -40,7 +39,7 @@ public class XsuaaIntegrationTest {
 	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA)
 			.setKeys("/publicKey.txt", "/privateKey.txt");
 
-	@Test@Ignore("to be fixed")
+	@Test
 	public void xsuaaTokenValidationSucceeds_withXsuaaCombiningValidator() {
 		OAuth2ServiceConfigurationBuilder configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
 				"/xsuaa/vcap_services-single.json");
@@ -87,14 +86,11 @@ public class XsuaaIntegrationTest {
 				"Issuer http://auth.com was not a trusted domain or a subdomain of the trusted domains [myauth.com].");
 	}
 
-	@Test@Ignore("to be fixed")
+	@Test
 	public void uaaTokenValidationSucceeds_withXsuaaCombiningValidator() {
 		OAuth2ServiceConfigurationBuilder configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
 				"/uaa/vcap_services.json");
-		Token token = rule.getJwtGeneratorFromFile("/uaa/token.json")
-				//.withHeaderParameter("jku", "http://auth.com/token_keys")  // required to create uaaAccessTokenRSA.txt
-				//.withHeaderParameter("kid", "key-id-0")
-				.createToken();
+		Token token = rule.getJwtGeneratorFromFile("/uaa/token.json").createToken();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration.build()).build();
 		ValidationResult result = tokenValidator.validate(token);

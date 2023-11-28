@@ -80,7 +80,7 @@ class SpringSecurityPerformanceIT {
 
 	private OAuth2ServiceConfigurationBuilder createIasConfigurationBuilder() {
 		return OAuth2ServiceConfigurationBuilder.forService(IAS)
-				.withDomains(securityIasTest.getWireMockServer().baseUrl())
+				.withDomains(securityIasTest.getWireMockServer().baseUrl().replace(("http://"), ""))
 				.withClientId(SecurityTest.DEFAULT_CLIENT_ID);
 	}
 }

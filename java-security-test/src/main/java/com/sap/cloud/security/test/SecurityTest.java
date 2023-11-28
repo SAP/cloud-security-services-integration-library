@@ -8,6 +8,7 @@ package com.sap.cloud.security.test;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.config.cf.VcapServicesParser;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
@@ -39,8 +40,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -170,8 +169,9 @@ public class SecurityTest
 			String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
-				.withDomains(issuerUrl)
-				.withUrl(issuerUrl);
+				.withDomains(issuerUrl.replace(("http://"), ""))
+				.withUrl(issuerUrl)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, issuerUrl); // domain is not enough, requires explicit address with http://
 	}
 
 	@Override
