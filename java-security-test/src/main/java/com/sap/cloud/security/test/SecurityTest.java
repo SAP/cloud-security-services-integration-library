@@ -169,9 +169,9 @@ public class SecurityTest
 			String configurationResourceName) {
 		return VcapServicesParser.fromFile(configurationResourceName)
 				.getConfigurationBuilder()
-				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, wireMockServer.baseUrl())
-				.withDomains(issuerUrl)
-				.withUrl(issuerUrl);
+				.withDomains(issuerUrl.replace(("http://"), ""))
+				.withUrl(issuerUrl)
+				.withProperty(CFConstants.XSUAA.UAA_DOMAIN, issuerUrl); // domain is not enough, requires explicit address with http://
 	}
 
 	@Override
