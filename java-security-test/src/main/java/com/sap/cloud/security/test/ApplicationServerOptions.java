@@ -69,8 +69,8 @@ public class ApplicationServerOptions {
 			instance = new ApplicationServerOptions(new IasTokenAuthenticator()
 				.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
 						.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
-						.withUrl("http://localhost")
-						.withDomains("localhost")
+						.withUrl(String.format("http://localhost:%d", jwksPort))
+						.withDomains(String.format("localhost:%d", jwksPort))
 						.build()));
 			break;
 		default:
