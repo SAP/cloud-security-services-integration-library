@@ -3,15 +3,17 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaJkuFactory;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 import static com.sap.cloud.security.config.cf.CFConstants.XSUAA.UAA_DOMAIN;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KEY_ID_VALUE_LEGACY;
@@ -21,6 +23,18 @@ import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConst
  * Jwt Signature validator for Access tokens issued by Xsuaa service
  */
 class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
+    public static final Logger LOGGER = LoggerFactory.getLogger(XsuaaJwtSignatureValidator.class);
+    List<XsuaaJkuFactory> jkuFactories = new ArrayList<XsuaaJkuFactory>() {
+        {
+            try {
+                ServiceLoader.load(XsuaaJkuFactory.class).forEach(this::add);
+                LOGGER.debug("loaded XsuaaJkuFactory service providers: {}", this);
+            } catch (Error e) {
+                LOGGER.warn("Unexpected failure while loading XsuaaJkuFactory service providers: {}", e.getMessage());
+            }
+        }
+    };
+
     XsuaaJwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService, OidcConfigurationServiceWithCache oidcConfigurationService) {
         super(configuration, tokenKeyService, oidcConfigurationService);
     }
@@ -57,7 +71,15 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
         }
 
         String zidQueryParam = composeZidQueryParameter(token);
-        String jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : configuration.getProperty(UAA_DOMAIN) + "/token_keys" + zidQueryParam;
+
+        String jwksUri;
+        if(jkuFactories.isEmpty()) {
+            jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : configuration.getProperty(UAA_DOMAIN) + "/token_keys" + zidQueryParam;
+        } else {
+            LOGGER.info("Loaded custom JKU factory");
+            jwksUri = jkuFactories.get(0).create(token);
+        }
+
         URI uri = URI.create(jwksUri);
         uri =  uri.isAbsolute() ? uri : URI.create("https://" + jwksUri);
         Map<String, String> params = Collections.singletonMap(HttpHeaders.X_ZID, token.getAppTid());

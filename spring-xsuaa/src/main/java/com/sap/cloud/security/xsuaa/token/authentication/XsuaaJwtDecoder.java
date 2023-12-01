@@ -9,6 +9,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.config.cf.CFConstants;
+import com.sap.cloud.security.token.ProviderNotFoundException;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaJkuFactory;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.json.JSONObject;
@@ -25,6 +28,7 @@ import org.springframework.web.client.RestOperations;
 import javax.annotation.Nullable;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.ProviderException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -37,7 +41,18 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 import static org.springframework.util.StringUtils.hasText;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	List<XsuaaJkuFactory> jkuFactories = new ArrayList<XsuaaJkuFactory>() {
+		{
+			try {
+				ServiceLoader.load(XsuaaJkuFactory.class).forEach(this::add);
+				logger.debug("loaded XsuaaJkuFactory service providers: {}", this);
+			} catch (Error e) {
+				logger.warn("Unexpected failure while loading XsuaaJkuFactory service providers: {}", e.getMessage());
+			}
+		}
+	};
+
+	private static final Logger logger = LoggerFactory.getLogger(XsuaaJwtDecoder.class);
 	private final XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	private final Duration cacheValidityInSeconds;
 	private final int cacheSize;
@@ -141,9 +156,21 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	}
 
 	private Jwt verifyToken(String token, String kid, String uaaDomain, String zid) {
+		String jku;
+		if(jkuFactories.isEmpty()) {
+			jku = composeJku(uaaDomain, zid);
+		} else {
+			logger.info("Loaded custom JKU factory");
+			try {
+				jku = jkuFactories.get(0).create(Token.create(token));
+			} catch (IllegalArgumentException | ProviderException | ProviderNotFoundException e) {
+				throw new BadJwtException("JKU validation failed: " + e.getMessage());
+			}
+		}
+
 		try {
 			canVerifyWithKey(kid, uaaDomain);
-			return verifyWithKey(token, composeJku(uaaDomain, zid), kid);
+			return verifyWithKey(token, jku, kid);
 		} catch (JwtValidationException ex) {
 			throw ex;
 		} catch (JwtException ex) {
