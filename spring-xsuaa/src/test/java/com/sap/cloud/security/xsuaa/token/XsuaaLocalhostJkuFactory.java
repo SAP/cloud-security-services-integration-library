@@ -19,7 +19,7 @@ public class XsuaaLocalhostJkuFactory implements XsuaaJkuFactory {
             throw new RuntimeException(e);
         }
 
-        if (tokenJku != null && (tokenJku.contains("localhost") || tokenJku.contains("127.0.0.1"))) {
+        if (tokenJku == null || tokenJku.contains("localhost") || tokenJku.contains("127.0.0.1")) {
             return tokenJku;
         }
 

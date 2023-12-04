@@ -12,7 +12,6 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -120,7 +119,7 @@ public class XsuaaJwtDecoderTest {
 		assertThat(jwt.getAudience().get(0)).isEqualTo("sb-clientId!t0815");
 	}
 
-	@Test@Ignore("verify if still valid")
+	@Test
 	public void decode_withNonMatchingVerificationKey_throwsException()  {
 		final JwtDecoder cut = new XsuaaJwtDecoderBuilder(configuration).build();
 
