@@ -7,6 +7,8 @@ package sample.spring.security.junitjupiter;
 
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.extension.IasExtension;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,6 +76,17 @@ class TestControllerIasTest {
 
 		mvc.perform(get("/method").with(bearerToken(jwtNoScopes)))
 				.andExpect(status().isForbidden());
+	}
+
+	/**
+	 * Ensures that tokens with an issuer whose domain is not part of {@link com.sap.cloud.security.config.cf.CFConstants.IAS#DOMAINS} in the credentials are still not trusted,
+	 * even when java-security-test supplies {@link com.sap.cloud.security.token.validation.LocalhostIssuerValidator}, which trusts issuers from tokens targeting localhost.
+	 */
+	@Test
+	void acceptsOnlyLocalhostIssuers(SecurityTestContext securityTest) throws Exception {
+		Token jwt = securityTest.getPreconfiguredJwtGenerator().withClaimsFromFile("/iasClaims.json").withClaimValue(TokenClaims.IAS_ISSUER, "https://auth.google.com").createToken();
+
+		mvc.perform(get("/sayHello").with(bearerToken(jwt.getTokenValue()))).andExpect(status().isUnauthorized());
 	}
 }
 
