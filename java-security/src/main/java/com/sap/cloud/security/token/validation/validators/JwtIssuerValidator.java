@@ -8,6 +8,7 @@ package com.sap.cloud.security.token.validation.validators;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.TestIssuerValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
+import java.util.ServiceLoader;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
@@ -38,9 +40,36 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */
 class JwtIssuerValidator implements Validator<Token> {
+	protected static final Logger LOGGER = LoggerFactory.getLogger(JwtIssuerValidator.class);
+
+	/*
+	 * The following validator brings backward-compatibility for test credentials in consumer applications written before 2.17.0 that are used to validate java-security-test tokens.
+	 * This is necessary for successful validation of localhost issuers that include a port when 'localhost' is defined as trusted domain without port in the service credentials.
+	 * Implementations of this interface absolutely MUST NOT be supplied outside test scope and MUST NOT be used for any other purpose to preserve application security.
+	 */
+	static TestIssuerValidator localhostIssuerValidator;
+	static {
+		tryLoadingLocalhostIssuerValidator();
+	}
+
+	private static void tryLoadingLocalhostIssuerValidator() {
+		ServiceLoader<TestIssuerValidator> validators;
+		try {
+			validators = ServiceLoader.load(TestIssuerValidator.class);
+		} catch (Error e) {
+			LOGGER.warn("Unexpected failure while loading TestIssuerValidator service providers: {}", e.getMessage());
+			return;
+		}
+
+		for (TestIssuerValidator v : validators) {
+			localhostIssuerValidator = v;
+			break;
+		}
+		LOGGER.debug("loaded TestIssuerValidator service providers: {}. Using first one: {}.", validators, localhostIssuerValidator);
+	}
+
 	protected static final String HTTPS_SCHEME = "https://";
 	private final List<String> domains;
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Creates instance of Issuer validation using the given domains provided by the
@@ -81,6 +110,11 @@ class JwtIssuerValidator implements Validator<Token> {
 			// a string that ends with .<trustedDomain> and contains 1-63 letters, digits or '-' before that for the subdomain
 			String validSubdomainPattern = String.format("^[a-zA-Z0-9-]{1,63}\\.%s$", Pattern.quote(d));
 			if(Objects.equals(d, issuerDomain) || issuerDomain.matches(validSubdomainPattern)) {
+				return createValid();
+			}
+
+			if("localhost".equals(d) && localhostIssuerValidator != null && localhostIssuerValidator.isValidIssuer(issuer)) {
+				LOGGER.debug("Accepting {} as valid issuer on trusted domain 'localhost' for backward-compatibility with java-security-test.", issuer);
 				return createValid();
 			}
 		}
