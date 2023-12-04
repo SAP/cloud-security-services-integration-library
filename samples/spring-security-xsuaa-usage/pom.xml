@@ -62,6 +62,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.sap.cloud.security.xsuaa</groupId>
+			<artifactId>spring-xsuaa-mock</artifactId>
+			<version>${sap.cloud.security.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
 			<version>5.7.0</version>
