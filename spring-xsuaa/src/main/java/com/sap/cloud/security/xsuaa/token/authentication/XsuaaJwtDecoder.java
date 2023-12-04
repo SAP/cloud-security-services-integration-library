@@ -11,7 +11,7 @@ import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.ProviderNotFoundException;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaJkuFactory;
+import com.sap.cloud.security.token.validation.XsuaaJkuFactory;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.json.JSONObject;
