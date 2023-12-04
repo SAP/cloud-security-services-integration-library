@@ -1,4 +1,7 @@
-package com.sap.cloud.security.token;
+package com.sap.cloud.security.token.validation;
+
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenHeader;
 
 public class XsuaaLocalhostJkuFactory implements XsuaaJkuFactory {
 
