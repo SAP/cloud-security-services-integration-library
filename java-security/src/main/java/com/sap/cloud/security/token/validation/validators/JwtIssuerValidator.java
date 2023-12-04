@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Objects;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 import java.util.regex.Pattern;
 
@@ -56,7 +57,7 @@ class JwtIssuerValidator implements Validator<Token> {
 		ServiceLoader<TestIssuerValidator> validators;
 		try {
 			validators = ServiceLoader.load(TestIssuerValidator.class);
-		} catch (Error e) {
+		} catch (Exception | ServiceConfigurationError e) {
 			LOGGER.warn("Unexpected failure while loading TestIssuerValidator service providers: {}", e.getMessage());
 			return;
 		}
