@@ -31,6 +31,18 @@
 	</properties>
 
 	<dependencies>
+<!--		TODO remove once spring-boot-parent upadtes logback version-->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.2.13</version>
+		</dependency>
+		<!--		TODO remove once spring-boot-parent upadtes logback version-->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.13</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
