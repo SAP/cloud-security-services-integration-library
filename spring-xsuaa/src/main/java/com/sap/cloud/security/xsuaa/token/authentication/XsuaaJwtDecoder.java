@@ -10,7 +10,6 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.config.cf.CFConstants;
 import com.sap.cloud.security.token.ProviderNotFoundException;
-import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaJkuFactory;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
@@ -46,7 +45,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			try {
 				ServiceLoader.load(XsuaaJkuFactory.class).forEach(this::add);
 				logger.debug("loaded XsuaaJkuFactory service providers: {}", this);
-			} catch (Error e) {
+			} catch (Exception | ServiceConfigurationError e) {
 				logger.warn("Unexpected failure while loading XsuaaJkuFactory service providers: {}", e.getMessage());
 			}
 		}
@@ -162,7 +161,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		} else {
 			logger.info("Loaded custom JKU factory");
 			try {
-				jku = jkuFactories.get(0).create(Token.create(token));
+				jku = jkuFactories.get(0).create(token);
 			} catch (IllegalArgumentException | ProviderException | ProviderNotFoundException e) {
 				throw new BadJwtException("JKU validation failed: " + e.getMessage());
 			}

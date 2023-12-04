@@ -29,7 +29,7 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
             try {
                 ServiceLoader.load(XsuaaJkuFactory.class).forEach(this::add);
                 LOGGER.debug("loaded XsuaaJkuFactory service providers: {}", this);
-            } catch (Error e) {
+            } catch (Exception | ServiceConfigurationError e) {
                 LOGGER.warn("Unexpected failure while loading XsuaaJkuFactory service providers: {}", e.getMessage());
             }
         }
@@ -79,7 +79,7 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
                     : configuration.getProperty(UAA_DOMAIN) + "/token_keys" + zidQueryParam;
         } else {
             LOGGER.info("Loaded custom JKU factory");
-            jwksUri = jkuFactories.get(0).create(token);
+            jwksUri = jkuFactories.get(0).create(token.getTokenValue());
         }
 
         URI uri = URI.create(jwksUri);
