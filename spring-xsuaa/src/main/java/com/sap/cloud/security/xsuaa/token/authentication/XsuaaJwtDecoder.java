@@ -168,7 +168,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 
 		try {
-			canVerifyWithKey(kid, uaaDomain);
+			canVerifyWithKey(kid, jku);
 			return verifyWithKey(token, jku, kid);
 		} catch (JwtValidationException ex) {
 			throw ex;
