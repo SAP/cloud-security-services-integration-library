@@ -157,7 +157,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	private Jwt verifyToken(String token, String kid, String uaaDomain, String zid) {
 		String jku;
-		if(jkuFactories.isEmpty()) {
+		if (jkuFactories.isEmpty()) {
 			jku = composeJku(uaaDomain, zid);
 		} else {
 			logger.info("Loaded custom JKU factory");

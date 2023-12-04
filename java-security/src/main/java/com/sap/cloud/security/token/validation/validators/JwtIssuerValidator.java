@@ -70,6 +70,7 @@ class JwtIssuerValidator implements Validator<Token> {
 		}
 
 		String issuerUrl = issuer.startsWith(HTTPS_SCHEME) || issuer.startsWith("http://localhost") ? issuer : HTTPS_SCHEME + issuer;
+
 		try {
 			new URL(issuerUrl);
 		} catch (MalformedURLException e) {

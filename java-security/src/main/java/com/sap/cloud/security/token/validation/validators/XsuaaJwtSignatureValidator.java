@@ -73,8 +73,10 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
         String zidQueryParam = composeZidQueryParameter(token);
 
         String jwksUri;
-        if(jkuFactories.isEmpty()) {
-            jwksUri = configuration.isLegacyMode() ? configuration.getUrl() + "/token_keys" : configuration.getProperty(UAA_DOMAIN) + "/token_keys" + zidQueryParam;
+        if (jkuFactories.isEmpty()) {
+            jwksUri = configuration.isLegacyMode()
+                    ? configuration.getUrl() + "/token_keys"
+                    : configuration.getProperty(UAA_DOMAIN) + "/token_keys" + zidQueryParam;
         } else {
             LOGGER.info("Loaded custom JKU factory");
             jwksUri = jkuFactories.get(0).create(token);
