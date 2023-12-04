@@ -29,7 +29,7 @@ public class XsuaaMockPostProcessor implements EnvironmentPostProcessor {
 		@Override
 		public MockResponse dispatch(RecordedRequest request) {
 			if ("/customdomain/token_keys".equals(request.getPath())) {
-				return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-customdomain");
+				return getTokenKeyForKeyId(PATH_TOKEN_KEYS_TEMPLATE, "legacy-token-key-customdomain");
 			}
 			if ("/testdomain/token_keys".equals(request.getPath())) {
 				return getResponseFromFile("/mock/testdomain_token_keys.json", HttpStatus.OK);
