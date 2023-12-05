@@ -24,6 +24,12 @@ import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConst
  */
 class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
     public static final Logger LOGGER = LoggerFactory.getLogger(XsuaaJwtSignatureValidator.class);
+
+    /*
+     * The following list of factories brings backward-compatibility for test credentials in consumer applications written before 2.17.0 that are used to validate java-security-test tokens.
+     * This is necessary to construct the correct JKU when 'localhost' without port is defined as uaadomain in the service credentials.
+     * Implementations of this interface absolutely MUST NOT be supplied outside test scope and MUST NOT be used for any other purpose to preserve application security.
+     */
     List<XsuaaJkuFactory> jkuFactories = new ArrayList<XsuaaJkuFactory>() {
         {
             try {
