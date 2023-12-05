@@ -1,6 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.3.1
+✅ Resolves a Breaking Change introduced in version 3.3.0. Consumers should be able to update to 3.3.1 from a version < 3.3.0 without having to adjust test credentials used in their unit tests when using `java-security-test` or `spring-xsuaa-mock`.
+
+In version 3.3.1, when `java-security-test` or `spring-xsuaa-mock` are loaded (which should only occur during testing), credentials with `localhost` as the `uaadomain` (XSUAA) or trusted `domains` (IAS) can be used to validate tokens that include a port for `localhost` in their `jku` (XSUAA) or `issuer` (IAS). It's important to note that token validation is less strict in this case and may accept certain edge cases of malicious tokens that would not be accepted in a production environment.
+
+#### Dependency upgrades
+- Bump spring.boot.version from 3.1.5 to 3.1.6
+- Bump spring.core.version from 6.0.13 to 6.0.14
+- Bump spring.security.version from 6.1.5 to 6.2.0
+- Bump apache.httpclient5.version from 5.2.1 to 5.2.3
+- Bump wiremock.version from 3.0.0-beta-10 to 3.3.1 and replace org.wiremock.wiremock-standalone with com.github.tomakehurst.wiremock
+- Bump logback-core, logback-classic from 1.4.6 to 1.4.14
+
 ## 3.3.0
 **Breaking Change [java-security-test]**: To validate mocked XSUAA tokens issued by java-security-test module, the UAA_DOMAIN property of the service configuration must now include the port of the Wiremock server.\
 Likewise for validating IAS tokens, the trusted *domains* array of the service configuration also needs to include the Wiremock URL including the port.\
