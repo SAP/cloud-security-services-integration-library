@@ -2,10 +2,12 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.17.2
-✅ Resolve Breaking Change introduced in 2.17.0. Consumers should be able to update to 2.17.2 from a version <= 2.16.0 without having to adjust test credentials used in their unit tests when using java-security-test or spring-xsuaa-mock.
+✅ Resolves a Breaking Change introduced in version 2.17.0. Consumers should be able to update to 2.17.2 from a version <= 2.16.0 without having to adjust test credentials used in their unit tests when using `java-security-test` or `spring-xsuaa-mock`.
 
-In version 2.17.2, when java-security-test or spring-xsuaa-mock are loaded (which MUST only be the case during _test_ scope), credentials with 'localhost' used as _uaadomain_ (XSUAA) or as trusted _domains_ (IAS), work again for validating tokens whose _jku_ (XSUAA) or _issuer_ (IAS) include a port for localhost.
-Please note that the validation of tokens is less strict in this case and might accept edge-cases of malicious tokens that would not be accepted when java-security-test or spring-xsuaa-mock are not loaded.
+In version 2.17.2, when `java-security-test` or `spring-xsuaa-mock` are loaded (which should only occur during testing), credentials with `localhost` as the `uaadomain` (XSUAA) or trusted `domains` (IAS) can be used to validate tokens that include a port for `localhost` in their `jku` (XSUAA) or `issuer` (IAS). It's important to note that token validation is less strict in this case and may accept certain edge cases of malicious tokens that would not be accepted in a production environment.
+
+#### Dependency upgrades
+- Bump logback-core, logback-classic from 1.2.12 to 1.2.13
 
 ## 2.17.1
 #### Dependency upgrades
