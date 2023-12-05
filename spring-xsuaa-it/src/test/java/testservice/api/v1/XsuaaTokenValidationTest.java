@@ -39,9 +39,8 @@ class XsuaaTokenValidationTest extends MockXsuaaServerConfiguration {
 
 	@Test
 	void testToken_testdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
-				"testdomain", "tenant", null))))
-		 .andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt","testdomain"))))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
@@ -60,7 +59,7 @@ class XsuaaTokenValidationTest extends MockXsuaaServerConfiguration {
 	void test_clientcredentialstoken() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
-						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
+						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa",	"legacy-token-key"))))
 				.andExpect(status().isOk()).andExpect(
 						content().string(containsString(".ewogICJqdGkiOiAiOGU3YjNiMDAtNzc1MS00YjQ2LTliMWEtNWE0NmEyY")));
 	}
