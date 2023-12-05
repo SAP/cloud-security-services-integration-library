@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.17.2
+✅ Resolve Breaking Change introduced in 2.17.0. Consumers should be able to update to 2.17.2 from a version <= 2.16.0 without having to adjust test credentials used in their unit tests when using java-security-test or spring-xsuaa-mock.
+
+In version 2.17.2, when java-security-test or spring-xsuaa-mock are loaded (which MUST only be the case during _test_ scope), credentials with 'localhost' used as _uaadomain_ (XSUAA) or as trusted _domains_ (IAS), work again for validating tokens whose _jku_ (XSUAA) or _issuer_ (IAS) include a port for localhost.
+Please note that the validation of tokens is less strict in this case and might accept edge-cases of malicious tokens that would not be accepted when java-security-test or spring-xsuaa-mock are not loaded.
+
 ## 2.17.1
 #### Dependency upgrades
 - Bump spring.boot.version from 2.7.17 to 2.7.18
