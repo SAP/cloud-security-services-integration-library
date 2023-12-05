@@ -3,7 +3,7 @@ package com.sap.cloud.security.xsuaa.token;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.sap.cloud.security.token.TokenHeader;
-import com.sap.cloud.security.token.XsuaaJkuFactory;
+import com.sap.cloud.security.token.validation.XsuaaJkuFactory;
 
 import java.text.ParseException;
 
