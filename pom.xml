@@ -62,6 +62,7 @@
 		<spring.security.version>6.2.0</spring.security.version>
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
+		<org.eclipse.jetty.version>11.0.18</org.eclipse.jetty.version>
 		<reactor.version>3.5.11</reactor.version>
 		<log4j2.version>2.21.1</log4j2.version>
 		<slf4j.api.version>2.0.9</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
@@ -194,6 +195,13 @@
 					<artifactId>spring-aop</artifactId>
 				</exclusion>
 			</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-bom</artifactId>
+				<version>${org.eclipse.jetty.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>javax.annotation</groupId>
