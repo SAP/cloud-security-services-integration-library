@@ -7,6 +7,7 @@ package com.sap.cloud.security.token.validation;
  */
 public class LocalhostIssuerValidator implements TestIssuerValidator {
 
+    @Override
     public boolean isValidIssuer(String issuer) {
         return issuer.startsWith("http://localhost") || issuer.startsWith("https://localhost");
     }
