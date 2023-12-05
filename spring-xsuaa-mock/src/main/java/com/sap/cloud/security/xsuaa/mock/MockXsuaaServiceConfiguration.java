@@ -5,9 +5,8 @@
  */
 package com.sap.cloud.security.xsuaa.mock;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
+import org.springframework.beans.factory.annotation.Value;
 
 public class MockXsuaaServiceConfiguration extends XsuaaServiceConfigurationDefault {
 
@@ -17,7 +16,7 @@ public class MockXsuaaServiceConfiguration extends XsuaaServiceConfigurationDefa
 	@Override
 	public String getUaaDomain() {
 		if (!mockXsuaaServerUrl.isEmpty()) {
-			return "localhost";
+			return mockXsuaaServerUrl;
 		}
 		return super.getUaaDomain();
 	}

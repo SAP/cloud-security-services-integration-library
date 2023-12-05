@@ -64,7 +64,7 @@ public class XsuaaJwtDecoderTest {
 
 	@Test
 	public void postValidationActionIsNotExecutedIfFail() {
-		String jwt = new JwtGenerator(clientId, "subdomain", "tenant").deriveAudiences(true)
+		String jwt = new JwtGenerator(clientId, "subdomain").deriveAudiences(true)
 				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
 		try {
 			jwtDecoderWithPostAction.decode(jwt);

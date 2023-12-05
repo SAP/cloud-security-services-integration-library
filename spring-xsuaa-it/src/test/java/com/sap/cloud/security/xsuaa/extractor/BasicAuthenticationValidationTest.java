@@ -95,7 +95,7 @@ public class BasicAuthenticationValidationTest {
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
-		private String token;
+		private final String token;
 
 		public BearerTokenRequestPostProcessor(String token) {
 			this.token = token;
@@ -109,7 +109,7 @@ public class BasicAuthenticationValidationTest {
 	}
 
 	private static class BasicTokenRequestPostProcessor implements RequestPostProcessor {
-		private String token;
+		private final String token;
 
 		public BasicTokenRequestPostProcessor(String username, String password) {
 			this.token = Base64.getEncoder().encodeToString((username + ":" + password).getBytes());

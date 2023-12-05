@@ -37,38 +37,36 @@ public class XsuaaTokenValidationTest {
 	MockMvc mvc;
 
 	@Test
-	void testToken_testdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
-				"testdomain", "tenant", null))))
+	public void testToken_testdomain() throws Exception {
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
+				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "testdomain"))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
-	void testToken_otherdomain() throws Exception {
-		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt",
-				"otherdomain", "othertenant", null))))
+	public void testToken_otherdomain() throws Exception {
+		this.mvc.perform(get("/user").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
 				.andExpect(status().isOk()).andExpect(content().string(containsString("user:Mustermann")));
 	}
 
 	@Test
-	void test_Scope() throws Exception {
-		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt",
-				"otherdomain", "othertenant", null))))
+	public void test_Scope() throws Exception {
+		this.mvc.perform(get("/scope").with(bearerToken(JWTUtil.createJWT("/saml.txt", "otherdomain"))))
 				.andExpect(status().isOk());
 	}
 
 	@Test
-	void test_clientcredentialstoken() throws Exception {
+	public void test_clientcredentialstoken() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
-						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa",
-								"legacy-token-key"))))
+						.with(bearerToken(JWTUtil.createJWT("/saml.txt", "uaa", "legacy-token-key"))))
 				.andExpect(status().isOk()).andExpect(
 						content().string(containsString(".ewogICJqdGkiOiAiOGU3YjNiMDAtNzc1MS00YjQ2LTliMWEtNWE0NmEyY")));
 	}
 
 	@Test
-	void test_insufficientScopedToken_isUnauthorized() throws Exception {
+	public void test_insufficientScopedToken_isUnauthorized() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
 						.with(bearerToken(
@@ -77,7 +75,7 @@ public class XsuaaTokenValidationTest {
 	}
 
 	@Test
-	void test_expiredToken_isUnauthorized() throws Exception {
+	public void test_expiredToken_isUnauthorized() throws Exception {
 		this.mvc.perform(
 				get("/clientCredentialsToken")
 						.with(bearerToken(JWTUtil.createJWT("/expired.txt", "uaa", "legacy-token-key"))))
@@ -85,7 +83,7 @@ public class XsuaaTokenValidationTest {
 	}
 
 	private static class BearerTokenRequestPostProcessor implements RequestPostProcessor {
-		private String token;
+		private final String token;
 
 		public BearerTokenRequestPostProcessor(String token) {
 			this.token = token;

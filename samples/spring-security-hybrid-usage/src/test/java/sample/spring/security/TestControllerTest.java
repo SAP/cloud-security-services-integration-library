@@ -6,6 +6,7 @@
 package sample.spring.security;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.test.SecurityTestRule;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -35,7 +36,7 @@ public class TestControllerTest {
     private String jwtIas;
 
     @ClassRule
-    public static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA).setPort(2223);
+    public static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA);
     @ClassRule
     public static SecurityTestRule ruleIas = SecurityTestRule.getInstance(Service.IAS);
 
@@ -64,8 +65,8 @@ public class TestControllerTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        assertTrue(response.contains("sb-clientId!t0815"));
-        assertTrue(response.contains("the-zone-id"));
+        assertTrue(response.contains(SecurityTestRule.DEFAULT_CLIENT_ID));
+        assertTrue(response.contains(JwtGenerator.DEFAULT_APP_TID));
     }
 
     @Test
@@ -80,7 +81,7 @@ public class TestControllerTest {
                 .perform(get("/method").with(bearerToken(jwtIas)))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
-        assertTrue(response.contains("You got the sensitive data for zone 'the-zone-id'."));
+        assertTrue(response.contains("You got the sensitive data for zone 'the-app-tid'."));
     }
 
     @Test

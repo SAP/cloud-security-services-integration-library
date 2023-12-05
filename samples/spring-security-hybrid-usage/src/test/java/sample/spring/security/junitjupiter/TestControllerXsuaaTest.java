@@ -6,6 +6,9 @@
 package sample.spring.security.junitjupiter;
 
 import com.sap.cloud.security.test.api.SecurityTestContext;
+import com.sap.cloud.security.test.extension.XsuaaExtension;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenHeader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +25,7 @@ import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.be
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ExtendWith(XsuaaExtensionFixedPort.class)
+@ExtendWith(XsuaaExtension.class)
 @ActiveProfiles("multixsuaa") // properties are provided with /resources/application-multixsuaa.yml
 class TestControllerXsuaaTest {
 
@@ -75,6 +78,17 @@ class TestControllerXsuaaTest {
 
 		mvc.perform(get("/method").with(bearerToken(jwtNoScopes)))
 				.andExpect(status().isForbidden());
+	}
+
+	/**
+	 * Ensures that tokens with a JKU whose domain differs from the {@link com.sap.cloud.security.config.cf.CFConstants.XSUAA#UAA_DOMAIN} in the credentials are still not trusted,
+	 * even when java-security-test supplies {@link com.sap.cloud.security.token.validation.XsuaaJkuFactory}, which trusts JKUs from tokens targeting localhost.
+	 */
+	@Test
+	void acceptsOnlyLocalhostJku(SecurityTestContext securityTest) throws Exception {
+		Token jwt = securityTest.getPreconfiguredJwtGenerator().withLocalScopes("Read").withHeaderParameter(TokenHeader.JWKS_URL, "https://auth.google.com").createToken();
+
+		mvc.perform(get("/sayHello").with(bearerToken(jwt.getTokenValue()))).andExpect(status().isUnauthorized());
 	}
 }
 
