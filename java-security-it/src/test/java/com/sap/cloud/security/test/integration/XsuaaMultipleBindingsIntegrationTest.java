@@ -8,7 +8,6 @@ package com.sap.cloud.security.test.integration;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
@@ -16,7 +15,6 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,16 +31,8 @@ public class XsuaaMultipleBindingsIntegrationTest {
 	public void createToken_integrationTest_tokenValidation() {
 		Token token = rule.getPreconfiguredJwtGenerator().createToken();
 		OAuth2ServiceConfiguration configuration = Environments.readFromInput(XsuaaMultipleBindingsIntegrationTest.class.getResourceAsStream("/vcap_services-multiple.json")).getXsuaaConfiguration();
-		OAuth2ServiceConfiguration mockConfig = Mockito.mock(OAuth2ServiceConfiguration.class);
-		Mockito.when(mockConfig.getClientId()).thenReturn(configuration.getClientId());
-		Mockito.when(mockConfig.getDomains()).thenReturn(configuration.getDomains());
-		Mockito.when(mockConfig.getUrl()).thenReturn(configuration.getUrl());
-		Mockito.when(mockConfig.hasProperty(ServiceConstants.XSUAA.APP_ID)).thenReturn(configuration.hasProperty(ServiceConstants.XSUAA.APP_ID));
-		Mockito.when(mockConfig.getProperty(ServiceConstants.XSUAA.APP_ID)).thenReturn(configuration.getProperty(ServiceConstants.XSUAA.APP_ID));
-		Mockito.when(mockConfig.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN)).thenReturn(rule.getWireMockServer().baseUrl());
-		Mockito.when(mockConfig.getService()).thenReturn(configuration.getService());
 
-		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(mockConfig).build();
+		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();
