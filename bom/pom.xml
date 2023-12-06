@@ -49,8 +49,8 @@
     </distributionManagement>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <xsuaa-groupId>com.sap.cloud.security.xsuaa</xsuaa-groupId>
         <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
     </properties>
