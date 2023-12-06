@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 ## 3.3.1
 ✅ Resolves a Breaking Change introduced in version 3.3.0. Consumers should be able to update to 3.3.1 from a version < 3.3.0 without having to adjust test credentials used in their unit tests when using `java-security-test` or `spring-xsuaa-mock`.
 
-In version 3.3.1, when `java-security-test` or `spring-xsuaa-mock` are loaded (which should only occur during testing), credentials with `localhost` as the `uaadomain` (XSUAA) or trusted `domains` (IAS) can be used to validate tokens that include a port for `localhost` in their `jku` (XSUAA) or `issuer` (IAS). It's important to note that token validation is less strict in this case and may accept certain edge cases of malicious tokens that would not be accepted in a production environment.
+In version 3.3.1, when `java-security-test` is loaded (which should only occur during testing), credentials with `localhost` as the `uaadomain` (XSUAA) or trusted `domains` (IAS) can be used to validate tokens that include a port for `localhost` in their `jku` (XSUAA) or `issuer` (IAS). It's important to note that token validation is less strict in this case and may accept certain edge cases of malicious tokens that would not be accepted in a production environment.
 
 #### Dependency upgrades
 - Bump spring.boot.version from 3.1.5 to 3.1.6
