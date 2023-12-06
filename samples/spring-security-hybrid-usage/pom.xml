@@ -10,13 +10,13 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.4</version>
+		<version>3.1.5</version>
 		<relativePath/>
 	</parent>
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-hybrid-usage</artifactId>
-	<version>3.2.1</version>
+	<version>3.3.1</version>
 
 	<properties>
 		<!-- 
@@ -28,7 +28,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.2.1</sap.cloud.security.version>
+		<sap.cloud.security.version>3.3.1</sap.cloud.security.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 	</properties>
 
@@ -113,7 +113,7 @@
 			<plugin>
 				<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 				<artifactId>dependency-check-maven</artifactId>
-				<version>5.3.2</version>
+				<version>9.0.2</version>
 				<executions>
 					<execution>
 						<goals>

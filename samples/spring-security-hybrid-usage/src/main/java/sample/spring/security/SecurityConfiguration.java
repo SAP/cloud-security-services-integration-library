@@ -41,17 +41,17 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off
-        http.sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
+        http
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz ->
                         authz.requestMatchers("/sayHello").hasAuthority("Read")
                                 .requestMatchers("/comp/sayHello").hasAuthority("Read")
                                 .requestMatchers("/*").authenticated()
                                 .anyRequest().denyAll())
-                .oauth2ResourceServer()
-                .jwt()
-                .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()); // Adjust the converter to represent your use case
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()))); // Adjust the converter to represent your use case
                                             // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
                                             // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
         // @formatter:on

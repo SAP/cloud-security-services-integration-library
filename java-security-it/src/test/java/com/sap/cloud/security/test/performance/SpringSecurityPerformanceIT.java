@@ -5,22 +5,17 @@
  */
 package com.sap.cloud.security.test.performance;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.performance.util.BenchmarkUtil;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
@@ -57,7 +52,7 @@ class SpringSecurityPerformanceIT {
 		assertThat(jwtDecoder.decode(token)).isNotNull();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> jwtDecoder.decode(token));
-		LOGGER.info("Online validation result (xsuaa): {}", result.toString());
+		LOGGER.info("Online validation result (xsuaa): {}", result);
 	}
 
 	@Test
@@ -67,34 +62,13 @@ class SpringSecurityPerformanceIT {
 		assertThat(jwtDecoder.decode(token)).isNotNull();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> jwtDecoder.decode(token));
-		LOGGER.info("Online validation result (identity): {}", result.toString());
-	}
-
-	// @Test
-	void offlineValidation() throws Exception {
-		String token = securityTest.createToken().getTokenValue();
-		JwtDecoder jwtDecoder = createOfflineJwtDecoder();
-		assertThat(jwtDecoder.decode(token)).isNotNull();
-
-		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> jwtDecoder.decode(token));
-		LOGGER.info("Offline validation result: {}", result.toString());
+		LOGGER.info("Online validation result (identity): {}", result);
 	}
 
 	private JwtDecoder createOnlineJwtDecoder() {
 		return new JwtDecoderBuilder()
 				.withIasServiceConfiguration(createIasConfigurationBuilder().build())
 				.withXsuaaServiceConfiguration(createXsuaaConfigurationBuilder().build()).build();
-	}
-
-	private JwtDecoder createOfflineJwtDecoder() throws IOException {
-		final String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8)
-				.replace("\n", "");
-		OAuth2ServiceConfiguration configuration = createXsuaaConfigurationBuilder()
-				.withProperty("verificationkey", publicKey)
-				.build();
-		return new JwtDecoderBuilder()
-				.withIasServiceConfiguration(createIasConfigurationBuilder().build())
-				.withXsuaaServiceConfiguration(configuration).build();
 	}
 
 	private OAuth2ServiceConfigurationBuilder createXsuaaConfigurationBuilder() {

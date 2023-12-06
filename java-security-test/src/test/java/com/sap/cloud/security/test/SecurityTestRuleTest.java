@@ -131,7 +131,7 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void getJwtGeneratorFromFile_setsTestingDefaults() throws IOException {
+	public void getJwtGeneratorFromFile_setsTestingDefaults() {
 		Token token = cut.getJwtGeneratorFromFile("/token.json").createToken();
 
 		String baseUrl = cut.base.wireMockServer.baseUrl();

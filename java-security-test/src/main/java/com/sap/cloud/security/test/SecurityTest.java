@@ -11,6 +11,7 @@ import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceBindingMapper;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
@@ -60,6 +61,7 @@ public class SecurityTest
 	public static final String DEFAULT_APP_ID = "xsapp!t0815";
 	public static final String DEFAULT_CLIENT_ID = "sb-clientId!t0815";
 	public static final String DEFAULT_DOMAIN = "localhost";
+	public static final String DEFAULT_UAA_DOMAIN = "http://localhost";
 	public static final String DEFAULT_URL = "http://localhost";
 
 	protected static final String LOCALHOST_PATTERN = "http://localhost:%d";
@@ -84,18 +86,18 @@ public class SecurityTest
 		this.service = service;
 		this.keys = RSAKeys.generate();
 		this.wireMockServer = new WireMockServer(options().dynamicPort());
-		this.applicationServerOptions = ApplicationServerOptions.forService(service);
 	}
 
 	@Override
 	public SecurityTest useApplicationServer() {
-		return useApplicationServer(ApplicationServerOptions.forService(service));
+		this.useApplicationServer = true;
+		return this;
 	}
 
 	@Override
 	public SecurityTest useApplicationServer(ApplicationServerOptions applicationServerOptions) {
 		this.applicationServerOptions = applicationServerOptions;
-		useApplicationServer = true;
+		this.useApplicationServer = true;
 		return this;
 	}
 
@@ -185,11 +187,15 @@ public class SecurityTest
 			LOGGER.warn("More than one OAuth2 service binding found in resource. Using configuration of first one!");
 		}
 
-		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper
-				.mapToOAuth2ServiceConfigurationBuilder(serviceBindings.get(0));
+		ServiceBinding binding = serviceBindings.get(0);
+		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(binding);
 		if (builder != null) {
 			// adjust domain and URL of the config to fit the mocked service instance
 			builder = builder.withDomains(URI.create(issuerUrl).getHost()).withUrl(issuerUrl);
+
+			if(Objects.equals(Service.from(binding.getServiceName().get()), XSUAA)) {
+				builder.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, wireMockServer.baseUrl());
+			}
 		}
 
 		return builder;
@@ -266,18 +272,21 @@ public class SecurityTest
 	 *             if the stub cannot be initialized
 	 */
 	public void setup() throws Exception {
-		if (useApplicationServer && (applicationServer == null || !applicationServer.isStarted())) {
-			startApplicationServer();
-		}
 		if (!wireMockServer.isRunning()) {
 			wireMockServer.start();
 		} else {
 			wireMockServer.resetAll();
 		}
+		if (useApplicationServer && (applicationServer == null || !applicationServer.isStarted())) {
+			if (applicationServerOptions == null){
+				this.applicationServerOptions = ApplicationServerOptions.forService(service, wireMockServer.port());
+			}
+			startApplicationServer();
+		}
 		// TODO return JSON Media type
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				String.format(LOCALHOST_PATTERN, wireMockServer.port()), null);
-		wireMockServer.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
+		wireMockServer.stubFor(get(urlPathEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())
 						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));
 		wireMockServer.stubFor(get(urlEqualTo(DISCOVERY_ENDPOINT_DEFAULT))
