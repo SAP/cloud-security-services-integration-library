@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -190,7 +191,7 @@ public class SecurityTest
 		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper.mapToOAuth2ServiceConfigurationBuilder(binding);
 		if (builder != null) {
 			// adjust domain and URL of the config to fit the mocked service instance
-			builder = builder.withDomains(issuerUrl).withUrl(issuerUrl);
+			builder = builder.withDomains(URI.create(issuerUrl).getHost()).withUrl(issuerUrl);
 
 			if(Objects.equals(Service.from(binding.getServiceName().get()), XSUAA)) {
 				builder.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, wireMockServer.baseUrl());
