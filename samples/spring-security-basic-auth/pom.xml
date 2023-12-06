@@ -13,14 +13,14 @@
 	</parent>
 
 	<artifactId>spring-security-basic-auth</artifactId>
-	<version>3.3.0</version>
+	<version>3.3.1</version>
 	<name>spring-security-basic-auth</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.3.0</sap.cloud.security.version>
+		<sap.cloud.security.version>3.3.1</sap.cloud.security.version>
 	</properties>
 
 	<dependencyManagement>
@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security-test</artifactId>
-			<version>3.3.0</version>
+			<version>3.3.1</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
