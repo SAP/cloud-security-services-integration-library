@@ -21,7 +21,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
-import static com.sap.cloud.security.test.SecurityTest.*;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,10 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {
-        "xsuaa.uaadomain=" + DEFAULT_UAA_DOMAIN + ":2225",
-        "xsuaa.xsappname=" + DEFAULT_APP_ID,
-        "xsuaa.clientid=" + DEFAULT_CLIENT_ID })
+@TestPropertySource(properties = {"xsuaa.uaadomain=localhost", "xsuaa.xsappname=xsapp!t0815", "xsuaa.clientid=sb-clientId!t0815"})
 public class TestControllerTest {
 
     @Autowired
@@ -43,7 +39,7 @@ public class TestControllerTest {
     private String jwtAdmin;
 
     @ClassRule
-    public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA).setPort(2225);
+    public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA);
 
     @Before
     public void setUp() {

@@ -3,6 +3,9 @@
 ---
 name: Maven Build main
 
+env:
+  NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
 on:
   push:
     branches: [ main ]

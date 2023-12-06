@@ -62,7 +62,7 @@ class XsuaaJwtDecoderTest extends MockXsuaaServerConfiguration {
 	@Test
 	void postValidationActionIsNotExecutedIfFail() {
 		String jwt = new JwtGenerator(clientId, "subdomain", "tenant").deriveAudiences(true)
-				.setJwtHeaderKeyId("legacy-token-key").setJku(null).getToken().getTokenValue();
+				.setJwtHeaderKeyId("invalid-key-id").getToken().getTokenValue();
 		try {
 			jwtDecoderWithPostAction.decode(jwt);
 			fail();
