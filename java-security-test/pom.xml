@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.2.1</version>
+		<version>3.3.1</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
@@ -66,8 +66,8 @@
 			<artifactId>jetty-util</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.github.tomakehurst</groupId>
-			<artifactId>wiremock</artifactId>
+			<groupId>org.wiremock</groupId>
+			<artifactId>wiremock-standalone</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spotbugs</groupId>

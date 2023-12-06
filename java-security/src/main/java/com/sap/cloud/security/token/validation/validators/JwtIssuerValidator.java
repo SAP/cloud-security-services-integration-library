@@ -6,16 +6,21 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.validation.TestIssuerValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
+import java.util.ServiceConfigurationError;
+import java.util.ServiceLoader;
+import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
@@ -36,8 +41,36 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
  * These checks are a prerequisite for using the `JwtSignatureValidator`.
  */
 class JwtIssuerValidator implements Validator<Token> {
+	protected static final Logger LOGGER = LoggerFactory.getLogger(JwtIssuerValidator.class);
+
+	/*
+	 * The following validator brings backward-compatibility for test credentials in consumer applications written before 2.17.0 that are used to validate java-security-test tokens.
+	 * This is necessary for successful validation of localhost issuers that include a port when 'localhost' is defined as trusted domain without port in the service credentials.
+	 * Implementations of this interface absolutely MUST NOT be supplied outside test scope and MUST NOT be used for any other purpose to preserve application security.
+	 */
+	static TestIssuerValidator localhostIssuerValidator;
+	static {
+		tryLoadingLocalhostIssuerValidator();
+	}
+
+	private static void tryLoadingLocalhostIssuerValidator() {
+		ServiceLoader<TestIssuerValidator> validators;
+		try {
+			validators = ServiceLoader.load(TestIssuerValidator.class);
+		} catch (Exception | ServiceConfigurationError e) {
+			LOGGER.warn("Unexpected failure while loading TestIssuerValidator service providers: {}", e.getMessage());
+			return;
+		}
+
+		for (TestIssuerValidator v : validators) {
+			localhostIssuerValidator = v;
+			break;
+		}
+		LOGGER.debug("loaded TestIssuerValidator service providers: {}. Using first one: {}.", validators, localhostIssuerValidator);
+	}
+
+	protected static final String HTTPS_SCHEME = "https://";
 	private final List<String> domains;
-	protected final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
 	 * Creates instance of Issuer validation using the given domains provided by the
@@ -54,55 +87,40 @@ class JwtIssuerValidator implements Validator<Token> {
 
 	@Override
 	public ValidationResult validate(Token token) {
-		String issuer = token.getIssuer();
-		if (token.getService().equals(Service.IAS) && !issuer.startsWith("http")) {
-			issuer = "https://" + issuer;
-		}
-		ValidationResult validationResult = validateUrl(issuer);
-		if (validationResult.isErroneous()) {
-			return validationResult;
-		}
-		return matchesTokenIssuerUrl(issuer);
-	}
+		String issuer;
 
-	private ValidationResult matchesTokenIssuerUrl(String issuer) {
-		URI issuerUri = URI.create(issuer);
-		if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {
-			for (String d : domains) {
-				if (issuerUri.getHost().endsWith(d)) {
-					return createValid();
-				}
-			}
-		}
-		return createInvalid(
-				"Issuer is not trusted because issuer '{}' doesn't match any of these domains '{}' of the identity provider.",
-				issuer, domains);
-	}
-
-	private ValidationResult validateUrl(String issuer) {
-		URI issuerUri;
 		try {
-			if (issuer == null || issuer.trim().isEmpty()) {
-				return createInvalid(
-						"Issuer validation can not be performed because Jwt token does not contain an issuer claim.");
-			}
-			if (!issuer.startsWith("http")) {
-				return createInvalid(
-						"Issuer is not trusted because issuer '{}' does not provide a valid URI (missing http scheme). Please contact your Identity Provider Administrator.",
-						issuer);
-			}
-			issuerUri = new URI(issuer);
-			if (issuerUri.getQuery() == null && issuerUri.getFragment() == null && issuerUri.getHost() != null) {
+			issuer = token.getIssuer();
+		} catch(JsonParsingException e) {
+			return createInvalid("Issuer validation can not be performed because token issuer claim was not a String value.");
+		}
+
+		if (issuer == null || issuer.isBlank()) {
+			return createInvalid("Issuer validation can not be performed because token does not contain an issuer claim.");
+		}
+
+		String issuerUrl = issuer.startsWith(HTTPS_SCHEME) || issuer.startsWith("http://localhost") ? issuer : HTTPS_SCHEME + issuer;
+
+		try {
+			new URL(issuerUrl);
+		} catch (MalformedURLException e) {
+			return createInvalid("Issuer validation can not be performed because token issuer is not a valid URL suitable for https.");
+		}
+
+		String issuerDomain = issuerUrl.substring(issuerUrl.indexOf("://") + 3); // issuerUrl was validated above to begin either with http:// or https://
+		for(String d : domains) {
+			// a string that ends with .<trustedDomain> and contains 1-63 letters, digits or '-' before that for the subdomain
+			String validSubdomainPattern = String.format("^[a-zA-Z0-9-]{1,63}\\.%s$", Pattern.quote(d));
+			if(Objects.equals(d, issuerDomain) || issuerDomain.matches(validSubdomainPattern)) {
 				return createValid();
 			}
-		} catch (URISyntaxException e) {
-			logger.error(
-					"Error: issuer claim '{}' does not provide a valid URI: {}. Please contact your Identity Provider Administrator.",
-					issuer, e.getMessage(), e);
-		}
-		return createInvalid(
-				"Issuer is not trusted because issuer does not provide a valid URI. Please contact your Identity Provider Administrator.",
-				issuer);
-	}
 
+			if("localhost".equals(d) && localhostIssuerValidator != null && localhostIssuerValidator.isValidIssuer(issuer)) {
+				LOGGER.debug("Accepting {} as valid issuer on trusted domain 'localhost' for backward-compatibility with java-security-test.", issuer);
+				return createValid();
+			}
+		}
+
+		return createInvalid("Issuer {} was not a trusted domain or a subdomain of the trusted domains {}.", issuer, domains);
+	}
 }

@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
-import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_DOMAIN;
+import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_UAA_DOMAIN;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -51,7 +51,7 @@ public class XsuaaIntegrationTest {
 	}
 
 	@Test
-	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
+	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() {
 		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
 				"/xsa-simple/vcap_services-single.json")
 				.runInLegacyMode(true)
@@ -83,7 +83,7 @@ public class XsuaaIntegrationTest {
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isFalse();
 		assertThat(result.getErrorDescription()).startsWith(
-				"Issuer is not trusted because issuer 'http://auth.com' doesn't match any of these domains '[myauth.com]' of the identity provider");
+				"Issuer http://auth.com was not a trusted domain or a subdomain of the trusted domains [myauth.com].");
 	}
 
 	@Test
@@ -105,7 +105,7 @@ public class XsuaaIntegrationTest {
 		String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8);
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(XSUAA)
-				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, DEFAULT_DOMAIN)
+				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, DEFAULT_UAA_DOMAIN)
 				.withClientId(DEFAULT_CLIENT_ID)
 				.withProperty(VERIFICATION_KEY, publicKey)
 				.build();

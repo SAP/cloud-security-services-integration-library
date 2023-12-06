@@ -40,7 +40,7 @@ It is pre-configured with a security filter that only accepts valid tokens. Furt
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>3.2.1</version>
+    <version>3.3.1</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -66,7 +66,7 @@ import static com.sap.cloud.security.test.SecurityTest.*;
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = { 
-		"xsuaa.uaadomain=" + DEFAULT_DOMAIN, 
+		"xsuaa.uaadomain=" + DEFAULT_UAA_DOMAIN, 
 		"xsuaa.xsappname=" + DEFAULT_APP_ID,
 		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
 @ExtendWith(XsuaaExtension.class)

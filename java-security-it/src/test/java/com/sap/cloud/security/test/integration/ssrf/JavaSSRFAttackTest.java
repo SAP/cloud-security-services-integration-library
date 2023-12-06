@@ -5,13 +5,9 @@
  */
 package com.sap.cloud.security.test.integration.ssrf;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
-
-import java.io.IOException;
-
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.RSAKeys;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenHeader;
@@ -27,6 +23,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
 
 /**
  * Test cases for <a href=
@@ -55,16 +58,24 @@ class JavaSSRFAttackTest {
 	@ParameterizedTest
 	@CsvSource({
 			"http://localhost:4242/token_keys,											true",
-			"http://localhost:4242/token_keys@malicious.ondemand.com/token_keys,		false",
-			"http://user@localhost:4242/token_keys,										true", // user info in URI is deprecated by Apache HttpClient 5, but working in HttpClient 4.x.x
-			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
+			"http://malicious.ondemand.com@localhost:4242/token_keys,					true"
 	})
-	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException {
-		OAuth2ServiceConfigurationBuilder configuration = extension.getContext()
-				.getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json");
-		Token token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
-				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
-				.createToken();
+	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid)
+			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		OAuth2ServiceConfigurationBuilder configuration =
+				extension.getContext().getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json");
+
+		Token token;
+		if (isValid) {
+			token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.createToken();
+		} else {
+			token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.withPrivateKey(RSAKeys.loadPrivateKey("/random_private_key.txt"))
+					.createToken();
+		}
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder
 				.getInstance(configuration.build())
 				.withHttpClient(httpClient)
