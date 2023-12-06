@@ -8,7 +8,7 @@
 
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-bom</artifactId>
-    <version>3.3.0</version>
+    <version>3.3.1</version>
     <packaging>pom</packaging>
     <name>java-bom</name>
 
@@ -49,10 +49,10 @@
     </distributionManagement>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <xsuaa-groupId>com.sap.cloud.security.xsuaa</xsuaa-groupId>
-        <maven.source.plugin.version>3.3.0</maven.source.plugin.version>
+        <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
     </properties>
 
     <dependencyManagement>

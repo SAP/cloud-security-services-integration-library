@@ -19,20 +19,22 @@ public class XsuaaRequestDispatcher extends Dispatcher {
 	protected static final String RESPONSE_401 = "Xsuaa mock authorization server can't authenticate client/user";
 	protected static final String RESPONSE_500 = "Xsuaa mock authorization server can't process request";
 	protected static final String PATH_TESTDOMAIN_TOKEN_KEYS = "/mockServer/testdomain_token_keys.json";
-	public static final String PATH_OTHER_DOMAIN_TOKEN_KEYS = "/mockServer/otherdomain_token_keys.json";
 	protected static final String PATH_PUBLIC_KEY = "/mockServer/publicKey.txt";
 	protected final Logger logger = LoggerFactory.getLogger(XsuaaRequestDispatcher.class);
-	private static final int callCount = 0;
+	private static int callCount = 0;
 
 	@Override
 	public MockResponse dispatch(RecordedRequest request) {
+		callCount++;
 		// mock JWKS endpoints
-		if ("/token_keys?zid=tenant".equals(request.getPath())) {
-			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-testdomain");
+		if (request.getPath().contains("/token_keys?zid=testdomain")) {
+			String subdomain = "testdomain";
+			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-" + subdomain);
 		}
 
-		if ("/token_keys?zid=othertenant".equals(request.getPath())) {
-			return getResponseFromFile(PATH_OTHER_DOMAIN_TOKEN_KEYS, HttpStatus.OK);
+		if (request.getPath().contains("/token_keys?zid=otherdomain")) {
+			String subdomain = "otherdomain";
+			return getTokenKeyForKeyId(PATH_TESTDOMAIN_TOKEN_KEYS, "legacy-token-key-" + subdomain);
 		}
 
 		if (request.getPath().contains("/token_keys")) {
