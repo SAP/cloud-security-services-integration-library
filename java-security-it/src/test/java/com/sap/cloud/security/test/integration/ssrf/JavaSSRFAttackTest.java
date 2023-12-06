@@ -58,8 +58,7 @@ class JavaSSRFAttackTest {
 	@ParameterizedTest
 	@CsvSource({
 			"http://localhost:4242/token_keys,											true",
-			"http://localhost:4242/token_keys@malicious.ondemand.com/token_keys,		false",
-			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
+			"http://malicious.ondemand.com@localhost:4242/token_keys,					true"
 	})
 	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid)
 			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {

@@ -6,6 +6,7 @@
 package sample.spring.xsuaa.junitjupiter;
 
 import com.sap.cloud.security.test.api.SecurityTestContext;
+import com.sap.cloud.security.test.extension.XsuaaExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,10 +27,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = {
-		"xsuaa.uaadomain=" + DEFAULT_UAA_DOMAIN + ":2224",
+		"xsuaa.uaadomain=" + DEFAULT_UAA_DOMAIN,
 		"xsuaa.xsappname=" + DEFAULT_APP_ID,
 		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
-@ExtendWith(XsuaaExtensionFixedPort.class)
+@ExtendWith(XsuaaExtension.class)
 class TestControllerTest {
 
 	@Autowired

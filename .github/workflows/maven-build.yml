@@ -3,6 +3,9 @@
 ---
 name: Maven Build main
 
+env:
+  NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
 on:
   push:
     branches: [ main ]
@@ -19,6 +22,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - name: mvn cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-owasp-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-owasp-
       - name: Set up JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v2
         with:
