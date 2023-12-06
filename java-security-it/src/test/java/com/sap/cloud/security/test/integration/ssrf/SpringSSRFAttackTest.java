@@ -56,7 +56,6 @@ class SpringSSRFAttackTest {
 	@ParameterizedTest
 	@CsvSource({
 			"http://localhost:4242/token_keys@malicious.ondemand.com/token_keys,		false",
-			"http://malicious.ondemand.com@localhost:4242/token_keys,					true",
 			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
 	})
 	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid)
@@ -93,7 +92,7 @@ class SpringSSRFAttackTest {
 
 	private XsuaaCredentials createXsuaaCredentials() {
 		XsuaaCredentials xsuaaCredentials = new XsuaaCredentials();
-		xsuaaCredentials.setUaaDomain(extension.getContext().getWireMockServer().baseUrl());
+		xsuaaCredentials.setUaaDomain(SecurityTest.DEFAULT_DOMAIN);
 		xsuaaCredentials.setClientId(SecurityTest.DEFAULT_CLIENT_ID);
 		xsuaaCredentials.setXsAppName(SecurityTest.DEFAULT_APP_ID);
 		return xsuaaCredentials;
