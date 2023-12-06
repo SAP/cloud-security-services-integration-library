@@ -398,7 +398,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>8.4.2</version>
+							<version>9.0.2</version>
 							<executions>
 								<execution>
 									<goals>
@@ -412,6 +412,7 @@
 								<failBuildOnCVSS>7</failBuildOnCVSS>
 								<suppressionFile>${project.basedir}/../etc/suppression.xml</suppressionFile>
 								<cveValidForHours>24</cveValidForHours>
+								<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
 							</configuration>
 						</plugin>
 						<plugin>
