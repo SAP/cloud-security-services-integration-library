@@ -73,14 +73,14 @@ class SpringSecurityPerformanceIT {
 
 	private OAuth2ServiceConfigurationBuilder createXsuaaConfigurationBuilder() {
 		return OAuth2ServiceConfigurationBuilder.forService(XSUAA)
-				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, securityTest.getWireMockServer().baseUrl())
+				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, SecurityTest.DEFAULT_DOMAIN)
 				.withProperty(ServiceConstants.XSUAA.APP_ID, SecurityTest.DEFAULT_APP_ID)
 				.withClientId(SecurityTest.DEFAULT_CLIENT_ID);
 	}
 
 	private OAuth2ServiceConfigurationBuilder createIasConfigurationBuilder() {
 		return OAuth2ServiceConfigurationBuilder.forService(IAS)
-				.withDomains(securityIasTest.getWireMockServer().baseUrl())
+				.withDomains(SecurityTest.DEFAULT_DOMAIN)
 				.withClientId(SecurityTest.DEFAULT_CLIENT_ID);
 	}
 }
