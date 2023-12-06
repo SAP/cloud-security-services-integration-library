@@ -8,7 +8,11 @@ package com.sap.cloud.security.xsuaa.token.authentication;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
+import com.sap.cloud.security.config.ServiceConstants;
+import com.sap.cloud.security.token.ProviderNotFoundException;
+import com.sap.cloud.security.token.validation.XsuaaJkuFactory;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
+import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +24,10 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder.JwkSetUriJwtDeco
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestOperations;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import javax.annotation.Nullable;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.ProviderException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
@@ -36,7 +40,18 @@ import static com.sap.cloud.security.xsuaa.token.TokenClaims.CLAIM_KID;
 import static org.springframework.util.StringUtils.hasText;
 
 public class XsuaaJwtDecoder implements JwtDecoder {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	List<XsuaaJkuFactory> jkuFactories = new ArrayList<>() {
+		{
+			try {
+				ServiceLoader.load(XsuaaJkuFactory.class).forEach(this::add);
+				logger.debug("loaded XsuaaJkuFactory service providers: {}", this);
+			} catch (Exception | ServiceConfigurationError e) {
+				logger.warn("Unexpected failure while loading XsuaaJkuFactory service providers: {}", e.getMessage());
+			}
+		}
+	};
+
+	private static final Logger logger = LoggerFactory.getLogger(XsuaaJwtDecoder.class);
 	private final XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	private final Duration cacheValidityInSeconds;
 	private final int cacheSize;
@@ -109,10 +124,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 	private Jwt verifyToken(JWT jwt) {
 		try {
-			String jku = tokenInfoExtractor.getJku(jwt);
 			String kid = tokenInfoExtractor.getKid(jwt);
 			String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
-			return verifyToken(jwt.getParsedString(), jku, kid, uaaDomain);
+			return verifyToken(jwt.getParsedString(), kid, uaaDomain, getZid(jwt));
 		} catch (BadJwtException e) {
 			if (e.getMessage().contains("Couldn't retrieve remote JWK set")
 					|| e.getMessage().contains("Cannot verify with online token key, uaadomain is")) {
@@ -124,10 +138,37 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	private Jwt verifyToken(String token, String jku, String kid, String uaaDomain) {
+	@Nullable
+	private static String getZid(JWT jwt) {
+		String zid;
 		try {
-			canVerifyWithKey(jku, kid, uaaDomain);
-			validateJku(jku, uaaDomain);
+			zid = jwt.getJWTClaimsSet().getStringClaim(
+					TokenClaims.CLAIM_ZONE_ID);
+
+		} catch (ParseException e) {
+			zid =null;
+		}
+		if (zid != null && zid.isBlank()){
+			zid = null;
+		}
+		return zid;
+	}
+
+	private Jwt verifyToken(String token, String kid, String uaaDomain, String zid) {
+		String jku;
+		if (jkuFactories.isEmpty()) {
+			jku = composeJku(uaaDomain, zid);
+		} else {
+			logger.info("Loaded custom JKU factory");
+			try {
+				jku = jkuFactories.get(0).create(token);
+			} catch (IllegalArgumentException | ProviderException | ProviderNotFoundException e) {
+				throw new BadJwtException("JKU validation failed: " + e.getMessage());
+			}
+		}
+
+		try {
+			canVerifyWithKey(kid, jku);
 			return verifyWithKey(token, jku, kid);
 		} catch (JwtValidationException ex) {
 			throw ex;
@@ -136,39 +177,28 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	private void canVerifyWithKey(String jku, String kid, String uaadomain) {
-		if (jku != null && kid != null && uaadomain != null) {
+	private void canVerifyWithKey(String kid, String uaadomain) {
+		if (kid != null && uaadomain != null) {
 			return;
 		}
 		List<String> nullParams = new ArrayList<>();
-		if (jku == null)
-			nullParams.add("jku");
 		if (kid == null)
-			nullParams.add("kid");
+			nullParams.add(CLAIM_KID);
 		if (uaadomain == null)
-			nullParams.add("uaadomain");
+			nullParams.add(ServiceConstants.XSUAA.UAA_DOMAIN);
 
 		throw new BadJwtException(String.format("Cannot verify with online token key, %s is null",
 				String.join(", ", nullParams)));
 	}
 
-	private void validateJku(String jku, String uaadomain) {
-		try {
-			URI jkuUri = new URI(jku);
-			if (jkuUri.getHost() == null) {
-				throw new BadJwtException("JKU of token is not valid");
-			} else if (!jkuUri.getHost().endsWith(uaadomain)) {
-				logger.warn("Error: Do not trust jku '{}' because it does not match uaa domain '{}'.",
-						jku, uaadomain);
-				throw new BadJwtException("Do not trust 'jku' token header.");
-			} else if (!jkuUri.getPath().endsWith("token_keys") || hasText(jkuUri.getQuery())
-					|| hasText(jkuUri.getFragment())) {
-				logger.warn("Error: Do not trust jku '{}' because it contains invalid path, query or fragment.", jku);
-				throw new BadJwtException("Jwt token does not contain a valid 'jku' header parameter: " + jkuUri);
-			}
-		} catch (URISyntaxException e) {
-			throw new BadJwtException("JKU of token header is not valid");
+	private String composeJku(String uaaDomain, String zid) {
+		String zidQueryParam = zid != null ? "?zid=" + zid : "";
+
+		// uaaDomain in configuration is always without a schema, but for testing purpose http schema can be used
+		if (uaaDomain.startsWith("http://")){
+			return uaaDomain + "/token_keys" + zidQueryParam;
 		}
+		return "https://" + uaaDomain + "/token_keys" + zidQueryParam;
 	}
 
 	@java.lang.SuppressWarnings("squid:S2259")

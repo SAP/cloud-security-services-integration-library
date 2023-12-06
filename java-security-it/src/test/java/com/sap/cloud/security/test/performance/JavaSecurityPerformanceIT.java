@@ -58,7 +58,7 @@ class JavaSecurityPerformanceIT {
 		String tokenValue = token.getTokenValue();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> tokenValidator.validate(new XsuaaToken(tokenValue)));
-		LOGGER.info("Online validation result: {}", result.toString());
+		LOGGER.info("Online validation result: {}", result);
 	}
 
 	@Test
@@ -70,7 +70,7 @@ class JavaSecurityPerformanceIT {
 		String tokenValue = token.getTokenValue();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> tokenValidator.validate(new XsuaaToken(tokenValue)));
-		LOGGER.info("Offline validation result: {}", result.toString());
+		LOGGER.info("Offline validation result: {}", result);
 	}
 
 	private CombiningValidator<Token> createOfflineTokenValidator() throws IOException {

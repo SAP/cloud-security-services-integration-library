@@ -7,7 +7,7 @@ import org.springframework.test.context.TestPropertySource;
 import java.io.IOException;
 
 @TestPropertySource(properties = { "xsuaa.xsappname=java-hello-world", "xsuaa.clientid=sb-java-hello-world",
-		"xsuaa.url=http://localhost:33195", "xsuaa.uaadomain=localhost" })
+		"xsuaa.url=http://localhost:33195", "xsuaa.uaadomain=http://localhost:33195" })
 public class MockXsuaaServerConfiguration {
 	private static final int DEFAULT_PORT = 33195;
 	private static MockWebServer server;

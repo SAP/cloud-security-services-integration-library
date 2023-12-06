@@ -6,6 +6,7 @@
 package sample.spring.security;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.test.SecurityTestRule;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -64,8 +65,8 @@ public class TestControllerTest {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        assertTrue(response.contains("sb-clientId!t0815"));
-        assertTrue(response.contains("the-app-tid"));
+        assertTrue(response.contains(SecurityTestRule.DEFAULT_CLIENT_ID));
+        assertTrue(response.contains(JwtGenerator.DEFAULT_APP_TID));
     }
 
     @Test
