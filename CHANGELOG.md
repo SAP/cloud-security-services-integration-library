@@ -15,11 +15,10 @@ In version 3.3.1, when `java-security-test` or `spring-xsuaa-mock` are loaded (w
 - Bump logback-core, logback-classic from 1.4.6 to 1.4.14
 
 ## 3.3.0
-**Breaking Change [java-security-test]**: To validate mocked XSUAA tokens issued by java-security-test module, the UAA_DOMAIN property of the service configuration must now include the port of the Wiremock server.\
-Likewise for validating IAS tokens, the trusted *domains* array of the service configuration also needs to include the Wiremock URL including the port.\
-The full wiremock URL is available via SecurityTestContext#getWireMockServer#baseUrl.
-
-*Note*: If you are building your configuration via SecurityTestContext#getOAuth2ServiceConfigurationBuilderFromFile, this will already be preconfigured correctly, but you must not overwrite these properties with only "localhost".
+**Breaking Change ⚠️ [java-security-test]** (Resolved in version 3.3.1):
+To validate mocked XSUAA tokens issued by java-security-test module, the UAA_DOMAIN property of the service configuration must now include the full address of the Wiremock server in the format *http://localhost:\<PORT\>*.\
+Likewise, for validating IAS tokens issued by the java-security-test module, the trusted *domains* array of the service configuration needs to include the Wiremock URL including the port but NOT the protocol, i.e. in the format *localhost:\<PORT\>*.\
+The full wiremock URL including *http://* and *\<PORT\>* is available via SecurityTestContext#getWireMockServer#baseUrl.
 
 - [java-security]
   - [XSUAA/IAS] Adapt optimized server API
