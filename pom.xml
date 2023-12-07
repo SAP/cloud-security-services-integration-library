@@ -62,16 +62,17 @@
 		<spring.security.version>6.2.0</spring.security.version>
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
+		<org.eclipse.jetty.bom.version>12.0.4</org.eclipse.jetty.bom.version>
 		<org.eclipse.jetty.version>11.0.18</org.eclipse.jetty.version>
 		<reactor.version>3.6.0</reactor.version>
-		<log4j2.version>2.21.1</log4j2.version>
+		<log4j2.version>2.22.0</log4j2.version>
 		<slf4j.api.version>2.0.9</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20231013</org.json.version>
 		<sap.cloud.env.servicebinding.version>0.10.1</sap.cloud.env.servicebinding.version>
-		<apache.httpclient5.version>5.2.3</apache.httpclient5.version>
+		<apache.httpclient5.version>5.3</apache.httpclient5.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.1.5</caffeine.version>
-		<commons.io.version>2.15.0</commons.io.version>
+		<commons.io.version>2.15.1</commons.io.version>
 		<jakarta.servlet.api.version>6.0.0</jakarta.servlet.api.version>
 		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>5.9.2</junit-jupiter.version>
@@ -142,6 +143,14 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-bom</artifactId>
+				<version>${org.eclipse.jetty.bom.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+
 			<!-- spring core -->
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -195,13 +204,6 @@
 					<artifactId>spring-aop</artifactId>
 				</exclusion>
 			</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-bom</artifactId>
-				<version>${org.eclipse.jetty.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>javax.annotation</groupId>
@@ -313,6 +315,21 @@
 				<artifactId>wiremock-standalone</artifactId>
 				<version>${wiremock.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-servlet</artifactId>
+				<version>${org.eclipse.jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-webapp</artifactId>
+				<version>${org.eclipse.jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-annotations</artifactId>
+				<version>${org.eclipse.jetty.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -398,7 +415,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>9.0.2</version>
+							<version>9.0.3</version>
 							<executions>
 								<execution>
 									<goals>
@@ -411,7 +428,7 @@
 								<skipProvidedScope>true</skipProvidedScope>
 								<failBuildOnCVSS>7</failBuildOnCVSS>
 								<suppressionFile>${project.basedir}/../etc/suppression.xml</suppressionFile>
-								<cveValidForHours>24</cveValidForHours>
+								<nvdValidForHours>24</nvdValidForHours>
 								<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
 							</configuration>
 						</plugin>
