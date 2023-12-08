@@ -76,13 +76,13 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
             throw new IllegalArgumentException("Token does not contain the mandatory " + KID_PARAMETER_NAME + " header.");
         }
 
-        String zidQueryParam = composeZidQueryParameter(token);
+        String queryParameters = composeQueryParameters(token);
 
         String jwksUri;
         if (jkuFactories.isEmpty()) {
             jwksUri = configuration.isLegacyMode()
                     ? configuration.getUrl() + "/token_keys"
-                    : configuration.getProperty(UAA_DOMAIN) + "/token_keys" + zidQueryParam;
+                    : configuration.getProperty(UAA_DOMAIN) + "/token_keys" + queryParameters;
         } else {
             LOGGER.info("Loaded custom JKU factory");
             jwksUri = jkuFactories.get(0).create(token.getTokenValue());
@@ -94,11 +94,21 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
         return tokenKeyService.getPublicKey(algorithm, keyId, uri, params);
     }
 
-    private String composeZidQueryParameter(Token token) {
+    String composeQueryParameters(Token token) {
         String zid = token.getAppTid();
+        String clientId = token.getClientId();
+        String query = "";
         if (zid != null && !zid.isBlank()){
-            return "?zid=" + zid;
+            query = "?zid=" + zid;
         }
-        return "";
+        if (clientId != null && !clientId.isBlank()){
+            if (query.isBlank()){
+                query = "?client_id=" + clientId;
+            } else {
+                query = query + "&client_id=" + clientId;
+            }
+        }
+        LOGGER.debug("Composed query parameter for token keys: {}", query);
+        return query;
     }
 }
