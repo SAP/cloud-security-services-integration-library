@@ -126,7 +126,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		try {
 			String kid = tokenInfoExtractor.getKid(jwt);
 			String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
-			return verifyToken(jwt.getParsedString(), kid, uaaDomain, getZid(jwt));
+			return verifyToken(jwt.getParsedString(), kid, uaaDomain, getZid(jwt), getClientId(jwt));
 		} catch (BadJwtException e) {
 			if (e.getMessage().contains("Couldn't retrieve remote JWK set")
 					|| e.getMessage().contains("Cannot verify with online token key, uaadomain is")) {
@@ -136,6 +136,19 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				throw e;
 			}
 		}
+	}
+
+	private static String getClientId(JWT jwt) {
+		String clientId;
+		try {
+			clientId = jwt.getJWTClaimsSet().getStringClaim(TokenClaims.CLAIM_CLIENT_ID);
+		} catch (ParseException e) {
+			clientId = null;
+		}
+		if (clientId != null && clientId.isBlank()){
+			clientId = null;
+		}
+		return clientId;
 	}
 
 	@Nullable
@@ -154,10 +167,10 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		return zid;
 	}
 
-	private Jwt verifyToken(String token, String kid, String uaaDomain, String zid) {
+	private Jwt verifyToken(String token, String kid, String uaaDomain, String zid, String clientId) {
 		String jku;
 		if (jkuFactories.isEmpty()) {
-			jku = composeJku(uaaDomain, zid);
+			jku = composeJku(uaaDomain, zid, clientId);
 		} else {
 			logger.info("Loaded custom JKU factory");
 			try {
@@ -191,14 +204,30 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 				String.join(", ", nullParams)));
 	}
 
-	private String composeJku(String uaaDomain, String zid) {
-		String zidQueryParam = zid != null ? "?zid=" + zid : "";
+	String composeJku(String uaaDomain, String zid, String clientId) {
+		String queryParams = composeQueryParameters(zid, clientId);
 
 		// uaaDomain in configuration is always without a schema, but for testing purpose http schema can be used
 		if (uaaDomain.startsWith("http://")){
-			return uaaDomain + "/token_keys" + zidQueryParam;
+			return uaaDomain + "/token_keys" + queryParams;
 		}
-		return "https://" + uaaDomain + "/token_keys" + zidQueryParam;
+		return "https://" + uaaDomain + "/token_keys" + queryParams;
+	}
+
+	private String composeQueryParameters(String zid, String clientId) {
+		String query = "";
+		if (zid != null && !zid.isBlank()){
+			query = "?zid=" + zid;
+		}
+		if (clientId != null && !clientId.isBlank()){
+			if (query.isBlank()){
+				query = "?client_id=" + clientId;
+			} else {
+				query = query + "&client_id=" + clientId;
+			}
+		}
+		logger.debug("Composed query parameter for token keys: {}", query);
+		return query;
 	}
 
 	@java.lang.SuppressWarnings("squid:S2259")
