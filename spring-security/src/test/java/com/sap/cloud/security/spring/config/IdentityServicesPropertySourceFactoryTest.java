@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.spring.config;
 
+import com.sap.cloud.security.config.ServiceConstants;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,12 +30,14 @@ class IdentityServicesPropertySourceFactoryTest {
 		assertEquals("http://domain.xsuaadomain", configuration.xsuaaUrl);
 		assertEquals("xsuaadomain", configuration.xsuaaDomain);
 		assertEquals("xsappname", configuration.xsuaaAppName);
+		assertEquals(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.from(configuration.xsuaaPlan));
 
 		assertEquals("", configuration.unknown);
 
 		assertEquals("client-id-ias", configuration.identityClientId);
 		assertEquals("client-secret-ias", configuration.identityClientSecret);
 		assertEquals("iasdomain", configuration.identityDomains.get(0));
+		assertEquals(ServiceConstants.Plan.BROKER, ServiceConstants.Plan.from(configuration.iasPlan));
 	}
 }
 
@@ -58,6 +61,9 @@ class TestConfigurationFromFile {
 	@Value("${sap.security.services.xsuaa.xsappname:}")
 	public String xsuaaAppName;
 
+	@Value("${sap.security.services.xsuaa.plan:}")
+	public String xsuaaPlan;
+
 	@Value("${sap.security.services.xsuaa.unknown:}")
 	public String unknown;
 
@@ -69,4 +75,7 @@ class TestConfigurationFromFile {
 
 	@Value("${sap.security.services.identity.domains:}")
 	public List<String> identityDomains;
+
+	@Value("${sap.security.services.identity.plan:}")
+	public String iasPlan;
 }
