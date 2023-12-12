@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * Central entry point to auration
+ * Central entry point to access the OAuth configuration
  * ({@link OAuth2ServiceConfiguration}) of a supported identity {@link Service}.
  */
 public interface Environment {
