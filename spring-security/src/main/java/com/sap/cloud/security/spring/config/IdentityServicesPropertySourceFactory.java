@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
 
@@ -54,10 +53,10 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 			.asList("clientid", "clientsecret", "identityzoneid",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
-					"key", "credential-type", "certurl"));
+					"key", "credential-type", "certurl", "plan"));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList("clientid", "clientsecret", "domains", "url"));
+			.asList("clientid", "clientsecret", "domains", "url", "plan"));
 
 	private Properties properties;
 	
@@ -126,7 +125,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		final List<OAuth2ServiceConfiguration> remainingXsuaaConfigurations = environment.getServiceConfigurationsAsList().get(Service.XSUAA)
 				.stream()
 				.filter(e -> e != xsuaaConfiguration && e != xsuaaConfigurationForTokenExchange)
-				.collect(Collectors.toList());
+				.toList();
 
 		/* Usage of ".forEach" would have been preferred here,
 		 * but Closures in JDK8 do not permit accessing non-final "position".
