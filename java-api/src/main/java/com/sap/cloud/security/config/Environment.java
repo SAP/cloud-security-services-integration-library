@@ -59,7 +59,6 @@ public interface Environment {
 	 *
 	 * @return the service configurations grouped by service
 	 */
-	@Nullable
 	Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList();
 
 	Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations();
