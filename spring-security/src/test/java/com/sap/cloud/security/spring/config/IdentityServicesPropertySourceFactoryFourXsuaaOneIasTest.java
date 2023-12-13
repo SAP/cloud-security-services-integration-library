@@ -5,25 +5,18 @@
  */
 package com.sap.cloud.security.spring.config;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.IOException;
-import java.util.List;
-
-import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.ServiceBindingEnvironment;
 import com.sap.cloud.security.config.ServiceConstants;
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests that the {@link IdentityServicesPropertySourceFactory} puts 2 XSUAA service instances with plan 'application' and 2 with plan 'broker' into the Spring properties
@@ -40,43 +33,32 @@ class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {
 	@Autowired
 	FourXsuaaOneIasTestConfigurationFromFile configuration;
 
-	static String serviceBindingJson;
-
-	@BeforeAll
-	static void setup() throws IOException {
-		serviceBindingJson = IOUtils.resourceToString("/fourXsuaaBindingsAndOneIasBinding.json", UTF_8);
-	}
-
 	@Test
 	void testInjectedPropertyValues() {
-		ServiceBindingEnvironment env = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> serviceBindingJson));
-
 		/* Index 0 */
-		OAuth2ServiceConfiguration xsuaaConfig = env.getXsuaaConfiguration();
-		assertEquals(xsuaaConfig.getClientId(), configuration.xsuaaClientId0);
-		assertEquals(xsuaaConfig.getClientSecret(), configuration.xsuaaClientSecret0);
-		assertEquals(xsuaaConfig.getProperty(ServiceConstants.URL), configuration.xsuaaUrl0);
-		assertEquals(xsuaaConfig.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN), configuration.xsuaaDomain0);
-		assertEquals(xsuaaConfig.getProperty(ServiceConstants.XSUAA.APP_ID), configuration.xsuaaAppName0);
-		assertEquals(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.from(configuration.xsuaaPlan0));
+		assertEquals("client-id2", configuration.xsuaaClientId0);
+		assertEquals("client-secret2", configuration.xsuaaClientSecret0);
+		assertEquals("http://domain.xsuaadomain", configuration.xsuaaUrl0);
+		assertEquals("xsuaadomain", configuration.xsuaaDomain0);
+		assertEquals("xsappname2", configuration.xsuaaAppName0);
+		assertEquals("application", configuration.xsuaaPlan0.toLowerCase());
 		assertEquals("", configuration.unknown0);
 
 		/* Index 1 */
-		OAuth2ServiceConfiguration xsuaaTokenExchangeConfig = env.getXsuaaConfigurationForTokenExchange();
-		assertEquals(xsuaaTokenExchangeConfig.getClientId(), configuration.xsuaaClientId1);
-		assertEquals(xsuaaTokenExchangeConfig.getClientSecret(), configuration.xsuaaClientSecret1);
-		assertEquals(ServiceConstants.Plan.BROKER, ServiceConstants.Plan.from(configuration.xsuaaPlan1));
+		assertEquals("client-id-broker", configuration.xsuaaClientId1);
+		assertEquals("client-secret-broker", configuration.xsuaaClientSecret1);
+		assertEquals("broker", configuration.xsuaaPlan1.toLowerCase());
 
 		/* Index 2 */
 		assertEquals("client-id-broker2", configuration.xsuaaClientId2);
 		assertEquals("client-secret-broker2", configuration.xsuaaClientSecret2);
-		assertEquals(ServiceConstants.Plan.BROKER, ServiceConstants.Plan.from(configuration.xsuaaPlan2));
+		assertEquals("broker", configuration.xsuaaPlan2.toLowerCase());
 
 		/* Index 3 */
 		assertEquals("client-id", configuration.xsuaaClientId3);
 		assertEquals("client-secret", configuration.xsuaaClientSecret3);
 		assertEquals("xsappname", configuration.xsuaaAppName3);
-		assertEquals(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.from(configuration.xsuaaPlan3));
+		assertEquals("application", configuration.xsuaaPlan3.toLowerCase());
 		
 		/* IAS */
 		assertEquals("client-id-ias", configuration.identityClientId);
