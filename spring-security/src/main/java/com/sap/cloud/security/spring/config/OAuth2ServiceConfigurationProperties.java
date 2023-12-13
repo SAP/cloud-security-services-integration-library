@@ -205,6 +205,14 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 		return getConfiguration().getService();
 	}
 
+	public void setPlan(String plan) {
+		builder.withProperty(ServiceConstants.SERVICE_PLAN, plan);
+	}
+
+	public String getPlan() {
+		return getConfiguration().getProperty(ServiceConstants.SERVICE_PLAN);
+	}
+
 	@Override
 	public boolean isLegacyMode() {
 		return getConfiguration().isLegacyMode();
