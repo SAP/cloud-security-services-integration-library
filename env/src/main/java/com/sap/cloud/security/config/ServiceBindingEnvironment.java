@@ -122,6 +122,7 @@ public class ServiceBindingEnvironment implements Environment {
 	 *
 	 * @return the service configurations grouped by service
 	 */
+	@Override
 	public Map<Service, List<OAuth2ServiceConfiguration>> getServiceConfigurationsAsList() {
 		if (serviceConfigurations == null) {
 			this.readServiceConfigurations();
