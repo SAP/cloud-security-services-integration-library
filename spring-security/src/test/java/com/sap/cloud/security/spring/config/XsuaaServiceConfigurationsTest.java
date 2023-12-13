@@ -5,30 +5,55 @@
  */
 package com.sap.cloud.security.spring.config;
 
+import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.config.ServiceBindingEnvironment;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
+import java.io.IOException;
+import java.util.List;
+
+import static com.sap.cloud.security.spring.config.XsuaaServiceConfigurationTest.assertConfigsAreEqual;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SpringBootTest(classes = { MultipleXsuaaConfigurationsFromFile.class })
 class XsuaaServiceConfigurationsTest {
 
-	private final ApplicationContextRunner runner = new ApplicationContextRunner();
+	static ServiceBindingEnvironment env;
 
-	@EnableConfigurationProperties({ XsuaaServiceConfigurations.class, XsuaaServiceConfiguration.class })
-	static class EnablePropertiesConfiguration {
+	@Autowired
+	XsuaaServiceConfigurations configs;
+
+	@BeforeAll
+	static void setup() throws IOException {
+		String serviceBindingJson = IOUtils.resourceToString("/fourXsuaaBindingsAndOneIasBinding.json", UTF_8);
+		env = new ServiceBindingEnvironment(new SapVcapServicesServiceBindingAccessor(any -> serviceBindingJson));
 	}
 
 	@Test
 	void configuresXsuaaServiceConfigurations() {
-		runner.withUserConfiguration(EnablePropertiesConfiguration.class)
-				.withPropertyValues("sap.security.services.xsuaa[0].clientid:cid1")
-				.withPropertyValues("sap.security.services.xsuaa[1].clientid:cid2")
-				.run(context -> {
-					assertEquals("cid1",
-							context.getBean(XsuaaServiceConfigurations.class).getConfigurations().get(0).getClientId());
-					assertEquals("cid2",
-							context.getBean(XsuaaServiceConfigurations.class).getConfigurations().get(1).getClientId());
-				});
+		List<XsuaaServiceConfiguration> configList = configs.getConfigurations();
+
+		/* Index 0 backward-compatible behaviour */
+		assertConfigsAreEqual(configList.get(0), env.getXsuaaConfiguration());
+
+		/* Index 1 backward-compatible behaviour */
+		assertConfigsAreEqual(configList.get(1), env.getXsuaaConfigurationForTokenExchange());
+
+		/* Index 2+ */
+		assertEquals(env.getServiceConfigurationsAsList().get(Service.XSUAA).size(), configList.size());
 	}
 }
+
+@Configuration
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = { "classpath:fourXsuaaBindingsAndOneIasBinding.json" })
+@EnableConfigurationProperties(XsuaaServiceConfigurations.class)
+class MultipleXsuaaConfigurationsFromFile {}
