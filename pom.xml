@@ -119,6 +119,20 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-bom</artifactId>
+				<version>${org.eclipse.jetty.bom.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.ee9</groupId>
+				<artifactId>jetty-ee9-bom</artifactId>
+				<version>${org.eclipse.jetty.bom.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<!-- spring -->
 			<!-- BOMs -->
 			<dependency>
@@ -142,21 +156,6 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-bom</artifactId>
-				<version>${org.eclipse.jetty.bom.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jetty.ee9</groupId>
-				<artifactId>jetty-ee9-bom</artifactId>
-				<version>${org.eclipse.jetty.bom.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-
 			<!-- spring core -->
 			<dependency>
 				<groupId>org.springframework</groupId>
