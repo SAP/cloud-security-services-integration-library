@@ -130,10 +130,5 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 			return new RestTemplate();
 		}
 
-		@Bean
-		public RestTemplate xsuaaRestOperations() {
-			return new RestTemplate();
-		}
-
 	}
 }
