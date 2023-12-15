@@ -29,11 +29,11 @@ import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.ee9.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.ee9.servlet.FilterHolder;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
+import org.eclipse.jetty.ee9.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
