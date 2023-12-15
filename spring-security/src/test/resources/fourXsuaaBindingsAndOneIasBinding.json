@@ -1,0 +1,49 @@
+{
+  "xsuaa": [
+    {
+      "credentials": {
+        "clientid": "client-id-broker",
+        "clientsecret": "client-secret-broker"
+      },
+      "plan": "broker"
+    },
+    {
+      "credentials": {
+        "clientid": "client-id-broker2",
+        "clientsecret": "client-secret-broker2"
+      },
+      "plan": "broker"
+    },
+    {
+      "credentials": {
+        "clientid": "client-id2",
+        "clientsecret": "client-secret2",
+        "url": "http://domain.xsuaadomain",
+        "uaadomain": "xsuaadomain",
+        "xsappname": "xsappname2"
+      },
+      "plan": "application"
+    },
+    {
+      "credentials": {
+        "clientid": "client-id",
+        "clientsecret": "client-secret",
+        "url": "http://domain.xsuaadomain",
+        "uaadomain": "xsuaadomain",
+        "xsappname": "xsappname"
+      },
+      "plan": "application"
+    }
+  ],
+  "identity": [
+    {
+      "credentials": {
+        "clientid": "client-id-ias",
+        "clientsecret": "client-secret-ias",
+        "url": "http://domain.iasdomain",
+        "domains": ["iasdomain", "iasdomain.com"]
+      },
+      "plan": "broker"
+    }
+   ]
+}
