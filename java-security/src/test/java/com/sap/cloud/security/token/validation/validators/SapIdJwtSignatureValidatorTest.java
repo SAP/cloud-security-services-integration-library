@@ -118,7 +118,7 @@ public class SapIdJwtSignatureValidatorTest {
 		ValidationResult validationResult = cut.validate(iasPaasToken);
 		assertTrue(validationResult.isErroneous());
 		assertThat(validationResult.getErrorDescription(),
-				containsString("OIDC token must provide a valid app_tid header when issuer has a different domain than the url from the service credentials."));
+				containsString("Token signature can not be validated because: OIDC token must provide the app_tid claim for tenant validation when issuer is not the same as the url from the service credentials."));
 	}
 
 	@Test

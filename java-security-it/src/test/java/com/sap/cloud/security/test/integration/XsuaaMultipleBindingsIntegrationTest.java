@@ -31,6 +31,7 @@ public class XsuaaMultipleBindingsIntegrationTest {
 	public void createToken_integrationTest_tokenValidation() {
 		Token token = rule.getPreconfiguredJwtGenerator().createToken();
 		OAuth2ServiceConfiguration configuration = Environments.readFromInput(XsuaaMultipleBindingsIntegrationTest.class.getResourceAsStream("/vcap_services-multiple.json")).getXsuaaConfiguration();
+
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
 		ValidationResult result = tokenValidator.validate(token);

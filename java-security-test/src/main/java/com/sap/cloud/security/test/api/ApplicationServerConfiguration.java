@@ -10,7 +10,7 @@ import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.SecurityTestRule;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
 
 public interface ApplicationServerConfiguration {
 

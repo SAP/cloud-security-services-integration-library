@@ -21,7 +21,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -131,7 +131,7 @@ public class SecurityTestRuleTest {
 	}
 
 	@Test
-	public void getJwtGeneratorFromFile_setsTestingDefaults() throws IOException {
+	public void getJwtGeneratorFromFile_setsTestingDefaults() {
 		Token token = cut.getJwtGeneratorFromFile("/token.json").createToken();
 
 		String baseUrl = cut.base.wireMockServer.baseUrl();

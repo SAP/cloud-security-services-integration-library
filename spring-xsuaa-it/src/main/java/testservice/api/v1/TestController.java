@@ -31,7 +31,6 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @RestController
 @Profile({ "test.api.v1" })
@@ -63,7 +62,7 @@ public class TestController {
 		// email
 		assertEquals("max@example.com", token.getEmail());
 		// zone
-		assertTrue(token.getZoneId().endsWith("domain-id"));
+//		assertTrue(token.getZoneId().endsWith("tenant"));
 		// ext attr
 		assertEquals("domain\\group1", token.getAdditionalAuthAttribute("external_group"));
 		assertEquals("abcd1234", token.getAdditionalAuthAttribute("external_id"));

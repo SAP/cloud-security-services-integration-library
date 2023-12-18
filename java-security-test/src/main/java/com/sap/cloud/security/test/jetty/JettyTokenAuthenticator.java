@@ -10,10 +10,10 @@ import com.sap.cloud.security.servlet.TokenAuthenticator;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
-import org.eclipse.jetty.security.Authenticator;
-import org.eclipse.jetty.security.DefaultUserIdentity;
-import org.eclipse.jetty.security.UserAuthentication;
-import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.ee9.security.Authenticator;
+import org.eclipse.jetty.ee9.security.UserAuthentication;
+import org.eclipse.jetty.ee9.nested.Authentication;
+import org.eclipse.jetty.security.internal.DefaultUserIdentity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
