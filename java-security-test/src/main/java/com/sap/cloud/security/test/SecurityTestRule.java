@@ -14,7 +14,7 @@ import com.sap.cloud.security.test.api.ServiceMockConfiguration;
 import com.sap.cloud.security.token.Token;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee9.servlet.ServletHolder;
 import org.junit.rules.ExternalResource;
 
 import javax.annotation.Nullable;
