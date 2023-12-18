@@ -40,6 +40,7 @@ class IdentityServicesPropertySourceFactoryBrokerNoHoleTest {
 		assertEquals("http://domain.xsuaadomain", configuration.xsuaaUrl0);
 		assertEquals("xsuaadomain", configuration.xsuaaDomain0);
 		assertEquals("xsappname2", configuration.xsuaaAppName0);
+		assertEquals("xsuaaInstance0", configuration.xsuaaName0);
 		assertEquals("application", configuration.xsuaaPlan0.toLowerCase());
 		assertEquals("", configuration.unknown0);
 
@@ -47,6 +48,7 @@ class IdentityServicesPropertySourceFactoryBrokerNoHoleTest {
 		assertEquals("client-id", configuration.xsuaaClientId1);
 		assertEquals("client-secret", configuration.xsuaaClientSecret1);
 		assertEquals("xsappname", configuration.xsuaaAppName1);
+		assertEquals("xsuaaInstance1", configuration.xsuaaName1);
 		assertEquals("application", configuration.xsuaaPlan1.toLowerCase());
 
 		/* Index 2 */
@@ -59,7 +61,8 @@ class IdentityServicesPropertySourceFactoryBrokerNoHoleTest {
 		assertTrue(configuration.identityDomains.contains("iasdomain"));
 		assertTrue(configuration.identityDomains.contains("iasdomain.com"));
 		assertEquals(2, configuration.identityDomains.size());
-		assertEquals(ServiceConstants.Plan.BROKER, ServiceConstants.Plan.from(configuration.iasPlan));
+		assertEquals("identityInstance0", configuration.identityName0);
+		assertEquals(ServiceConstants.Plan.BROKER, ServiceConstants.Plan.from(configuration.identityPlan));
 	}
 }
 
@@ -85,6 +88,9 @@ class BrokerHoleTestConfigurationFromFile {
 	@Value("${sap.security.services.xsuaa[0].xsappname:}")
 	public String xsuaaAppName0;
 
+	@Value("${sap.security.services.xsuaa[0].name:}")
+	public String xsuaaName0;
+
 	@Value("${sap.security.services.xsuaa[0].plan:}")
 	public String xsuaaPlan0;
 
@@ -102,6 +108,9 @@ class BrokerHoleTestConfigurationFromFile {
 
 	@Value("${sap.security.services.xsuaa[1].xsappname}")
 	public String xsuaaAppName1;
+
+	@Value("${sap.security.services.xsuaa[1].name:}")
+	public String xsuaaName1;
 
 	@Value("${sap.security.services.xsuaa[1].plan:}")
 	public String xsuaaPlan1;
@@ -127,6 +136,9 @@ class BrokerHoleTestConfigurationFromFile {
 	@Value("${sap.security.services.identity.domains:}")
 	public List<String> identityDomains;
 
+	@Value("${sap.security.services.identity.name:}")
+	public String identityName0;
+
 	@Value("${sap.security.services.identity.plan:}")
-	public String iasPlan;
+	public String identityPlan;
 }

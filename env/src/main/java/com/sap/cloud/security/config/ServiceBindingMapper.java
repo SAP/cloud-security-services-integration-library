@@ -10,6 +10,7 @@ import java.util.List;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
+import static com.sap.cloud.security.config.ServiceConstants.NAME;
 import static com.sap.cloud.security.config.ServiceConstants.SERVICE_PLAN;
 
 public class ServiceBindingMapper {
@@ -40,8 +41,8 @@ public class ServiceBindingMapper {
 		TypedMapView credentials = TypedMapView.ofCredentials(b);
 		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
 				.withProperties(credentials.getEntries(String.class))
-				.withProperty(SERVICE_PLAN,
-						b.getServicePlan().orElse(ServiceConstants.Plan.APPLICATION.name()).toUpperCase());
+				.withProperty(NAME,	b.getName().orElse(""))
+				.withProperty(SERVICE_PLAN,	b.getServicePlan().orElse(ServiceConstants.Plan.APPLICATION.name()).toUpperCase());
 
 		if (IAS.equals(service)) {
 			parseDomains(builder, credentials);

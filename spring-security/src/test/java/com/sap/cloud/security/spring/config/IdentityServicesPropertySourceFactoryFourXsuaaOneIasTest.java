@@ -41,23 +41,27 @@ class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {
 		assertEquals("http://domain.xsuaadomain", configuration.xsuaaUrl0);
 		assertEquals("xsuaadomain", configuration.xsuaaDomain0);
 		assertEquals("xsappname2", configuration.xsuaaAppName0);
+		assertEquals("xsuaaInstance2", configuration.xsuaaName0);
 		assertEquals("application", configuration.xsuaaPlan0.toLowerCase());
 		assertEquals("", configuration.unknown0);
 
 		/* Index 1 */
 		assertEquals("client-id-broker", configuration.xsuaaClientId1);
 		assertEquals("client-secret-broker", configuration.xsuaaClientSecret1);
+		assertEquals("xsuaaInstance0", configuration.xsuaaName1);
 		assertEquals("broker", configuration.xsuaaPlan1.toLowerCase());
 
 		/* Index 2 */
 		assertEquals("client-id-broker2", configuration.xsuaaClientId2);
 		assertEquals("client-secret-broker2", configuration.xsuaaClientSecret2);
+		assertEquals("xsuaaInstance1", configuration.xsuaaName2);
 		assertEquals("broker", configuration.xsuaaPlan2.toLowerCase());
 
 		/* Index 3 */
 		assertEquals("client-id", configuration.xsuaaClientId3);
 		assertEquals("client-secret", configuration.xsuaaClientSecret3);
 		assertEquals("xsappname", configuration.xsuaaAppName3);
+		assertEquals("xsuaaInstance3", configuration.xsuaaName3);
 		assertEquals("application", configuration.xsuaaPlan3.toLowerCase());
 		
 		/* IAS */
@@ -66,7 +70,8 @@ class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {
 		assertTrue(configuration.identityDomains.contains("iasdomain"));
 		assertTrue(configuration.identityDomains.contains("iasdomain.com"));
 		assertEquals(2, configuration.identityDomains.size());
-		assertEquals(ServiceConstants.Plan.BROKER, ServiceConstants.Plan.from(configuration.iasPlan));
+		assertEquals("identityInstance0", configuration.identityName0);
+		assertEquals(ServiceConstants.Plan.BROKER, ServiceConstants.Plan.from(configuration.identityPlan));
 	}
 }
 
@@ -92,6 +97,9 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 	@Value("${sap.security.services.xsuaa[0].xsappname:}")
 	public String xsuaaAppName0;
 
+	@Value("${sap.security.services.xsuaa[0].name:}")
+	public String xsuaaName0;
+
 	@Value("${sap.security.services.xsuaa[0].plan:}")
 	public String xsuaaPlan0;
 
@@ -106,6 +114,9 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 	@Value("${sap.security.services.xsuaa[1].clientsecret:}")
 	public String xsuaaClientSecret1;
 
+	@Value("${sap.security.services.xsuaa[1].name:}")
+	public String xsuaaName1;
+
 	@Value("${sap.security.services.xsuaa[1].plan:}")
 	public String xsuaaPlan1;
 
@@ -117,6 +128,9 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 
 	@Value("${sap.security.services.xsuaa[2].clientsecret:}")
 	public String xsuaaClientSecret2;
+
+	@Value("${sap.security.services.xsuaa[2].name:}")
+	public String xsuaaName2;
 
 	@Value("${sap.security.services.xsuaa[2].plan:}")
 	public String xsuaaPlan2;
@@ -132,6 +146,9 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 	@Value("${sap.security.services.xsuaa[3].xsappname:}")
 	public String xsuaaAppName3;
 
+	@Value("${sap.security.services.xsuaa[3].name:}")
+	public String xsuaaName3;
+
 	@Value("${sap.security.services.xsuaa[3].plan:}")
 	public String xsuaaPlan3;
 	
@@ -146,6 +163,9 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 	@Value("${sap.security.services.identity.domains:}")
 	public List<String> identityDomains;
 
+	@Value("${sap.security.services.identity.name:}")
+	public String identityName0;
+
 	@Value("${sap.security.services.identity.plan:}")
-	public String iasPlan;
+	public String identityPlan;
 }

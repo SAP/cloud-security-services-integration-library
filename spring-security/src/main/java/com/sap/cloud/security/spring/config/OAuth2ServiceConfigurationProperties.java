@@ -205,6 +205,14 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 		return getConfiguration().getService();
 	}
 
+	public void setName(String name) {
+		builder.withProperty(ServiceConstants.NAME, name);
+	}
+
+	public String getName() {
+		return getConfiguration().getProperty(ServiceConstants.NAME);
+	}
+
 	public void setPlan(String plan) {
 		builder.withProperty(ServiceConstants.SERVICE_PLAN, plan);
 	}
