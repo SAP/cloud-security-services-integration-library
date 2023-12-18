@@ -40,7 +40,7 @@ class XsuaaServiceConfigurationLoadingIntegrationTest {
 
 	@Test
 	void configuresXsuaaServiceConfiguration() {
-		ConfigurationUtil.assertXsuaaConfigsAreEqual(xsuaaConfig, env.getXsuaaConfiguration());
+		ConfigurationAssertions.assertXsuaaConfigsAreEqual(xsuaaConfig, env.getXsuaaConfiguration());
 	}
 
 }

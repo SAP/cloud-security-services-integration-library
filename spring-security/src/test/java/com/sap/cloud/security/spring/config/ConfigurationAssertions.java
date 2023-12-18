@@ -5,7 +5,7 @@ import com.sap.cloud.security.config.ServiceConstants;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ConfigurationUtil {
+public class ConfigurationAssertions {
     static void assertXsuaaConfigsAreEqual(XsuaaServiceConfiguration xsuaaConfig, OAuth2ServiceConfiguration oauthConfig) {
         assertEquals(oauthConfig.getClientId(), xsuaaConfig.getClientId());
         assertEquals(oauthConfig.getClientSecret(), xsuaaConfig.getClientSecret());

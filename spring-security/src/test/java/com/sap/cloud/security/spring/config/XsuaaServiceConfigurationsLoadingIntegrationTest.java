@@ -20,7 +20,7 @@ import org.springframework.context.annotation.PropertySource;
 import java.io.IOException;
 import java.util.List;
 
-import static com.sap.cloud.security.spring.config.ConfigurationUtil.assertXsuaaConfigsAreEqual;
+import static com.sap.cloud.security.spring.config.ConfigurationAssertions.assertXsuaaConfigsAreEqual;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
