@@ -103,7 +103,7 @@ mvn clean install
 Libraries and information provided here is around the topic of integrating with the SAP xsuaa and identity service. General integration into other OAuth authorization servers is not the primary focus.
 
 # How to obtain support
-Open an issue in GitHub.
+Please use SAP official support channels to get help. Use `BC-CP-CF-SEC-LIB` or `Security Client Libraries` components.
 
 # Licensing
 Please see our [LICENSE](LICENSES/Apache-2.0.txt) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available via the [REUSE tool](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration).
