@@ -22,13 +22,24 @@ class XsuaaServiceConfigurationsTest {
 	@Test
 	void configuresXsuaaServiceConfigurations() {
 		runner.withUserConfiguration(EnablePropertiesConfiguration.class)
-				.withPropertyValues("sap.security.services.xsuaa[0].clientid:cid1")
-				.withPropertyValues("sap.security.services.xsuaa[1].clientid:cid2")
+				.withPropertyValues(
+						"sap.security.services.xsuaa[0].clientid:cid0",
+						"sap.security.services.xsuaa[0].name:xsuaaInstance0",
+						"sap.security.services.xsuaa[0].plan:broker")
+				.withPropertyValues(
+						"sap.security.services.xsuaa[1].clientid:cid1",
+						"sap.security.services.xsuaa[1].name:xsuaaInstance1",
+						"sap.security.services.xsuaa[1].plan:broker")
 				.run(context -> {
-					assertEquals("cid1",
-							context.getBean(XsuaaServiceConfigurations.class).getConfigurations().get(0).getClientId());
-					assertEquals("cid2",
-							context.getBean(XsuaaServiceConfigurations.class).getConfigurations().get(1).getClientId());
+					XsuaaServiceConfiguration config0 = context.getBean(XsuaaServiceConfigurations.class).getConfigurations().get(0);
+					assertEquals("cid0", config0.getClientId());
+					assertEquals("xsuaaInstance0", config0.getName());
+					assertEquals("broker", config0.getPlan());
+
+					XsuaaServiceConfiguration config1 = context.getBean(XsuaaServiceConfigurations.class).getConfigurations().get(1);
+					assertEquals("cid1", config1.getClientId());
+					assertEquals("xsuaaInstance1", config1.getName());
+					assertEquals("broker", config1.getPlan());
 				});
 	}
 }

@@ -5,6 +5,7 @@
         "clientid": "client-id-broker",
         "clientsecret": "client-secret-broker"
       },
+      "name": "xsuaaInstance0",
       "plan": "broker"
     },
     {
@@ -12,6 +13,7 @@
         "clientid": "client-id-broker2",
         "clientsecret": "client-secret-broker2"
       },
+      "name": "xsuaaInstance1",
       "plan": "broker"
     },
     {
@@ -22,6 +24,7 @@
         "uaadomain": "xsuaadomain",
         "xsappname": "xsappname2"
       },
+      "name": "xsuaaInstance2",
       "plan": "application"
     },
     {
@@ -32,6 +35,7 @@
         "uaadomain": "xsuaadomain",
         "xsappname": "xsappname"
       },
+      "name": "xsuaaInstance3",
       "plan": "application"
     }
   ],
@@ -43,6 +47,7 @@
         "url": "http://domain.iasdomain",
         "domains": ["iasdomain", "iasdomain.com"]
       },
+      "name": "identityInstance0",
       "plan": "broker"
     }
    ]

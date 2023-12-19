@@ -23,16 +23,19 @@ class IdentityServiceConfigurationTest {
 	@Test
 	void configuresIdentityServiceConfiguration() {
 		runner.withUserConfiguration(EnablePropertiesConfiguration.class)
-				.withPropertyValues("sap.security.services.identity.url:http://localhost",
-						"sap.security.services.identity.clientid:cid")
+				.withPropertyValues(
+						"sap.security.services.identity.url:http://localhost",
+						"sap.security.services.identity.clientid:cid",
+						"sap.security.services.identity.name:identityInstance0",
+						"sap.security.services.identity.plan:broker")
 				.run(context -> {
-					assertEquals("http://localhost",
-							context.getBean(IdentityServiceConfiguration.class).getUrl().toString());
-					assertNull(context.getBean(IdentityServiceConfiguration.class).getCredentialType());
-					assertFalse(context.getBean(IdentityServiceConfiguration.class).getClientIdentity()
-							.isCertificateBased());
-					assertEquals("cid",
-							context.getBean(IdentityServiceConfiguration.class).getClientIdentity().getId());
+					IdentityServiceConfiguration config = context.getBean(IdentityServiceConfiguration.class);
+					assertEquals("http://localhost", config.getUrl().toString());
+					assertEquals("cid", config.getClientIdentity().getId());
+					assertEquals("identityInstance0", config.getName());
+					assertEquals("broker", config.getPlan());
+					assertNull(config.getCredentialType());
+					assertFalse(config.getClientIdentity().isCertificateBased());
 				});
 	}
 
@@ -41,14 +44,13 @@ class IdentityServiceConfigurationTest {
 		runner.withUserConfiguration(EnablePropertiesConfiguration.class)
 				.withPropertyValues(
 						"sap.security.services.identity.clientid:cid",
-						"sap.security.services.identity.certificate:cert", "sap.security.services.identity.key:key")
+						"sap.security.services.identity.certificate:cert",
+						"sap.security.services.identity.key:key")
 				.run(context -> {
-					assertEquals(CredentialType.X509,
-							context.getBean(IdentityServiceConfiguration.class).getCredentialType());
-					assertTrue(context.getBean(IdentityServiceConfiguration.class).getClientIdentity()
-							.isCertificateBased());
-					assertEquals("cert",
-							context.getBean(IdentityServiceConfiguration.class).getClientIdentity().getCertificate());
+					IdentityServiceConfiguration config = context.getBean(IdentityServiceConfiguration.class);
+					assertEquals(CredentialType.X509, config.getCredentialType());
+					assertTrue(config.getClientIdentity().isCertificateBased());
+					assertEquals("cert", config.getClientIdentity().getCertificate());
 				});
 	}
 }
