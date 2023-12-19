@@ -112,10 +112,5 @@ public class XsuaaTokenFlowAutoConfigurationTest {
 			return new RestTemplate();
 		}
 
-		@Bean
-		public RestTemplate xsuaaRestOperations() {
-			return new RestTemplate();
-		}
-
 	}
 }
