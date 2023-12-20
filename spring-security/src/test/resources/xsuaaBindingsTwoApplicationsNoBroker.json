@@ -2,13 +2,24 @@
   "xsuaa": [
     {
       "credentials": {
+        "clientid": "client-id2",
+        "clientsecret": "client-secret2",
+        "url": "http://domain.xsuaadomain",
+        "uaadomain": "xsuaadomain",
+        "xsappname": "xsappname2"
+      },
+      "name": "xsuaaInstance0",
+      "plan": "application"
+    },
+    {
+      "credentials": {
         "clientid": "client-id",
         "clientsecret": "client-secret",
         "url": "http://domain.xsuaadomain",
         "uaadomain": "xsuaadomain",
         "xsappname": "xsappname"
       },
-      "name": "xsuaaInstance0",
+      "name": "xsuaaInstance1",
       "plan": "application"
     }
   ],
@@ -18,7 +29,7 @@
         "clientid": "client-id-ias",
         "clientsecret": "client-secret-ias",
         "url": "http://domain.iasdomain",
-        "domains": ["iasdomain"]
+        "domains": ["iasdomain", "iasdomain.com"]
       },
       "name": "identityInstance0",
       "plan": "broker"

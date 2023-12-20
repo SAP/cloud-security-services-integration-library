@@ -124,7 +124,7 @@ The SAP Cloud Security Services Integration is published to maven central: https
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-bom</artifactId>
-            <version>3.3.1</version>
+            <version>3.3.2</version>
             <scope>import</scope>
             <type>pom</type>
         </dependency>
@@ -165,7 +165,7 @@ Please refer to each library's Troubleshooting section
 We welcome contributions to this project. Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details on how to contribute.
 
 ## How to get support
-Open a [Github issue](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new/choose).
+Please use SAP official support channels to get help. Use `BC-CP-CF-SEC-LIB` or `Security Client Libraries` components.
 
 ## License
 Please see our [LICENSE](LICENSES/Apache-2.0.txt) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available in the [REUSE tool](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration).

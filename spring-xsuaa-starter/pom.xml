@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.3.1</version>
+		<version>3.3.2</version>
 	</parent>
 
 	<artifactId>xsuaa-spring-boot-starter</artifactId>
@@ -36,12 +36,14 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
 			<version>1.4.14</version>
+			<scope>provided</scope>
 		</dependency>
 		<!--		TODO remove once spring-boot-parent upadtes logback version-->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>1.4.14</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
