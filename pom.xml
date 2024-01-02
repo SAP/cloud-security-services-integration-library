@@ -94,14 +94,11 @@
 		<module>java-security</module>
 		<module>spring-security</module>
 		<module>spring-security-compatibility</module>
-		<module>spring-security-starter</module>
 		<module>java-security-test</module>
 		<module>spring-xsuaa</module>
 		<module>spring-xsuaa-test</module>
 		<module>spring-xsuaa-mock</module>
-		<module>spring-xsuaa-starter</module>
 		<module>bom</module>
-		<module>spring-xsuaa-it</module>
     </modules>
 
 	<dependencyManagement>

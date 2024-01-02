@@ -10,10 +10,10 @@ We recommend upgrading to our [3.x major release](https://github.com/SAP/cloud-s
 
 | ArtifactId                                  | Version | End of Support |
 |---------------------------------------------|---------|----------------|
-| spring-xsuaa                                | 2.x     | Nov, 2023      |
-| spring-xsuaa-test                           | 2.x     | Nov, 2023      |
+| spring-xsuaa                                | 2.x     | Dec, 2024      |
+| spring-xsuaa-test                           | 2.x     | Dec, 2024      |
 | xsuaa-spring-boot-starter                   | 2.x     | Nov, 2023      |
-| spring-security                             | 2.x     | Nov, 2023      |
+| spring-security                             | 2.x     | Dec, 2024      |
 | resourceserver-security-spring-boot-starter | 2.x     | Nov, 2023      |
 
 # Description
