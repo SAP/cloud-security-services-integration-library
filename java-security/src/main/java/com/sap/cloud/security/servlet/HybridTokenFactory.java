@@ -32,8 +32,8 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
 public class HybridTokenFactory implements TokenFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridTokenFactory.class);
-	private static Optional<String> xsAppId;
-	private static ScopeConverter xsScopeConverter;
+	protected static Optional<String> xsAppId;
+	protected static ScopeConverter xsScopeConverter;
 
 	/**
 	 * Determines whether the JWT token is issued by XSUAA or IAS identity service,
