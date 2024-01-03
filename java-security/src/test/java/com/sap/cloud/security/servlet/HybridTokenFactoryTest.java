@@ -24,9 +24,11 @@ class HybridTokenFactoryTest {
     @BeforeEach
     public void setup() {
         cut = new HybridTokenFactory();
-            logWatcher = new ListAppender<>();
-            logWatcher.start();
-            ((Logger) LoggerFactory.getLogger(HybridTokenFactory.class)).addAppender(logWatcher);
+        cut.xsAppId = null;
+        cut.xsScopeConverter = null;
+        logWatcher = new ListAppender<>();
+        logWatcher.start();
+        ((Logger) LoggerFactory.getLogger(HybridTokenFactory.class)).addAppender(logWatcher);
     }
 
     @AfterEach
