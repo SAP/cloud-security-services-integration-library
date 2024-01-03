@@ -1,6 +1,30 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.3.2
+- [java-security]
+  - add `name` property of service binding as property to OAuth2ServiceConfiguration
+- [java-api]
+  - add ServiceConstant#NAME which can be used to access that property
+- [spring-security]
+  - `IdentityServicesPropertySourceFactory` now populates Spring properties with ALL Xsuaa configurations found in the environment instead of only one (arbitrary) configuration of service plan 'application' and one (optional, arbitrary) additional one of service plan 'broker'.
+  - `XsuaaServiceConfigurations#getConfigurations` now contains ALL Xsuaa configurations found as a result of the previous change
+  - `HybridIdentityServicesAutoConfiguration` was adjusted for backward compatibility to still create a JwtDecoder that uses the same XSUAA configurations as before for token validation (one of plan 'application' and an optional one of plan 'broker')
+  - add `setName` `getName`, `setPlan`, `getPlan` to `OAuth2ServiceConfigurationProperties`, which means, the list of `XsuaaServiceConfigurations` can now be filtered based on these properties.
+- [java-security-test]
+  - upgrade the Jetty servlet to jetty-ee9-servlet (fixes issues with the Spring Boot 3.2 upgrade) 
+
+#### Dependency upgrades
+- Bump spring.boot.version from 3.1.6 to 3.2.0
+- Bump spring.core.version from 6.0.14 to 6.1.2
+- Bump spring.security.version from 6.2.0 to 6.2.1
+- Bump commons-io:commons-io from 2.15.0 to 2.15.1
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.2.3 to 5.3
+- Bump log4j2.version from 2.21.1 to 2.22.0
+- Bump io.projectreactor:reactor-core from 3.5.11 to 3.6.0
+- Bump org.eclipse.jetty:jetty-bom from 11.0.18 to 12.0.5
+
+
 ## 3.3.1
 ✅ Resolves a Breaking Change introduced in version 3.3.0. Consumers should be able to update to 3.3.1 from a version < 3.3.0 without having to adjust test credentials used in their unit tests when using `java-security-test` or `spring-xsuaa-mock`.
 

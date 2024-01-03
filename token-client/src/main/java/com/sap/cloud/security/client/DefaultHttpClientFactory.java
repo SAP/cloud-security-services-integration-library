@@ -16,15 +16,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -41,7 +36,6 @@ import java.util.concurrent.TimeUnit;
  * implementation of {@link HttpClientFactory}.
  */
 public class DefaultHttpClientFactory implements HttpClientFactory {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClientFactory.class);
 
 	private static final int DEFAULT_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(5);
 	private static final int DEFAULT_SOCKET_TIMEOUT = (int) TimeUnit.SECONDS.toMillis(30);
@@ -49,8 +43,6 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	private static final int MAX_CONNECTIONS = 200;
 	private final ConcurrentHashMap<String, SslConnection> sslConnectionPool = new ConcurrentHashMap<>();
 	private final org.apache.http.client.config.RequestConfig requestConfig;
-	// reuse ssl connections
-	final Set<String> httpClientsCreated = Collections.synchronizedSet(new HashSet<>());
 
 	public DefaultHttpClientFactory() {
 		requestConfig = org.apache.http.client.config.RequestConfig.custom()
@@ -64,15 +56,11 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	@Override
 	public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
 		String clientId = clientIdentity != null ? clientIdentity.getId() : null;
-		if (httpClientsCreated.contains(clientId)) {
-			LOGGER.warn("Application has already created HttpClient for clientId = {}, please check.", clientId);
-		}
-		httpClientsCreated.add(clientId);
 		HttpClientBuilder httpClientBuilder = HttpClients.custom().setDefaultRequestConfig(requestConfig);
 
 		if (clientId != null && clientIdentity.isCertificateBased()) {
-			SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientId,
-					s -> new SslConnection(clientIdentity));
+			SslConnection connectionPool = sslConnectionPool.compute(clientId,
+					(s,c) -> new SslConnection(clientIdentity));
 			return httpClientBuilder
 					.setConnectionManager(connectionPool.poolingConnectionManager)
 					.setSSLContext(connectionPool.context)
