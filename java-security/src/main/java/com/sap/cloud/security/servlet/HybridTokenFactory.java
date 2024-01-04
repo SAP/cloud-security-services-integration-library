@@ -32,8 +32,8 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
 public class HybridTokenFactory implements TokenFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridTokenFactory.class);
-	protected static Optional<String> xsAppId;
-	protected static ScopeConverter xsScopeConverter;
+	static Optional<String> xsAppId;
+	static ScopeConverter xsScopeConverter;
 
 	/**
 	 * Determines whether the JWT token is issued by XSUAA or IAS identity service,
@@ -84,10 +84,13 @@ public class HybridTokenFactory implements TokenFactory {
 		}
 		OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
 		if (serviceConfiguration != null) {
-			return xsAppId = Optional.of(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
+			xsAppId = Optional.of(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
+		} else {
+			LOGGER.warn(
+					"There is no xsuaa service configuration with 'xsappname' property: no local scope check possible.");
+			xsAppId = Optional.empty();
 		}
-		LOGGER.warn("There is no xsuaa service configuration with 'xsappname' property: no local scope check possible.");
-		return xsAppId = Optional.empty();
+		return xsAppId;
 	}
 
 	/**
