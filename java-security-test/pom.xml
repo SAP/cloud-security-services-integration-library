@@ -38,26 +38,17 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
+			<version>${org.eclipse.jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty.ee9</groupId>
 			<artifactId>jetty-ee9-servlet</artifactId>
+			<version>${org.eclipse.jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty.ee9</groupId>
 			<artifactId>jetty-ee9-webapp</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty.ee9</groupId>
-			<artifactId>jetty-ee9-annotations</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-io</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-util</artifactId>
+			<version>${org.eclipse.jetty.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.wiremock</groupId>
@@ -85,11 +76,6 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
-		<dependency> <!-- check if it's still needed when slf4j-api 1.8 is available -->
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<scope>test</scope>
-		</dependency>
     </dependencies>
 
 	<build>
