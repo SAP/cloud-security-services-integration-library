@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
@@ -31,8 +32,8 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_
 public class HybridTokenFactory implements TokenFactory {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridTokenFactory.class);
-	private static String xsAppId;
-	private static ScopeConverter xsScopeConverter;
+	static Optional<String> xsAppId;
+	static ScopeConverter xsScopeConverter;
 
 	/**
 	 * Determines whether the JWT token is issued by XSUAA or IAS identity service,
@@ -66,25 +67,28 @@ public class HybridTokenFactory implements TokenFactory {
 	 */
 	static void withXsuaaAppId(@Nonnull String xsAppId) {
 		LOGGER.debug("XSUAA app id = {}", xsAppId);
-		HybridTokenFactory.xsAppId = xsAppId;
+		HybridTokenFactory.xsAppId = Optional.of(xsAppId);
 		getOrCreateScopeConverter();
 	}
 
 	private static ScopeConverter getOrCreateScopeConverter() {
-		if (xsScopeConverter == null && getXsAppId() != null) {
-			xsScopeConverter = new XsuaaScopeConverter(getXsAppId());
+		if (xsScopeConverter == null && getXsAppId().isPresent()) {
+			xsScopeConverter = new XsuaaScopeConverter(getXsAppId().get());
 		}
 		return xsScopeConverter;
 	}
 
-	private static String getXsAppId() {
-		if (xsAppId == null) {
-			OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
-			if (serviceConfiguration == null) {
-				LOGGER.warn("There is no xsuaa service configuration: no local scope check possible.");
-			} else {
-				xsAppId = serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID);
-			}
+	private static Optional<String> getXsAppId() {
+		if (Objects.nonNull(xsAppId)) {
+			return xsAppId;
+		}
+		OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
+		if (serviceConfiguration != null) {
+			xsAppId = Optional.of(serviceConfiguration.getProperty(CFConstants.XSUAA.APP_ID));
+		} else {
+			LOGGER.warn(
+					"There is no xsuaa service configuration with 'xsappname' property: no local scope check possible.");
+			xsAppId = Optional.empty();
 		}
 		return xsAppId;
 	}
