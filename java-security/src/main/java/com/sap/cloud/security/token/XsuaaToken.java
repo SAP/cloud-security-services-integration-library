@@ -112,7 +112,8 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 		GrantType grantType = getGrantType();
 		String principalName;
 
-		if (grantType != null && (grantType.equals(GrantType.CLIENT_CREDENTIALS) || grantType.equals(GrantType.CLIENT_X509))) {
+		if (grantType != null
+				&& (grantType.equals(GrantType.CLIENT_CREDENTIALS) || grantType.equals(GrantType.CLIENT_X509))) {
 			principalName = String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
 		} else {
 			principalName = getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));

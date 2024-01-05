@@ -120,6 +120,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 			boolean correctAppTid = httpGet.getHeaders().get(HttpHeaders.X_APP_TID).get(0).equals(APP_TID);
 			boolean correctAzp = httpGet.getHeaders().get(HttpHeaders.X_AZP).get(0).equals(AZP);
 			return correctAppTid && correctClientId && correctAzp;
-		};	}
+		};
+	}
 
 }

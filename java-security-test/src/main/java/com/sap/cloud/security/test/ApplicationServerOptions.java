@@ -76,15 +76,15 @@ public class ApplicationServerOptions {
 
 	public static ApplicationServerOptions forService(Service service) {
 		return switch (service) {
-			case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
-			case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
-					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
-							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
-							.withUrl("http://localhost")
-							.withDomains("localhost")
-							.build()));
-			default ->
-					throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
+		case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
+		case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
+				.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+						.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
+						.withUrl("http://localhost")
+						.withDomains("localhost")
+						.build()));
+		default ->
+			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		};
 
 	}

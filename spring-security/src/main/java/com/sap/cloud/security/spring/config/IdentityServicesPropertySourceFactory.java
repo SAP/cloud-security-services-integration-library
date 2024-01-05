@@ -59,7 +59,7 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 			.asList("clientid", "clientsecret", "domains", "url", "name", "plan"));
 
 	private Properties properties;
-	
+
 	@Override
 	@SuppressWarnings("squid:S2259") // false positive
 	public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
@@ -68,18 +68,19 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 				&& resource.getResource().getFilename() != null && !resource.getResource().getFilename().isEmpty()) {
 			environment = Environments.readFromInput(resource.getResource().getInputStream());
 		}
-		
+
 		this.properties = new Properties();
-		
+
 		mapXsuaaProperties(environment);
 		mapIasProperties(environment);
 		logger.debug("Parsed {} properties from identity services. {}", this.properties.size(),
 				this.properties.stringPropertyNames());
-		
+
 		return new PropertiesPropertySource(name == null ? PROPERTIES_KEY : name, this.properties);
 	}
 
-	private void mapXsuaaAttributesSingleInstance(final OAuth2ServiceConfiguration oAuth2ServiceConfiguration, final String prefix) {
+	private void mapXsuaaAttributesSingleInstance(final OAuth2ServiceConfiguration oAuth2ServiceConfiguration,
+			final String prefix) {
 		for (String key : XSUAA_ATTRIBUTES) {
 			if (oAuth2ServiceConfiguration.hasProperty(key)) {
 				this.properties.put(prefix + key, oAuth2ServiceConfiguration.getProperty(key));
@@ -92,27 +93,30 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		if (numberOfXsuaaConfigurations == 0) {
 			return;
 		}
-		
+
 		/*
-		 * Case "single XSUAA service configuration":
-		 * Then we do not use an array for describing the properties.
+		 * Case "single XSUAA service configuration": Then we do not use an array for
+		 * describing the properties.
 		 */
 		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
 		if (numberOfXsuaaConfigurations == 1) {
 			mapXsuaaAttributesSingleInstance(xsuaaConfiguration, XSUAA_PREFIX);
 			return;
 		}
-		
+
 		/*
-		 * Case "multiple XSUAA service configurations":
-		 * For historic reasons, the first two items in the array have a special meaning:
-		 * - Item 0 is exclusively used for environment.getXsuaaConfiguration() ("an arbitrary Xsuaa configuration" of plan "application").
-		 * - Item 1 is optionally used for environment.getXsuaaConfigurationForTokenExchange() ("an arbitrary Xsuaa configuration" of plan "broker").
+		 * Case "multiple XSUAA service configurations": For historic reasons, the first
+		 * two items in the array have a special meaning: - Item 0 is exclusively used
+		 * for environment.getXsuaaConfiguration() ("an arbitrary Xsuaa configuration"
+		 * of plan "application"). - Item 1 is optionally used for
+		 * environment.getXsuaaConfigurationForTokenExchange()
+		 * ("an arbitrary Xsuaa configuration" of plan "broker").
 		 */
 		mapXsuaaAttributesSingleInstance(xsuaaConfiguration, PROPERTIES_KEY + ".xsuaa[0].");
-		
+
 		int position = 1;
-		final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = environment.getXsuaaConfigurationForTokenExchange();
+		final OAuth2ServiceConfiguration xsuaaConfigurationForTokenExchange = environment
+				.getXsuaaConfigurationForTokenExchange();
 		if (xsuaaConfigurationForTokenExchange != null) {
 			mapXsuaaAttributesSingleInstance(xsuaaConfigurationForTokenExchange, PROPERTIES_KEY + ".xsuaa[1].");
 			position = 2;
@@ -122,13 +126,15 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 		 * For all other items coming thereafter, there is no order defined anymore.
 		 * However, we must not duplicate the instances...
 		 */
-		final List<OAuth2ServiceConfiguration> remainingXsuaaConfigurations = environment.getServiceConfigurationsAsList().get(Service.XSUAA)
+		final List<OAuth2ServiceConfiguration> remainingXsuaaConfigurations = environment
+				.getServiceConfigurationsAsList().get(Service.XSUAA)
 				.stream()
 				.filter(e -> e != xsuaaConfiguration && e != xsuaaConfigurationForTokenExchange)
 				.toList();
 
-		/* Usage of ".forEach" would have been preferred here,
-		 * but Closures in JDK8 do not permit accessing non-final "position".
+		/*
+		 * Usage of ".forEach" would have been preferred here, but Closures in JDK8 do
+		 * not permit accessing non-final "position".
 		 */
 		for (OAuth2ServiceConfiguration config : remainingXsuaaConfigurations) {
 			final String prefix = String.format(PROPERTIES_KEY + ".xsuaa[%d].", position++);

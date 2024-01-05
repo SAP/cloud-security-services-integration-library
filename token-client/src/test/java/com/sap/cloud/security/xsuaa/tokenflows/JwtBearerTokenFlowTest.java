@@ -138,7 +138,6 @@ public class JwtBearerTokenFlowTest {
 						optionalParametersCaptor.capture(), anyBoolean());
 		assertThat(optionalParametersCaptor.getValue()).doesNotContainEntry(TOKEN_FORMAT, OPAQUE);
 
-
 		cut.setOpaqueTokenFormat(true).execute();
 		verify(tokenService, times(2))
 				.retrieveAccessTokenViaJwtBearerTokenGrant(any(), any(), any(), any(),

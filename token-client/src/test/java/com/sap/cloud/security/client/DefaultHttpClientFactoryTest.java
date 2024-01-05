@@ -46,7 +46,6 @@ class DefaultHttpClientFactoryTest {
 		when(config2.isCertificateBased()).thenCallRealMethod();
 	}
 
-
 	private static String readFromFile(String file) throws IOException {
 		return IOUtils.resourceToString(file, StandardCharsets.UTF_8);
 	}

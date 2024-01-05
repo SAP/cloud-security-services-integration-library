@@ -42,7 +42,8 @@ public class ServiceBindingMapper {
 		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
 				.withProperties(credentials.getEntries(String.class))
 				.withProperty(NAME, b.getName().orElse(""))
-				.withProperty(SERVICE_PLAN, b.getServicePlan().orElse(ServiceConstants.Plan.APPLICATION.name()).toUpperCase());
+				.withProperty(SERVICE_PLAN,
+						b.getServicePlan().orElse(ServiceConstants.Plan.APPLICATION.name()).toUpperCase());
 
 		if (IAS.equals(service)) {
 			parseDomains(builder, credentials);

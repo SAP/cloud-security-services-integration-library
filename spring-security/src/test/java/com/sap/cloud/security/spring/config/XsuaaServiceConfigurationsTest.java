@@ -31,12 +31,14 @@ class XsuaaServiceConfigurationsTest {
 						"sap.security.services.xsuaa[1].name:xsuaaInstance1",
 						"sap.security.services.xsuaa[1].plan:broker")
 				.run(context -> {
-					XsuaaServiceConfiguration config0 = context.getBean(XsuaaServiceConfigurations.class).getConfigurations().get(0);
+					XsuaaServiceConfiguration config0 = context.getBean(XsuaaServiceConfigurations.class)
+							.getConfigurations().get(0);
 					assertEquals("cid0", config0.getClientId());
 					assertEquals("xsuaaInstance0", config0.getName());
 					assertEquals("broker", config0.getPlan());
 
-					XsuaaServiceConfiguration config1 = context.getBean(XsuaaServiceConfigurations.class).getConfigurations().get(1);
+					XsuaaServiceConfiguration config1 = context.getBean(XsuaaServiceConfigurations.class)
+							.getConfigurations().get(1);
 					assertEquals("cid1", config1.getClientId());
 					assertEquals("xsuaaInstance1", config1.getName());
 					assertEquals("broker", config1.getPlan());

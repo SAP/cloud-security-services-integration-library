@@ -5,13 +5,11 @@
  */
 package com.sap.cloud.security.test.jetty;
 
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Function;
-
-import javax.security.auth.Subject;
-
+import com.sap.cloud.security.servlet.TokenAuthenticationResult;
+import com.sap.cloud.security.servlet.TokenAuthenticator;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.ee10.servlet.ServletContextRequest;
 import org.eclipse.jetty.ee10.servlet.ServletContextResponse;
 import org.eclipse.jetty.security.AuthenticationState;
@@ -25,12 +23,12 @@ import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Session;
 import org.eclipse.jetty.util.Callback;
 
-import com.sap.cloud.security.servlet.TokenAuthenticationResult;
-import com.sap.cloud.security.servlet.TokenAuthenticator;
+import javax.security.auth.Subject;
+import java.security.Principal;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
 
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletResponse;
 /**
  * Decorates the TokenAuthenticator and adapts it to Jetty.
  */
@@ -52,20 +50,26 @@ public class JettyTokenAuthenticator implements Authenticator {
 	}
 
 	@Override
-	public Authorization getConstraintAuthentication(String pathInContext, Authorization existing, Function<Boolean, Session> getSession) {
+	public Authorization getConstraintAuthentication(String pathInContext, Authorization existing,
+			Function<Boolean, Session> getSession) {
 		return Authorization.ANY_USER;
 	}
 
 	@Override
-	public AuthenticationState validateRequest(Request request, Response response, Callback callback) throws ServerAuthException {
-		ServletRequest servletRequest = request instanceof ServletContextRequest scr ? scr.getServletApiRequest() : null;
-		ServletResponse servletResponse = response instanceof ServletContextResponse scr ? scr.getServletApiResponse() : null;
+	public AuthenticationState validateRequest(Request request, Response response, Callback callback)
+			throws ServerAuthException {
+		ServletRequest servletRequest = request instanceof ServletContextRequest scr ? scr.getServletApiRequest()
+				: null;
+		ServletResponse servletResponse = response instanceof ServletContextResponse scr ? scr.getServletApiResponse()
+				: null;
 
-		TokenAuthenticationResult tokenAuthenticationResult = tokenAuthenticator.validateRequest(servletRequest, servletResponse);
+		TokenAuthenticationResult tokenAuthenticationResult = tokenAuthenticator.validateRequest(servletRequest,
+				servletResponse);
 		if (tokenAuthenticationResult.isAuthenticated()) {
 			return createAuthentication(tokenAuthenticationResult);
 		} else {
-			Response.writeError(request, response, callback, HttpServletResponse.SC_UNAUTHORIZED, tokenAuthenticationResult.getUnauthenticatedReason());
+			Response.writeError(request, response, callback, HttpServletResponse.SC_UNAUTHORIZED,
+					tokenAuthenticationResult.getUnauthenticatedReason());
 			return AuthenticationState.SEND_FAILURE;
 		}
 	}
@@ -76,6 +80,7 @@ public class JettyTokenAuthenticator implements Authenticator {
 		principals.add(principal);
 		Subject subject = new Subject(true, principals, new HashSet<>(), new HashSet<>());
 		String[] scopes = tokenAuthentication.getScopes().toArray(new String[0]);
-		return new LoginAuthenticator.UserAuthenticationSucceeded(getAuthenticationType(), new DefaultUserIdentity(subject, principal, scopes));
+		return new LoginAuthenticator.UserAuthenticationSucceeded(getAuthenticationType(),
+				new DefaultUserIdentity(subject, principal, scopes));
 	}
 }

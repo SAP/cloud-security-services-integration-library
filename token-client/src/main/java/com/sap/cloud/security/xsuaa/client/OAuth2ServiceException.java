@@ -50,7 +50,7 @@ public class OAuth2ServiceException extends IOException {
 	 * @param httpStatusCode
 	 *            the status code of the HTTP service request
 	 * @param headers
-	 * 	          the headers of the HTTP service request
+	 *            the headers of the HTTP service request
 	 */
 
 	OAuth2ServiceException(String message, Integer httpStatusCode, List<String> headers) {
@@ -70,6 +70,7 @@ public class OAuth2ServiceException extends IOException {
 
 	/**
 	 * Returns the HTTP headers of the failed OAuth2 service request
+	 *
 	 * @return list of HTTP headers
 	 */
 	public List<String> getHeaders() {

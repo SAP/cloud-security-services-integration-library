@@ -102,6 +102,7 @@ class IasToken implements Token {
 
 	@Override
 	public String getAppTid() {
-		return decodedToken.hasClaim(SAP_GLOBAL_APP_TID) ? decodedToken.getClaimAsString(SAP_GLOBAL_APP_TID) : decodedToken.getClaimAsString(SAP_GLOBAL_ZONE_ID);
+		return decodedToken.hasClaim(SAP_GLOBAL_APP_TID) ? decodedToken.getClaimAsString(SAP_GLOBAL_APP_TID)
+				: decodedToken.getClaimAsString(SAP_GLOBAL_ZONE_ID);
 	}
 }

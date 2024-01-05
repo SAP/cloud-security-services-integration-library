@@ -146,9 +146,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 					TokenClaims.CLAIM_ZONE_ID);
 
 		} catch (ParseException e) {
-			zid =null;
+			zid = null;
 		}
-		if (zid != null && zid.isBlank()){
+		if (zid != null && zid.isBlank()) {
 			zid = null;
 		}
 		return zid;
@@ -194,8 +194,9 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 	private String composeJku(String uaaDomain, String zid) {
 		String zidQueryParam = zid != null ? "?zid=" + zid : "";
 
-		// uaaDomain in configuration is always without a schema, but for testing purpose http schema can be used
-		if (uaaDomain.startsWith("http://")){
+		// uaaDomain in configuration is always without a schema, but for testing
+		// purpose http schema can be used
+		if (uaaDomain.startsWith("http://")) {
 			return uaaDomain + "/token_keys" + zidQueryParam;
 		}
 		return "https://" + uaaDomain + "/token_keys" + zidQueryParam;

@@ -26,37 +26,37 @@ public interface OAuth2TokenKeyService {
 	 * @param tokenKeysEndpointUri
 	 *            the token endpoint URI (jku).
 	 * @param tenantId
-	 *            the unique identifier of the tenant. Obligatory parameter in context of
-	 *            multi-tenant IAS applications to make sure that the tenant id
-	 *            belongs to the IAS tenant.
-	 * @return list of JSON Web Token (JWT) keys as
-	 *         JSON string.
+	 *            the unique identifier of the tenant. Obligatory parameter in
+	 *            context of multi-tenant IAS applications to make sure that the
+	 *            tenant id belongs to the IAS tenant.
+	 * @return list of JSON Web Token (JWT) keys as JSON string.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
-	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId) throws OAuth2ServiceException {
+	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId)
+			throws OAuth2ServiceException {
 		return retrieveTokenKeys(tokenKeysEndpointUri, Collections.singletonMap(HttpHeaders.X_APP_TID, tenantId));
 	}
 
 	/**
-	 * @deprecated Use {@link OAuth2TokenKeyService#retrieveTokenKeys(URI, Map)} instead
-	 * Requests token web key set from IAS OAuth Server.
+	 * @deprecated Use {@link OAuth2TokenKeyService#retrieveTokenKeys(URI, Map)}
+	 *             instead Requests token web key set from IAS OAuth Server.
 	 *
 	 * @param tokenKeysEndpointUri
 	 *            the token endpoint URI (jku).
 	 * @param tenantId
-	 *            the unique identifier of the tenant. Obligatory parameter in context of
-	 *            multi-tenant IAS applications to make sure that the tenant id
-	 *            belongs to the IAS tenant.
+	 *            the unique identifier of the tenant. Obligatory parameter in
+	 *            context of multi-tenant IAS applications to make sure that the
+	 *            tenant id belongs to the IAS tenant.
 	 * @param clientId
-	 * 				clientId from the service binding
-	 * @return list of JSON Web Token (JWT) keys as
-	 *         JSON string.
+	 *            clientId from the service binding
+	 * @return list of JSON Web Token (JWT) keys as JSON string.
 	 * @throws OAuth2ServiceException
 	 *             in case of an error during the http request.
 	 */
 	@Deprecated
-	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId) throws OAuth2ServiceException {
+	default String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId,
+			@Nullable String clientId) throws OAuth2ServiceException {
 		Map<String, String> params = new HashMap<>(2, 1);
 		params.put(HttpHeaders.X_APP_TID, tenantId);
 		params.put(HttpHeaders.X_CLIENT_ID, clientId);
@@ -67,10 +67,15 @@ public interface OAuth2TokenKeyService {
 	/**
 	 * Retrieves the JWKS (JSON Web Key Set) from the OAuth2 Server.
 	 *
-	 * @param tokenKeysEndpointUri the JWKS endpoint URI.
-	 * @param params additional header parameters that are sent along with the request. Use constants from {@link HttpHeaders} for the header keys.
+	 * @param tokenKeysEndpointUri
+	 *            the JWKS endpoint URI.
+	 * @param params
+	 *            additional header parameters that are sent along with the request.
+	 *            Use constants from {@link HttpHeaders} for the header keys.
 	 * @return a JWKS in JSON format.
-	 * @throws OAuth2ServiceException in case of an error during the http request.
+	 * @throws OAuth2ServiceException
+	 *             in case of an error during the http request.
 	 */
-	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params) throws OAuth2ServiceException;
+	String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params)
+			throws OAuth2ServiceException;
 }

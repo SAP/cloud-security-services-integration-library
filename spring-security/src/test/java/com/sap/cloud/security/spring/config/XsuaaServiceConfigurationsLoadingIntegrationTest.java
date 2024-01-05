@@ -25,9 +25,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Tests the integration between XsuaaServiceConfigurations and IdentityServicesPropertySourceFactory.
- * The XSUAA configuration properties of the XsuaaServiceConfigurations are asserted to be equal to those of the configuration used to populate the Spring properties via IdentityServicesPropertySourceFactory.
- * In addition, to assert backward compatibility, the test makes assertions about indices 0 and 1 in the configuration list of XsuaaServiceConfigurations.
+ * Tests the integration between XsuaaServiceConfigurations and
+ * IdentityServicesPropertySourceFactory. The XSUAA configuration properties of
+ * the XsuaaServiceConfigurations are asserted to be equal to those of the
+ * configuration used to populate the Spring properties via
+ * IdentityServicesPropertySourceFactory. In addition, to assert backward
+ * compatibility, the test makes assertions about indices 0 and 1 in the
+ * configuration list of XsuaaServiceConfigurations.
  */
 @SpringBootTest(classes = { MultipleXsuaaConfigurationsFromFile.class })
 class XsuaaServiceConfigurationsLoadingIntegrationTest {
@@ -59,6 +63,8 @@ class XsuaaServiceConfigurationsLoadingIntegrationTest {
 }
 
 @Configuration
-@PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = { "classpath:fourXsuaaBindingsAndOneIasBinding.json" })
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = {
+		"classpath:fourXsuaaBindingsAndOneIasBinding.json" })
 @EnableConfigurationProperties(XsuaaServiceConfigurations.class)
-class MultipleXsuaaConfigurationsFromFile {}
+class MultipleXsuaaConfigurationsFromFile {
+}

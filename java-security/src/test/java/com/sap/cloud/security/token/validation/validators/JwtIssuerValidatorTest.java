@@ -66,7 +66,8 @@ class JwtIssuerValidatorTest {
 	}
 
 	/**
-	 * Test ensures that issuer validation also succeeds for servers running on http://localhost:<PORT>, e.g. when using java-security-test module.
+	 * Test ensures that issuer validation also succeeds for servers running on
+	 * http://localhost:<PORT>, e.g. when using java-security-test module.
 	 */
 	@Test
 	void supportsHttpLocalhostIssuers() {
@@ -81,7 +82,7 @@ class JwtIssuerValidatorTest {
 
 	@Test
 	void validationFails_whenSubdomainHasMoreThan63Characters() {
-		for(String d : trustedDomains) {
+		for (String d : trustedDomains) {
 			when(token.getIssuer()).thenReturn("https://a." + d);
 			assertThat(cut.validate(token).isValid(), is(true));
 

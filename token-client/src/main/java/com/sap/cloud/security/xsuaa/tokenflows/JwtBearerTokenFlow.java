@@ -8,10 +8,7 @@ import javax.annotation.Nonnull;
 import java.util.*;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_FORMAT;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_TYPE_OPAQUE;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 
 /**
@@ -145,7 +142,8 @@ public class JwtBearerTokenFlow {
 	/**
 	 * Can be used to change the format of the returned token.
 	 *
-	 * @param opaque enables opaque token format when set to {@code true}.
+	 * @param opaque
+	 *            enables opaque token format when set to {@code true}.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow setOpaqueTokenFormat(boolean opaque) {

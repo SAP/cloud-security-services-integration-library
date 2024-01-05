@@ -201,8 +201,9 @@ public interface Token extends Serializable {
 	 *
 	 * @return the unique application tenant identifier.
 	 */
-	default String getAppTid(){
-		return hasClaim(SAP_GLOBAL_APP_TID) ? getClaimAsString(SAP_GLOBAL_APP_TID) : getClaimAsString(SAP_GLOBAL_ZONE_ID);
+	default String getAppTid() {
+		return hasClaim(SAP_GLOBAL_APP_TID) ? getClaimAsString(SAP_GLOBAL_APP_TID)
+				: getClaimAsString(SAP_GLOBAL_ZONE_ID);
 	}
 
 	/**

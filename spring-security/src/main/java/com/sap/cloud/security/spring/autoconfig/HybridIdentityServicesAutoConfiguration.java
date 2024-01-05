@@ -5,8 +5,8 @@
  */
 package com.sap.cloud.security.spring.autoconfig;
 
-import com.sap.cloud.security.spring.config.IdentityServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
+import com.sap.cloud.security.spring.config.IdentityServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
@@ -83,11 +83,16 @@ public class HybridIdentityServicesAutoConfiguration {
 		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
 
-			/* Use only primary XSUAA config and up to 1 more config of type BROKER to stay backward-compatible now that XsuaaServiceConfigurations contains all XSUAA
-			configurations instead of only two. */
+			/*
+			 * Use only primary XSUAA config and up to 1 more config of type BROKER to stay
+			 * backward-compatible now that XsuaaServiceConfigurations contains all XSUAA
+			 * configurations instead of only two.
+			 */
 			List<XsuaaServiceConfiguration> allXsuaaConfigs = xsuaaConfigs.getConfigurations();
-			List<XsuaaServiceConfiguration> usedXsuaaConfigs = allXsuaaConfigs.subList(0, Math.min(2, allXsuaaConfigs.size()));
-			if (usedXsuaaConfigs.size() == 2 && !ServiceConstants.Plan.BROKER.toString().equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
+			List<XsuaaServiceConfiguration> usedXsuaaConfigs = allXsuaaConfigs.subList(0,
+					Math.min(2, allXsuaaConfigs.size()));
+			if (usedXsuaaConfigs.size() == 2 && !ServiceConstants.Plan.BROKER.toString()
+					.equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
 				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
 			}
 

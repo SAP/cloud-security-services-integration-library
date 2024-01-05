@@ -218,14 +218,16 @@ public class JwtValidatorBuilder {
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
 		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
 		if (configuration.getService() == XSUAA) {
-			signatureValidator = new XsuaaJwtSignatureValidator(configuration, tokenKeyServiceWithCache, getOidcConfigurationServiceWithCache());
+			signatureValidator = new XsuaaJwtSignatureValidator(configuration, tokenKeyServiceWithCache,
+					getOidcConfigurationServiceWithCache());
 		} else if (configuration.getService() == IAS) {
-			if(configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
+			if (configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
 				defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
 			}
 
-			signatureValidator = new SapIdJwtSignatureValidator(configuration, tokenKeyServiceWithCache, getOidcConfigurationServiceWithCache());
-			if(isTenantIdCheckDisabled) {
+			signatureValidator = new SapIdJwtSignatureValidator(configuration, tokenKeyServiceWithCache,
+					getOidcConfigurationServiceWithCache());
+			if (isTenantIdCheckDisabled) {
 				((SapIdJwtSignatureValidator) signatureValidator).disableTenantIdCheck();
 			}
 		}

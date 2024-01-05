@@ -106,7 +106,9 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Returns {@link OAuth2TokenKeyServiceWithCache#getPublicKey(JwtSignatureAlgorithm, String, URI, Map)} with {@link HttpHeaders#X_APP_TID} = appTid inside params.
+	 * Returns
+	 * {@link OAuth2TokenKeyServiceWithCache#getPublicKey(JwtSignatureAlgorithm, String, URI, Map)}
+	 * with {@link HttpHeaders#X_APP_TID} = appTid inside params.
 	 */
 	@Nullable
 	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid)
@@ -126,7 +128,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
 	 *            specific).
 	 * @param params
-	 *            additional parameters that are sent along with the request. Use constants from {@link HttpHeaders} for the parameter keys.
+	 *            additional parameters that are sent along with the request. Use
+	 *            constants from {@link HttpHeaders} for the parameter keys.
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
 	 *             in case the call to the jwks endpoint of the identity service
@@ -137,7 +140,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 *             in case the algorithm of the json web key is not supported.
 	 *
 	 */
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, Map<String, String> params)
+	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri,
+			Map<String, String> params)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		assertNotNull(keyAlgorithm, "keyAlgorithm must not be null.");
 		assertHasText(keyId, "keyId must not be null.");
@@ -146,9 +150,9 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		CacheKey cacheKey = new CacheKey(keyUri, params);
 		JsonWebKeySet jwks = getCache().getIfPresent(cacheKey.toString());
 
-        if(jwks == null) {
-            jwks = retrieveTokenKeysAndUpdateCache(cacheKey);
-        }
+		if (jwks == null) {
+			jwks = retrieveTokenKeysAndUpdateCache(cacheKey);
+		}
 
 		if (jwks.getAll().isEmpty()) {
 			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", keyUri);
@@ -165,14 +169,14 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		throw new IllegalArgumentException("Key with kid " + keyId + " not found in JWKS.");
 	}
 
-    private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey) throws OAuth2ServiceException {
-            String jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), cacheKey.params());
+	private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey) throws OAuth2ServiceException {
+		String jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), cacheKey.params());
 
-            JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson);
-            getCache().put(cacheKey.toString(), keySet);
+		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson);
+		getCache().put(cacheKey.toString(), keySet);
 
-            return keySet;
-    }
+		return keySet;
+	}
 
 	private TokenKeyCacheConfiguration getCheckedConfiguration(CacheConfiguration cacheConfiguration) {
 		Assertions.assertNotNull(cacheConfiguration, "CacheConfiguration must not be null!");

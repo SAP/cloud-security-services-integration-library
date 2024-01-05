@@ -62,7 +62,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Creates a new JSONObject object with LinkedHashMap with predictable iteration order.
+	 * Creates a new JSONObject object with LinkedHashMap with predictable iteration
+	 * order.
+	 *
 	 * @return JSONObject
 	 */
 	private static JSONObject newPredictableOrderingJSONObject() {
@@ -166,7 +168,8 @@ public class JwtGenerator {
 		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 		if (service == Service.IAS) {
 			jsonPayload.put(TokenClaims.AUDIENCE, azp);
-			jsonPayload.put(TokenClaims.SAP_GLOBAL_ZONE_ID, DEFAULT_ZONE_ID); //TODO to be removed once fallback is not supported
+			jsonPayload.put(TokenClaims.SAP_GLOBAL_ZONE_ID, DEFAULT_ZONE_ID); // TODO to be removed once fallback is not
+																				// supported
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_APP_TID, DEFAULT_APP_TID);
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_USER_ID, DEFAULT_USER_ID);
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_SCIM_ID, DEFAULT_USER_ID);

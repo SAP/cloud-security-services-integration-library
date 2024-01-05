@@ -21,8 +21,11 @@ import java.io.IOException;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Tests the integration between XsuaaServiceConfiguration and IdentityServicesPropertySourceFactory.
- * The XSUAA configuration properties of the XsuaaServiceConfiguration are asserted to be equal to those of the configuration used to populate the Spring properties via IdentityServicesPropertySourceFactory.
+ * Tests the integration between XsuaaServiceConfiguration and
+ * IdentityServicesPropertySourceFactory. The XSUAA configuration properties of
+ * the XsuaaServiceConfiguration are asserted to be equal to those of the
+ * configuration used to populate the Spring properties via
+ * IdentityServicesPropertySourceFactory.
  */
 @SpringBootTest(classes = { SingleXsuaaConfigurationFromFile.class })
 class XsuaaServiceConfigurationLoadingIntegrationTest {
@@ -46,6 +49,8 @@ class XsuaaServiceConfigurationLoadingIntegrationTest {
 }
 
 @Configuration
-@PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = { "classpath:singleXsuaaAndIasBinding.json" })
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, value = {
+		"classpath:singleXsuaaAndIasBinding.json" })
 @EnableConfigurationProperties(XsuaaServiceConfiguration.class)
-class SingleXsuaaConfigurationFromFile {}
+class SingleXsuaaConfigurationFromFile {
+}

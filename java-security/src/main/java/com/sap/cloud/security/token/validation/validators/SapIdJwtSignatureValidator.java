@@ -23,79 +23,86 @@ import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConst
  * Jwt Signature validator for OIDC tokens issued by Identity service
  */
 class SapIdJwtSignatureValidator extends JwtSignatureValidator {
-    private boolean isTenantIdCheckEnabled = true;
+	private boolean isTenantIdCheckEnabled = true;
 
-    SapIdJwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService, OidcConfigurationServiceWithCache oidcConfigurationService) {
-        super(configuration, tokenKeyService, oidcConfigurationService);
-    }
+	SapIdJwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService,
+			OidcConfigurationServiceWithCache oidcConfigurationService) {
+		super(configuration, tokenKeyService, oidcConfigurationService);
+	}
 
-    /**
-     * Disables the tenant id check. In case JWT issuer (`iss` claim) differs from `url` attribute of
-     * {@link OAuth2ServiceConfiguration}, claim {@link TokenClaims#SAP_GLOBAL_APP_TID} needs to be
-     * present in token to ensure that the tenant belongs to this issuer.
-     * <p>
-     * Use with caution as it relaxes the validation rules! It is not recommended to
-     * disable this check for standard Identity service setup.
-     */
-    protected void disableTenantIdCheck() {
-        this.isTenantIdCheckEnabled = false;
-    }
+	/**
+	 * Disables the tenant id check. In case JWT issuer (`iss` claim) differs from
+	 * `url` attribute of {@link OAuth2ServiceConfiguration}, claim
+	 * {@link TokenClaims#SAP_GLOBAL_APP_TID} needs to be present in token to ensure
+	 * that the tenant belongs to this issuer.
+	 * <p>
+	 * Use with caution as it relaxes the validation rules! It is not recommended to
+	 * disable this check for standard Identity service setup.
+	 */
+	protected void disableTenantIdCheck() {
+		this.isTenantIdCheckEnabled = false;
+	}
 
-    @Override
-    protected PublicKey getPublicKey(Token token, JwtSignatureAlgorithm algorithm) throws OAuth2ServiceException {
-        String keyId = DEFAULT_KEY_ID;
-        if (token.hasHeaderParameter(KID_PARAMETER_NAME)) {
-            keyId = token.getHeaderParameterAsString(KID_PARAMETER_NAME);
-        }
+	@Override
+	protected PublicKey getPublicKey(Token token, JwtSignatureAlgorithm algorithm) throws OAuth2ServiceException {
+		String keyId = DEFAULT_KEY_ID;
+		if (token.hasHeaderParameter(KID_PARAMETER_NAME)) {
+			keyId = token.getHeaderParameterAsString(KID_PARAMETER_NAME);
+		}
 
-        URI jkuUri = getJwksUri(token);
-        Map<String, String> params = new HashMap<>(3, 1);
-        params.put(HttpHeaders.X_APP_TID, token.getAppTid());
-        params.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
-        params.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
+		URI jkuUri = getJwksUri(token);
+		Map<String, String> params = new HashMap<>(3, 1);
+		params.put(HttpHeaders.X_APP_TID, token.getAppTid());
+		params.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
+		params.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
 
-        try {
-            return tokenKeyService.getPublicKey(algorithm, keyId, jkuUri, params);
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException(e);
-        }
-    }
+		try {
+			return tokenKeyService.getPublicKey(algorithm, keyId, jkuUri, params);
+		} catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
 
-    private URI getJwksUri(Token token) throws OAuth2ServiceException {
-        String domain = token.getIssuer();
-        if (domain == null) {
-            throw new IllegalArgumentException("Token does not contain mandatory " + TokenClaims.ISSUER + " header.");
-        }
+	private URI getJwksUri(Token token) throws OAuth2ServiceException {
+		String domain = token.getIssuer();
+		if (domain == null) {
+			throw new IllegalArgumentException("Token does not contain mandatory " + TokenClaims.ISSUER + " header.");
+		}
 
-        if (isTenantIdCheckEnabled && !domain.equals("" + configuration.getUrl()) && token.getAppTid() == null) {
-            throw new IllegalArgumentException("OIDC token must provide the " + TokenClaims.SAP_GLOBAL_APP_TID + " claim for tenant validation when issuer is not the same as the url from the service credentials.");
-        }
+		if (isTenantIdCheckEnabled && !domain.equals("" + configuration.getUrl()) && token.getAppTid() == null) {
+			throw new IllegalArgumentException("OIDC token must provide the " + TokenClaims.SAP_GLOBAL_APP_TID
+					+ " claim for tenant validation when issuer is not the same as the url from the service credentials.");
+		}
 
+		return this.getOidcJwksUri(domain);
+	}
 
-        return this.getOidcJwksUri(domain);
-    }
+	/**
+	 * Fetches the JWKS URI from the OIDC .well-known endpoint under the given
+	 * domain that must have already been validated to be trustworthy in advance,
+	 * e.g. with an additional {@link JwtIssuerValidator}.
+	 *
+	 * @param domain
+	 *            a trustworthy domain that supplies an OIDC .well-known endpoint
+	 * @return the URI to the JWKS of the OIDC service under the given domain
+	 * @throws OAuth2ServiceException
+	 *             if server call fails
+	 */
+	@Nonnull
+	private URI getOidcJwksUri(String domain) throws OAuth2ServiceException {
+		URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(domain);
 
-    /**
-     * Fetches the JWKS URI from the OIDC .well-known endpoint under the given domain that must have already been validated to be trustworthy in advance, e.g. with an additional {@link JwtIssuerValidator}.
-     *
-     * @param domain a trustworthy domain that supplies an OIDC .well-known endpoint
-     * @return the URI to the JWKS of the OIDC service under the given domain
-     * @throws OAuth2ServiceException if server call fails
-     */
-    @Nonnull
-    private URI getOidcJwksUri(String domain) throws OAuth2ServiceException {
-        URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(domain);
+		OAuth2ServiceEndpointsProvider endpointsProvider = oidcConfigurationService
+				.getOrRetrieveEndpoints(discoveryUri);
+		if (endpointsProvider == null) {
+			throw new OAuth2ServiceException("OIDC .well-known configuration could not be retrieved.");
+		}
 
-        OAuth2ServiceEndpointsProvider endpointsProvider = oidcConfigurationService.getOrRetrieveEndpoints(discoveryUri);
-        if (endpointsProvider == null) {
-            throw new OAuth2ServiceException("OIDC .well-known configuration could not be retrieved.");
-        }
+		URI jkuUri = endpointsProvider.getJwksUri();
+		if (jkuUri == null) {
+			throw new IllegalArgumentException("OIDC .well-known response did not contain JWKS URI.");
+		}
 
-        URI jkuUri = endpointsProvider.getJwksUri();
-        if (jkuUri == null) {
-            throw new IllegalArgumentException("OIDC .well-known response did not contain JWKS URI.");
-        }
-
-        return jkuUri;
-    }
+		return jkuUri;
+	}
 }

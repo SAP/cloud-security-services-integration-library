@@ -60,7 +60,7 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 
 		if (clientId != null && clientIdentity.isCertificateBased()) {
 			SslConnection connectionPool = sslConnectionPool.compute(clientId,
-					(s,c) -> new SslConnection(clientIdentity));
+					(s, c) -> new SslConnection(clientIdentity));
 			return httpClientBuilder
 					.setConnectionManager(connectionPool.poolingConnectionManager)
 					.setSSLContext(connectionPool.context)

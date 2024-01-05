@@ -34,7 +34,8 @@ public class XsuaaTokenTest {
 
 	@Test
 	public void constructor_raiseIllegalArgumentExceptions() {
-		assertThatThrownBy(() -> new XsuaaToken("")).isInstanceOf(IllegalArgumentException.class).hasMessageContaining("jwtToken must not be null / empty");
+		assertThatThrownBy(() -> new XsuaaToken("")).isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("jwtToken must not be null / empty");
 
 		assertThatThrownBy(() -> new XsuaaToken("abc")).isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("JWT token does not consist of 'header'.'payload'.'signature'.");

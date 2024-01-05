@@ -78,7 +78,8 @@ public class ServiceBindingEnvironment implements Environment {
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-		List<ServiceConstants.Plan> orderedServicePlans = List.of(ServiceConstants.Plan.APPLICATION, ServiceConstants.Plan.BROKER,
+		List<ServiceConstants.Plan> orderedServicePlans = List.of(ServiceConstants.Plan.APPLICATION,
+				ServiceConstants.Plan.BROKER,
 				ServiceConstants.Plan.SPACE, ServiceConstants.Plan.DEFAULT);
 		List<OAuth2ServiceConfiguration> xsuaaConfigurations = getServiceConfigurationsAsList().get(XSUAA);
 
@@ -135,11 +136,14 @@ public class ServiceBindingEnvironment implements Environment {
 	 * Gives access to all service configurations parsed from the environment. The
 	 * service configurations are parsed on the first access, then cached.
 	 *
-	 * Note that the result contains only one service configuration per service plan and does not contain configurations
-	 * with a service plan other than those from {@link ServiceConstants}#Plan.
-	 * Use {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()} to get a complete list of configurations.
+	 * Note that the result contains only one service configuration per service plan
+	 * and does not contain configurations with a service plan other than those from
+	 * {@link ServiceConstants}#Plan. Use
+	 * {@link ServiceBindingEnvironment#getServiceConfigurationsAsList()} to get a
+	 * complete list of configurations.
 	 *
-	 * @return the service configurations grouped first by service, then by service plan.
+	 * @return the service configurations grouped first by service, then by service
+	 *         plan.
 	 */
 	@Override
 	public Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> getServiceConfigurations() {
@@ -158,8 +162,7 @@ public class ServiceBindingEnvironment implements Environment {
 					.collect(Collectors.toMap(
 							config -> ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN)),
 							Function.identity(),
-							(a, b) -> a
-					));
+							(a, b) -> a));
 
 			result.put(service, planConfigurations);
 		}
@@ -194,7 +197,7 @@ public class ServiceBindingEnvironment implements Environment {
 	private ServiceConstants.Plan getServicePlan(OAuth2ServiceConfiguration config) {
 		try {
 			return ServiceConstants.Plan.from(config.getProperty(SERVICE_PLAN));
-		} catch(IllegalArgumentException e) {
+		} catch (IllegalArgumentException e) {
 			return null;
 		}
 	}

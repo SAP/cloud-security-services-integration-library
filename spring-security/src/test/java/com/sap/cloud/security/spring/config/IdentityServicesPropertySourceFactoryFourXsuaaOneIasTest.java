@@ -19,13 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests that the {@link IdentityServicesPropertySourceFactory} puts 2 XSUAA service instances with plan 'application' and 2 with plan 'broker' into the Spring properties
- * in the correct order.
- * For backward-compatibility, the order of the service instance must be as follows:
- * Index 0: Configuration accessible via Environment#getXsuaaConfiguration (Application)
- * Index 1: Configuration accessible via Environment#getXsuaaConfigurationForTokenExchange (Broker) if exists, otherwise next XSUAA configuration
- * Index 2+: Remaining XSUAA configurations
- * In addition, tests that the IAS service instance from the environment is correctly added as well.
+ * Tests that the {@link IdentityServicesPropertySourceFactory} puts 2 XSUAA
+ * service instances with plan 'application' and 2 with plan 'broker' into the
+ * Spring properties in the correct order. For backward-compatibility, the order
+ * of the service instance must be as follows: Index 0: Configuration accessible
+ * via Environment#getXsuaaConfiguration (Application) Index 1: Configuration
+ * accessible via Environment#getXsuaaConfigurationForTokenExchange (Broker) if
+ * exists, otherwise next XSUAA configuration Index 2+: Remaining XSUAA
+ * configurations In addition, tests that the IAS service instance from the
+ * environment is correctly added as well.
  */
 @SpringBootTest(classes = { FourXsuaaOneIasTestConfigurationFromFile.class })
 class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {
@@ -63,7 +65,7 @@ class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {
 		assertEquals("xsappname", configuration.xsuaaAppName3);
 		assertEquals("xsuaaInstance3", configuration.xsuaaName3);
 		assertEquals("application", configuration.xsuaaPlan3.toLowerCase());
-		
+
 		/* IAS */
 		assertEquals("client-id-ias", configuration.identityClientId);
 		assertEquals("client-secret-ias", configuration.identityClientSecret);
@@ -81,7 +83,7 @@ class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {
 class FourXsuaaOneIasTestConfigurationFromFile {
 
 	/* Index 0 */
-	
+
 	@Value("${sap.security.services.xsuaa[0].url:}")
 	public String xsuaaUrl0;
 
@@ -105,9 +107,9 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 
 	@Value("${sap.security.services.xsuaa[0].unknown:}")
 	public String unknown0;
-	
+
 	/* Index 1 */
-	
+
 	@Value("${sap.security.services.xsuaa[1].clientid:}")
 	public String xsuaaClientId1;
 
@@ -120,9 +122,8 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 	@Value("${sap.security.services.xsuaa[1].plan:}")
 	public String xsuaaPlan1;
 
-	
 	/* Index 2 */
-	
+
 	@Value("${sap.security.services.xsuaa[2].clientid:}")
 	public String xsuaaClientId2;
 
@@ -136,7 +137,7 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 	public String xsuaaPlan2;
 
 	/* Index 3 */
-	
+
 	@Value("${sap.security.services.xsuaa[3].clientid:}")
 	public String xsuaaClientId3;
 
@@ -151,9 +152,9 @@ class FourXsuaaOneIasTestConfigurationFromFile {
 
 	@Value("${sap.security.services.xsuaa[3].plan:}")
 	public String xsuaaPlan3;
-	
+
 	/* IAS */
-	
+
 	@Value("${sap.security.services.identity.clientid:}")
 	public String identityClientId;
 

@@ -34,7 +34,6 @@ public final class TokenClaims {
 	public static final String SAP_GLOBAL_SCIM_ID = "scim_id";
 	public static final String SAP_GLOBAL_USER_ID = "user_uuid";
 
-
 	/**
 	 * @deprecated Use {@link TokenClaims#SAP_GLOBAL_APP_TID} instead.
 	 */

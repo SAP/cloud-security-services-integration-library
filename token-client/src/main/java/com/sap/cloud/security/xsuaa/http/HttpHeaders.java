@@ -20,14 +20,13 @@ public class HttpHeaders {
 	/**
 	 * @deprecated use {@link #X_APP_TID} instead
 	 *
-	 * will be removed with next major release 4.0.0
+	 *             will be removed with next major release 4.0.0
 	 */
-	@Deprecated(forRemoval = true )
+	@Deprecated(forRemoval = true)
 	public static final String X_ZONE_UUID = "x-zone_uuid";
 	public static final String X_APP_TID = "x-app_tid";
 	public static final String X_CLIENT_ID = "x-client_id";
 	public static final String X_AZP = "x-azp";
-
 
 	private final Set<HttpHeader> headers;
 
