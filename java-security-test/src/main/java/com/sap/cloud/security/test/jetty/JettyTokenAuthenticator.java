@@ -62,7 +62,7 @@ public class JettyTokenAuthenticator implements Authenticator {
 		ServletResponse servletResponse = response instanceof ServletContextResponse scr ? scr.getServletApiResponse() : null;
 
 		TokenAuthenticationResult tokenAuthenticationResult = tokenAuthenticator.validateRequest(servletRequest, servletResponse);
-		if (tokenAuthenticationResult != null && tokenAuthenticationResult.isAuthenticated()) {
+		if (tokenAuthenticationResult.isAuthenticated()) {
 			return createAuthentication(tokenAuthenticationResult);
 		} else {
 			Response.writeError(request, response, callback, HttpServletResponse.SC_UNAUTHORIZED, tokenAuthenticationResult.getUnauthenticatedReason());
