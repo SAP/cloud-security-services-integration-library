@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.time.Instant;
@@ -42,8 +43,8 @@ public class JwtGenerator {
 	private static final String DEFAULT_JWKS_URL = "http://localhost/token_keys";
 	private static final char DOT = '.';
 
-	private final JSONObject jsonHeader = new JSONObject();
-	private final JSONObject jsonPayload = new JSONObject();
+	private final JSONObject jsonHeader = newPredictableOrderingJSONObject();
+	private final JSONObject jsonPayload = newPredictableOrderingJSONObject();
 
 	private final SignatureCalculator signatureCalculator;
 	private final Service service;
@@ -58,6 +59,23 @@ public class JwtGenerator {
 		this.service = service;
 		this.signatureCalculator = signatureCalculator;
 		predefineTokenClaims();
+	}
+
+	/**
+	 * Creates a new JSONObject object with LinkedHashMap with predictable iteration order.
+	 * @return JSONObject
+	 */
+	private static JSONObject newPredictableOrderingJSONObject() {
+		JSONObject jsonObject = new JSONObject();
+		try {
+			Field declaredMapField = jsonObject.getClass().getDeclaredField("map");
+			declaredMapField.setAccessible(true);
+			declaredMapField.set(jsonObject, new LinkedHashMap<>());
+			declaredMapField.setAccessible(false);
+		} catch (IllegalAccessException | NoSuchFieldException e) {
+			LOGGER.info("Couldn't create a JSONObject with a LinkedHashMap field. {}", e.getMessage());
+		}
+		return jsonObject;
 	}
 
 	/**
