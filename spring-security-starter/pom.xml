@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.3.2</version>
+		<version>3.3.3</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
