@@ -3,7 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## 3.3.3
 - [java-security]
-  - reduce `HybridTokenFactory` logging noise - in case of missing service configuration warn message will be logged just once 
+  - reduce `HybridTokenFactory` logging noise - in case of missing service configuration warn message will be logged just once
+  - upgrade jetty ee9 to jetty ee10
 - [java-security-test]
   - fixes version mismatch issue when jetty BoM is used
   - `JwtGenerator` ensures that claims are always in the same order
