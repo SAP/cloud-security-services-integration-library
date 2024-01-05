@@ -5,6 +5,40 @@
  */
 package com.sap.cloud.security.test;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import javax.annotation.Nullable;
+
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.server.Server;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
@@ -25,32 +59,10 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.http.MediaType;
+
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
-import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.ee9.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.ee9.servlet.FilterHolder;
-import org.eclipse.jetty.ee9.servlet.ServletHolder;
-import org.eclipse.jetty.ee9.webapp.WebAppContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.util.*;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static com.sap.cloud.security.config.Service.IAS;
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
 
 public class SecurityTest
 		implements SecurityTestContext, ServiceMockConfiguration, ApplicationServerConfiguration {
@@ -228,7 +240,7 @@ public class SecurityTest
 
 		WebAppContext context = new WebAppContext();
 		context.setContextPath("/");
-		context.setResourceBase("src/main/webapp");
+		context.setBaseResourceAsString("src/main/webapp");
 		context.setSecurityHandler(security);
 
 		applicationServletsByPath

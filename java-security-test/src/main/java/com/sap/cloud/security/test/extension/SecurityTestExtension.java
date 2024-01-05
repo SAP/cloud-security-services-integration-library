@@ -13,7 +13,7 @@ import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.api.ServiceMockConfiguration;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
-import org.eclipse.jetty.ee9.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.junit.jupiter.api.extension.*;
 
 /**

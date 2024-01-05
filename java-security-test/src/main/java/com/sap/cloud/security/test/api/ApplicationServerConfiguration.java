@@ -5,12 +5,14 @@
  */
 package com.sap.cloud.security.test.api;
 
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.SecurityTestRule;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
-import org.eclipse.jetty.ee9.servlet.ServletHolder;
 
 public interface ApplicationServerConfiguration {
 
