@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.3.3
+- [java-security]
+  - reduce `HybridTokenFactory` logging noise - in case of missing service configuration warn message will be logged just once 
+- [java-security-test]
+  - fixes version mismatch issue when jetty BoM is used
+  - `JwtGenerator` ensures that claims are always in the same order
+- [token-client]
+  - remove httpclient caching from DefaultHttpClientFactory (#1416)
+
+#### Dependency upgrades
+- Bump spring.boot.version from 3.2.0 to 3.2.1
+- Bump spring.core.version from 6.0.14 to 6.1.2
+- Bump log4j2.version from 2.22.0 to 2.22.1
+- Bump slf4j.api.version from 2.0.9 to 2.0.10
+
+
 ## 3.3.2
 - [java-security]
   - add `name` property of service binding as property to OAuth2ServiceConfiguration
