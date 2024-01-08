@@ -6,6 +6,7 @@
 package sample.spring.webflux.xsuaa;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.spring.config.IdentityServiceConfiguration;
 import com.sap.cloud.security.spring.config.IdentityServicesPropertySourceFactory;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
@@ -18,6 +19,7 @@ import com.sap.cloud.security.token.TokenClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -29,6 +31,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -39,7 +42,17 @@ import java.util.List;
 @EnableWebSecurity
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" }) // might be auto-configured in a future release
 public class SecurityConfiguration {
-
+/*
+	@Bean
+	public Converter<Jwt, AbstractAuthenticationToken> myConverter(){
+		return new Converter<Jwt, AbstractAuthenticationToken>() {
+			@Override
+			public AbstractAuthenticationToken convert(Jwt source) {
+				return new AuthenticationToken();
+			}
+		};
+	}
+*/
 	@Autowired
 	Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
@@ -47,13 +60,19 @@ public class SecurityConfiguration {
 
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
-	OAuth2ServiceConfiguration iasServiceConfiguration;
+	@Autowired
+	IdentityServiceConfiguration iasServiceConfiguration;
+
+	NoOpServerSecurityContextRepository sessionConfig = NoOpServerSecurityContextRepository.getInstance();
+
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http.authorizeExchange()
 				.pathMatchers("/v1/sayHello").hasAuthority("Read")
-				.and().oauth2ResourceServer().jwt()
+				.and().securityContextRepository(sessionConfig)
+				.oauth2ResourceServer().jwt()
+				//.and().oauth2ResourceServer().jwt()
 				.jwtAuthenticationConverter(jwt -> new MyCustomHybridTokenAuthenticationConverter().convert(jwt))
 				.jwtDecoder(new JwtDecoderBuilder()
 						.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
