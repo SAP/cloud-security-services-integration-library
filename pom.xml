@@ -65,7 +65,7 @@
 		<org.eclipse.jetty.version>12.0.5</org.eclipse.jetty.version>
 		<reactor.version>3.6.1</reactor.version>
 		<log4j2.version>2.22.1</log4j2.version>
-		<slf4j.api.version>2.0.10</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
+		<slf4j.api.version>2.0.11</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20231013</org.json.version>
 		<sap.cloud.env.servicebinding.version>0.10.1</sap.cloud.env.servicebinding.version>
 		<apache.httpclient5.version>5.3</apache.httpclient5.version>
