@@ -43,7 +43,7 @@ public class ServiceBindingMapper {
 				.withProperties(credentials.getEntries(String.class))
 				.withProperty(NAME, b.getName().orElse(""))
 				.withProperty(SERVICE_PLAN,
-						b.getServicePlan().orElse(ServiceConstants.Plan.APPLICATION.name()).toUpperCase());
+						b.getServicePlan().orElse(ServiceConstants.Plan.APPLICATION.name()));
 
 		if (IAS.equals(service)) {
 			parseDomains(builder, credentials);

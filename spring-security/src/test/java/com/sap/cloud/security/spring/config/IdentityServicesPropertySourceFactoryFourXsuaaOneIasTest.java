@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.spring.config;
 
-import com.sap.cloud.security.config.ServiceConstants;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,27 +43,27 @@ class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {
 		assertEquals("xsuaadomain", configuration.xsuaaDomain0);
 		assertEquals("xsappname2", configuration.xsuaaAppName0);
 		assertEquals("xsuaaInstance2", configuration.xsuaaName0);
-		assertEquals("application", configuration.xsuaaPlan0.toLowerCase());
+		assertEquals("application", configuration.xsuaaPlan0);
 		assertEquals("", configuration.unknown0);
 
 		/* Index 1 */
 		assertEquals("client-id-broker", configuration.xsuaaClientId1);
 		assertEquals("client-secret-broker", configuration.xsuaaClientSecret1);
 		assertEquals("xsuaaInstance0", configuration.xsuaaName1);
-		assertEquals("broker", configuration.xsuaaPlan1.toLowerCase());
+		assertEquals("broker", configuration.xsuaaPlan1);
 
 		/* Index 2 */
 		assertEquals("client-id-broker2", configuration.xsuaaClientId2);
 		assertEquals("client-secret-broker2", configuration.xsuaaClientSecret2);
 		assertEquals("xsuaaInstance1", configuration.xsuaaName2);
-		assertEquals("broker", configuration.xsuaaPlan2.toLowerCase());
+		assertEquals("broker", configuration.xsuaaPlan2);
 
 		/* Index 3 */
 		assertEquals("client-id", configuration.xsuaaClientId3);
 		assertEquals("client-secret", configuration.xsuaaClientSecret3);
 		assertEquals("xsappname", configuration.xsuaaAppName3);
 		assertEquals("xsuaaInstance3", configuration.xsuaaName3);
-		assertEquals("application", configuration.xsuaaPlan3.toLowerCase());
+		assertEquals("application", configuration.xsuaaPlan3);
 
 		/* IAS */
 		assertEquals("client-id-ias", configuration.identityClientId);
@@ -73,7 +72,7 @@ class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {
 		assertTrue(configuration.identityDomains.contains("iasdomain.com"));
 		assertEquals(2, configuration.identityDomains.size());
 		assertEquals("identityInstance0", configuration.identityName0);
-		assertEquals(ServiceConstants.Plan.BROKER, ServiceConstants.Plan.from(configuration.identityPlan));
+		assertEquals("broker", configuration.identityPlan);
 	}
 }
 
