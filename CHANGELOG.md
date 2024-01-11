@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.3.4
+#### Dependency upgrades
+- Bump io.projectreactor:reactor-core from 3.6.1 to 3.6.2
+- Bump spring.core.version from 6.1.2 to 6.1.3
+- Bump slf4j.api.version from 2.0.10 to 2.0.11
+
 ## 3.3.3
 - [java-security]
   - reduce `HybridTokenFactory` logging noise - in case of missing service configuration warn message will be logged just once
