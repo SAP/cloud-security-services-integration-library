@@ -59,7 +59,7 @@
 		<!-- make sure that spring core and spring boot versions are compatible-->
 		<spring.boot.version>2.7.18</spring.boot.version>
 		<spring.core.version>5.3.31</spring.core.version>
-		<spring.security.version>5.8.8</spring.security.version>
+		<spring.security.version>5.8.9</spring.security.version>
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<reactor.version>3.4.35</reactor.version>
