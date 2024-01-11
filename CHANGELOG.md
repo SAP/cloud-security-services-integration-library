@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.17.3
+- [token-client] 
+  - remove httpclient caching from DefaultHttpClientFactory (#1416)
+
+#### Dependency upgrades
+- bump spring-core version to 5.3.31
+- bump spring-security version to 5.8.9
+- bump commons  io version to 2.15.1
+
 ## 2.17.2
 ✅ Resolves a Breaking Change introduced in version 2.17.0. Consumers should be able to update to 2.17.2 from a version <= 2.16.0 without having to adjust test credentials used in their unit tests when using `java-security-test` or `spring-xsuaa-mock`.
 
