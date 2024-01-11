@@ -2,8 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## 3.3.4
-- [env] service plan property is no longer uppercased when building `OAuth2ServiceConfiguration` from service bindings of the environment.
-- [spring-security] fixes a bug in which a second XSUAA configuration of plan "broker" was ignored in spring-security auto-configuration for versions 3.3.2 and 3.3.3.
+- [env] service plan property is no longer uppercased when building `OAuth2ServiceConfiguration` from service bindings of the environment
+- [spring-security] fixes a bug in which a second XSUAA configuration of plan "broker" was ignored in spring-security auto-configuration for versions 3.3.2 and 3.3.3
 
 #### Dependency upgrades
 - Bump io.projectreactor:reactor-core from 3.6.1 to 3.6.2
