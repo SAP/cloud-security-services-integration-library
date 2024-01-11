@@ -38,12 +38,6 @@ jobs:
         run: mvn -B install --file pom.xml
       - name: Run integration tests
         run: cd java-security-it; mvn -B package --file pom.xml
-      - name: Build spring-security-basic-auth
-        run: cd samples/spring-security-basic-auth; mvn -B package --file pom.xml
-      - name: Build spring-security-xsuaa-usage
-        run: cd samples/spring-security-xsuaa-usage; mvn -B package --file pom.xml
-      - name: Build spring-webflux-security-xsuaa-usage
-        run: cd samples/spring-webflux-security-xsuaa-usage; mvn -B package --file pom.xml
       - name: Build java-security-usage
         run: cd samples/java-security-usage; mvn -B package --file pom.xml
       - name: Build sap-java-buildpack-api-usage
@@ -52,5 +46,3 @@ jobs:
         run: cd samples/java-tokenclient-usage; mvn -B package --file pom.xml
       - name: Build java-security-usage-ias
         run: cd samples/java-security-usage-ias; mvn -B package --file pom.xml
-      - name: Build spring-security-hybrid-usage
-        run: cd samples/spring-security-hybrid-usage; mvn -B package --file pom.xml
