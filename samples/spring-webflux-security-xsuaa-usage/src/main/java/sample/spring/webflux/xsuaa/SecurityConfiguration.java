@@ -42,17 +42,7 @@ import java.util.List;
 @EnableWebSecurity
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" }) // might be auto-configured in a future release
 public class SecurityConfiguration {
-/*
-	@Bean
-	public Converter<Jwt, AbstractAuthenticationToken> myConverter(){
-		return new Converter<Jwt, AbstractAuthenticationToken>() {
-			@Override
-			public AbstractAuthenticationToken convert(Jwt source) {
-				return new AuthenticationToken();
-			}
-		};
-	}
-*/
+
 	@Autowired
 	Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
@@ -72,7 +62,6 @@ public class SecurityConfiguration {
 				.pathMatchers("/v1/sayHello").hasAuthority("Read")
 				.and().securityContextRepository(sessionConfig)
 				.oauth2ResourceServer().jwt()
-				//.and().oauth2ResourceServer().jwt()
 				.jwtAuthenticationConverter(jwt -> new MyCustomHybridTokenAuthenticationConverter().convert(jwt))
 				.jwtDecoder(new JwtDecoderBuilder()
 						.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)

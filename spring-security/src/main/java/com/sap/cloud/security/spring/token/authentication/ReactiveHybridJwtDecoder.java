@@ -39,10 +39,10 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
                             if (iasTokenValidators == null){
                                 return Mono.error(new BadJwtException("Tokens issued by IAS service aren't accepted"));
                             }
-                            validationResult = (Mono<ValidationResult>) iasTokenValidators.validate(token);
+                            validationResult = Mono.just(iasTokenValidators.validate(token));
                             break;
                         case XSUAA:
-                            validationResult = (Mono<ValidationResult>) xsuaaTokenValidators.validate(token);
+                            validationResult = Mono.just(xsuaaTokenValidators.validate(token));
                             break;
                         default:
                             return Mono.error(new BadJwtException("Tokens issued by " + token.getService() + " service aren´t supported."));
