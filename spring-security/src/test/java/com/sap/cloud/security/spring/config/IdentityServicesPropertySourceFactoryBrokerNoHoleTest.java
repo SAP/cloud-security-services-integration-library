@@ -44,7 +44,7 @@ class IdentityServicesPropertySourceFactoryBrokerNoHoleTest {
 		assertEquals("xsuaadomain", configuration.xsuaaDomain0);
 		assertEquals("xsappname2", configuration.xsuaaAppName0);
 		assertEquals("xsuaaInstance0", configuration.xsuaaName0);
-		assertEquals("application", configuration.xsuaaPlan0.toLowerCase());
+		assertEquals("application", configuration.xsuaaPlan0);
 		assertEquals("", configuration.unknown0);
 
 		/* Index 1 */
@@ -52,7 +52,7 @@ class IdentityServicesPropertySourceFactoryBrokerNoHoleTest {
 		assertEquals("client-secret", configuration.xsuaaClientSecret1);
 		assertEquals("xsappname", configuration.xsuaaAppName1);
 		assertEquals("xsuaaInstance1", configuration.xsuaaName1);
-		assertEquals("application", configuration.xsuaaPlan1.toLowerCase());
+		assertEquals("application", configuration.xsuaaPlan1);
 
 		/* Index 2 */
 		assertEquals("none", configuration.xsuaaClientId2);

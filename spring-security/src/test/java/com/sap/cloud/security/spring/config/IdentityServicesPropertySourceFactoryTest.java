@@ -30,7 +30,7 @@ class IdentityServicesPropertySourceFactoryTest {
 		assertEquals("xsuaadomain", configuration.xsuaaDomain);
 		assertEquals("xsappname", configuration.xsuaaAppName);
 		assertEquals("xsuaaInstance0", configuration.xsuaaName);
-		assertEquals("application", configuration.xsuaaPlan.toLowerCase());
+		assertEquals("application", configuration.xsuaaPlan);
 
 		assertEquals("", configuration.unknown);
 
@@ -38,7 +38,7 @@ class IdentityServicesPropertySourceFactoryTest {
 		assertEquals("client-secret-ias", configuration.identityClientSecret);
 		assertEquals("iasdomain", configuration.identityDomains.get(0));
 		assertEquals("identityInstance0", configuration.identityName);
-		assertEquals("broker", configuration.identityPlan.toLowerCase());
+		assertEquals("broker", configuration.identityPlan);
 	}
 }
 
