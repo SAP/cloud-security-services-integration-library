@@ -2,6 +2,15 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.17.3
+- [java-security]
+  - add name property of service binding as property to OAuth2ServiceConfiguration
+- [java-api]
+  - add ServiceConstant#NAME which can be used to access that property
+- [env]
+  -  service plan property is no longer uppercased when building OAuth2ServiceConfiguration from service bindings of the environment
+- [spring-security]
+  - fixes a bug in which a second XSUAA configuration of plan "broker" was ignored in spring-security auto-configuration for versions >= 2.16.0 and < 2.17.3
+  - add setName getName, setPlan, getPlan to OAuth2ServiceConfigurationProperties, which means, the list of XsuaaServiceConfigurations can now be filtered based on these properties.
 - [token-client] 
   - remove httpclient caching from DefaultHttpClientFactory (#1416)
 
