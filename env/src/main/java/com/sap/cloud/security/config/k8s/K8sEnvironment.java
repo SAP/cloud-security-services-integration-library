@@ -58,14 +58,14 @@ public class K8sEnvironment implements Environment {
 				.map(ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder)
 				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
-				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN),
+				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN) != null ? config.getProperty(SERVICE_PLAN).toUpperCase() : "",
 						Function.identity()));
 		Map<String, OAuth2ServiceConfiguration> identityPlans = serviceBindings.stream()
 				.filter(b -> Service.IAS.equals(Service.from(b.getServiceName().orElse(null))))
 				.map(ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder)
 				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
-				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN),
+				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN) != null ? config.getProperty(SERVICE_PLAN).toUpperCase() : "",
 						Function.identity()));
 		serviceConfigurations.put(Service.XSUAA, xsuaaPlans);
 		serviceConfigurations.put(Service.IAS, identityPlans);
@@ -89,9 +89,7 @@ public class K8sEnvironment implements Environment {
 		return Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.APPLICATION.name()))
 				.orElse(Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.BROKER.name()))
 						.orElse(Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.SPACE.name()))
-								.orElse(Optional
-										.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.DEFAULT.name()))
-										.orElse(null))));
+								.orElse(getServiceConfigurationsOf(Service.XSUAA).get(Plan.DEFAULT.name()))));
 
 	}
 
