@@ -2,7 +2,7 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.environment.servicebinding.api.TypedMapView;
-import com.sap.cloud.security.config.k8s.K8sConstants;
+import com.sap.cloud.security.config.cf.CFConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +45,7 @@ public class ServiceBindingMapper {
 		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
 				.withProperties(credentials.getEntries(String.class))
 				.withProperty(NAME, b.getName().orElse(""))
-				.withProperty(SERVICE_PLAN, b.getServicePlan().orElse(K8sConstants.Plan.APPLICATION.name()));
+				.withProperty(SERVICE_PLAN, b.getServicePlan().orElse(CFConstants.Plan.APPLICATION.toString()));
 
 		if (IAS.equals(service)) {
 			parseDomains(builder, credentials);
