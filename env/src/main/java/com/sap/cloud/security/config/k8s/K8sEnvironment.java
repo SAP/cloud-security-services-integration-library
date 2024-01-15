@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
@@ -30,7 +29,7 @@ public class K8sEnvironment implements Environment {
 	private static final Logger LOGGER = LoggerFactory.getLogger(K8sEnvironment.class);
 
 	static K8sEnvironment instance;
-	private final Map<Service, Map<String, OAuth2ServiceConfiguration>> serviceConfigurations;
+	private final Map<Service, EnumMap<K8sConstants.Plan, OAuth2ServiceConfiguration>> serviceConfigurations;
 
 	private K8sEnvironment() {
 		serviceConfigurations = new EnumMap<>(Service.class);
@@ -53,20 +52,24 @@ public class K8sEnvironment implements Environment {
 	private void loadAll() {
 		List<ServiceBinding> serviceBindings = DefaultServiceBindingAccessor.getInstance().getServiceBindings();
 
-		Map<String, OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
+		EnumMap<Plan, OAuth2ServiceConfiguration> xsuaaPlans = serviceBindings.stream()
 				.filter(b -> Service.XSUAA.equals(Service.from(b.getServiceName().orElse(null))))
 				.map(ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder)
 				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
-				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN) != null ? config.getProperty(SERVICE_PLAN).toUpperCase() : "",
-						Function.identity()));
-		Map<String, OAuth2ServiceConfiguration> identityPlans = serviceBindings.stream()
+				.collect(Collectors.toMap(config -> Plan.from(config.getProperty(SERVICE_PLAN)),
+						config -> config,
+						(l,r) -> {throw new IllegalArgumentException("2 service configurations of the same plan are not supported");},
+						() -> new EnumMap<>(Plan.class)));
+		EnumMap<Plan, OAuth2ServiceConfiguration> identityPlans = serviceBindings.stream()
 				.filter(b -> Service.IAS.equals(Service.from(b.getServiceName().orElse(null))))
 				.map(ServiceBindingMapper::mapToOAuth2ServiceConfigurationBuilder)
 				.filter(Objects::nonNull)
 				.map(OAuth2ServiceConfigurationBuilder::build)
-				.collect(Collectors.toMap(config -> config.getProperty(SERVICE_PLAN) != null ? config.getProperty(SERVICE_PLAN).toUpperCase() : "",
-						Function.identity()));
+				.collect(Collectors.toMap(config -> Plan.from(config.getProperty(SERVICE_PLAN)),
+						config -> config,
+						(l,r) -> {throw new IllegalArgumentException("2 service configurations of the same plan are not supported");},
+						() -> new EnumMap<>(Plan.class)));
 		serviceConfigurations.put(Service.XSUAA, xsuaaPlans);
 		serviceConfigurations.put(Service.IAS, identityPlans);
 	}
@@ -79,17 +82,17 @@ public class K8sEnvironment implements Environment {
 	 * @return the map of all found configurations or empty map, in case there are
 	 *         no service bindings.
 	 */
-	Map<String, OAuth2ServiceConfiguration> getServiceConfigurationsOf(Service service) {
-		return serviceConfigurations.getOrDefault(service, Collections.emptyMap());
+	EnumMap<Plan, OAuth2ServiceConfiguration> getServiceConfigurationsOf(Service service) {
+		return serviceConfigurations.getOrDefault(service, new EnumMap<>(Plan.class));
 	}
 
 	@Nullable
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfiguration() {
-		return Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.APPLICATION.name()))
-				.orElse(Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.BROKER.name()))
-						.orElse(Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.SPACE.name()))
-								.orElse(getServiceConfigurationsOf(Service.XSUAA).get(Plan.DEFAULT.name()))));
+		return Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.APPLICATION))
+				.orElse(Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.BROKER))
+						.orElse(Optional.ofNullable(getServiceConfigurationsOf(Service.XSUAA).get(Plan.SPACE))
+								.orElse(getServiceConfigurationsOf(Service.XSUAA).get(Plan.DEFAULT))));
 
 	}
 
@@ -97,7 +100,7 @@ public class K8sEnvironment implements Environment {
 	@Override
 	public OAuth2ServiceConfiguration getXsuaaConfigurationForTokenExchange() {
 		if (getNumberOfXsuaaConfigurations() > 1) {
-			return getServiceConfigurationsOf(Service.XSUAA).get(Plan.BROKER.name());
+			return getServiceConfigurationsOf(Service.XSUAA).get(Plan.BROKER);
 		}
 		return getXsuaaConfiguration();
 	}
