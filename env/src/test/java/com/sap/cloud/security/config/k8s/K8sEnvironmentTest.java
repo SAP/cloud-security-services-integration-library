@@ -13,17 +13,19 @@ import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.cf.CFConstants;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.sap.cloud.environment.servicebinding.SapServiceOperatorLayeredServiceBindingAccessor.DEFAULT_PARSING_STRATEGIES;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class K8sEnvironmentTest {
 
@@ -45,11 +47,11 @@ class K8sEnvironmentTest {
 	void getXsuaaConfiguration() {
 		cut = K8sEnvironment.getInstance();
 		OAuth2ServiceConfiguration config = cut.getXsuaaConfiguration();
-		assertEquals("xsuaaClientId", config.getClientId());
-		assertEquals("uaadomain.org", config.getProperty(CFConstants.XSUAA.UAA_DOMAIN));
-		assertEquals("xsuaa-basic", config.getProperty(CFConstants.XSUAA.APP_ID));
-		assertEquals("xsuaaSecret", config.getClientSecret());
-		assertEquals("https://auth.sap.com", config.getUrl().toString());
+		assertEquals("xsuaaClientId2", config.getClientId());
+		assertEquals("uaadomain2.org", config.getProperty(CFConstants.XSUAA.UAA_DOMAIN));
+		assertEquals("xsuaa-basic2", config.getProperty(CFConstants.XSUAA.APP_ID));
+		assertEquals("xsuaaSecret2", config.getClientSecret());
+		assertEquals("https://auth2.sap.com", config.getUrl().toString());
 	}
 
 	@Test

@@ -59,7 +59,11 @@ public class K8sEnvironment implements Environment {
 				.map(OAuth2ServiceConfigurationBuilder::build)
 				.collect(Collectors.toMap(config -> Plan.from(config.getProperty(SERVICE_PLAN)),
 						config -> config,
-						(l,r) -> {throw new IllegalArgumentException("2 service configurations of the same plan are not supported");},
+						(l, r) -> {
+							LOGGER.info("Found 2 service configurations of '{}' plan, taking the last one",
+									r.getProperty(SERVICE_PLAN));
+							return r;
+						},
 						() -> new EnumMap<>(Plan.class)));
 		EnumMap<Plan, OAuth2ServiceConfiguration> identityPlans = serviceBindings.stream()
 				.filter(b -> Service.IAS.equals(Service.from(b.getServiceName().orElse(null))))
@@ -68,7 +72,11 @@ public class K8sEnvironment implements Environment {
 				.map(OAuth2ServiceConfigurationBuilder::build)
 				.collect(Collectors.toMap(config -> Plan.from(config.getProperty(SERVICE_PLAN)),
 						config -> config,
-						(l,r) -> {throw new IllegalArgumentException("2 service configurations of the same plan are not supported");},
+						(l, r) -> {
+							LOGGER.info("Found 2 service configurations of '{}' plan, taking the last one",
+									r.getProperty(SERVICE_PLAN));
+							return r;
+						},
 						() -> new EnumMap<>(Plan.class)));
 		serviceConfigurations.put(Service.XSUAA, xsuaaPlans);
 		serviceConfigurations.put(Service.IAS, identityPlans);
