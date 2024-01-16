@@ -2,7 +2,7 @@ package com.sap.cloud.security.config;
 
 import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.environment.servicebinding.api.TypedMapView;
-import com.sap.cloud.security.config.k8s.K8sConstants;
+import com.sap.cloud.security.config.cf.CFConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +13,7 @@ import java.util.List;
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
+import static com.sap.cloud.security.config.cf.CFConstants.NAME;
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 
 public class ServiceBindingMapper {
@@ -29,7 +30,7 @@ public class ServiceBindingMapper {
 	public static OAuth2ServiceConfigurationBuilder mapToOAuth2ServiceConfigurationBuilder(ServiceBinding b) {
 		if (!b.getServiceName().isPresent()) {
 			LOGGER.error("Ignores Service Binding with name {} as service name is not provided.", b.getName());
-			return null; // as of now, method is never called when service name isn't given
+			return null;
 		}
 
 		final Service service = Service.from(b.getServiceName().get());
@@ -43,7 +44,8 @@ public class ServiceBindingMapper {
 		TypedMapView credentials = TypedMapView.ofCredentials(b);
 		OAuth2ServiceConfigurationBuilder builder = OAuth2ServiceConfigurationBuilder.forService(service)
 				.withProperties(credentials.getEntries(String.class))
-				.withProperty(SERVICE_PLAN, b.getServicePlan().orElse(K8sConstants.Plan.APPLICATION.name()).toUpperCase());
+				.withProperty(NAME, b.getName().orElse(""))
+				.withProperty(SERVICE_PLAN, b.getServicePlan().orElse(CFConstants.Plan.APPLICATION.toString()));
 
 		if (IAS.equals(service)) {
 			parseDomains(builder, credentials);

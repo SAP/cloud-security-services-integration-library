@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *<p>
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.config;
@@ -29,12 +29,16 @@ class IdentityServicesPropertySourceFactoryTest {
 		assertEquals("http://domain.xsuaadomain", configuration.xsuaaUrl);
 		assertEquals("xsuaadomain", configuration.xsuaaDomain);
 		assertEquals("xsappname", configuration.xsuaaAppName);
+		assertEquals("xsuaaInstance0", configuration.xsuaaName);
+		assertEquals("application", configuration.xsuaaPlan);
 
 		assertEquals("", configuration.unknown);
 
 		assertEquals("client-id-ias", configuration.identityClientId);
 		assertEquals("client-secret-ias", configuration.identityClientSecret);
 		assertEquals("iasdomain", configuration.identityDomains.get(0));
+		assertEquals("identityInstance0", configuration.identityName);
+		assertEquals("broker", configuration.identityPlan);
 	}
 }
 
@@ -58,6 +62,12 @@ class TestConfigurationFromFile {
 	@Value("${sap.security.services.xsuaa.xsappname:}")
 	public String xsuaaAppName;
 
+	@Value("${sap.security.services.xsuaa.name:}")
+	public String xsuaaName;
+
+	@Value("${sap.security.services.xsuaa.plan:}")
+	public String xsuaaPlan;
+
 	@Value("${sap.security.services.xsuaa.unknown:}")
 	public String unknown;
 
@@ -69,4 +79,10 @@ class TestConfigurationFromFile {
 
 	@Value("${sap.security.services.identity.domains:}")
 	public List<String> identityDomains;
+
+	@Value("${sap.security.services.identity.name:}")
+	public String identityName;
+
+	@Value("${sap.security.services.identity.plan:}")
+	public String identityPlan;
 }

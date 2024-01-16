@@ -8,6 +8,7 @@
         "uaadomain": "xsuaadomain",
         "xsappname": "xsappname2"
       },
+      "name": "xsuaaInstance0",
       "plan": "application"
     },
     {
@@ -18,6 +19,7 @@
         "uaadomain": "xsuaadomain",
         "xsappname": "xsappname"
       },
+      "name": "xsuaaInstance1",
       "plan": "application"
     }
   ],
@@ -29,7 +31,8 @@
         "url": "http://domain.iasdomain",
         "domains": ["iasdomain", "iasdomain.com"]
       },
+      "name": "identityInstance0",
       "plan": "broker"
     }
-   ]
+  ]
 }
