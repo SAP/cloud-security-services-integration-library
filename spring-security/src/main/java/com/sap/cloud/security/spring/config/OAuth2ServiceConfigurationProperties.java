@@ -206,6 +206,22 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 		return getConfiguration().getService();
 	}
 
+	public void setName(String name) {
+		builder.withProperty(CFConstants.NAME, name);
+	}
+
+	public String getName() {
+		return getConfiguration().getProperty(CFConstants.NAME);
+	}
+
+	public void setPlan(String plan) {
+		builder.withProperty(CFConstants.SERVICE_PLAN, plan);
+	}
+
+	public String getPlan() {
+		return getConfiguration().getProperty(CFConstants.SERVICE_PLAN);
+	}
+
 	@Override
 	public boolean isLegacyMode() {
 		return getConfiguration().isLegacyMode();

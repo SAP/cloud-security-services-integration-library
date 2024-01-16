@@ -5,8 +5,6 @@
  */
 package com.sap.cloud.security.config.k8s;
 
-import com.sap.cloud.security.config.cf.CFConstants;
-
 /**
  * Constants that simplifies access to service configuration properties in the
  * Kubernetes environment.
@@ -24,9 +22,13 @@ public class K8sConstants {
 	public enum Plan {
 		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
 
-		public static CFConstants.Plan from(String planAsString) {
-			return CFConstants.Plan.valueOf(planAsString.toUpperCase());
+		public static K8sConstants.Plan from(String planAsString) {
+			if (planAsString == null) {
+				return APPLICATION;
+			}
+			return K8sConstants.Plan.valueOf(planAsString.toUpperCase());
 		}
+
 
 	}
 }

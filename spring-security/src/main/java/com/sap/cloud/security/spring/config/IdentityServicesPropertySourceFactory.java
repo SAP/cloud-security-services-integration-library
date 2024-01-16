@@ -54,10 +54,10 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 			.asList(new String[] { "clientid", "clientsecret", "identityzoneid",
 					"sburl", "tenantid", "tenantmode", "uaadomain", "url", "verificationkey", "xsappname",
 					"certificate",
-					"key", "credential-type", "certurl" }));
+					"key", "credential-type", "certurl", "name", "plan" }));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList(new String[] { "clientid", "clientsecret", "domains", "url" }));
+			.asList(new String[] { "clientid", "clientsecret", "domains", "url", "name", "plan" }));
 
 	private Properties properties;
 	

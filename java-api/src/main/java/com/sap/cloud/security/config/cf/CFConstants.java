@@ -14,6 +14,7 @@ public class CFConstants {
 	public static final String VCAP_APPLICATION = "VCAP_APPLICATION";
 	public static final String CREDENTIALS = "credentials";
 	public static final String SERVICE_PLAN = "plan";
+	public static final String NAME = "name";
 	public static final String URL = "url";
 	public static final String CLIENT_ID = "clientid";
 	public static final String CLIENT_SECRET = "clientsecret";
