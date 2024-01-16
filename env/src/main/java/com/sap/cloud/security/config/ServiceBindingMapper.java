@@ -15,11 +15,16 @@ import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAIN;
 import static com.sap.cloud.security.config.cf.CFConstants.IAS.DOMAINS;
 import static com.sap.cloud.security.config.cf.CFConstants.SERVICE_PLAN;
 
-@Deprecated
 public class ServiceBindingMapper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBindingMapper.class);
 
-	@Deprecated
+	/**
+	 * Parses a service binding by extracting the configuration information and
+	 * passing it to a configuration builder.
+	 *
+	 * @return a new {@link OAuth2ServiceConfigurationBuilder} that is configured
+	 *         based on the given {@link ServiceBinding}.
+	 */
 	@Nullable
 	public static OAuth2ServiceConfigurationBuilder mapToOAuth2ServiceConfigurationBuilder(ServiceBinding b) {
 		if (!b.getServiceName().isPresent()) {
