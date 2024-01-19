@@ -425,6 +425,8 @@ Make sure that you have defined the following mandatory attribute in the service
 
 :bulb: Example of minimal application configuration [application.yml](../samples/spring-security-hybrid-usage/src/test/resources/application.yml) for local setup.
 
+❗Limitation❗ Multiple Xsuaa services cannot be defined as application properties in Spring application.yml or application.properties files as Spring does not recognize arrays in the property files. The service Configurations have to be defined as environment variable e.g. `VCAP_SERVICES={"xsuaa": [...]} `
+
 ## Samples
 - [Hybrid Usage](../samples/spring-security-hybrid-usage)    
 Demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with tokens issued by SAP Identity service or XSUAA. Furthermore, it documents how to implement Spring WebMvcTests using `java-security-test` library.
