@@ -5,21 +5,15 @@
  */
 package sample.spring.webflux.xsuaa;
 
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.spring.config.IdentityServiceConfiguration;
 import com.sap.cloud.security.spring.config.IdentityServicesPropertySourceFactory;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
-//import com.sap.cloud.security.spring.token.ReactiveTokenAuthenticationConverter;
-//import com.sap.cloud.security.xsuaa.XsuaaServicePropertySourceFactory;
-//import com.sap.cloud.security.xsuaa.token.ReactiveTokenAuthenticationConverter;
-//import com.sap.cloud.security.xsuaa.token.authentication.XsuaaJwtDecoderBuilder;
 import com.sap.cloud.security.token.TokenClaims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;

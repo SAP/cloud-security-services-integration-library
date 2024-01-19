@@ -13,12 +13,13 @@ applications:
       - route: spring-webflux-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
     path: target/spring-webflux-security-xsuaa-usage.jar
     buildpacks:
-      - java_buildpack
+      - https://github.com/cloudfoundry/java-buildpack.git
     env:
       JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
       JBP_CONFIG_DEBUG: '{enabled: true}'
     services:
       - xsuaa-webflux
+      - ias-webflux
 
   # Application Router as web server
   - name: approuter-spring-webflux-security-xsuaa-usage
@@ -30,6 +31,7 @@ applications:
       - route: spring-webflux-security-xsuaa-usage-web-((ID)).((LANDSCAPE_APPS_DOMAIN))
     services:
       - xsuaa-webflux
+      - ias-webflux
     env:
       destinations: >
         [
