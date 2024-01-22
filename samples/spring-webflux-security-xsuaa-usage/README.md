@@ -31,6 +31,11 @@ Use the [xs-security.json](./xs-security.json) to define the authentication sett
 cf create-service xsuaa application xsuaa-webflux -c xs-security.json
 ```
 
+## Create the IAS Service Instance
+```shell
+cf create-service identity application ias-webflux
+```
+
 ## Configure the manifest
 The [vars](../vars.yml) contains hosts and paths that you might need to adopt.
 
@@ -68,4 +73,5 @@ Finally, delete your application and your service instances using the following 
 cf delete -f spring-webflux-security-xsuaa-usage
 cf delete -f approuter-spring-webflux-security-xsuaa-usage
 cf delete-service -f xsuaa-webflux
+cf delete-service -f ias-webflux
 ```
