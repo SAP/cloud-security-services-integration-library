@@ -327,7 +327,7 @@ sap.security.services:
 ```  
 	
 #### Multiple XSUAA bindings
-If you need to manually configure the application for more than one XSUAA service instances (e.g. one of plan `application` and another one of plan `broker`), you need to provide them as `VCAP_SERVICES` environment variable jump to second point of [Local Testing](#local-testing) section.
+If you need to manually configure the application for more than one XSUAA service instances (e.g. one of plan `application` and another one of plan `broker`), you need to provide them as `VCAP_SERVICES` environment variable (see second point of [Local Testing](#local-testing) section).
 
 ### Local testing
 To run or debug your secured application locally you need to provide the mandatory Xsuaa or Identity service configuration attributes prior to launching the application. 
