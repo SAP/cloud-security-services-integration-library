@@ -94,8 +94,10 @@ In addition, a bean of type [XsuaaTokenFlows](../token-client/src/main/java/com/
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
 #### Multiple Xsuaa configurations
-In case of multiple Xsuaa configurations, the [XsuaaTokenAuthorizationConverter](./src/main/java/com/sap/cloud/security/spring/token/authentication/XsuaaTokenAuthorizationConverter.java) bean is not autoconfigured. 
+:warning: In case of multiple Xsuaa configurations, the [XsuaaTokenAuthorizationConverter](./src/main/java/com/sap/cloud/security/spring/token/authentication/XsuaaTokenAuthorizationConverter.java) bean is not autoconfigured. 
 The bean needs to be created manually based on the service configuration you want the converter to be initialized with.
+
+For example, to create a converter that removes the application identifier of the *first* XSUAA configuration from the scope names, you could create the following bean:
 
 ```java
 @Bean
@@ -103,6 +105,7 @@ public Converter<Jwt, AbstractAuthenticationToken> xsuaaAuthConverter(XsuaaServi
 	return new XsuaaTokenAuthorizationConverter(xsuaaConfigs.getConfigurations().get(0).getProperty(APP_ID));
 }
 ```
+You may want to filter the list accessible via `XsuaaServiceConfigurations#getConfigurations` based on the configuration properties to find a specific configuration from the list.
 
 ### Security Configuration
 This is an example how to configure your application as Spring Security OAuth 2.0 Resource Server for authentication of HTTP requests:
