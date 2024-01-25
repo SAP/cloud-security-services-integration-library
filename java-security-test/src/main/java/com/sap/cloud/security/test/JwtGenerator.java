@@ -175,9 +175,7 @@ public class JwtGenerator {
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_SCIM_ID, DEFAULT_USER_ID);
 		} else {
 			withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
-			List<String>stringList = new ArrayList<String>();
-			stringList.add(azp);
-			jsonPayload.put(TokenClaims.AUDIENCE, stringList);
+			jsonPayload.put(TokenClaims.AUDIENCE, Collections.singletonList(azp));
 			jsonPayload.put(TokenClaims.XSUAA.ZONE_ID, DEFAULT_ZONE_ID);
 			jsonPayload.put(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, createJsonObject("{\"enhancer\" : \"XSUAA\"} "));
 		}

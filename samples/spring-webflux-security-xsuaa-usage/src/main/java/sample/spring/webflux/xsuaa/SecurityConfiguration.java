@@ -11,8 +11,6 @@ import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.token.TokenClaims;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,8 +38,6 @@ public class SecurityConfiguration {
 	@Autowired
 	Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
 	@Autowired
 	XsuaaServiceConfiguration xsuaaServiceConfiguration;
 	@Autowired
@@ -52,15 +48,17 @@ public class SecurityConfiguration {
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-		http.authorizeExchange()
-				.pathMatchers("/v1/sayHello").hasAuthority("Read")
-				.and().securityContextRepository(sessionConfig)
-				.oauth2ResourceServer().jwt()
-				.jwtAuthenticationConverter(jwt -> new MyCustomHybridTokenAuthenticationConverter().convert(jwt))
-				.jwtDecoder(new JwtDecoderBuilder()
-						.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
-						.withIasServiceConfiguration(iasServiceConfiguration)
-						.buildAsReactive());
+		http.authorizeExchange((exchanges) ->
+				exchanges
+						.pathMatchers("v1/sayHello").hasAuthority("Read"))
+						.securityContextRepository(sessionConfig);
+		http.oauth2ResourceServer(oauth2 -> oauth2
+						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwt2 ->
+										new MyCustomHybridTokenAuthenticationConverter().convert(jwt2))
+						.jwtDecoder(new JwtDecoderBuilder()
+								.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
+								.withIasServiceConfiguration(iasServiceConfiguration)
+								.buildAsReactive())));
 		return http.build();
 	}
 
