@@ -3,9 +3,9 @@
 ---
 # some data to make the urls unique
 # change to another value, e.g. your User ID
-ID: 000000
+ID: 00-00-00
 
 # Choose cfapps.eu10.hana.ondemand.com for the EU10 landscape, cfapps.us10.hana.ondemand.com for US10
-LANDSCAPE_APPS_DOMAIN: cfapps.sap.hana.ondemand.com
+LANDSCAPE_APPS_DOMAIN: cfapps.eu10.hana.ondemand.com
 #LANDSCAPE_APPS_DOMAIN: cfapps.us10.hana.ondemand.com
 
