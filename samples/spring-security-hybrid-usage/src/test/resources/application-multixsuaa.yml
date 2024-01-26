@@ -10,8 +10,11 @@ sap:
         clientid: sb-clientId!t0815
         clientsecret: pwd
         url: http://localhost
+        plan: application
       xsuaa[1]:
-        clientid: sb-clientId!t04711
+        xsappname: xsapp!b04711
+        clientid: sb-clientId!b04711
+        plan: broker
 
       identity:
         clientid: sb-clientId!t0815

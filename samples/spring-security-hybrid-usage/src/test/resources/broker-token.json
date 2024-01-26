@@ -1,0 +1,23 @@
+{
+  "header": {
+    "alg": "RS256",
+    "kid": "kid-custom"
+  },
+  "payload": {
+    "ext_attr": {"enhancer": "XSUAA"},
+    "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+    "iss": "http://localhost:56911",
+    "cid": "sb-clientId!b04711",
+    "client_id": "sb-clientId!b04711",
+    "azp": "sb-clientId!b04711",
+    "zid": "zone-id",
+    "exp": 1598314740,
+    "scope": [
+      "openid",
+      "xsapp!b04711.Read"
+    ],
+    "aud": [
+      "sb-clientId!b04711"
+    ]
+  }
+}

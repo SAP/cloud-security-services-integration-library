@@ -34,11 +34,16 @@ class TestControllerXsuaaTest {
 
 	private String jwt;
 
+	private String brokerJwt;
+
 	@BeforeEach
 	void setup(SecurityTestContext securityTest) {
 		jwt = securityTest.getPreconfiguredJwtGenerator()
 				.withLocalScopes("Read")
 				.createToken().getTokenValue();
+		brokerJwt = securityTest.getJwtGeneratorFromFile("/broker-token.json")
+				.createToken().getTokenValue();
+
 	}
 
 	@Test
@@ -49,6 +54,16 @@ class TestControllerXsuaaTest {
 
 		assertTrue(response.contains("sb-clientId!t0815"));
 		assertTrue(response.contains("xsapp!t0815.Read"));
+	}
+
+	@Test
+	void sayHelloBroker() throws Exception {
+		String response = mvc.perform(get("/sayHello").with(bearerToken(brokerJwt)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+
+		assertTrue(response.contains("sb-clientId!b04711"));
+		assertTrue(response.contains("xsapp!b04711.Read"));
 	}
 
 	@Test
@@ -81,12 +96,15 @@ class TestControllerXsuaaTest {
 	}
 
 	/**
-	 * Ensures that tokens with a JKU whose domain differs from the {@link com.sap.cloud.security.config.ServiceConstants.XSUAA#UAA_DOMAIN} in the credentials are still not trusted,
-	 * even when java-security-test supplies {@link com.sap.cloud.security.token.validation.XsuaaJkuFactory}, which trusts JKUs from tokens targeting localhost.
+	 * Ensures that tokens with a JKU whose domain differs from the
+	 * {@link com.sap.cloud.security.config.ServiceConstants.XSUAA#UAA_DOMAIN} in the credentials are still not trusted,
+	 * even when java-security-test supplies {@link com.sap.cloud.security.token.validation.XsuaaJkuFactory}, which
+	 * trusts JKUs from tokens targeting localhost.
 	 */
 	@Test
 	void acceptsOnlyLocalhostJku(SecurityTestContext securityTest) throws Exception {
-		Token jwt = securityTest.getPreconfiguredJwtGenerator().withLocalScopes("Read").withHeaderParameter(TokenHeader.JWKS_URL, "https://auth.google.com").createToken();
+		Token jwt = securityTest.getPreconfiguredJwtGenerator().withLocalScopes("Read")
+				.withHeaderParameter(TokenHeader.JWKS_URL, "https://auth.google.com").createToken();
 
 		mvc.perform(get("/sayHello").with(bearerToken(jwt.getTokenValue()))).andExpect(status().isUnauthorized());
 	}
