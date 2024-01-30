@@ -3,7 +3,7 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package sample.spring.webflux.xsuaa;
+package sample.spring.webflux.hybrid;
 
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.spring.token.ReactiveSecurityContext;
