@@ -18,7 +18,6 @@ import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.util.Assert;
 
 /**
@@ -153,25 +152,22 @@ public class JwtDecoderBuilder {
 	}
 
 	private CombiningValidator<Token> getValidators(Service name){
-		if(name == Service.XSUAA){
-			if(xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
-				int index = 0;
-				JwtValidatorBuilder xsuaaValidatorBuilder = initializeBuilder(xsuaaConfigurations.get(index));
-				for (OAuth2ServiceConfiguration xsuaaConfig : xsuaaConfigurations) {
-					if (index++ != 0) {
-						xsuaaValidatorBuilder.configureAnotherServiceInstance(xsuaaConfig);
-					}
+		if(name == Service.XSUAA && xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
+			int index = 0;
+			JwtValidatorBuilder xsuaaValidatorBuilder = initializeBuilder(xsuaaConfigurations.get(index));
+			for (OAuth2ServiceConfiguration xsuaaConfig : xsuaaConfigurations) {
+				if (index++ != 0) {
+					xsuaaValidatorBuilder.configureAnotherServiceInstance(xsuaaConfig);
 				}
-				return xsuaaValidatorBuilder.build();
 			}
+			return xsuaaValidatorBuilder.build();
 		}
 		if(name == Service.IAS){
-			JwtValidatorBuilder iasValidatorBuilder = null;
 			if(iasConfiguration != null && !iasConfiguration.getProperties().isEmpty()){
-				iasValidatorBuilder = initializeBuilder(iasConfiguration);
+				JwtValidatorBuilder iasValidatorBuilder = initializeBuilder(iasConfiguration);
 				return iasValidatorBuilder.build();
 			}
 		}
-        return null;
-    }
+		return null;
+	}
 }
