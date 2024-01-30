@@ -1,6 +1,6 @@
 ---
-name: Get Support
-about: How to get support
+name: How to get Support
+about: Please use SAP official support channels instead to get help. Use **BC-CP-CF-SEC-LIB** or **Security Client Libraries** components.
 title: ''
 labels: support
 assignees: ''
