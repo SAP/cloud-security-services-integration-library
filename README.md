@@ -20,8 +20,9 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
    - [2.3 Testing utilities](#23-testing-utilities)
 3. [Installation](#installation)
 4. [Troubleshooting](#troubleshooting)
-5. [Contributing](#contributing)
-6. [License](#license)
+5. [Common Pitfalls](#common-pitfalls)
+6. [Contributing](#contributing)
+7. [License](#license)
 
 ## Prerequisites
 Before you can use the SAP Cloud Security Services Integration libraries, you must fulfil the following requirements:
@@ -160,6 +161,19 @@ Please refer to each library's Troubleshooting section
 | [java-security](/java-security/README.md#Troubleshooting)     |
 | [token-client](/token-client/README.md#Troubleshooting)       |
 
+## Common Pitfalls
+### java.lang.NoSuchMethodError and java.lang.ClassNotFoundException errors
+Most common reason for these errors are out of sync client library versions. All the modules of the Security Client libraries
+should be always in the same version. 
+This can be verified by executing `mvn dependency:tree` command.
+
+The easiest way to manage the module versions and keep them in sync is to use the [BOM](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#bill-of-materials-bom-poms)
+
+The usage of the Security Client Libraries BOM is demonstrated also in the [spring-security-hybrid-usage sample](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/pom.xml#L35-L45)
+
+### reference-instance plan not supported
+The `reference-instance` plan is not an original plan of the Xsuaa service, therefore it is not supported by the Security Client Libraries out of the box.
+For a workaround please refer to the https://github.com/SAP/cloud-security-services-integration-library/issues/1279#issuecomment-1735542987
 
 ## Contributing
 We welcome contributions to this project. Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details on how to contribute.
