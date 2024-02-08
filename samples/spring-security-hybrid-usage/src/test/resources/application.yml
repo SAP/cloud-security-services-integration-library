@@ -4,13 +4,34 @@
 sap:
   security:
     services:
-      xsuaa:
+      xsuaa[0]:
         xsappname: xsapp!t0815
         uaadomain: localhost
         clientid: sb-clientId!t0815
         clientsecret: pwd
         url: http://localhost
+        plan: application
+      xsuaa[1]:
+        xsappname: xsapp!b04711
+        clientid: sb-clientId!b04711
+        plan: broker
 
       identity:
         clientid: sb-clientId!t0815
         domains: localhost
+
+#Single xsuaa service configuration
+#      xsuaa:
+#        xsappname: xsapp!t0815
+#        uaadomain: localhost
+#        clientid: sb-clientId!t0815
+#        clientsecret: pwd
+#        url: http://localhost
+#
+#      identity:
+#        clientid: sb-clientId!t0815
+#        domains: localhost
+
+logging.level:
+  com.sap: DEBUG                      # set SAP-class loggers to DEBUG.
+  org.springframework: DEBUG

@@ -8,11 +8,8 @@ import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.XsuaaTokenAuthorizationConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,7 +20,7 @@ import static com.sap.cloud.security.config.ServiceConstants.XSUAA.APP_ID;
 public class XsuaaAuthzConverter {
 
 	@Bean
-	public Converter<Jwt, AbstractAuthenticationToken> multipleXsuaaConfigAuthzConverter(
+	public XsuaaTokenAuthorizationConverter multipleXsuaaConfigAuthzConverter(
 			XsuaaServiceConfigurations xsuaaConfigs) {
 		return new XsuaaTokenAuthorizationConverterExt (
 				xsuaaConfigs.getConfigurations().get(0).getProperty(APP_ID),
