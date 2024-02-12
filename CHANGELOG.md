@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.3.5
+- [spring-xsuaa] fixes a NPE bug in `XsuaaJwtDecoder` when uaadomain value is null
+
+#### Dependency upgrades
+- Bump com.sap.cloud.environment.servicebinding from 0.10.2 to 0.10.3
+- Bump slf4j.api.version from 2.0.11 to 2.0.12
+- Bump org.json:json from 20231013 to 20240205
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.3 to 5.3.1
+- Bump spring.boot.version from 3.2.1 to 3.2.2 
+
+
+
 ## 3.3.4
 - [env] service plan property is no longer uppercased when building `OAuth2ServiceConfiguration` from service bindings of the environment
 - [spring-security] fixes a bug in which a second XSUAA configuration of plan "broker" was ignored in spring-security auto-configuration for versions 3.3.2 and 3.3.3

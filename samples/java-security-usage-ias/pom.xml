@@ -6,13 +6,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.security.xssec.samples</groupId>
     <artifactId>java-security-usage-ias</artifactId>
-    <version>3.3.4</version>
+    <version>3.3.5</version>
     <packaging>war</packaging>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <sap.cloud.security.version>3.3.4</sap.cloud.security.version>
+        <sap.cloud.security.version>3.3.5</sap.cloud.security.version>
         <slf4j.api.version>2.0.5</slf4j.api.version>
         <apache.httpclient.version>4.5.14</apache.httpclient.version>
         <jakarta.servlet.api.version>6.0.0</jakarta.servlet.api.version>
