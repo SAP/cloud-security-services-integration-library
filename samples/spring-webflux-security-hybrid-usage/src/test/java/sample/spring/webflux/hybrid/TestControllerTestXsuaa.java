@@ -24,7 +24,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 @ExtendWith(XsuaaExtension.class)
 @SpringBootTest
 @AutoConfigureWebTestClient(timeout = "2500000")
-public class TestControllerTestXsuaa {
+class TestControllerTestXsuaa {
 
 
 	@Autowired
@@ -43,9 +43,10 @@ public class TestControllerTestXsuaa {
 	@Test
 	void unauthorizedRequest() {
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header(HttpHeaders.AUTHORIZATION, jwt).exchange()
+				.header(HttpHeaders.AUTHORIZATION).exchange()
 				.expectStatus().isUnauthorized();
 	}
+
 
 	@Test
 	void authorizedRequest() {

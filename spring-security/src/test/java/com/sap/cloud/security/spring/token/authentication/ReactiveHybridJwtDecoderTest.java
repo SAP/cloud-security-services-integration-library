@@ -5,8 +5,9 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.BadJwtException;
@@ -15,19 +16,20 @@ import java.time.Instant;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ReactiveHybridJwtDecoderTest {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class ReactiveHybridJwtDecoderTest {
 
-    JwtGenerator jwtGenerator = JwtGenerator.getInstance(IAS, "theClientId");
+    JwtGenerator jwtGenerator;
     CombiningValidator<Token> combiningValidator;
     ReactiveHybridJwtDecoder cut;
 
-    @Before
-    public void setUp(){
+    @BeforeEach
+    void setUp(){
+        jwtGenerator = JwtGenerator.getInstance(IAS, "theClientId");
         combiningValidator = Mockito.mock(CombiningValidator.class);
         when(combiningValidator.validate(any())).thenReturn(ValidationResults.createValid());
 
@@ -35,7 +37,7 @@ public class ReactiveHybridJwtDecoderTest {
     }
 
     @Test
-    public void parseJwt(){
+     void parseJwt(){
         Jwt jwtToken = ReactiveHybridJwtDecoder.parseJwt(jwtGenerator.createToken()).block();
 
         assertEquals(2, jwtToken.getHeaders().size());
@@ -46,21 +48,21 @@ public class ReactiveHybridJwtDecoderTest {
     }
 
     @Test
-    public void decodeIasTokenWithoutValidators(){
+     void decodeIasTokenWithoutValidators(){
         String encodedToken = jwtGenerator.createToken().getTokenValue();
 
         assertEquals("theClientId", cut.decode(encodedToken).block().getClaim(TokenClaims.AUTHORIZATION_PARTY));
     }
 
     @Test
-    public void decodeXsuaaTokenWithoutValidators(){
+     void decodeXsuaaTokenWithoutValidators(){
         String encodedToken = JwtGenerator.getInstance(XSUAA, "theClientId").createToken().getTokenValue();
 
         assertEquals("theClientId", cut.decode(encodedToken).block().getClaim(TokenClaims.AUTHORIZATION_PARTY));
     }
 
     @Test
-    public void decodeInvalidToken_throwsAccessDeniedException() {
+     void decodeInvalidToken_throwsAccessDeniedException() {
         when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
         cut = new ReactiveHybridJwtDecoder(combiningValidator, combiningValidator);
         String encodedToken = jwtGenerator.createToken().getTokenValue();
@@ -69,7 +71,7 @@ public class ReactiveHybridJwtDecoderTest {
     }
 
     @Test
-    public void decodeWithMissingExpClaim_throwsBadJwtException() {
+     void decodeWithMissingExpClaim_throwsBadJwtException() {
         String encodedToken = jwtGenerator
                 .withClaimValue(TokenClaims.EXPIRATION, "")
                 .createToken().getTokenValue();
@@ -78,7 +80,7 @@ public class ReactiveHybridJwtDecoderTest {
     }
 
     @Test
-    public void decodeWithMissingIatClaim_throwsBadJwtException(){
+     void decodeWithMissingIatClaim_throwsBadJwtException(){
         String encodedToken = jwtGenerator
                 .withClaimValue(TokenClaims.XSUAA.ISSUED_AT, "")
                 .createToken().getTokenValue();
@@ -87,7 +89,7 @@ public class ReactiveHybridJwtDecoderTest {
     }
 
     @Test
-    public void decodeWithCorruptToken_throwsBadJwtException() {
+     void decodeWithCorruptToken_throwsBadJwtException() {
         assertThrows(BadJwtException.class, () -> cut.decode("Bearer e30=").block());
         assertThrows(BadJwtException.class, () -> cut.decode("Bearer").block());
         assertThrows(BadJwtException.class, () -> cut.decode(null).block());

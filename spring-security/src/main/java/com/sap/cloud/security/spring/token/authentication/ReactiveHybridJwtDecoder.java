@@ -29,7 +29,7 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
     @Override
     public Mono<Jwt> decode(String encodedToken) throws JwtException {
         return Mono.justOrEmpty(encodedToken)
-                .filter(token -> StringUtils.hasText(token))
+                .filter(StringUtils::hasText)
                 .switchIfEmpty(Mono.error(new BadJwtException("Encoded Token must neither be null nor empty String.")))
                 .map(Token::create)
                 .flatMap(token -> {
@@ -58,7 +58,7 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
                 .onErrorMap(RuntimeException.class, ex -> new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex));
     }
 
-    public static Mono<Jwt> parseJwt(Token token) {
+    static Mono<Jwt> parseJwt(Token token) {
         Instant issuedAt = token.hasClaim(TokenClaims.XSUAA.ISSUED_AT)
                 ? Instant.ofEpochSecond(Long.parseLong(token.getClaimAsString(TokenClaims.XSUAA.ISSUED_AT)))
                 : null;

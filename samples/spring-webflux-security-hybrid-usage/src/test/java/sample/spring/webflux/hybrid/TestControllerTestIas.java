@@ -23,7 +23,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 @ExtendWith(IasExtension.class)
 @SpringBootTest
 @AutoConfigureWebTestClient(timeout = "2500000")
-public class TestControllerTestIas {
+class TestControllerTestIas {
 
 
 
@@ -43,12 +43,12 @@ public class TestControllerTestIas {
 	@Test
 	void unauthorizedRequest() {
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header(HttpHeaders.AUTHORIZATION, jwt).exchange()
+				.header(HttpHeaders.AUTHORIZATION).exchange()
 				.expectStatus().isUnauthorized();
 	}
 
 	@Test
-	void authorizedRequest() throws Exception{
+	void authorizedRequest() {
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt).exchange()
 				.expectStatus().is2xxSuccessful().expectBody(String.class)

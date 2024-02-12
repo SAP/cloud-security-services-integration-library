@@ -27,8 +27,18 @@ public class ReactiveSecurityContext {
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Access forbidden: not authenticated")))
                 .map(SecurityContext::getAuthentication)
                 .map(Authentication::getPrincipal)
+                .flatMap(principal -> {
+                    if (principal instanceof Token) {
+                        return Mono.just((Token) principal);
+                    } else {
+                        return Mono.error(new AccessDeniedException(
+                                "Access forbidden: SecurityContextHolder does not contain a principal of type 'Token'. Found instead a principal of type "
+                                        + principal.getClass()));
+                    }
+                })
                 .map(Token.class::cast)
                 .doOnSuccess(token -> logger.debug("Got Jwt token with clientid: {}", token.getClientId()))
                 .doOnError(throwable -> logger.error("Access forbidden: SecurityContextHolder does not contain a principal of type 'Token'.", throwable));
     }
+
 }
