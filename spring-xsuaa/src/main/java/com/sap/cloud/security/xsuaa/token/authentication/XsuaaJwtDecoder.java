@@ -126,6 +126,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		try {
 			String kid = tokenInfoExtractor.getKid(jwt);
 			String uaaDomain = tokenInfoExtractor.getUaaDomain(jwt);
+			validateJwksParameters(kid, uaaDomain);
+
 			return verifyToken(jwt.getParsedString(), kid, uaaDomain, getZid(jwt));
 		} catch (BadJwtException e) {
 			if (e.getMessage().contains("Couldn't retrieve remote JWK set")
@@ -168,7 +170,6 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 
 		try {
-			canVerifyWithKey(kid, jku);
 			return verifyWithKey(token, jku, kid);
 		} catch (JwtValidationException ex) {
 			throw ex;
@@ -177,7 +178,7 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		}
 	}
 
-	private void canVerifyWithKey(String kid, String uaadomain) {
+	private void validateJwksParameters(String kid, String uaadomain) {
 		if (kid != null && uaadomain != null) {
 			return;
 		}
