@@ -42,10 +42,9 @@ public class XsuaaAuthzConverter {
 		protected Collection<GrantedAuthority> localScopeAuthorities(Collection<String> scopes) {
 			Collection<GrantedAuthority> localScopeAuthorities = new ArrayList<>();
 			for (String scope : scopes) {
-				if (scope.startsWith(this.appId + ".")) {
+				if (scope.startsWith(appId + ".")) {
 					localScopeAuthorities.add(new SimpleGrantedAuthority(scope.substring(appId.length() + 1)));
-				}
-				if (scope.startsWith(this.appId2 + ".")){
+				} else if (scope.startsWith(appId2 + ".")){
 					localScopeAuthorities.add(new SimpleGrantedAuthority(scope.substring(appId2.length() + 1)));
 				}
 			}
