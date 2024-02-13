@@ -29,7 +29,7 @@ mvn clean package
 ## Create the XSUAA Service Instance
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
-cf create-service xsuaa application hybrid-webflux -c xs-security.json
+cf create-service xsuaa application xsuaa-webflux -c xs-security.json
 ```
 
 ## Create the IAS Service Instance
