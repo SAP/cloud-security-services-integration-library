@@ -7,7 +7,7 @@
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>parent</artifactId>
-	<version>3.3.4</version>
+	<version>3.3.5</version>
 	<packaging>pom</packaging>
 
 	<name>parent</name>
@@ -57,7 +57,7 @@
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.source.plugin.version>3.2.1</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
-		<spring.boot.version>3.2.1</spring.boot.version>
+		<spring.boot.version>3.2.2</spring.boot.version>
 		<spring.core.version>6.1.3</spring.core.version>
 		<spring.security.version>6.2.1</spring.security.version>
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
@@ -65,10 +65,10 @@
 		<org.eclipse.jetty.version>12.0.5</org.eclipse.jetty.version>
 		<reactor.version>3.6.2</reactor.version>
 		<log4j2.version>2.22.1</log4j2.version>
-		<slf4j.api.version>2.0.11</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
-		<org.json.version>20231013</org.json.version>
-		<sap.cloud.env.servicebinding.version>0.10.1</sap.cloud.env.servicebinding.version>
-		<apache.httpclient5.version>5.3</apache.httpclient5.version>
+		<slf4j.api.version>2.0.12</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
+		<org.json.version>20240205</org.json.version>
+		<sap.cloud.env.servicebinding.version>0.10.3</sap.cloud.env.servicebinding.version>
+		<apache.httpclient5.version>5.3.1</apache.httpclient5.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.1.5</caffeine.version>
 		<commons.io.version>2.15.1</commons.io.version>
@@ -77,13 +77,13 @@
 		<junit-jupiter.version>5.9.2</junit-jupiter.version>
 		<maven-surefire-plugin>3.2.5</maven-surefire-plugin>
 		<hamcrest.version>1.3</hamcrest.version>
-		<mockito.version>5.9.0</mockito.version>
-		<assertj.version>3.25.1</assertj.version>
+		<mockito.version>5.10.0</mockito.version>
+		<assertj.version>3.25.3</assertj.version>
 		<wiremock.version>3.3.1</wiremock.version>
 		<reactor.test.version>3.6.2</reactor.test.version>
 		<javax.annotation.version>1.3.2</javax.annotation.version>
 		<spotbugs.annotations.version>4.8.3</spotbugs.annotations.version>
-		<spotbugs.version>4.8.3.0</spotbugs.version>
+		<spotbugs.version>4.8.3.1</spotbugs.version>
 		<skipTests>false</skipTests>
 		<jacoco.skip>${skipTests}</jacoco.skip>
 	</properties>
@@ -385,7 +385,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>9.0.8</version>
+							<version>9.0.9</version>
 							<executions>
 								<execution>
 									<goals>
