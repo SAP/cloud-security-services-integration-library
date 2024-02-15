@@ -67,7 +67,7 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
                     token.getExpiration(), token.getHeaders(), token.getClaims()));
         }
         catch (NumberFormatException e){
-            throw new RuntimeException("Error parsing JWT: " + e.getMessage(), e);
+            throw new BadJwtException("Error parsing JWT: " + e.getMessage(), e);
         }
     }
 }
