@@ -70,8 +70,8 @@ To be able to validate tokens it performs the following tasks:
     <version>3.3.5</version>
 </dependency>
 <dependency>
-    <groupId>org.apache.httpcomponents.client5</groupId>
-    <artifactId>httpclient5</artifactId>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
 </dependency>
 ```
 
