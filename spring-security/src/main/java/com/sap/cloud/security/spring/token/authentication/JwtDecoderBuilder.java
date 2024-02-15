@@ -5,10 +5,6 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
@@ -19,6 +15,10 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Builder that creates a {@link JwtDecoder} that can handle both kind of
@@ -122,14 +122,14 @@ public class JwtDecoderBuilder {
 	public JwtDecoder build() {
 		CombiningValidator<Token> xsuaaValidator = getValidators(Service.XSUAA);
 		CombiningValidator<Token> iasValidator = getValidators(Service.IAS);
-		if(xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()){
+		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
 			return new HybridJwtDecoder(xsuaaValidator, iasValidator);
 		}
 
-		if(iasValidator == null){
+		if (iasValidator == null) {
 			throw new IllegalStateException("There is no xsuaa and no identity service config.");
 		}
-		return new IasJwtDecoder(iasValidator);//lgtm[java/dereferenced-value-may-be-null]-line127
+		return new IasJwtDecoder(iasValidator);// lgtm[java/dereferenced-value-may-be-null]-line127
 	}
 
 	private JwtValidatorBuilder initializeBuilder(OAuth2ServiceConfiguration config) {
@@ -142,17 +142,17 @@ public class JwtDecoderBuilder {
 		return builder;
 	}
 
-	public ReactiveHybridJwtDecoder buildAsReactive(){
+	public ReactiveHybridJwtDecoder buildAsReactive() {
 		CombiningValidator<Token> xsuaaValidator = getValidators(Service.XSUAA);
 		CombiningValidator<Token> iasValidator = getValidators(Service.IAS);
-		if(xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()){
+		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
 			return new ReactiveHybridJwtDecoder(xsuaaValidator, iasValidator);
 		}
 		return null;
 	}
 
-	private CombiningValidator<Token> getValidators(Service name){
-		if(name == Service.XSUAA && xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
+	private CombiningValidator<Token> getValidators(Service name) {
+		if (name == Service.XSUAA && xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
 			int index = 0;
 			JwtValidatorBuilder xsuaaValidatorBuilder = initializeBuilder(xsuaaConfigurations.get(index));
 			for (OAuth2ServiceConfiguration xsuaaConfig : xsuaaConfigurations) {
@@ -162,8 +162,8 @@ public class JwtDecoderBuilder {
 			}
 			return xsuaaValidatorBuilder.build();
 		}
-		if(name == Service.IAS){
-			if(iasConfiguration != null && !iasConfiguration.getProperties().isEmpty()){
+		if (name == Service.IAS) {
+			if (iasConfiguration != null && !iasConfiguration.getProperties().isEmpty()) {
 				JwtValidatorBuilder iasValidatorBuilder = initializeBuilder(iasConfiguration);
 				return iasValidatorBuilder.build();
 			}

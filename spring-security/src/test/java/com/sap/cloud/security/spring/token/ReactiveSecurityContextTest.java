@@ -21,7 +21,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 class ReactiveSecurityContextTest {
 
 	@Test
-	void unauthenticated(){
+	void unauthenticated() {
 		Authentication authentication = new TestingAuthenticationToken("Token", "theClientId", "ROLE_USER");
 		Mono<Token> tokenMono = ReactiveSecurityContextHolder.getContext()
 				.map(SecurityContext::getAuthentication)
@@ -35,7 +35,7 @@ class ReactiveSecurityContextTest {
 	}
 
 	@Test
-	void authenticated(){
+	void authenticated() {
 		Token xsuaaToken = JwtGenerator.getInstance(XSUAA, "theClientId")
 				.withAppId("xsapp")
 				.withLocalScopes("ROLE_USER").createToken();
