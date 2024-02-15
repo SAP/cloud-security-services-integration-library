@@ -35,6 +35,42 @@ metadata:
 spec:
   serviceInstanceName: xsuaa-authn
 ---
+#Xsuaa Broker instance (Optional)
+#apiVersion: services.cloud.sap.com/v1
+#kind: ServiceInstance
+#metadata:
+#  name: xsuaa-broker
+#spec:
+#  serviceOfferingName: xsuaa
+#  servicePlanName: application
+#  parameters:
+#    xsappname: spring-security-hybrid-usage
+#    tenant-mode: dedicated
+#    oauth2-configuration:
+#      credential-types:
+#        - x509
+#    scopes:
+#      - name: "$XSAPPNAME.Read"
+#        description: Read Permissions.
+#    role-templates:
+#      - name: Viewer
+#        description: View Data
+#        scope-references:
+#          - "$XSAPPNAME.Read"
+#    role-collections:
+#      - name: XSUAA-Viewer
+#        description: Viewer (read)
+#        role-template-references:
+#          - "$XSAPPNAME.Viewer"
+#---
+#apiVersion: services.cloud.sap.com/v1
+#kind: ServiceBinding
+#metadata:
+#  name: xsuaa-broker-binding
+#spec:
+#  serviceInstanceName: xsuaa-broker
+
+---
 # IAS instance
 apiVersion: services.cloud.sap.com/v1
 kind: ServiceInstance
@@ -88,6 +124,9 @@ spec:
             - name: xsuaa
               mountPath: "/bindings/xsuaa-authn"
               readOnly: true
+#            - name: xsuaa-broker
+#              mountPath: "/bindings/xsuaa-broker"
+#              readOnly: true
             - name: ias-authn
               mountPath: "/bindings/ias-authn"
               readOnly: true
@@ -96,6 +135,9 @@ spec:
         - name: xsuaa
           secret:
             secretName: xsuaa-authn-binding
+#        - name: xsuaa-broker
+#          secret:
+#            secretName: xsuaa-broker-binding
         - name: ias-authn
           secret:
             secretName: ias-service-binding
