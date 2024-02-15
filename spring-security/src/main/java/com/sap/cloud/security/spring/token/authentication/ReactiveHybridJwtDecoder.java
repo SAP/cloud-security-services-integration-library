@@ -59,10 +59,15 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
     }
 
     static Mono<Jwt> parseJwt(Token token) {
-        Instant issuedAt = token.hasClaim(TokenClaims.XSUAA.ISSUED_AT)
-                ? Instant.ofEpochSecond(Long.parseLong(token.getClaimAsString(TokenClaims.XSUAA.ISSUED_AT)))
-                : null;
-        return Mono.just(new Jwt(token.getTokenValue(), issuedAt,
-                token.getExpiration(), token.getHeaders(), token.getClaims()));
+        try{
+            Instant issuedAt = token.hasClaim(TokenClaims.XSUAA.ISSUED_AT)
+                    ? Instant.ofEpochSecond(Long.parseLong(token.getClaimAsString(TokenClaims.XSUAA.ISSUED_AT)))
+                    : null;
+            return Mono.just(new Jwt(token.getTokenValue(), issuedAt,
+                    token.getExpiration(), token.getHeaders(), token.getClaims()));
+        }
+        catch (NumberFormatException e){
+            throw new BadJwtException("Error parsing JWT: " + e.getMessage(), e);
+        }
     }
 }
