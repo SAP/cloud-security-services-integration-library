@@ -6,35 +6,37 @@
 # If the route is occupied, you might need to change ID in ../vars.yml
 applications:
   # The sample application.
-  - name: spring-webflux-security-xsuaa-usage
+  - name: spring-webflux-security-hybrid-usage
     instances: 1
     memory: 896M
     routes:
-      - route: spring-webflux-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
-    path: target/spring-webflux-security-xsuaa-usage.jar
+      - route: spring-webflux-security-hybrid-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
+    path: target/spring-webflux-security-hybrid-usage.jar
     buildpacks:
-      - java_buildpack
+      - https://github.com/cloudfoundry/java-buildpack.git
     env:
       JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
       JBP_CONFIG_DEBUG: '{enabled: true}'
     services:
       - xsuaa-webflux
+      - ias-webflux
 
   # Application Router as web server
-  - name: approuter-spring-webflux-security-xsuaa-usage
+  - name: approuter-spring-webflux-security-hybrid-usage
     path: approuter
     buildpacks:
       - nodejs_buildpack
     memory: 128M
     routes:
-      - route: spring-webflux-security-xsuaa-usage-web-((ID)).((LANDSCAPE_APPS_DOMAIN))
+      - route: spring-webflux-security-hybrid-usage-web-((ID)).((LANDSCAPE_APPS_DOMAIN))
     services:
       - xsuaa-webflux
+      - ias-webflux
     env:
       destinations: >
         [
           {"name":"token-destination",
-           "url":"https://spring-webflux-security-xsuaa-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))",
+           "url":"https://spring-webflux-security-hybrid-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))",
            "forwardAuthToken": true}
         ]
 ...

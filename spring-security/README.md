@@ -44,6 +44,7 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
 * [Optional Usage](#optional-usage)
   + [[Optional] Audit Logging](#optional-audit-logging)
   + [[Optional] Setup Security Context for non-HTTP requests](#optional-setup-security-context-for-non-http-requests)
+  + [[Optional] Reactive Usage with Webflux](#optional-reactive-usage-with-webflux)
 * [Testing](#testing)
   + [JUnit](#junit)
   + [Overriding identity service configurations](#overriding-identity-service-configurations)
@@ -297,8 +298,10 @@ public class Listener {
 In detail `com.sap.cloud.security.token.SpringSecurityContext` wraps the Spring Security Context (namely `SecurityContextHolder.getContext()`), which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
 
 > :bulb: Note that ``SpringSecurityContext`` is **thread-bound** and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
-</details>
 
+### [Optional] Reactive Usage with Webflux
+In case you want to implement a reactive token authentication flow, you can use the [ReactiveHybridJwtDecoder](./src/main/java/com/sap/cloud/security/spring/token/authentication/ReactiveHybridJwtDecoder.java) and the [ReactiveSecurityContext](./src/main/java/com/sap/cloud/security/spring/token/ReactiveSecurityContext.java). The reactive authentication flow allows to build non-blocking, asynchronous and event-driven applications.
+</details>
 
 ## Testing
 
@@ -438,3 +441,5 @@ Make sure that you have defined the following mandatory attribute in the service
 Demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with tokens issued by SAP Identity service or XSUAA. Furthermore, it documents how to implement Spring WebMvcTests using `java-security-test` library.
 - [Basic Auth Usage](../samples/spring-security-basic-auth)    
 Legacy example that demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with username/password provided via Basic Auth header. Furthermore, it documents how to implement Spring WebMvcTests using `java-security-test` library.
+- [Webflux Hybrid Usage](../samples/spring-webflux-security-hybrid-usage)\
+Shows how to use ``spring-security`` library with both tokens issued by XSUAA and SAP Identity service in an reactive environment.

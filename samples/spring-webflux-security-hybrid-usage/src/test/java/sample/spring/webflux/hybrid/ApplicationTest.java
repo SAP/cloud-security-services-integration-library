@@ -3,16 +3,16 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package sample.spring.webflux.xsuaa;
+package sample.spring.webflux.hybrid;
 
-import com.sap.cloud.security.xsuaa.autoconfiguration.XsuaaAutoConfiguration;
+import com.sap.cloud.security.spring.autoconfig.HybridIdentityServicesAutoConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = { XsuaaAutoConfiguration.class })
+@SpringBootTest(classes = { HybridIdentityServicesAutoConfiguration.class })
 public class ApplicationTest {
 
 	@Test
