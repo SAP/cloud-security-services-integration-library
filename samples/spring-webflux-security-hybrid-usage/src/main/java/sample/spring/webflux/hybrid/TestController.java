@@ -3,10 +3,10 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package sample.spring.webflux.xsuaa;
+package sample.spring.webflux.hybrid;
 
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
-import com.sap.cloud.security.xsuaa.token.ReactiveSecurityContext;
+import com.sap.cloud.security.spring.token.ReactiveSecurityContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,6 @@ public class TestController {
 		return ReactiveSecurityContext.getToken()
 				.doOnError(throwable -> Mono.just(unAuthenticated))
 				.map(token -> ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN)
-						.body(Base64JwtDecoder.getInstance().decode(token.getAppToken()).getPayload()));
+						.body(Base64JwtDecoder.getInstance().decode(token.getTokenValue()).getPayload()));
 	}
 }

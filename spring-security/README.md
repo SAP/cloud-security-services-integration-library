@@ -44,6 +44,7 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
 * [Optional Usage](#optional-usage)
   + [[Optional] Audit Logging](#optional-audit-logging)
   + [[Optional] Setup Security Context for non-HTTP requests](#optional-setup-security-context-for-non-http-requests)
+  + [[Optional] Reactive Usage with Webflux](#optional-reactive-usage-with-webflux)
 * [Testing](#testing)
   + [JUnit](#junit)
   + [Overriding identity service configurations](#overriding-identity-service-configurations)
@@ -78,38 +79,32 @@ Depending on the service bindings in the environment, a different implementation
 In addition, a bean of type [XsuaaTokenFlows](../token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) is provided that can be used to fetch XSUAA tokens.
 
 #### Autoconfiguration classes
-| Autoconfiguration class                                                                                                                          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-|--------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Autoconfiguration class                                                                                                                          | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+|--------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [HybridAuthorizationAutoConfiguration](./src/main/java/com/sap/cloud/security/spring/autoconfig/HybridAuthorizationAutoConfiguration.java)       | Creates a converter ([XsuaaTokenAuthorizationConverter](./src/main/java/com/sap/cloud/security/spring/token/authentication/XsuaaTokenAuthorizationConverter.java)) that removes the XSUAA application identifier from the scope names, allowing local scope checks to be performed using [Spring's common built-in expression](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#el-common-built-in) `hasAuthority`. Supports only single Xsuaa binding |
-| [HybridIdentityServicesAutoConfiguration](./src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and/or Identity service<br/>Furthermore it registers `IdentityServiceConfiguration` and optionally `XsuaaServiceConfiguration`, that allow overriding the identity service configurations found in the service bindings (via `identity.*` and `xsuaa.*` properties).                                                                                                                           |
-| [XsuaaTokenFlowAutoConfiguration](./src/main/java/com/sap/cloud/security/spring/autoconfig/XsuaaTokenFlowAutoConfiguration.java)                 | Configures an `XsuaaTokenFlows` bean to fetch the XSUAA tokens. Starting with `2.10.0` version it supports X.509 based authentication                                                                                                                                                                                                                                                                                                                                           |
-| [SecurityContextAutoConfiguration](./src/main/java/com/sap/cloud/security/spring/autoconfig/SecurityContextAutoConfiguration.java)               | Configures [`JavaSecurityContextHolderStrategy`](./src/main/java/com/sap/cloud/security/spring/token/authentication/JavaSecurityContextHolderStrategy.java) to be used as `SecurityContextHolderStrategy` to keep the `com.sap.cloud.security.token.SecurityContext` in sync                                                                                                                                                                                                    |
+| [HybridIdentityServicesAutoConfiguration](./src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java) | Configures a `JwtDecoder` which is able to decode and validate tokens from Xsuaa and/or Identity service<br/>Furthermore it registers `IdentityServiceConfiguration` and optionally `XsuaaServiceConfiguration`, that allow overriding the identity service configurations found in the service bindings (via `identity.*` and `xsuaa.*` properties).                                                                                                                          |
+| [XsuaaTokenFlowAutoConfiguration](./src/main/java/com/sap/cloud/security/spring/autoconfig/XsuaaTokenFlowAutoConfiguration.java)                 | Configures an `XsuaaTokenFlows` bean to fetch the XSUAA tokens. Starting with `2.10.0` version it supports X.509 based authentication                                                                                                                                                                                                                                                                                                                                          |
+| [SecurityContextAutoConfiguration](./src/main/java/com/sap/cloud/security/spring/autoconfig/SecurityContextAutoConfiguration.java)               | Configures [`JavaSecurityContextHolderStrategy`](./src/main/java/com/sap/cloud/security/spring/token/authentication/JavaSecurityContextHolderStrategy.java) to be used as `SecurityContextHolderStrategy` to keep the `com.sap.cloud.security.token.SecurityContext` in sync                                                                                                                                                                                                   |
 
 #### Autoconfiguration properties
-
 | Autoconfiguration property           | Default value | Description                                                                                                             |
 |--------------------------------------|---------------|-------------------------------------------------------------------------------------------------------------------------|
 | sap.spring.security.hybrid.auto      | true          | This enables all auto-configurations that setup your project for hybrid IAS and/or XSUAA token validation.              |
 | sap.spring.security.xsuaa.flows.auto | true          | This enables all auto-configurations required for XSUAA token exchange using [`token-client`](../token-client) library. |
 
-You can gradually replace auto-configurations as
-explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
+You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
-#### Multiple Xsuaa service configurations
+#### Multiple Xsuaa configurations
+:warning: In case of multiple Xsuaa configurations, the [XsuaaTokenAuthorizationConverter](./src/main/java/com/sap/cloud/security/spring/token/authentication/XsuaaTokenAuthorizationConverter.java) bean is not autoconfigured. 
+The bean needs to be created manually based on the service configuration you want the converter to be initialized with.
 
-:warning: In case of multiple Xsuaa service configurations,
-the [XsuaaTokenAuthorizationConverter](./src/main/java/com/sap/cloud/security/spring/token/authentication/XsuaaTokenAuthorizationConverter.java)
-bean is not autoconfigured.
-The bean needs to be created manually based on the service configurations you want the converter to be initialized with.
-
-For example, to create a converter that removes the application identifier of the *first* XSUAA configuration from the
-scope names, you could create the following bean:
+For example, to create a converter that removes the application identifier of the *first* XSUAA configuration from the scope names, you could create the following bean:
 
 ```java
 @Bean
-public Converter<Jwt, AbstractAuthenticationToken> xsuaaAuthConverter(XsuaaServiceConfigurations xsuaaConfigs){
-        return new XsuaaTokenAuthorizationConverter(xsuaaConfigs.getConfigurations().get(0).getProperty(APP_ID));
-        }
+public Converter<Jwt, AbstractAuthenticationToken> xsuaaAuthConverter(XsuaaServiceConfigurations xsuaaConfigs) {
+	return new XsuaaTokenAuthorizationConverter(xsuaaConfigs.getConfigurations().get(0).getProperty(APP_ID));
+}
 ```
 
 A further example can be
@@ -119,19 +114,16 @@ You may want to filter the list accessible via `XsuaaServiceConfigurations#getCo
 properties to find a specific configuration from the list.
 
 ### Security Configuration
-
-This is an example how to configure your application as Spring Security OAuth 2.0 Resource Server for authentication of
-HTTP requests:
+This is an example how to configure your application as Spring Security OAuth 2.0 Resource Server for authentication of HTTP requests:
 
 ```java
-
 @Configuration
 @EnableWebSecurity
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-
-  @Autowired
-  Converter<Jwt, AbstractAuthenticationToken> authConverter; // only required for XSUAA
+    
+    @Autowired
+    Converter<Jwt, AbstractAuthenticationToken> authConverter; // only required for XSUAA
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -311,6 +303,9 @@ public class Listener {
 In detail `com.sap.cloud.security.token.SpringSecurityContext` wraps the Spring Security Context (namely `SecurityContextHolder.getContext()`), which stores by default the information in `ThreadLocal`s. In order to avoid memory leaks it is recommended to remove the current thread's value for garbage collection.
 
 > :bulb: Note that ``SpringSecurityContext`` is **thread-bound** and is NOT propagated to child-threads. This [Baeldung tutorial: Spring Security Context Propagation article](https://www.baeldung.com/spring-security-async-principal-propagation) provides more information on how to propagate the context.
+
+### [Optional] Reactive Usage with Webflux
+In case you want to implement a reactive token authentication flow, you can use the [ReactiveHybridJwtDecoder](./src/main/java/com/sap/cloud/security/spring/token/authentication/ReactiveHybridJwtDecoder.java) and the [ReactiveSecurityContext](./src/main/java/com/sap/cloud/security/spring/token/ReactiveSecurityContext.java). The reactive authentication flow allows to build non-blocking, asynchronous and event-driven applications.
 </details>
 
 
@@ -329,17 +324,17 @@ In an `application.yml` the test configuration suitable for use with `java-secur
 
 ```yaml
 sap.security.services:
-  identity:
-    clientid: sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
-    domains:
-      - localhost                 # SecurityTest.DEFAULT_DOMAIN
-  xsuaa:
-    xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
-    uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
-    clientid: sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
-    url: http://localhost   # SecurityTest.DEFAULT_URL
+    identity:
+      clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
+      domains:   
+        - localhost                 # SecurityTest.DEFAULT_DOMAIN
+    xsuaa:
+      xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
+      uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
+      clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
+      url:       http://localhost   # SecurityTest.DEFAULT_URL
 ```  
-
+	
 #### Multiple XSUAA bindings
 
 If you need to manually configure the application for more than one XSUAA service instances (e.g. one of
@@ -359,32 +354,28 @@ You will need to provide it manually. An example can be
 found [here](../samples/spring-security-hybrid-usage/src/main/java/sample/spring/security/XsuaaAuthzConverter.java).
 
 ### Local testing
-
-To run or debug your secured application locally you need to provide the mandatory Xsuaa or Identity service
-configuration attributes prior to launching the application.
+To run or debug your secured application locally you need to provide the mandatory Xsuaa or Identity service configuration attributes prior to launching the application. 
 There are two ways how to provide the service configuration to your Spring Boot application:
-
-1. As Spring properties in `application.yaml` or `application.properties` files
-
+1. As Spring properties in `application.yaml` or `application.properties` files 
+   
    The security library requires the following key value pairs to start successfully:
-
-- For Xsuaa
-  ```yaml
-   sap.security.services:
-      xsuaa:
-        xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
-        uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
-        clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
-        url:       http://localhost   # SecurityTest.DEFAULT_URL
-  ```
-- For Identity service
-  ```yaml
-    sap.security.services:
-        identity:
-          clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
-          domains:   
-            - localhost                 # SecurityTest.DEFAULT_DOMAIN
-    ```
+   - For Xsuaa
+     ```yaml
+      sap.security.services:
+         xsuaa:
+           xsappname: xsapp!t0815        # SecurityTest.DEFAULT_APP_ID
+           uaadomain: localhost          # SecurityTest.DEFAULT_DOMAIN
+           clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
+           url:       http://localhost   # SecurityTest.DEFAULT_URL
+     ```
+   - For Identity service
+     ```yaml
+       sap.security.services:
+           identity:
+             clientid:  sb-clientId!t0815  # SecurityTest.DEFAULT_CLIENT_ID
+             domains:   
+               - localhost                 # SecurityTest.DEFAULT_DOMAIN
+       ```
    
    :bulb: The provided values above correspond with the [JwtGenerator](../java-security-test/src/main/java/com/sap/cloud/security/test/JwtGenerator.java) default values from `java-security-test` library, meaning you can generate tokens and test them with this service configuration.
 
@@ -453,19 +444,16 @@ APPLICATION FAILED TO START
 Field authConverter in com.sap.cloud.test.SecurityConfiguration required a bean of type 'org.springframework.core.convert.converter.Converter' that could not be found.
 ```
 Make sure that you have defined the following mandatory attribute in the service configuration (VCAP_SERVICES env variable or application.yaml or application.properties)
-
 - for Xsuaa
-  - xsappname
-  - uaadomain
-  - clientid
+  - xsappname 
+  - uaadomain 
+  - clientid 
   - url
 - for Identity service
   - domains
   - clientid
 
-:bulb: Example of minimal application
-configuration [application.yml](../samples/spring-security-hybrid-usage/src/test/resources/application.yml) for local
-setup.
+:bulb: Example of minimal application configuration [application.yml](../samples/spring-security-hybrid-usage/src/test/resources/application.yml) for local setup.
 
 ##### Multiple Xsuaa service bindings
 
@@ -475,12 +463,9 @@ You will need to provide it manually. An example can be
 found [here](../samples/spring-security-hybrid-usage/src/main/java/sample/spring/security/XsuaaAuthzConverter.java).
 
 ## Samples
-
 - [Hybrid Usage](../samples/spring-security-hybrid-usage)    
-  Demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with tokens issued by
-  SAP Identity service or XSUAA. Furthermore, it documents how to implement Spring WebMvcTests
-  using `java-security-test` library.
+Demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with tokens issued by SAP Identity service or XSUAA. Furthermore, it documents how to implement Spring WebMvcTests using `java-security-test` library.
 - [Basic Auth Usage](../samples/spring-security-basic-auth)    
-  Legacy example that demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application
-  with username/password provided via Basic Auth header. Furthermore, it documents how to implement Spring WebMvcTests
-  using `java-security-test` library.
+Legacy example that demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with username/password provided via Basic Auth header. Furthermore, it documents how to implement Spring WebMvcTests using `java-security-test` library.
+- [Webflux Hybrid Usage](../samples/spring-webflux-security-hybrid-usage)\
+Shows how to use ``spring-security`` library with both tokens issued by XSUAA and SAP Identity service in an reactive environment.

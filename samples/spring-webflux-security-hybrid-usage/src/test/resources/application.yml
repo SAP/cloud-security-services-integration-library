@@ -1,0 +1,12 @@
+
+spring:
+    main:
+        allow-bean-definition-overriding: true
+sap:
+    security:
+        services:
+            identity:
+                clientid: sb-clientId!t0815
+            xsuaa:
+                clientid: sb-clientId!t0815
+                xsappname: xsapp!t0815

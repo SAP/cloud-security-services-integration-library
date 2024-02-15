@@ -1,13 +1,14 @@
 # Description
 This sample is a Spring Boot application that uses `spring-webflux` as the web framework and 
 is protected by the `spring-security-oauth2-resource-server`, 
-which utilizes the [`spring-xsuaa`](/spring-xsuaa/) client library.
+which utilizes the [`spring-security`](/spring-security/) client library.
 
 # Deployment To Cloud Foundry
 To deploy the application, the following steps are required:
 - Configure the Application Router
 - Compile the Java application
 - Create an XSUAA service instance
+- Create an IAS service instance
 - Configure the manifest.yml
 - Deploy the application
 - Assign Role to your user
@@ -29,6 +30,11 @@ mvn clean package
 Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
 ```shell
 cf create-service xsuaa application xsuaa-webflux -c xs-security.json
+```
+
+## Create the IAS Service Instance
+```shell
+cf create-service identity application ias-webflux
 ```
 
 ## Configure the manifest
@@ -55,17 +61,18 @@ Further up-to-date information you can get on sap.help.com:
 ## Access the application
 After deployment, the AppRouter will trigger authentication automatically when you access one of the following URLs:
 
-* `https://spring-webflux-security-xsuaa-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces Http response with content-type `application/json; UTF-8` and the body containing the claims of the JWT or an error message
+* `https://spring-webflux-security-hybrid-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces Http response with content-type `application/json; UTF-8` and the body containing the claims of the JWT or an error message
 
 Direct access to the microservice (without the AppRouter) will return an error:
 
-* `https://spring-webflux-security-xsuaa-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces an error with `401` (unauthenticated) status code, as it calls the service without `Authorization` header.
+* `https://spring-webflux-security-hybrid-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces an error with `401` (unauthenticated) status code, as it calls the service without `Authorization` header.
 
 ## Clean-Up
 
 Finally, delete your application and your service instances using the following commands:
 ```
-cf delete -f spring-webflux-security-xsuaa-usage
-cf delete -f approuter-spring-webflux-security-xsuaa-usage
+cf delete -f spring-webflux-security-hybrid-usage
+cf delete -f approuter-spring-webflux-security-hybrid-usage
 cf delete-service -f xsuaa-webflux
+cf delete-service -f ias-webflux
 ```

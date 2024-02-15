@@ -3,7 +3,7 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package sample.spring.webflux.xsuaa;
+package sample.spring.webflux.hybrid;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
