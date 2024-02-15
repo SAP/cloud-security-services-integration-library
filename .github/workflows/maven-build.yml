@@ -22,8 +22,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - name: mvn cache
         uses: actions/cache@v2
         with:
