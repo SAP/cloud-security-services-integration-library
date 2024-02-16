@@ -32,9 +32,9 @@ docker push <repositoryName>/<imageName>
 In deployment.yml replace the image repository placeholder `<YOUR IMAGE REPOSITORY>` with the one created in the previous step.
 
 If you want to test the app with multiple Xsuaa bindings (application and broker plan) uncomment the following lines:
-- [Service Instance definition and the binding](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L40-L72)
-- [Volume mount for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L128-L130)
-- [Volume for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L139-L141)
+- [Service Instance definition and the binding](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L39-L72)
+- [Volume mount for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L127-L129)
+- [Volume for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L138-L140)
 
 ## Deploy the application
 Deploy the application using [kubectl cli](https://kubernetes.io/docs/reference/kubectl/)
