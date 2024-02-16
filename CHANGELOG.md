@@ -10,8 +10,8 @@ All notable changes to this project will be documented in this file.
 - Bump slf4j.api.version from 2.0.11 to 2.0.12
 - Bump org.json:json from 20231013 to 20240205
 - Bump org.apache.httpcomponents.client5:httpclient5 from 5.3 to 5.3.1
-- Bump spring.boot.version from 3.2.1 to 3.2.2 
-
+- Bump spring.boot.version from 3.2.1 to 3.2.2
+- Bump spring.core.version from 6.1.3 to 6.1.4
 
 
 ## 3.3.4
