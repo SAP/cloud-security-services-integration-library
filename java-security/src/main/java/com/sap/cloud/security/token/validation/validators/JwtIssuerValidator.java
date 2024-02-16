@@ -53,6 +53,7 @@ class JwtIssuerValidator implements Validator<Token> {
 	 * used for any other purpose to preserve application security.
 	 */
 	static TestIssuerValidator localhostIssuerValidator;
+
 	static {
 		tryLoadingLocalhostIssuerValidator();
 	}
@@ -78,12 +79,10 @@ class JwtIssuerValidator implements Validator<Token> {
 	private final List<String> domains;
 
 	/**
-	 * Creates instance of Issuer validation using the given domains provided by the
-	 * identity service.
+	 * Creates instance of Issuer validation using the given domains provided by the identity service.
 	 *
 	 * @param domains
-	 *            the list of domains of the identity provider
-	 *            {@link OAuth2ServiceConfiguration#getDomains()}
+	 * 		the list of domains of the identity provider {@link OAuth2ServiceConfiguration#getDomains()}
 	 */
 	JwtIssuerValidator(List<String> domains) {
 		assertNotEmpty(domains, "JwtIssuerValidator requires a domain(s).");
@@ -117,8 +116,8 @@ class JwtIssuerValidator implements Validator<Token> {
 		}
 
 		String issuerDomain = issuerUrl.substring(issuerUrl.indexOf("://") + 3); // issuerUrl was validated above to
-																					// begin either with http:// or
-																					// https://
+		// begin either with http:// or
+		// https://
 		for (String d : domains) {
 			// a string that ends with .<trustedDomain> and contains 1-63 letters, digits or
 			// '-' before that for the subdomain

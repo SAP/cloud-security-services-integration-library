@@ -15,8 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import java.time.Instant;
 
 /**
- * Token Utility class to determine provided token type i.e. Xsuaa or IAS, check
- * token exchange enablement
+ * Token Utility class to determine provided token type i.e. Xsuaa or IAS, check token exchange enablement
  */
 public class TokenUtil {
 
@@ -28,7 +27,7 @@ public class TokenUtil {
 	 * Splits the bearer token into header, payload and signature.
 	 *
 	 * @param encodedJwtToken
-	 *            encoded jwt token
+	 * 		encoded jwt token
 	 * @return DecodedJwt
 	 */
 	static DecodedJwt decodeJwt(String encodedJwtToken) {
@@ -39,7 +38,7 @@ public class TokenUtil {
 	 * Parses decoded Jwt token to org.springframework.security.oauth2.jwt
 	 *
 	 * @param decodedJwt
-	 *            decoded Jwt
+	 * 		decoded Jwt
 	 * @return Jwt class
 	 */
 	static Jwt parseJwt(DecodedJwt decodedJwt) {
@@ -51,11 +50,10 @@ public class TokenUtil {
 	}
 
 	/**
-	 * Determines if the provided decoded jwt token is issued by the XSUAA identity
-	 * service.
+	 * Determines if the provided decoded jwt token is issued by the XSUAA identity service.
 	 *
 	 * @param decodedJwt
-	 *            jwt to be checked
+	 * 		jwt to be checked
 	 * @return true if provided token is a XSUAA token
 	 */
 	static boolean isXsuaaToken(DecodedJwt decodedJwt) {

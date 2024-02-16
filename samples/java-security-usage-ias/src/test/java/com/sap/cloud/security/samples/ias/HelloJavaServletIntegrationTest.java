@@ -5,12 +5,6 @@
  */
 package com.sap.cloud.security.samples.ias;
 
-import static com.sap.cloud.security.config.Service.IAS;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.SecurityContext;
@@ -27,6 +21,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import static com.sap.cloud.security.config.Service.IAS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class HelloJavaServletIntegrationTest {
 
@@ -80,7 +80,8 @@ class HelloJavaServletIntegrationTest {
 			return IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
 		});
 
-		assertThat(responseBody).isEqualTo("You ('john.doe@email.com') are authenticated and can access the application.");
+		assertThat(responseBody).isEqualTo(
+				"You ('john.doe@email.com') are authenticated and can access the application.");
 	}
 
 	@Test
@@ -94,7 +95,7 @@ class HelloJavaServletIntegrationTest {
 
 	private HttpGet createGetRequest(String bearerToken) {
 		HttpGet httpGet = new HttpGet(rule.getApplicationServerUri() + HelloJavaServlet.ENDPOINT);
-		if(bearerToken != null) {
+		if (bearerToken != null) {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + bearerToken);
 		}
 		return httpGet;

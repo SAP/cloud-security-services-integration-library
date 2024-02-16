@@ -24,8 +24,7 @@ public final class MDCHelper {
 	}
 
 	/**
-	 * Gets correlation_id from MDC, if it is missing, new correlation_id will be
-	 * created.
+	 * Gets correlation_id from MDC, if it is missing, new correlation_id will be created.
 	 *
 	 * @return the string of correlation_id
 	 */

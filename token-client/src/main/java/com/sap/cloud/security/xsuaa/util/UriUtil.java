@@ -24,15 +24,13 @@ public class UriUtil {
 	}
 
 	/**
-	 * Utility method that replaces the subdomain of the URI with the given
-	 * subdomain.
+	 * Utility method that replaces the subdomain of the URI with the given subdomain.
 	 *
 	 * @param uri
-	 *            the URI to be replaced.
+	 * 		the URI to be replaced.
 	 * @param subdomain
-	 *            of the tenant.
-	 * @return the URI with the replaced subdomain or the passed URI in case a
-	 *         replacement was not possible.
+	 * 		of the tenant.
+	 * @return the URI with the replaced subdomain or the passed URI in case a replacement was not possible.
 	 */
 	public static URI replaceSubdomain(@Nonnull URI uri, @Nullable String subdomain) {
 		Assertions.assertNotNull(uri, "the uri parameter must not be null");
@@ -62,9 +60,9 @@ public class UriUtil {
 	 * Utility method that expands the path of the URI.
 	 *
 	 * @param baseUri
-	 *            the URI to be replaced.
+	 * 		the URI to be replaced.
 	 * @param pathToAppend
-	 *            the path to append.
+	 * 		the path to append.
 	 * @return the URI with the path.
 	 */
 	// TODO rename to getUriWithPathAppended

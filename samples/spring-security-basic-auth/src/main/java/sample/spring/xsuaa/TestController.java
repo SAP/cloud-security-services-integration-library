@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 
 	/**
-	 * Returns the access token to the caller that was fetched by {@link TokenBrokerResolver}
-	 * using the Basic auth information from the request header with a
-	 * {@link com.sap.cloud.security.token.GrantType#PASSWORD} grant type flow.
+	 * Returns the access token to the caller that was fetched by {@link TokenBrokerResolver} using the Basic auth
+	 * information from the request header with a {@link com.sap.cloud.security.token.GrantType#PASSWORD} grant type
+	 * flow.
 	 *
-	 * @param token validated and processed access token
+	 * @param token
+	 * 		validated and processed access token
 	 * @return the access token
 	 */
 	@GetMapping("/fetchToken")
@@ -33,7 +34,7 @@ public class TestController {
 	}
 
 	@GetMapping("/health")
-	public String checkHealth(){
+	public String checkHealth() {
 		return "OK";
 	}
 }

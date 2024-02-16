@@ -234,7 +234,7 @@ public class DefaultJsonObjectTest {
 
 	private static String createDeeplyNestedJsonObjectString(int depth) {
 		return "{" +
-		// go down the JSON Object rabbit hole...
+				// go down the JSON Object rabbit hole...
 				"\"a\" : {".repeat(Math.max(0, depth)) +
 
 				// ... and up again

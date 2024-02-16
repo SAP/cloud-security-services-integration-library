@@ -29,16 +29,13 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
- * the XSUAA client library.
+ * {@link EnableAutoConfiguration Auto-configuration} for default beans used by the XSUAA client library.
  * <p>
- * Activates when there is a class of type {@link XsuaaTokenFlows} on the
- * classpath.
+ * Activates when there is a class of type {@link XsuaaTokenFlows} on the classpath.
  *
  * <p>
- * can be disabled
- * with @EnableAutoConfiguration(exclude={XsuaaTokenFlowAutoConfiguration.class})
- * or with property {@code sap.spring.security.xsuaa.flows.auto = false}.
+ * can be disabled with @EnableAutoConfiguration(exclude={XsuaaTokenFlowAutoConfiguration.class}) or with property
+ * {@code sap.spring.security.xsuaa.flows.auto = false}.
  */
 @Configuration
 @ConditionalOnClass(XsuaaTokenFlows.class)
@@ -69,8 +66,8 @@ public class XsuaaTokenFlowAutoConfiguration {
 	}
 
 	/**
-	 * Creates a {@link CloseableHttpClient} instance configured with the
-	 * ClientIdentity provided. Conditional on missing CloseableHttpClient Bean.
+	 * Creates a {@link CloseableHttpClient} instance configured with the ClientIdentity provided. Conditional on
+	 * missing CloseableHttpClient Bean.
 	 *
 	 * @return the {@link CloseableHttpClient} instance.
 	 */

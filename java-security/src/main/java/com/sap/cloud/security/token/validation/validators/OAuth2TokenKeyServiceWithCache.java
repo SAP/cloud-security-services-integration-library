@@ -32,8 +32,8 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
- * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up
- * before the identity service is requested via http.
+ * Decorates {@link OAuth2TokenKeyService} with a cache, which gets looked up before the identity service is requested
+ * via http.
  */
 class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2TokenKeyServiceWithCache.class);
@@ -62,8 +62,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * Creates a new instance and sets the cache ticker. This is used for testing.
 	 *
 	 * @param cacheTicker
-	 *            ticker the cache uses to determine time
-	 *
+	 * 		ticker the cache uses to determine time
 	 * @return the new instance.
 	 */
 	static OAuth2TokenKeyServiceWithCache getInstance(Ticker cacheTicker) {
@@ -73,15 +72,13 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Configures the token key cache. Use
-	 * {@link TokenKeyCacheConfiguration#getInstance(Duration, int, boolean)} to
+	 * Configures the token key cache. Use {@link TokenKeyCacheConfiguration#getInstance(Duration, int, boolean)} to
 	 * pass a custom configuration.
 	 * <p>
-	 * Note that the cache size must be 1000 or more and the cache duration must be
-	 * at least 600 seconds!
+	 * Note that the cache size must be 1000 or more and the cache duration must be at least 600 seconds!
 	 *
 	 * @param cacheConfiguration
-	 *            the cache configuration
+	 * 		the cache configuration
 	 * @return this tokenKeyServiceWithCache
 	 */
 	public OAuth2TokenKeyServiceWithCache withCacheConfiguration(CacheConfiguration cacheConfiguration) {
@@ -97,7 +94,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * Overwrites the service to be used to request the Json web keys.
 	 *
 	 * @param tokenKeyService
-	 *            the service to request the json web key set.
+	 * 		the service to request the json web key set.
 	 * @return this
 	 */
 	public OAuth2TokenKeyServiceWithCache withTokenKeyService(OAuth2TokenKeyService tokenKeyService) {
@@ -106,9 +103,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Returns
-	 * {@link OAuth2TokenKeyServiceWithCache#getPublicKey(JwtSignatureAlgorithm, String, URI, Map)}
-	 * with {@link HttpHeaders#X_APP_TID} = appTid inside params.
+	 * Returns {@link OAuth2TokenKeyServiceWithCache#getPublicKey(JwtSignatureAlgorithm, String, URI, Map)} with
+	 * {@link HttpHeaders#X_APP_TID} = appTid inside params.
 	 */
 	@Nullable
 	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid)
@@ -117,28 +113,24 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Returns the cached key by id and type or requests the keys from the jwks URI
-	 * of the identity service.
+	 * Returns the cached key by id and type or requests the keys from the jwks URI of the identity service.
 	 *
 	 * @param keyAlgorithm
-	 *            the Key Algorithm of the Access Token.
+	 * 		the Key Algorithm of the Access Token.
 	 * @param keyId
-	 *            the Key Id of the Access Token.
+	 * 		the Key Id of the Access Token.
 	 * @param keyUri
-	 *            the Token Key Uri (jwks) of the Access Token (can be tenant
-	 *            specific).
+	 * 		the Token Key Uri (jwks) of the Access Token (can be tenant specific).
 	 * @param params
-	 *            additional parameters that are sent along with the request. Use
-	 *            constants from {@link HttpHeaders} for the parameter keys.
+	 * 		additional parameters that are sent along with the request. Use constants from {@link HttpHeaders} for the
+	 * 		parameter keys.
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
-	 *             in case the call to the jwks endpoint of the identity service
-	 *             failed.
+	 * 		in case the call to the jwks endpoint of the identity service failed.
 	 * @throws InvalidKeySpecException
-	 *             in case the PublicKey generation for the json web key failed.
+	 * 		in case the PublicKey generation for the json web key failed.
 	 * @throws NoSuchAlgorithmException
-	 *             in case the algorithm of the json web key is not supported.
-	 *
+	 * 		in case the algorithm of the json web key is not supported.
 	 */
 	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri,
 			Map<String, String> params)
@@ -246,7 +238,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		return getCacheConfiguration().isCacheStatisticsEnabled() ? getCache().stats() : null;
 	}
 
-	record CacheKey (URI keyUri, Map<String, String> params) {
+	record CacheKey(URI keyUri, Map<String, String> params) {
 		@Override
 		public String toString() {
 			// e.g. app_tid:<app_tid>|client_id:<client_id>|azp:<azp>

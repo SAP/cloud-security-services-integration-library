@@ -32,10 +32,10 @@ class X509Parser {
 	 * Decodes X509 base64 encoded certificate into X509Certificate class
 	 *
 	 * @param encodedX509
-	 *            base64 encoded X509 certificate
+	 * 		base64 encoded X509 certificate
 	 * @return Decoded X509Certificate
 	 * @throws CertificateException
-	 *             if String value of certificate cannot be parsed
+	 * 		if String value of certificate cannot be parsed
 	 */
 	static X509Certificate parseCertificate(@Nonnull String encodedX509) throws CertificateException {
 		String encodedPemX509 = formatBase64Cert(encodedX509);
@@ -47,15 +47,14 @@ class X509Parser {
 	/**
 	 * Generates X509 thumbprint from provided certificate.
 	 *
-	 * @see <a href="https://tools.ietf.org/html/rfc8705#section-3.1"></a>
 	 * @param x509Certificate
-	 *            X509certificate object
+	 * 		X509certificate object
 	 * @return Thumbprint of X509 certificate
 	 * @throws NoSuchAlgorithmException
-	 *             when a particular cryptographic algorithm is requested but is not
-	 *             available in the environment
+	 * 		when a particular cryptographic algorithm is requested but is not available in the environment
 	 * @throws CertificateEncodingException
-	 *             is thrown if error occurs while encoding X509 certificate
+	 * 		is thrown if error occurs while encoding X509 certificate
+	 * @see <a href="https://tools.ietf.org/html/rfc8705#section-3.1"></a>
 	 */
 	static String getCertificateThumbprint(X509Certificate x509Certificate)
 			throws NoSuchAlgorithmException, CertificateEncodingException {
@@ -66,11 +65,11 @@ class X509Parser {
 
 	/**
 	 * Formats the base64 encoded certificate to <a href=
-	 * "https://docs.oracle.com/javase/8/docs/api/java/security/cert/CertificateFactory.html">JDK
-	 * 1.8</a> required format.
+	 * "https://docs.oracle.com/javase/8/docs/api/java/security/cert/CertificateFactory.html">JDK 1.8</a> required
+	 * format.
 	 *
 	 * @param base64EncodedCert
-	 *            the base64 encoded certificate
+	 * 		the base64 encoded certificate
 	 * @return formatted Base64 string surrounded by PEM labels
 	 */
 	static String formatBase64Cert(@Nonnull String base64EncodedCert) {

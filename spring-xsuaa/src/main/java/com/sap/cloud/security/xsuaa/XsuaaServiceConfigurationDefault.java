@@ -102,11 +102,10 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	/**
-	 * This only supports read from VCAP_SERVICES in cf environment or read from
-	 * secrets in kubernetes environment.
+	 * This only supports read from VCAP_SERVICES in cf environment or read from secrets in kubernetes environment.
 	 *
 	 * @param name
-	 *            of the credential property
+	 * 		of the credential property
 	 * @return the property value or null if not found
 	 */
 	@Override
@@ -116,11 +115,10 @@ public class XsuaaServiceConfigurationDefault implements XsuaaServiceConfigurati
 	}
 
 	/**
-	 * This only supports VCAP_SERVICES in cf environment or read from secrets in
-	 * kubernetes environment.
+	 * This only supports VCAP_SERVICES in cf environment or read from secrets in kubernetes environment.
 	 *
 	 * @param name
-	 *            of the credential property
+	 * 		of the credential property
 	 * @return false if property doesn't exist
 	 */
 	@Override

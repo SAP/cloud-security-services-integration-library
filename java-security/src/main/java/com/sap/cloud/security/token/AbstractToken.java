@@ -29,8 +29,7 @@ import static com.sap.cloud.security.token.TokenClaims.NOT_BEFORE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
- * Decodes and parses encoded JSON Web Token (JWT) and provides access to token
- * header parameters and claims.
+ * Decodes and parses encoded JSON Web Token (JWT) and provides access to token header parameters and claims.
  */
 public abstract class AbstractToken implements Token {
 	@Serial
@@ -47,12 +46,10 @@ public abstract class AbstractToken implements Token {
 	}
 
 	/**
-	 * Creates a Token object for simple access to the header parameters and its
-	 * claims.
+	 * Creates a Token object for simple access to the header parameters and its claims.
 	 *
 	 * @param jwtToken
-	 *            the encoded JWT token (access_token or id_token), e.g. from the
-	 *            Authorization Header.
+	 * 		the encoded JWT token (access_token or id_token), e.g. from the Authorization Header.
 	 */
 	public AbstractToken(@Nonnull String jwtToken) {
 		this(Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken)));

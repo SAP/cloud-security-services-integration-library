@@ -21,8 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Builder that creates a {@link JwtDecoder} that can handle both kind of
- * tokens:
+ * Builder that creates a {@link JwtDecoder} that can handle both kind of tokens:
  * <ul>
  * <li>access tokens from Xsuaa service instance</li>
  * <li>oidc tokens from Identity service instance.</li>
@@ -39,7 +38,7 @@ public class JwtDecoderBuilder {
 	 * Use to configure the token key cache.
 	 *
 	 * @param cacheConfiguration
-	 *            the cache configuration
+	 * 		the cache configuration
 	 * @return this jwt decoder builder
 	 */
 	public JwtDecoderBuilder withCacheConfiguration(CacheConfiguration cacheConfiguration) {
@@ -51,7 +50,7 @@ public class JwtDecoderBuilder {
 	 * Use to configure the HttpClient that is used to retrieve token keys.
 	 *
 	 * @param httpClient
-	 *            the HttpClient
+	 * 		the HttpClient
 	 * @return this jwt decoder builder
 	 */
 	public JwtDecoderBuilder withHttpClient(CloseableHttpClient httpClient) {
@@ -60,11 +59,11 @@ public class JwtDecoderBuilder {
 	}
 
 	/**
-	 * Adds the validation listener to the jwt validator that is being used by the
-	 * authenticator to validate the tokens.
+	 * Adds the validation listener to the jwt validator that is being used by the authenticator to validate the
+	 * tokens.
 	 *
 	 * @param validationListener
-	 *            the listener to be added.
+	 * 		the listener to be added.
 	 * @return this jwt decoder builder
 	 */
 	public JwtDecoderBuilder withValidationListener(ValidationListener validationListener) {
@@ -76,7 +75,7 @@ public class JwtDecoderBuilder {
 	 * Use to override the ias service configuration used.
 	 *
 	 * @param serviceConfiguration
-	 *            the ias service configuration to use
+	 * 		the ias service configuration to use
 	 * @return this jwt decoder builder
 	 */
 	public JwtDecoderBuilder withIasServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
@@ -88,7 +87,7 @@ public class JwtDecoderBuilder {
 	 * Use to override the xsuaa service configuration used.
 	 *
 	 * @param serviceConfiguration
-	 *            the xsuaa service configuration to use
+	 * 		the xsuaa service configuration to use
 	 * @return this jwt decoder builder
 	 */
 	public JwtDecoderBuilder withXsuaaServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
@@ -97,13 +96,12 @@ public class JwtDecoderBuilder {
 	}
 
 	/**
-	 * Allows to provide multiple xsuaa service configuration. In case you have
-	 * multiple Xsuaa identity service instances and you like to accept tokens
-	 * issued for them as well. The configuration of the the first one (index 0) is
-	 * taken as main configuration.
+	 * Allows to provide multiple xsuaa service configuration. In case you have multiple Xsuaa identity service
+	 * instances and you like to accept tokens issued for them as well. The configuration of the the first one (index 0)
+	 * is taken as main configuration.
 	 *
 	 * @param serviceConfigurations
-	 *            all configurations of the xsuaa service instance, e.g. the broker
+	 * 		all configurations of the xsuaa service instance, e.g. the broker
 	 * @return this jwt decoder builder
 	 */
 	public JwtDecoderBuilder withXsuaaServiceConfigurations(

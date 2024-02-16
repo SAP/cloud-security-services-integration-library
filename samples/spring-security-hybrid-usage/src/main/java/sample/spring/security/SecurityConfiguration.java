@@ -35,12 +35,12 @@ import java.util.stream.Collectors;
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
 public class SecurityConfiguration {
 
-    @Autowired
-    Converter<Jwt, AbstractAuthenticationToken> authConverter; // Required only when Xsuaa is used
+	@Autowired
+	Converter<Jwt, AbstractAuthenticationToken> authConverter; // Required only when Xsuaa is used
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // @formatter:off
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		// @formatter:off
         http
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -55,44 +55,44 @@ public class SecurityConfiguration {
                                             // Use MyCustomHybridTokenAuthenticationConverter when IAS and XSUAA is used
                                             // Use MyCustomIasTokenAuthenticationConverter when only IAS is used
         // @formatter:on
-        return http.build();
-    }
+		return http.build();
+	}
 
-    /**
-     * Workaround for hybrid use case until Cloud Authorization Service is globally available.
-     */
-    class MyCustomHybridTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+	/**
+	 * Workaround for hybrid use case until Cloud Authorization Service is globally available.
+	 */
+	class MyCustomHybridTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-        public AbstractAuthenticationToken convert(Jwt jwt) {
-            if (jwt.hasClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
-                return authConverter.convert(jwt);
-            }
-            return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
-        }
+		public AbstractAuthenticationToken convert(Jwt jwt) {
+			if (jwt.hasClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
+				return authConverter.convert(jwt);
+			}
+			return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
+		}
 
-        private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
-            Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
-            if (jwt.hasClaim(TokenClaims.GROUPS)) {
-                List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
-                for (String group : groups) {
-                    groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
-                }
-            }
-            return groupAuthorities;
-        }
-    }
+		private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
+			Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
+			if (jwt.hasClaim(TokenClaims.GROUPS)) {
+				List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+				for (String group : groups) {
+					groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
+				}
+			}
+			return groupAuthorities;
+		}
+	}
 
-    /**
-     * Workaround for IAS only use case until Cloud Authorization Service is globally available.
-     */
-    static class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
+	/**
+	 * Workaround for IAS only use case until Cloud Authorization Service is globally available.
+	 */
+	static class MyCustomIasTokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
-        public AbstractAuthenticationToken convert(Jwt jwt) {
-            final List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
-            final List<GrantedAuthority> groupAuthorities = groups == null ? Collections.emptyList()
-                    : groups.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-            return new AuthenticationToken(jwt, groupAuthorities);
-        }
-    }
+		public AbstractAuthenticationToken convert(Jwt jwt) {
+			final List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+			final List<GrantedAuthority> groupAuthorities = groups == null ? Collections.emptyList()
+					: groups.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
+			return new AuthenticationToken(jwt, groupAuthorities);
+		}
+	}
 }
 

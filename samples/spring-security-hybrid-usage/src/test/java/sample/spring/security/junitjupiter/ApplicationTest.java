@@ -17,11 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @java.lang.SuppressWarnings("squid:S2699")
 @ActiveProfiles("multixsuaa") // properties are provided with /resources/application-multixsuaa.yml
 class ApplicationTest {
-    @Autowired
-    XsuaaTokenFlows tokenflows;
+	@Autowired
+	XsuaaTokenFlows tokenflows;
 
-    @Test
-    void whenSpringContextIsBootstrapped_thenNoExceptions() {
-        assertNotNull(tokenflows.clientCredentialsTokenFlow());
-    }
+	@Test
+	void whenSpringContextIsBootstrapped_thenNoExceptions() {
+		assertNotNull(tokenflows.clientCredentialsTokenFlow());
+	}
 }

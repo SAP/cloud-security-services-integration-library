@@ -25,8 +25,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 @AutoConfigureWebTestClient(timeout = "2500000")
 class TestControllerTestIas {
 
-
-
 	@Autowired
 	private WebTestClient webClient;
 
@@ -38,7 +36,6 @@ class TestControllerTestIas {
 				.withClaimsFromFile("/iasClaims.json")
 				.createToken().getTokenValue();
 	}
-
 
 	@Test
 	void unauthorizedRequest() {

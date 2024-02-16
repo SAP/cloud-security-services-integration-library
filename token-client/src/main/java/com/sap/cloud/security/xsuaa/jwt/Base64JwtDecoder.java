@@ -30,7 +30,7 @@ public final class Base64JwtDecoder {
 	 * Decodes the Json Web token (jwt).
 	 *
 	 * @param jwt
-	 *            the access token
+	 * 		the access token
 	 * @return the decoded jwt.
 	 */
 	public DecodedJwt decode(String jwt) {

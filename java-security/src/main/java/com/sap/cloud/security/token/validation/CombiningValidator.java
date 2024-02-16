@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * This is a special validator that combines several validators into one. By
- * default the validation stops after one invalid result has been found.
+ * This is a special validator that combines several validators into one. By default the validation stops after one
+ * invalid result has been found.
  *
  * @param <T>
- *            the type to be validated.
+ * 		the type to be validated.
  */
 public class CombiningValidator<T> implements Validator<T> {
 
@@ -64,23 +64,21 @@ public class CombiningValidator<T> implements Validator<T> {
 	}
 
 	/**
-	 * Components that are interested in the result of the token validation can
-	 * register a validation listener which is called whenever a token is validated.
-	 * Listener must implement the {@link ValidationListener} interface.
+	 * Components that are interested in the result of the token validation can register a validation listener which is
+	 * called whenever a token is validated. Listener must implement the {@link ValidationListener} interface.
 	 *
 	 * @param validationListener
-	 *            the listener to be added.
+	 * 		the listener to be added.
 	 */
 	public void registerValidationListener(ValidationListener validationListener) {
 		validationListeners.add(validationListener);
 	}
 
 	/**
-	 * Use this method to remove a registered listener so that it is not called
-	 * anymore.
+	 * Use this method to remove a registered listener so that it is not called anymore.
 	 *
 	 * @param validationListener
-	 *            the listener to be removed.
+	 * 		the listener to be removed.
 	 */
 	public void removeValidationListener(ValidationListener validationListener) {
 		validationListeners.remove(validationListener);

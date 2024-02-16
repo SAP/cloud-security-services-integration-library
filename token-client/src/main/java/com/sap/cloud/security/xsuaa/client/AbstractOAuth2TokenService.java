@@ -48,7 +48,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	 * Constructor used to overwrite the default cache configuration.
 	 *
 	 * @param tokenCacheConfiguration
-	 *            the cache configuration used to configure the cache.
+	 * 		the cache configuration used to configure the cache.
 	 */
 	public AbstractOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration) {
 		this(tokenCacheConfiguration, Ticker.systemTicker(), false);
@@ -59,13 +59,12 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	 * This constructor is used for testing purposes only.
 	 *
 	 * @param tokenCacheConfiguration
-	 *            sets the cache configuration used to configure or disable the
-	 *            cache.
+	 * 		sets the cache configuration used to configure or disable the cache.
 	 * @param cacheTicker
-	 *            will be used in the cache to determine the time.
+	 * 		will be used in the cache to determine the time.
 	 * @param sameThreadCache
-	 *            set to true disables maintenance jobs of the cache. This makes the
-	 *            cache slower but more predictable for testing.
+	 * 		set to true disables maintenance jobs of the cache. This makes the cache slower but more predictable for
+	 * 		testing.
 	 */
 	AbstractOAuth2TokenService(TokenCacheConfiguration tokenCacheConfiguration, Ticker cacheTicker,
 			boolean sameThreadCache) {
@@ -207,19 +206,17 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	/**
-	 * Implements the HTTP client specific logic to perform an HTTP request and
-	 * handle the response.
+	 * Implements the HTTP client specific logic to perform an HTTP request and handle the response.
 	 *
 	 * @param tokenEndpointUri
-	 *            the URI of the token endpoint the request must be sent to.
+	 * 		the URI of the token endpoint the request must be sent to.
 	 * @param headers
-	 *            the HTTP headers that must be sent with the request.
+	 * 		the HTTP headers that must be sent with the request.
 	 * @param parameters
-	 *            a map of request parameters that must be sent with the request.
+	 * 		a map of request parameters that must be sent with the request.
 	 * @return the token response.
 	 * @throws OAuth2ServiceException
-	 *             when the request ot the token endpoint fails or returns an error
-	 *             code.
+	 * 		when the request ot the token endpoint fails or returns an error code.
 	 */
 	protected abstract OAuth2TokenResponse requestAccessToken(URI tokenEndpointUri, HttpHeaders headers,
 			Map<String, String> parameters) throws OAuth2ServiceException;
@@ -278,9 +275,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
 	}
 
 	/**
-	 * By default {@link Clock#systemUTC()} is used to determine of a cached token
-	 * has reached its expiration (exp) point in time. This method can be overridden
-	 * for testing purposes.
+	 * By default {@link Clock#systemUTC()} is used to determine of a cached token has reached its expiration (exp)
+	 * point in time. This method can be overridden for testing purposes.
 	 *
 	 * @return the {@link Clock}
 	 */

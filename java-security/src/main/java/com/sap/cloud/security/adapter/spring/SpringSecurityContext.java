@@ -22,16 +22,13 @@ import java.util.Collection;
 import java.util.Objects;
 
 /**
- * This is an alternative way of accessing jwt tokens of type {@link Token} or
- * {@link AccessToken} in context of an application using
- * spring-security-oauth2.
+ * This is an alternative way of accessing jwt tokens of type {@link Token} or {@link AccessToken} in context of an
+ * application using spring-security-oauth2.
  * <p>
- * It uses the {@link SecurityContextHolder} to access Spring's
- * {@link SecurityContext} and can therefore used also in context of
- * asynchronous threads.
+ * It uses the {@link SecurityContextHolder} to access Spring's {@link SecurityContext} and can therefore used also in
+ * context of asynchronous threads.
  * <p>
- * Use this class in case your application sets Spring's security context via
- * one of these libraries: <br>
+ * Use this class in case your application sets Spring's security context via one of these libraries: <br>
  * <ol>
  * <li>@code{org.springframework.security.oauth:spring-security-oauth2} or</li>
  * <li>@code{com.sap.cloud.security.xsuaa:spring-xsuaa} client library.</li>
@@ -47,8 +44,8 @@ public class SpringSecurityContext {
 	/**
 	 * Returns the token using {@link SecurityContextHolder}.
 	 *
-	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or
-	 *         does not contain a token of this type.
+	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or does not contain a token of this
+	 * 		type.
 	 */
 	@Nullable
 	public static Token getToken() {
@@ -86,8 +83,8 @@ public class SpringSecurityContext {
 	/**
 	 * Returns the token using {@link SecurityContextHolder}.
 	 *
-	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or
-	 *         does not contain a token of this type.
+	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or does not contain a token of this
+	 * 		type.
 	 */
 	@Nullable
 	static Token getTokenFromDeprecatedLib(Authentication authentication)
@@ -121,8 +118,8 @@ public class SpringSecurityContext {
 	/**
 	 * Returns the token using {@link SecurityContextHolder}.
 	 *
-	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or
-	 *         does not contain a token of this type.
+	 * @return the token or <code>null</code> if {@link SecurityContext} is empty or does not contain a token of this
+	 * 		type.
 	 */
 	@Nullable
 	public static AccessToken getAccessToken() {
@@ -138,8 +135,8 @@ public class SpringSecurityContext {
 	}
 
 	/**
-	 * This class extends the {@link XsuaaToken} and takes the scopes from Spring
-	 * {@link GrantedAuthority} to perform the {@link #hasLocalScope(String)} check.
+	 * This class extends the {@link XsuaaToken} and takes the scopes from Spring {@link GrantedAuthority} to perform
+	 * the {@link #hasLocalScope(String)} check.
 	 */
 	private static class XsuaaTokenWithGrantedAuthorities extends XsuaaToken {
 		private final Collection<? extends GrantedAuthority> authorities;

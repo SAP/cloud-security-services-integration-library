@@ -31,16 +31,14 @@ import java.util.List;
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET;
 
 /**
- * {@link EnableAutoConfiguration} exposes a {@link JwtDecoder}, which has the
- * standard Spring Security Jwt validators as well as the SCP identity
- * provider-specific validators.
+ * {@link EnableAutoConfiguration} exposes a {@link JwtDecoder}, which has the standard Spring Security Jwt validators
+ * as well as the SCP identity provider-specific validators.
  *
  * Activates when there is a bean of type {@link Jwt} configured in the context.
  *
  * <p>
- * Can be disabled with
- * {@code @EnableAutoConfiguration(exclude={HybridIdentityServicesAutoConfiguration.class})}
- * or with property {@code sap.spring.security.hybrid.auto = false}.
+ * Can be disabled with {@code @EnableAutoConfiguration(exclude={HybridIdentityServicesAutoConfiguration.class})} or
+ * with property {@code sap.spring.security.hybrid.auto = false}.
  */
 @Configuration
 @ConditionalOnClass(Jwt.class)
@@ -48,7 +46,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 @EnableConfigurationProperties({ XsuaaServiceConfiguration.class, IdentityServiceConfiguration.class,
 		XsuaaServiceConfigurations.class })
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
-																	// specifies JwtDecoder
+// specifies JwtDecoder
 public class HybridIdentityServicesAutoConfiguration {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
 

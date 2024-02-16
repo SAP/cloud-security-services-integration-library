@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 // test properties are provided with /resources/application.yml
 public class ApplicationTest {
 
-    @Test
-    public void whenSpringContextIsBootstrapped_thenNoExceptions() {
-    }
+	@Test
+	public void whenSpringContextIsBootstrapped_thenNoExceptions() {
+	}
 }

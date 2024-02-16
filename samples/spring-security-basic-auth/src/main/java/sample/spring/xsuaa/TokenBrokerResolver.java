@@ -22,13 +22,15 @@ import java.util.Base64;
 import java.util.Optional;
 
 /**
- * Resolves an user token from the configured XSUAA service instance via password grant flow using the
- * Basic HTTP credentials from the request header.
+ * Resolves an user token from the configured XSUAA service instance via password grant flow using the Basic HTTP
+ * credentials from the request header.
  * <p>
- * The user credentials are expected to be contained in the {@link HttpHeaders#AUTHORIZATION} header field as BASE64-encoded username/password combination.
- * Optionally, a zone id may be specified via the 'X-Identity-Zone-Subdomain' header field.
+ * The user credentials are expected to be contained in the {@link HttpHeaders#AUTHORIZATION} header field as
+ * BASE64-encoded username/password combination. Optionally, a zone id may be specified via the
+ * 'X-Identity-Zone-Subdomain' header field.
  * <p>
- * For performance improvements, a pre-configured {@link Cache} may be supplied to limit the time between two token requests for the same principal.
+ * For performance improvements, a pre-configured {@link Cache} may be supplied to limit the time between two token
+ * requests for the same principal.
  */
 public class TokenBrokerResolver implements BearerTokenResolver {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TokenBrokerResolver.class);
@@ -106,7 +108,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 				.or(Optional::empty);
 	}
 
-	 private static String createSecureHash(String... keys) {
+	private static String createSecureHash(String... keys) {
 		MessageDigest messageDigest;
 		try {
 			messageDigest = MessageDigest.getInstance("SHA-256");
@@ -120,5 +122,6 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 		}
 	}
 
-	private record UserCredentials(String userName, String password) {}
+	private record UserCredentials(String userName, String password) {
+	}
 }

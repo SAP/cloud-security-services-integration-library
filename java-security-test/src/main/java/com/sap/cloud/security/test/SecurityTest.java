@@ -264,13 +264,12 @@ public class SecurityTest
 	}
 
 	/**
-	 * Starts the Jetty application web server and the WireMock OAuthServer if not
-	 * running. Otherwise it resets WireMock and configures the stubs. Additionally
-	 * it generates the JWK URL. Should be called before each test. Starts the
+	 * Starts the Jetty application web server and the WireMock OAuthServer if not running. Otherwise it resets WireMock
+	 * and configures the stubs. Additionally it generates the JWK URL. Should be called before each test. Starts the
 	 * server only, if it was not yet started.
 	 *
 	 * @throws IOException
-	 *             if the stub cannot be initialized
+	 * 		if the stub cannot be initialized
 	 */
 	public void setup() throws Exception {
 		if (!wireMockServer.isRunning()) {
@@ -298,8 +297,8 @@ public class SecurityTest
 	}
 
 	/**
-	 * Shuts down Jetty application web server and WireMock stub. Should be called
-	 * when all tests are executed to avoid unwanted side-effects.
+	 * Shuts down Jetty application web server and WireMock stub. Should be called when all tests are executed to avoid
+	 * unwanted side-effects.
 	 */
 	public void tearDown() {
 		shutdownWireMock();
@@ -313,10 +312,9 @@ public class SecurityTest
 	}
 
 	/**
-	 * The {@code shutdown} method of WireMock does not block the main thread. This
-	 * can cause issues if one static {@link SecurityTestRule} is reused in many
-	 * test classes. Therefore we wait until the WireMock server has really been
-	 * shutdown (or the maximum amount of tries has been reached).
+	 * The {@code shutdown} method of WireMock does not block the main thread. This can cause issues if one static
+	 * {@link SecurityTestRule} is reused in many test classes. Therefore we wait until the WireMock server has really
+	 * been shutdown (or the maximum amount of tries has been reached).
 	 */
 	private void shutdownWireMock() {
 		wireMockServer.shutdown();

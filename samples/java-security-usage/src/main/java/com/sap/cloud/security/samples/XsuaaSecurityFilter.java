@@ -61,7 +61,7 @@ public class XsuaaSecurityFilter implements Filter {
 		}
 	}
 
-	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason)  {
+	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason) {
 		if (response instanceof HttpServletResponse httpServletResponse) {
 			try {
 				httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, unauthenticatedReason); // 401
@@ -71,12 +71,14 @@ public class XsuaaSecurityFilter implements Filter {
 		}
 	}
 
-	public static void sendUnauthorizedResponse(ServletResponse response, String missingScope)  {
+	public static void sendUnauthorizedResponse(ServletResponse response, String missingScope) {
 		if (response instanceof HttpServletResponse httpServletResponse) {
 			try {
-				String user = Objects.nonNull(SecurityContext.getAccessToken()) ? SecurityContext.getToken().getClaimAsString(USER_NAME) : "<Unknown>";
+				String user = Objects.nonNull(SecurityContext.getAccessToken()) ? SecurityContext.getToken()
+						.getClaimAsString(USER_NAME) : "<Unknown>";
 				LOGGER.error("User {} is unauthorized. User does not have scope {}.", user, missingScope);
-				httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "User " + user + " is unauthorized."); // 403
+				httpServletResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
+						"User " + user + " is unauthorized."); // 403
 			} catch (IOException e) {
 				LOGGER.error("Failed to send error response", e);
 			}

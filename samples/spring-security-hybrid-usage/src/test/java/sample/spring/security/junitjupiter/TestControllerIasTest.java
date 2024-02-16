@@ -77,12 +77,15 @@ class TestControllerIasTest {
 	}
 
 	/**
-	 * Ensures that tokens with an issuer whose domain is not part of {@link com.sap.cloud.security.config.ServiceConstants.IAS#DOMAINS} in the credentials are still not trusted,
-	 * even when java-security-test supplies {@link com.sap.cloud.security.token.validation.LocalhostIssuerValidator}, which trusts issuers from tokens targeting localhost.
+	 * Ensures that tokens with an issuer whose domain is not part of
+	 * {@link com.sap.cloud.security.config.ServiceConstants.IAS#DOMAINS} in the credentials are still not trusted, even
+	 * when java-security-test supplies {@link com.sap.cloud.security.token.validation.LocalhostIssuerValidator}, which
+	 * trusts issuers from tokens targeting localhost.
 	 */
 	@Test
 	void acceptsOnlyLocalhostIssuers(SecurityTestContext securityTest) throws Exception {
-		Token jwt = securityTest.getPreconfiguredJwtGenerator().withClaimsFromFile("/iasClaims.json").withClaimValue(TokenClaims.IAS_ISSUER, "https://auth.google.com").createToken();
+		Token jwt = securityTest.getPreconfiguredJwtGenerator().withClaimsFromFile("/iasClaims.json")
+				.withClaimValue(TokenClaims.IAS_ISSUER, "https://auth.google.com").createToken();
 
 		mvc.perform(get("/sayHello").with(bearerToken(jwt.getTokenValue()))).andExpect(status().isUnauthorized());
 	}

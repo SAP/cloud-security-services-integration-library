@@ -22,22 +22,20 @@ import org.springframework.web.client.RestOperations;
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} that exposes a
- * {@link JwtDecoder}, which has the standard Spring Security Jwt validators as
- * well as the XSUAA-specific validators.
+ * {@link EnableAutoConfiguration Auto-configuration} that exposes a {@link JwtDecoder}, which has the standard Spring
+ * Security Jwt validators as well as the XSUAA-specific validators.
  * <p>
  * Activates when there is a bean of type {@link Jwt} configured in the context.
  *
  * <p>
- * can be disabled
- * with @EnableAutoConfiguration(exclude={XsuaaResourceServerJwkAutoConfiguration.class})
- * or with property spring.xsuaa.auto = false
+ * can be disabled with @EnableAutoConfiguration(exclude={XsuaaResourceServerJwkAutoConfiguration.class}) or with
+ * property spring.xsuaa.auto = false
  */
 @Configuration
 @ConditionalOnClass(Jwt.class)
 @ConditionalOnProperty(prefix = "spring.xsuaa", name = "auto", havingValue = "true", matchIfMissing = true)
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
-																	// specifies JwtDecoder
+// specifies JwtDecoder
 public class XsuaaResourceServerJwkAutoConfiguration {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 

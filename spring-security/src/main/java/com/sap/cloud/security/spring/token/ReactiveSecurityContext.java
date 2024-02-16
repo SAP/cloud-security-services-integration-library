@@ -18,9 +18,8 @@ public class ReactiveSecurityContext {
 	/**
 	 * Obtain the Token object from the Spring Reactive SecurityContext
 	 *
-	 * @return Mono object of type token or error of class
-	 *         {@link AccessDeniedException} in case there is no token, user is not
-	 *         authenticated.
+	 * @return Mono object of type token or error of class {@link AccessDeniedException} in case there is no token, user
+	 * 		is not authenticated.
 	 */
 	public static Mono<Token> getToken() {
 		return ReactiveSecurityContextHolder.getContext()

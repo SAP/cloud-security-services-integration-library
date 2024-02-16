@@ -37,17 +37,15 @@ public class SapIdToken extends AbstractToken {
 	}
 
 	/**
-	 * Gets the token issuer domain that is required to check trust in the issuing
-	 * identity service. In multi-tenant or single-tenant with custom domain
-	 * scenarios, claim {@link TokenClaims#IAS_ISSUER} must be used for trust checks
-	 * instead of claim {@link TokenClaims#ISSUER}. It contains the internal domain
-	 * of the identity service. External customer domains are not trusted. <br>
+	 * Gets the token issuer domain that is required to check trust in the issuing identity service. In multi-tenant or
+	 * single-tenant with custom domain scenarios, claim {@link TokenClaims#IAS_ISSUER} must be used for trust checks
+	 * instead of claim {@link TokenClaims#ISSUER}. It contains the internal domain of the identity service. External
+	 * customer domains are not trusted. <br>
 	 * <br>
-	 * Use {@link Token#getClaimAsString(String)} with {@link TokenClaims#ISSUER}
-	 * instead to get the custom domain if one is used.
+	 * Use {@link Token#getClaimAsString(String)} with {@link TokenClaims#ISSUER} instead to get the custom domain if
+	 * one is used.
 	 *
-	 * @return value of claim {@link TokenClaims#IAS_ISSUER} if exists, otherwise
-	 *         value of {@link Token#getIssuer()}
+	 * @return value of claim {@link TokenClaims#IAS_ISSUER} if exists, otherwise value of {@link Token#getIssuer()}
 	 */
 	@Override
 	public String getIssuer() {

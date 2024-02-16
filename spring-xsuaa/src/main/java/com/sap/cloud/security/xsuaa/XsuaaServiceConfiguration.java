@@ -16,8 +16,8 @@ import java.util.Map;
 public interface XsuaaServiceConfiguration extends OAuth2ServiceConfiguration {
 
 	/**
-	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is
-	 * the url where the service instance was created.
+	 * Base URL of the xsuaa service instance. In multi tenancy scenarios this is the url where the service instance was
+	 * created.
 	 *
 	 * @return uaa url
 	 */

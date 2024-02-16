@@ -14,7 +14,7 @@ public interface TokenFactory {
 	 * Returns a token interface for the given JWT token
 	 *
 	 * @param jwtToken
-	 *            the encoded JWT token, e.g. from the Authorization Header
+	 * 		the encoded JWT token, e.g. from the Authorization Header
 	 * @return the new token instance
 	 */
 	Token create(String jwtToken);

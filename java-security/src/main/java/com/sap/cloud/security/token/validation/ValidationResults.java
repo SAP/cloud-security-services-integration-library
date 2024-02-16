@@ -23,11 +23,10 @@ public class ValidationResults {
 	private static final Logger logger = LoggerFactory.getLogger(ValidationResults.class);
 
 	/**
-	 * Creates an invalid {@link ValidationResult} that contains an error
-	 * description.
+	 * Creates an invalid {@link ValidationResult} that contains an error description.
 	 *
 	 * @param errorDescription
-	 *            the error description.
+	 * 		the error description.
 	 * @return an invalid {@link ValidationResult} containing an error description.
 	 */
 	public static ValidationResult createInvalid(String errorDescription) {
@@ -36,9 +35,8 @@ public class ValidationResults {
 	}
 
 	/**
-	 * Works just like {@link #createInvalid(String)} but accepts a template string
-	 * with placeholders "{}" that are substituted with the given arguments. Works
-	 * like described in {@link MessageFormatter}.
+	 * Works just like {@link #createInvalid(String)} but accepts a template string with placeholders "{}" that are
+	 * substituted with the given arguments. Works like described in {@link MessageFormatter}.
 	 * <p>
 	 * For example,
 	 *
@@ -50,9 +48,9 @@ public class ValidationResults {
 	 * <p>
 	 *
 	 * @param errorDescriptionTemplate
-	 *            the description as template used to create the error description.
+	 * 		the description as template used to create the error description.
 	 * @param arguments
-	 *            the arguments that are filled inside the description template.
+	 * 		the arguments that are filled inside the description template.
 	 * @return an invalid {@link ValidationResult} containing one error description.
 	 */
 	public static ValidationResult createInvalid(String errorDescriptionTemplate, Object... arguments) {
@@ -61,8 +59,7 @@ public class ValidationResults {
 	}
 
 	/**
-	 * Creates a valid {@link ValidationResult}, which is a {@link ValidationResult}
-	 * that contains no errors.
+	 * Creates a valid {@link ValidationResult}, which is a {@link ValidationResult} that contains no errors.
 	 *
 	 * @return a valid validation result.
 	 */

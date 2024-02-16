@@ -5,7 +5,6 @@
  */
 package sample.spring.webflux.hybrid;
 
-
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.extension.XsuaaExtension;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +25,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 @AutoConfigureWebTestClient(timeout = "2500000")
 class TestControllerTestXsuaa {
 
-
 	@Autowired
 	private WebTestClient webClient;
 
@@ -39,14 +37,12 @@ class TestControllerTestXsuaa {
 				.createToken().getTokenValue();
 	}
 
-
 	@Test
 	void unauthorizedRequest() {
 		webClient.method(HttpMethod.GET).uri("/v1/sayHello").contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header(HttpHeaders.AUTHORIZATION).exchange()
 				.expectStatus().isUnauthorized();
 	}
-
 
 	@Test
 	void authorizedRequest() {

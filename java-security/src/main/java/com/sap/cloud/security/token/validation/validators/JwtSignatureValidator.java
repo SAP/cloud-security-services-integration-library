@@ -24,10 +24,9 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Validates the signature of the JWT.<br>
- * - retrieves the public key used for validation via the tokenKeyService.<br>
- * - checks whether the signature section of the JWT is a valid signature for
- * the header and payload sections for this public key.
+ * Validates the signature of the JWT.<br> - retrieves the public key used for validation via the tokenKeyService.<br> -
+ * checks whether the signature section of the JWT is a valid signature for the header and payload sections for this
+ * public key.
  */
 abstract class JwtSignatureValidator implements Validator<Token> {
 	protected final OAuth2TokenKeyServiceWithCache tokenKeyService;
@@ -79,8 +78,8 @@ abstract class JwtSignatureValidator implements Validator<Token> {
 	}
 
 	/**
-	 * Service-specific implementation for the retrieval of the public key, e.g. via
-	 * URL from JKU header (XSUAA) or OIDC .well-known endpoint (IAS)
+	 * Service-specific implementation for the retrieval of the public key, e.g. via URL from JKU header (XSUAA) or OIDC
+	 * .well-known endpoint (IAS)
 	 */
 	protected abstract PublicKey getPublicKey(Token token, JwtSignatureAlgorithm algorithm)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException;

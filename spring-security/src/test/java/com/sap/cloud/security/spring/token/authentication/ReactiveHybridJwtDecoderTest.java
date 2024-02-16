@@ -61,13 +61,13 @@ class ReactiveHybridJwtDecoderTest {
 	}
 
 	@Test
-     void decodeInvalidToken_throwsAccessDeniedException() {
-        when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
-        cut = new ReactiveHybridJwtDecoder(combiningValidator, combiningValidator);
-        String encodedToken = jwtGenerator.createToken().getTokenValue();
+	void decodeInvalidToken_throwsAccessDeniedException() {
+		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
+		cut = new ReactiveHybridJwtDecoder(combiningValidator, combiningValidator);
+		String encodedToken = jwtGenerator.createToken().getTokenValue();
 
-        assertThrows(BadJwtException.class, () -> cut.decode(encodedToken).block());
-    }
+		assertThrows(BadJwtException.class, () -> cut.decode(encodedToken).block());
+	}
 
 	@Test
 	void decodeWithMissingExpClaim_throwsBadJwtException() {

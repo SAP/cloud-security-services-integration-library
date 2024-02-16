@@ -47,8 +47,7 @@ public interface OAuth2ServiceConfiguration {
 	}
 
 	/**
-	 * Credential type as defined in "oauth2-configuration" of the xsuaa service
-	 * instance security descriptor.
+	 * Credential type as defined in "oauth2-configuration" of the xsuaa service instance security descriptor.
 	 *
 	 * @return value of credential-type field
 	 */
@@ -61,19 +60,17 @@ public interface OAuth2ServiceConfiguration {
 	}
 
 	/**
-	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
-	 * this is the url where the service instance was created.
+	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios this is the url where the service
+	 * instance was created.
 	 *
-	 * @return base url, e.g. <a href=
-	 *         "https://paastenant.idservice.com">https://paastenant.idservice.com"</a>
+	 * @return base url, e.g. <a href= "https://paastenant.idservice.com">https://paastenant.idservice.com"</a>
 	 */
 	URI getUrl();
 
 	/**
 	 * Cert URL of the OAuth2 identity service instance.
 	 *
-	 * @return cert url, e.g. <a href=
-	 *         "https://paastenant.cert.idservice.com">https://paastenant.idservice.com"</a>
+	 * @return cert url, e.g. <a href= "https://paastenant.cert.idservice.com">https://paastenant.idservice.com"</a>
 	 */
 	@Nullable
 	default URI getCertUrl() {
@@ -93,10 +90,8 @@ public interface OAuth2ServiceConfiguration {
 	 * Returns the value of the given property as string.
 	 *
 	 * @param name
-	 *            the name of the property. You can find constants in
-	 *            {@link ServiceConstants}
-	 * @return the string value of the given property or null if the property does
-	 *         not exist.
+	 * 		the name of the property. You can find constants in {@link ServiceConstants}
+	 * @return the string value of the given property or null if the property does not exist.
 	 */
 	@Nullable
 	String getProperty(String name);
@@ -112,8 +107,7 @@ public interface OAuth2ServiceConfiguration {
 	 * Returns true if the configuration contains the given property.
 	 *
 	 * @param name
-	 *            the name of the property. You can find constants in
-	 *            {@link ServiceConstants}
+	 * 		the name of the property. You can find constants in {@link ServiceConstants}
 	 * @return true if the property does not exist.
 	 */
 	boolean hasProperty(String name);

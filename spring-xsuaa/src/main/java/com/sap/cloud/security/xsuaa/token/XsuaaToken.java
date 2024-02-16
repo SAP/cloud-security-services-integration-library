@@ -28,8 +28,7 @@ import static org.springframework.util.StringUtils.hasText;
 /**
  * Custom XSUAA token implementation.
  * <p>
- * This class inherits Spring Security's standard Jwt implementation and can be
- * used interchangeably with it.
+ * This class inherits Spring Security's standard Jwt implementation and can be used interchangeably with it.
  */
 public class XsuaaToken extends Jwt implements Token {
 	static final String GRANTTYPE_SAML2BEARER = "urn:ietf:params:oauth:grant-type:saml2-bearer";
@@ -49,7 +48,7 @@ public class XsuaaToken extends Jwt implements Token {
 
 	/**
 	 * @param jwt
-	 *            token
+	 * 		token
 	 */
 	protected XsuaaToken(Jwt jwt) {
 		super(jwt.getTokenValue(), jwt.getIssuedAt(), jwt.getExpiresAt(), jwt.getHeaders(), jwt.getClaims());
@@ -106,9 +105,9 @@ public class XsuaaToken extends Jwt implements Token {
 	 * Get unique principal name of a user.
 	 *
 	 * @param origin
-	 *            of the access token
+	 * 		of the access token
 	 * @param userLoginName
-	 *            of the access token
+	 * 		of the access token
 	 * @return unique principal name
 	 */
 	@Nullable
@@ -152,8 +151,8 @@ public class XsuaaToken extends Jwt implements Token {
 			if (audiences != null && audiences.size() == 1) {
 				return audiences.get(0);
 			} else if (hasClaim(CLIENT_ID) && !getClaimAsString(CLIENT_ID).trim() // required for backward compatibility
-																					// for generated tokens in JUnit
-																					// tests
+					// for generated tokens in JUnit
+					// tests
 					.isEmpty()) {
 				logger.warn("usage of 'cid' claim is deprecated and should be replaced by 'azp' or 'aud' claims");
 				return getClaimAsString(CLIENT_ID);
