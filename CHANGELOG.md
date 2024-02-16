@@ -3,7 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## 3.3.5
 - [spring-xsuaa] fixes a NPE bug in `XsuaaJwtDecoder` when uaadomain value is null
-- [spring-security] reactive token validation supported with a help of `ReactiveSecurityContext` and  `ReactiveHybridJwtDecoder` to allow more versatile use of spring-security library, also see [spring-security ReadMe.md](spring-security/README.md)
+- [spring-security] reactive token validation supported with a help of `ReactiveSecurityContext`
+  and  `ReactiveHybridJwtDecoder` to allow more versatile use of spring-security library, also
+  see [spring-security ReadMe.md](spring-security/README.md)
+- [samples]
+  - [spring-security-hybrid-usage](./samples/spring-security-hybrid-usage) demonstrates how to use multiple Xsuaa
+    bindings
+  - new sample [spring-weblux-security-hybrid-usage](./samples/spring-webflux-security-hybrid-usage) that showcases
+    usage of Reactive Token validation
 
 #### Dependency upgrades
 - Bump com.sap.cloud.environment.servicebinding from 0.10.2 to 0.10.3
