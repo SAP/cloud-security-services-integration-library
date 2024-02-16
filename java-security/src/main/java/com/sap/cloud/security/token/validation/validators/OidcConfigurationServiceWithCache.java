@@ -19,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
- * Decorates {@link OidcConfigurationService} with a cache, which gets looked up
- * before the identity service is requested via http.
+ * Decorates {@link OidcConfigurationService} with a cache, which gets looked up before the identity service is
+ * requested via http.
  */
 public class OidcConfigurationServiceWithCache {
 	private OidcConfigurationService oidcConfigurationService; // access via getter
@@ -46,8 +46,7 @@ public class OidcConfigurationServiceWithCache {
 	 * Overwrites the service to be used to request the oidc configuration.
 	 *
 	 * @param oidcConfigurationService
-	 *            * the OidcConfigurationService that will be used to request the
-	 *            oidc configuration.
+	 * 		* the OidcConfigurationService that will be used to request the oidc configuration.
 	 * @return this
 	 */
 	public OidcConfigurationServiceWithCache withOidcConfigurationService(
@@ -60,7 +59,7 @@ public class OidcConfigurationServiceWithCache {
 	 * Caches the Json web keys. Overwrite the cache time (default: 900 seconds).
 	 *
 	 * @param timeInSeconds
-	 *            time to cache the signing keys
+	 * 		time to cache the signing keys
 	 * @return this
 	 */
 	public OidcConfigurationServiceWithCache withCacheTime(int timeInSeconds) {
@@ -72,11 +71,10 @@ public class OidcConfigurationServiceWithCache {
 	}
 
 	/**
-	 *
 	 * Caches the Json web keys. Overwrite the size of the cache (default: 100).
 	 *
 	 * @param size
-	 *            number of cached json web keys.
+	 * 		number of cached json web keys.
 	 * @return this
 	 */
 	public OidcConfigurationServiceWithCache withCacheSize(int size) {
@@ -88,15 +86,13 @@ public class OidcConfigurationServiceWithCache {
 	}
 
 	/**
-	 * Returns the cached key by id and type or requests the keys from the jwks URI
-	 * of the identity service.
+	 * Returns the cached key by id and type or requests the keys from the jwks URI of the identity service.
 	 *
 	 * @param discoveryEndpointUri
-	 *            the discovery endpoint URI (issuer specific).
+	 * 		the discovery endpoint URI (issuer specific).
 	 * @return a PublicKey
 	 * @throws OAuth2ServiceException
-	 *             in case the call to the jwks endpoint of the identity service
-	 *             failed.
+	 * 		in case the call to the jwks endpoint of the identity service failed.
 	 */
 	@Nullable
 	public OAuth2ServiceEndpointsProvider getOrRetrieveEndpoints(URI discoveryEndpointUri)

@@ -30,11 +30,10 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param baseUri
-	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
-	 *            authorize and key set URI (JWKS) will be derived.
+	 * 		- the base URI of XSUAA. Based on the base URI the tokenEndpoint, authorize and key set URI (JWKS) will be
+	 * 		derived.
 	 * @param certUri
-	 *            - the cert URI of XSUAA. It is required in case of X.509
-	 *            certificate based authentication.
+	 * 		- the cert URI of XSUAA. It is required in case of X.509 certificate based authentication.
 	 */
 	public XsuaaDefaultEndpoints(@Nonnull String baseUri, @Nullable String certUri) {
 		assertNotNull(baseUri, "XSUAA base URI must not be null.");
@@ -47,9 +46,8 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param config
-	 *            - OAuth2ServiceConfiguration of XSUAA. Based on the
-	 *            credential-type from the configuration, the tokenEndpoint URI,
-	 *            authorize and key set URI (JWKS) will be derived.
+	 * 		- OAuth2ServiceConfiguration of XSUAA. Based on the credential-type from the configuration, the tokenEndpoint
+	 * 		URI, authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");

@@ -24,18 +24,16 @@ class TokenKeyCacheConfiguration implements CacheConfiguration {
 	private final boolean cacheStatisticsEnabled;
 
 	/**
-	 * Creates a new {@link TokenKeyCacheConfiguration} instance with the given
-	 * properties. See {@link CacheConfiguration#getCacheDuration()},
-	 * {@link CacheConfiguration#getCacheSize()} and
-	 * {@link CacheConfiguration#isCacheStatisticsEnabled()} for an explanation of
-	 * the respective properties.
+	 * Creates a new {@link TokenKeyCacheConfiguration} instance with the given properties. See
+	 * {@link CacheConfiguration#getCacheDuration()}, {@link CacheConfiguration#getCacheSize()} and
+	 * {@link CacheConfiguration#isCacheStatisticsEnabled()} for an explanation of the respective properties.
 	 *
 	 * @param cacheDuration
-	 *            the cache duration property.
+	 * 		the cache duration property.
 	 * @param cacheSize
-	 *            the cache size property.
+	 * 		the cache size property.
 	 * @param cacheStatisticsEnabled
-	 *            set to {@code true} if cache statists should be recorded
+	 * 		set to {@code true} if cache statists should be recorded
 	 * @return a new {@link TokenKeyCacheConfiguration} instance.
 	 */
 	static TokenKeyCacheConfiguration getInstance(Duration cacheDuration, int cacheSize,
@@ -45,9 +43,8 @@ class TokenKeyCacheConfiguration implements CacheConfiguration {
 	}
 
 	/**
-	 * The default configuration for the token key cache. The default cache size is
-	 * 1000. The default cache duration is 10 minutes. Cache statistics are not
-	 * enabled.
+	 * The default configuration for the token key cache. The default cache size is 1000. The default cache duration is
+	 * 10 minutes. Cache statistics are not enabled.
 	 *
 	 * @return the default configuration
 	 */

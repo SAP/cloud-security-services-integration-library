@@ -5,13 +5,6 @@
  */
 package com.sap.cloud.security.samples;
 
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.GRANT_TYPE;
-import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.IOException;
-
 import com.sap.cloud.security.test.SecurityTestRule;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.SecurityContext;
@@ -27,6 +20,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.io.IOException;
+
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.GRANT_TYPE;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_CLIENT_CREDENTIALS;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HelloJavaServletIntegrationTest {
 
@@ -93,7 +93,8 @@ public class HelloJavaServletIntegrationTest {
 		});
 
 		assertThat(responseBody)
-				.contains("You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.")
+				.contains(
+						"You ('tester@mail.com') can access the application with the following scopes: '[xsapp!t0815.Read]'.")
 				.contains("Having scope '$XSAPPNAME.Read'? true");
 	}
 
@@ -103,7 +104,7 @@ public class HelloJavaServletIntegrationTest {
 
 	private HttpGet createGetRequest(String accessToken, String endpoint) {
 		HttpGet httpGet = new HttpGet(extension.getContext().getApplicationServerUri() + endpoint);
-		if(accessToken != null) {
+		if (accessToken != null) {
 			httpGet.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 		}
 		return httpGet;

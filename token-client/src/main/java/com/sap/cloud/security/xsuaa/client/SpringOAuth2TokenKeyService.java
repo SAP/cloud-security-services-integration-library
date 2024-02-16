@@ -52,12 +52,12 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				return response.getBody();
 			} else {
 				throw OAuth2ServiceException.builder(
-						"Error retrieving token keys. Request headers [" + headers.entrySet().stream()
-								.map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
-								.collect(Collectors.joining(", ")) + "]")
+								"Error retrieving token keys. Request headers [" + headers.entrySet().stream()
+										.map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
+										.collect(Collectors.joining(", ")) + "]")
 						.withUri(tokenKeysEndpointUri)
 						.withHeaders(response.getHeaders().size() != 0 ? response.getHeaders().entrySet().stream().map(
-								h -> h.getKey() + ": " + String.join(",", h.getValue()))
+										h -> h.getKey() + ": " + String.join(",", h.getValue()))
 								.toArray(String[]::new) : null)
 						.withStatusCode(response.getStatusCode().value())
 						.withResponseBody(response.getBody())
@@ -65,11 +65,11 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 			}
 		} catch (HttpStatusCodeException ex) {
 			throw OAuth2ServiceException.builder(
-					"Error retrieving token keys. Request headers [" + headers.entrySet().stream()
-							.map(h -> h.getKey() + ": " + String.join(",", h.getValue())))
+							"Error retrieving token keys. Request headers [" + headers.entrySet().stream()
+									.map(h -> h.getKey() + ": " + String.join(",", h.getValue())))
 					.withUri(tokenKeysEndpointUri)
 					.withHeaders(ex.getResponseHeaders() != null ? ex.getResponseHeaders().entrySet().stream().map(
-							h -> h.getKey() + ": " + String.join(",", h.getValue()))
+									h -> h.getKey() + ": " + String.join(",", h.getValue()))
 							.toArray(String[]::new) : null)
 					.withStatusCode(ex.getStatusCode().value())
 					.withResponseBody(ex.getResponseBodyAsString())

@@ -31,13 +31,12 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 	}
 
 	/**
-	 * Disables the tenant id check. In case JWT issuer (`iss` claim) differs from
-	 * `url` attribute of {@link OAuth2ServiceConfiguration}, claim
-	 * {@link TokenClaims#SAP_GLOBAL_APP_TID} needs to be present in token to ensure
-	 * that the tenant belongs to this issuer.
+	 * Disables the tenant id check. In case JWT issuer (`iss` claim) differs from `url` attribute of
+	 * {@link OAuth2ServiceConfiguration}, claim {@link TokenClaims#SAP_GLOBAL_APP_TID} needs to be present in token to
+	 * ensure that the tenant belongs to this issuer.
 	 * <p>
-	 * Use with caution as it relaxes the validation rules! It is not recommended to
-	 * disable this check for standard Identity service setup.
+	 * Use with caution as it relaxes the validation rules! It is not recommended to disable this check for standard
+	 * Identity service setup.
 	 */
 	protected void disableTenantIdCheck() {
 		this.isTenantIdCheckEnabled = false;
@@ -78,15 +77,14 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 	}
 
 	/**
-	 * Fetches the JWKS URI from the OIDC .well-known endpoint under the given
-	 * domain that must have already been validated to be trustworthy in advance,
-	 * e.g. with an additional {@link JwtIssuerValidator}.
+	 * Fetches the JWKS URI from the OIDC .well-known endpoint under the given domain that must have already been
+	 * validated to be trustworthy in advance, e.g. with an additional {@link JwtIssuerValidator}.
 	 *
 	 * @param domain
-	 *            a trustworthy domain that supplies an OIDC .well-known endpoint
+	 * 		a trustworthy domain that supplies an OIDC .well-known endpoint
 	 * @return the URI to the JWKS of the OIDC service under the given domain
 	 * @throws OAuth2ServiceException
-	 *             if server call fails
+	 * 		if server call fails
 	 */
 	@Nonnull
 	private URI getOidcJwksUri(String domain) throws OAuth2ServiceException {

@@ -37,7 +37,7 @@ public class SecurityContext {
 	 * Saves the certificate thread wide.
 	 *
 	 * @param certificate
-	 *            certificate to be saved.
+	 * 		certificate to be saved.
 	 */
 	public static void setClientCertificate(Certificate certificate) {
 		LOGGER.info("Sets certificate to SecurityContext (thread-locally). {}",
@@ -60,7 +60,7 @@ public class SecurityContext {
 	 * Saves the validated (!) token thread wide.
 	 *
 	 * @param token
-	 *            token to be saved.
+	 * 		token to be saved.
 	 */
 	public static void setToken(Token token) {
 		LOGGER.info("Sets token of service {} to SecurityContext (thread-locally).",
@@ -81,8 +81,8 @@ public class SecurityContext {
 	/**
 	 * Returns the token that is saved in thread wide storage.
 	 *
-	 * @return the token or null if the storage is empty or the token does not
-	 *         implement the {@code AccessToken} interface.
+	 * @return the token or null if the storage is empty or the token does not implement the {@code AccessToken}
+	 * 		interface.
 	 */
 	@Nullable
 	public static AccessToken getAccessToken() {

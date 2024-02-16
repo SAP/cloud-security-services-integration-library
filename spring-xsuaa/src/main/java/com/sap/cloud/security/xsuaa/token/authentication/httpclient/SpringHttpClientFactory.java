@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 /**
- * @deprecated Used only by deprecated spring-xsuaa library for backward
- *             compatibility reasons
+ * @deprecated Used only by deprecated spring-xsuaa library for backward compatibility reasons
  */
 @Deprecated(forRemoval = true)
 public interface SpringHttpClientFactory {
@@ -37,18 +36,16 @@ public interface SpringHttpClientFactory {
 	String DEFAULT_SPRING_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.xsuaa.token.authentication.httpclient.DefaultSpringHttpClientFactory";
 
 	/**
-	 * Provides RestTemplate based on ClientIdentity details. For ClientIdentity
-	 * that is certificate based it will resolve RestTemplate using the provided
-	 * ClientIdentity, if the ClientIdentity wasn't provided it will return default
-	 * RestTemplate.
+	 * Provides RestTemplate based on ClientIdentity details. For ClientIdentity that is certificate based it will
+	 * resolve RestTemplate using the provided ClientIdentity, if the ClientIdentity wasn't provided it will return
+	 * default RestTemplate.
 	 *
 	 * @param clientIdentity
-	 *            for X.509 certificate based communication
-	 *            {@link ClientCertificate} implementation of ClientIdentity
-	 *            interface should be provided
+	 * 		for X.509 certificate based communication {@link ClientCertificate} implementation of ClientIdentity interface
+	 * 		should be provided
 	 * @return RestTemplate
 	 * @throws HttpClientException
-	 *             in case RestTemplate could not be setup
+	 * 		in case RestTemplate could not be setup
 	 */
 	default RestTemplate createRestTemplateClient(ClientIdentity clientIdentity) {
 		return new RestTemplate();

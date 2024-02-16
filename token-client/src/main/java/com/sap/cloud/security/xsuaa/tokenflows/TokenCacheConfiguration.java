@@ -28,18 +28,16 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	private final boolean cacheStatisticsEnabled;
 
 	/**
-	 * Creates a new {@link TokenCacheConfiguration} instance with the given
-	 * properties. See {@link CacheConfiguration#getCacheDuration()},
-	 * {@link CacheConfiguration#getCacheSize()} and
-	 * {@link TokenCacheConfiguration#getTokenExpirationDelta()} for an explanation
-	 * of the respective properties.
+	 * Creates a new {@link TokenCacheConfiguration} instance with the given properties. See
+	 * {@link CacheConfiguration#getCacheDuration()}, {@link CacheConfiguration#getCacheSize()} and
+	 * {@link TokenCacheConfiguration#getTokenExpirationDelta()} for an explanation of the respective properties.
 	 *
 	 * @param cacheDuration
-	 *            the cache duration property.
+	 * 		the cache duration property.
 	 * @param cacheSize
-	 *            the cache size property.
+	 * 		the cache size property.
 	 * @param tokenExpirationDelta
-	 *            the token expiration delta.
+	 * 		the token expiration delta.
 	 * @return a new {@link TokenCacheConfiguration} instance.
 	 */
 	public static TokenCacheConfiguration getInstance(@Nonnull Duration cacheDuration, int cacheSize,
@@ -49,22 +47,19 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	}
 
 	/**
-	 * Creates a new {@link TokenCacheConfiguration} instance with the given
-	 * properties. See {@link CacheConfiguration#getCacheDuration()},
-	 * {@link CacheConfiguration#getCacheSize()},
+	 * Creates a new {@link TokenCacheConfiguration} instance with the given properties. See
+	 * {@link CacheConfiguration#getCacheDuration()}, {@link CacheConfiguration#getCacheSize()},
 	 * {@link TokenCacheConfiguration#getTokenExpirationDelta()} and
-	 * {@link CacheConfiguration#isCacheStatisticsEnabled()} for an explanation of
-	 * the respective properties.
+	 * {@link CacheConfiguration#isCacheStatisticsEnabled()} for an explanation of the respective properties.
 	 *
 	 * @param cacheDuration
-	 *            the cache duration property.
+	 * 		the cache duration property.
 	 * @param cacheSize
-	 *            the cache size property.
+	 * 		the cache size property.
 	 * @param tokenExpirationDelta
-	 *            the token expiration delta.
+	 * 		the token expiration delta.
 	 * @param cacheStatisticsEnabled
-	 *            {@code true} if cache statistic recording has been enabled
-	 *
+	 *        {@code true} if cache statistic recording has been enabled
 	 * @return a new {@link TokenCacheConfiguration} instance.
 	 */
 	public static TokenCacheConfiguration getInstance(Duration cacheDuration, int cacheSize,
@@ -106,14 +101,12 @@ public class TokenCacheConfiguration implements CacheConfiguration {
 	}
 
 	/**
-	 * If a cached token expires because its expiration time (exp) has been reached,
-	 * it should not be retrieved from the cache. A new token should be requested in
-	 * this case. For this to work cached tokens are being checked if their
-	 * expiration time (exp) has already been reached or if it is soon going to be
-	 * reached. The expiration delta controls what <em>soon</em> means. For example
-	 * if the expiration delta is set to 10 seconds and a cached token will expire
-	 * in 5 seconds, it will not be retrieved from cache anymore because the
-	 * duration until the token is expired is smaller than delta.
+	 * If a cached token expires because its expiration time (exp) has been reached, it should not be retrieved from the
+	 * cache. A new token should be requested in this case. For this to work cached tokens are being checked if their
+	 * expiration time (exp) has already been reached or if it is soon going to be reached. The expiration delta
+	 * controls what <em>soon</em> means. For example if the expiration delta is set to 10 seconds and a cached token
+	 * will expire in 5 seconds, it will not be retrieved from cache anymore because the duration until the token is
+	 * expired is smaller than delta.
 	 *
 	 * @return the token expiration delta.
 	 */

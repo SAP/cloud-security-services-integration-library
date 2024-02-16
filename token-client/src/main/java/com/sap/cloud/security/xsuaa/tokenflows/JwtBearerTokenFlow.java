@@ -12,8 +12,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 
 /**
- * A JWT bearer token flow builder. <br>
- * Applications can use this flow to exchange a given user token for a new JWT
+ * A JWT bearer token flow builder. <br> Applications can use this flow to exchange a given user token for a new JWT
  * token.
  */
 public class JwtBearerTokenFlow {
@@ -45,7 +44,7 @@ public class JwtBearerTokenFlow {
 	 * Sets the bearer token that should be exchanged for another JWT token.
 	 *
 	 * @param bearerToken
-	 *            - the bearer token.
+	 * 		- the bearer token.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow token(@Nonnull String bearerToken) {
@@ -55,13 +54,12 @@ public class JwtBearerTokenFlow {
 	}
 
 	/**
-	 * Sets the JWT token that should be exchanged for another JWT token. This
-	 * setter also extracts the zid(zone id) claim from the token and sets it in the
-	 * X-zid header, therefore {@link JwtBearerTokenFlow#zoneId(String)}} is not
+	 * Sets the JWT token that should be exchanged for another JWT token. This setter also extracts the zid(zone id)
+	 * claim from the token and sets it in the X-zid header, therefore {@link JwtBearerTokenFlow#zoneId(String)}} is not
 	 * required to be used.
 	 *
 	 * @param token
-	 *            - the Token.
+	 * 		- the Token.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow token(@Nonnull Token token) {
@@ -75,7 +73,7 @@ public class JwtBearerTokenFlow {
 	 * Sets the zid(zone id) of the tenant<br>
 	 *
 	 * @param zoneId
-	 *            - the zoneId.
+	 * 		- the zoneId.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow zoneId(String zoneId) {
@@ -84,15 +82,13 @@ public class JwtBearerTokenFlow {
 	}
 
 	/**
-	 * Sets the scope attribute for the token request. This will restrict the scope
-	 * of the created token to the scopes provided. By default the scope is not
-	 * restricted and the created token contains all granted scopes.
+	 * Sets the scope attribute for the token request. This will restrict the scope of the created token to the scopes
+	 * provided. By default the scope is not restricted and the created token contains all granted scopes.
 	 * <p>
-	 * If you specify a scope that is not authorized for the user, the token request
-	 * will fail.
+	 * If you specify a scope that is not authorized for the user, the token request will fail.
 	 *
 	 * @param scopes
-	 *            - one or many scopes as string.
+	 * 		- one or many scopes as string.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow scopes(@Nonnull String... scopes) {
@@ -105,7 +101,7 @@ public class JwtBearerTokenFlow {
 	 * Set the Subdomain the token is requested for.
 	 *
 	 * @param subdomain
-	 *            - the subdomain.
+	 * 		- the subdomain.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow subdomain(String subdomain) {
@@ -114,12 +110,11 @@ public class JwtBearerTokenFlow {
 	}
 
 	/**
-	 * Adds additional authorization attributes to the request. <br>
-	 * Clients can use this to request additional attributes in the 'az_attr' claim
-	 * of the returned token.
+	 * Adds additional authorization attributes to the request. <br> Clients can use this to request additional
+	 * attributes in the 'az_attr' claim of the returned token.
 	 *
 	 * @param additionalAuthorizationAttributes
-	 *            - the additional attributes.
+	 * 		- the additional attributes.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow attributes(Map<String, String> additionalAuthorizationAttributes) {
@@ -131,7 +126,7 @@ public class JwtBearerTokenFlow {
 	 * Can be used to disable the cache for the flow.
 	 *
 	 * @param disableCache
-	 *            - disables cache when set to {@code true}.
+	 * 		- disables cache when set to {@code true}.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow disableCache(boolean disableCache) {
@@ -143,7 +138,7 @@ public class JwtBearerTokenFlow {
 	 * Can be used to change the format of the returned token.
 	 *
 	 * @param opaque
-	 *            enables opaque token format when set to {@code true}.
+	 * 		enables opaque token format when set to {@code true}.
 	 * @return this builder.
 	 */
 	public JwtBearerTokenFlow setOpaqueTokenFormat(boolean opaque) {
@@ -152,16 +147,13 @@ public class JwtBearerTokenFlow {
 	}
 
 	/**
-	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
-	 * token is returned.
+	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT token is returned.
 	 *
 	 * @return the JWT instance returned by XSUAA.
 	 * @throws IllegalStateException
-	 *             - in case not all mandatory fields of the token flow request have
-	 *             been set.
+	 * 		- in case not all mandatory fields of the token flow request have been set.
 	 * @throws TokenFlowException
-	 *             - in case of an error during the flow, or when the token cannot
-	 *             be obtained.
+	 * 		- in case of an error during the flow, or when the token cannot be obtained.
 	 */
 	public OAuth2TokenResponse execute() throws TokenFlowException {
 		if (bearerToken == null) {

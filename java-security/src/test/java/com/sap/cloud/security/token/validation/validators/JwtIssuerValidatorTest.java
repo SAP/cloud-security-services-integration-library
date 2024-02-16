@@ -66,8 +66,8 @@ class JwtIssuerValidatorTest {
 	}
 
 	/**
-	 * Test ensures that issuer validation also succeeds for servers running on
-	 * http://localhost:<PORT>, e.g. when using java-security-test module.
+	 * Test ensures that issuer validation also succeeds for servers running on http://localhost:<PORT>, e.g. when using
+	 * java-security-test module.
 	 */
 	@Test
 	void supportsHttpLocalhostIssuers() {

@@ -16,10 +16,10 @@ public interface OidcConfigurationService {
 	 * Requests an OpenID Provider Configuration Document from OAuth Server.
 	 *
 	 * @param discoveryEndpointUri
-	 *            the discovery endpoint URI.
+	 * 		the discovery endpoint URI.
 	 * @return an object with access endpoints.
 	 * @throws OAuth2ServiceException
-	 *             in case of an error during the http request.
+	 * 		in case of an error during the http request.
 	 */
 	OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri) throws OAuth2ServiceException;
 

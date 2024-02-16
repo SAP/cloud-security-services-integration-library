@@ -16,13 +16,12 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
  * {@link EnableAutoConfiguration} uses a
- * {@link com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy},
- * which keeps the {@code com.sap.cloud.security.token.SecurityContext} in sync
+ * {@link com.sap.cloud.security.spring.token.authentication.JavaSecurityContextHolderStrategy}, which keeps the
+ * {@code com.sap.cloud.security.token.SecurityContext} in sync
  *
  * <p>
- * Can be disabled with
- * {@code @EnableAutoConfiguration(exclude={SecurityContextAutoConfiguration.class})}
- * or with property {@code sap.spring.security.hybrid.auto = false}.
+ * Can be disabled with {@code @EnableAutoConfiguration(exclude={SecurityContextAutoConfiguration.class})} or with
+ * property {@code sap.spring.security.hybrid.auto = false}.
  */
 @Configuration
 @ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)

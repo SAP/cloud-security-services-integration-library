@@ -22,13 +22,11 @@ import org.springframework.util.Assert;
 import javax.annotation.Nullable;
 
 /**
- * This is an alternative way of accessing jwt tokens of type {@link Token} or
- * {@link AccessToken} in context of an application using
- * spring-security-oauth2.
+ * This is an alternative way of accessing jwt tokens of type {@link Token} or {@link AccessToken} in context of an
+ * application using spring-security-oauth2.
  * <p>
- * It uses the {@link SecurityContextHolder} to access Spring's
- * {@link SecurityContext} and can therefore used also in context of
- * asynchronous threads.
+ * It uses the {@link SecurityContextHolder} to access Spring's {@link SecurityContext} and can therefore used also in
+ * context of asynchronous threads.
  */
 public class SpringSecurityContext {
 
@@ -38,12 +36,12 @@ public class SpringSecurityContext {
 	/**
 	 * Obtain the Token object from {@link SecurityContextHolder}.
 	 *
-	 * @return Token instance or <code>null</code> if {@link SecurityContext} is
-	 *         empty or does not contain a token of this type.
+	 * @return Token instance or <code>null</code> if {@link SecurityContext} is empty or does not contain a token of
+	 * 		this type.
 	 * @throws AccessDeniedException
-	 *             in case there is no token, user is not authenticated
-	 *             <p>
-	 *             Note: This method is introduced with xsuaa spring client lib.
+	 * 		in case there is no token, user is not authenticated
+	 * 		<p>
+	 * 		Note: This method is introduced with xsuaa spring client lib.
 	 */
 	@Nullable
 	public static Token getToken() {
@@ -61,15 +59,14 @@ public class SpringSecurityContext {
 	}
 
 	/**
-	 * Obtain the Access Token from xsuaa service from
-	 * {@link SecurityContextHolder}.
+	 * Obtain the Access Token from xsuaa service from {@link SecurityContextHolder}.
 	 *
-	 * @return AccessToken instance or <code>null</code> if {@link SecurityContext}
-	 *         is empty or does not contain a token of this type.
+	 * @return AccessToken instance or <code>null</code> if {@link SecurityContext} is empty or does not contain a token
+	 * 		of this type.
 	 * @throws AccessDeniedException
-	 *             in case there is no token, user is not authenticated
-	 *             <p>
-	 *             Note: This method is introduced with xsuaa spring client lib.
+	 * 		in case there is no token, user is not authenticated
+	 * 		<p>
+	 * 		Note: This method is introduced with xsuaa spring client lib.
 	 */
 	@Nullable
 	public static AccessToken getAccessToken() {
@@ -78,25 +75,23 @@ public class SpringSecurityContext {
 	}
 
 	/**
-	 * Cleans up the Spring Security Context {@link SecurityContextHolder} and
-	 * release thread locals for Garbage Collector to avoid memory leaks resources.
+	 * Cleans up the Spring Security Context {@link SecurityContextHolder} and release thread locals for Garbage
+	 * Collector to avoid memory leaks resources.
 	 */
 	public static void clear() {
 		SecurityContextHolder.clearContext();
 	}
 
 	/**
-	 * Initializes the Spring Security Context {@link SecurityContextHolder} and
-	 * extracts the authorities.
+	 * Initializes the Spring Security Context {@link SecurityContextHolder} and extracts the authorities.
 	 *
 	 * @param encodedToken
-	 *            the jwt token that is decoded with the given JwtDecoder
+	 * 		the jwt token that is decoded with the given JwtDecoder
 	 * @param jwtDecoder
-	 *            the decoder of type {@link JwtDecoder}
+	 * 		the decoder of type {@link JwtDecoder}
 	 * @param authConverter
-	 *            the authorization converter of type
-	 *            {@code Converter<Jwt, AbstractAuthenticationToken>} e.g.
-	 *            {@link XsuaaTokenAuthorizationConverter}
+	 * 		the authorization converter of type {@code Converter<Jwt, AbstractAuthenticationToken>} e.g.
+	 *        {@link XsuaaTokenAuthorizationConverter}
 	 */
 	public static void init(String encodedToken, JwtDecoder jwtDecoder,
 			Converter<Jwt, AbstractAuthenticationToken> authConverter) {

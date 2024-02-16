@@ -12,8 +12,8 @@ import java.util.*;
 import static com.sap.cloud.security.config.ServiceConstants.*;
 
 /**
- * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) for a
- * dedicated identity ({@link Service}) based on the properties applied.
+ * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) for a dedicated identity ({@link Service}) based
+ * on the properties applied.
  */
 public class OAuth2ServiceConfigurationBuilder {
 
@@ -30,7 +30,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * Creates a builder for a dedicated identity ({@link Service})
 	 *
 	 * @param service
-	 *            the service
+	 * 		the service
 	 * @return this builder
 	 */
 	public static OAuth2ServiceConfigurationBuilder forService(@Nonnull Service service) {
@@ -52,7 +52,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * Client id of identity service instance.
 	 *
 	 * @param clientId
-	 *            client identifier
+	 * 		client identifier
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withClientId(String clientId) {
@@ -64,7 +64,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * Client secret of identity service instance.
 	 *
 	 * @param clientSecret
-	 *            client secret
+	 * 		client secret
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withClientSecret(String clientSecret) {
@@ -76,7 +76,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * X.509 certificate of identity service instance.
 	 *
 	 * @param certificate
-	 *            PEM encoded certificate
+	 * 		PEM encoded certificate
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withCertificate(String certificate) {
@@ -88,7 +88,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * X.509 private key of identity service instance.
 	 *
 	 * @param privateKey
-	 *            PEM encoded RSA private key
+	 * 		PEM encoded RSA private key
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withPrivateKey(String privateKey) {
@@ -100,7 +100,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * ClientIdentity of identity service instance.
 	 *
 	 * @param clientIdentity
-	 *            ClientIdentity object
+	 * 		ClientIdentity object
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withClientIdentity(ClientIdentity clientIdentity) {
@@ -115,11 +115,11 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	/**
-	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios
-	 * this is the url where the service instance was created.
+	 * Base URL of the OAuth2 identity service instance. In multi tenancy scenarios this is the url where the service
+	 * instance was created.
 	 *
 	 * @param url
-	 *            base url, e.g. <a href="https://paastenant.idservice.com">...</a>
+	 * 		base url, e.g. <a href="https://paastenant.idservice.com">...</a>
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withUrl(String url) {
@@ -131,8 +131,8 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * Cert URL of the OAuth2 identity service instance.
 	 *
 	 * @param url
-	 *            cert url, e.g.
-	 *            <a href="https://paastenant.cert.idservice.com">...</a>
+	 * 		cert url, e.g.
+	 * 		<a href="https://paastenant.cert.idservice.com">...</a>
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withCertUrl(String url) {
@@ -144,7 +144,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * Credential type of OAuth2 configuration.
 	 *
 	 * @param credentialType
-	 *            credential-type i.e. x509, instance_secret or binding_secret
+	 * 		credential-type i.e. x509, instance_secret or binding_secret
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withCredentialType(CredentialType credentialType) {
@@ -153,11 +153,11 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	/**
-	 * Domains of the OAuth2 identity service instance. In multi tenancy scenarios
-	 * this contains the domain where the service instance was created.
+	 * Domains of the OAuth2 identity service instance. In multi tenancy scenarios this contains the domain where the
+	 * service instance was created.
 	 *
 	 * @param domains
-	 *            one or multiple domain, e.g. "idservice.com"
+	 * 		one or multiple domain, e.g. "idservice.com"
 	 * @return this builder itself
 	 */
 	public OAuth2ServiceConfigurationBuilder withDomains(String... domains) {
@@ -190,8 +190,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	}
 
 	/**
-	 * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) based on
-	 * the properties applied.
+	 * Builds an OAuth configuration ({@link OAuth2ServiceConfiguration}) based on the properties applied.
 	 *
 	 * @return the oauth2 service configuration.
 	 */

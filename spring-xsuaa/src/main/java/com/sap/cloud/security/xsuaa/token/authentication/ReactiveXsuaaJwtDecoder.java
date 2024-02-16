@@ -68,15 +68,15 @@ public class ReactiveXsuaaJwtDecoder implements ReactiveJwtDecoder {
 	@Override
 	public Mono<Jwt> decode(String token) throws JwtException {
 		return Mono.just(token).map(jwtToken -> {
-			try {
-				return JWTParser.parse(jwtToken);
-			} catch (ParseException e) {
-				throw new JwtException("Error initializing JWT decoder:" + e.getMessage());
-			}
-		}).map(jwtToken -> {
-			String cacheKey = tokenInfoExtractor.getJku(jwtToken) + tokenInfoExtractor.getKid(jwtToken);
-			return cache.get(cacheKey, k -> this.getDecoder(tokenInfoExtractor.getJku(jwtToken)));
-		}).flatMap(decoder -> decoder.decode(token))
+					try {
+						return JWTParser.parse(jwtToken);
+					} catch (ParseException e) {
+						throw new JwtException("Error initializing JWT decoder:" + e.getMessage());
+					}
+				}).map(jwtToken -> {
+					String cacheKey = tokenInfoExtractor.getJku(jwtToken) + tokenInfoExtractor.getKid(jwtToken);
+					return cache.get(cacheKey, k -> this.getDecoder(tokenInfoExtractor.getJku(jwtToken)));
+				}).flatMap(decoder -> decoder.decode(token))
 				.doOnSuccess(jwt -> postValidationActions.forEach(act -> act.perform(jwt)));
 	}
 

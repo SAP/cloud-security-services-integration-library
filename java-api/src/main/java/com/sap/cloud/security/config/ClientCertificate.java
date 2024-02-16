@@ -18,11 +18,11 @@ public class ClientCertificate implements ClientIdentity {
 	 * Represents certificate based client identity.
 	 *
 	 * @param certificate
-	 *            PEM encoded X.509 certificate of the OAuth 2.0 client
+	 * 		PEM encoded X.509 certificate of the OAuth 2.0 client
 	 * @param key
-	 *            PEM encoded X.509 private key of the OAuth 2.0 client
+	 * 		PEM encoded X.509 private key of the OAuth 2.0 client
 	 * @param clientId
-	 *            ID of the OAuth 2.0 client requesting the token.
+	 * 		ID of the OAuth 2.0 client requesting the token.
 	 */
 	public ClientCertificate(@Nullable String certificate, @Nullable String key, @Nullable String clientId) {
 		this.certificate = certificate;

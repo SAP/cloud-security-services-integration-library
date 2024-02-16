@@ -17,46 +17,51 @@ import java.time.Instant;
 
 public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
 
-    final CombiningValidator<Token> xsuaaTokenValidators;
-    final CombiningValidator<Token> iasTokenValidators;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+	final CombiningValidator<Token> xsuaaTokenValidators;
+	final CombiningValidator<Token> iasTokenValidators;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public ReactiveHybridJwtDecoder(CombiningValidator<Token> xsuaaTokenValidators, CombiningValidator<Token> iasTokenValidators) {
-        this.xsuaaTokenValidators = xsuaaTokenValidators;
-        this.iasTokenValidators = iasTokenValidators;
-    }
+	public ReactiveHybridJwtDecoder(CombiningValidator<Token> xsuaaTokenValidators,
+			CombiningValidator<Token> iasTokenValidators) {
+		this.xsuaaTokenValidators = xsuaaTokenValidators;
+		this.iasTokenValidators = iasTokenValidators;
+	}
 
-    @Override
-    public Mono<Jwt> decode(String encodedToken) throws JwtException {
-        return Mono.justOrEmpty(encodedToken)
-                .filter(StringUtils::hasText)
-                .switchIfEmpty(Mono.error(new BadJwtException("Encoded Token must neither be null nor empty String.")))
-                .map(Token::create)
-                .flatMap(token -> {
-                    Mono<Jwt> jwt = parseJwt(token);
-                    Mono<ValidationResult> validationResult;
+	@Override
+	public Mono<Jwt> decode(String encodedToken) throws JwtException {
+		return Mono.justOrEmpty(encodedToken)
+				.filter(StringUtils::hasText)
+				.switchIfEmpty(Mono.error(new BadJwtException("Encoded Token must neither be null nor empty String.")))
+				.map(Token::create)
+				.flatMap(token -> {
+					Mono<Jwt> jwt = parseJwt(token);
+					Mono<ValidationResult> validationResult;
 
-                    switch (token.getService()){
-                        case IAS:
-                            if (iasTokenValidators == null){
-                                return Mono.error(new BadJwtException("Tokens issued by IAS service aren't accepted"));
-                            }
-                            validationResult = Mono.just(iasTokenValidators.validate(token));
-                            break;
-                        case XSUAA:
-                            validationResult = Mono.just(xsuaaTokenValidators.validate(token));
-                            break;
-                        default:
-                            return Mono.error(new BadJwtException("Tokens issued by " + token.getService() + " service aren´t supported."));
-                    }
-                    return validationResult
-                            .filter(vr -> !vr.isErroneous())
-                            .switchIfEmpty(Mono.error(new BadJwtException("The token is invalid: " + validationResult.block().getErrorDescription())))
-                            .doOnNext(result -> logger.debug("Token issued by {} service was successfully validated.", token.getService()))
-                            .then(jwt);
-                })
-                .onErrorMap(RuntimeException.class, ex -> new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex));
-    }
+					switch (token.getService()) {
+					case IAS:
+						if (iasTokenValidators == null) {
+							return Mono.error(new BadJwtException("Tokens issued by IAS service aren't accepted"));
+						}
+						validationResult = Mono.just(iasTokenValidators.validate(token));
+						break;
+					case XSUAA:
+						validationResult = Mono.just(xsuaaTokenValidators.validate(token));
+						break;
+					default:
+						return Mono.error(new BadJwtException(
+								"Tokens issued by " + token.getService() + " service aren´t supported."));
+					}
+					return validationResult
+							.filter(vr -> !vr.isErroneous())
+							.switchIfEmpty(Mono.error(new BadJwtException(
+									"The token is invalid: " + validationResult.block().getErrorDescription())))
+							.doOnNext(result -> logger.debug("Token issued by {} service was successfully validated.",
+									token.getService()))
+							.then(jwt);
+				})
+				.onErrorMap(RuntimeException.class,
+						ex -> new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex));
+	}
 
     static Mono<Jwt> parseJwt(Token token) {
         try{

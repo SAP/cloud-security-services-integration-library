@@ -15,9 +15,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.Assert;
 
 /**
- * An authentication converter that extracts authorization related information
- * from the Jwt token. For example the{@link LocalAuthoritiesExtractor} can
- * remove the ugly application id prefix (e.g.my-application-demo!t1229) from
+ * An authentication converter that extracts authorization related information from the Jwt token. For example
+ * the{@link LocalAuthoritiesExtractor} can remove the ugly application id prefix (e.g.my-application-demo!t1229) from
  * the scopes in the JWT.
  */
 public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
@@ -29,19 +28,18 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	 * Creates a new converter with the given {@link AuthoritiesExtractor}.
 	 *
 	 * @param authoritiesExtractor
-	 *            - the extractor used to turn Jwt scopes into Spring Security
-	 *            authorities.
+	 * 		- the extractor used to turn Jwt scopes into Spring Security authorities.
 	 */
 	public TokenAuthenticationConverter(AuthoritiesExtractor authoritiesExtractor) {
 		this.authoritiesExtractor = authoritiesExtractor;
 	}
 
 	/**
-	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
-	 * instance as default authorities extractor.
+	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor} instance as default authorities
+	 * extractor.
 	 *
 	 * @param appId
-	 *            e.g. myXsAppname!t123
+	 * 		e.g. myXsAppname!t123
 	 */
 	public TokenAuthenticationConverter(String appId) {
 		authoritiesExtractor = new DefaultAuthoritiesExtractor();
@@ -49,11 +47,11 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	}
 
 	/**
-	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor}
-	 * instance as default authorities extractor.
+	 * Creates a new converter with a new {@link DefaultAuthoritiesExtractor} instance as default authorities
+	 * extractor.
 	 *
 	 * @param xsuaaServiceConfiguration
-	 *            the xsuaa configuration
+	 * 		the xsuaa configuration
 	 */
 	public TokenAuthenticationConverter(XsuaaServiceConfiguration xsuaaServiceConfiguration) {
 		this(xsuaaServiceConfiguration.getAppId());
@@ -65,15 +63,12 @@ public class TokenAuthenticationConverter implements Converter<Jwt, AbstractAuth
 	}
 
 	/**
-	 * This method allows to overwrite the default behavior of the
-	 * {@link Token#getAuthorities()} implementation.
+	 * This method allows to overwrite the default behavior of the {@link Token#getAuthorities()} implementation.
 	 *
 	 * @param extractLocalScopesOnly
-	 *            true when {@link Token#getAuthorities()} should only extract local
-	 *            scopes. Local scopes means that non-application specific scopes
-	 *            are filtered out and scopes are returned without appId prefix,
-	 *            e.g. "Display". Creates a new converter with a new
-	 *            {@link LocalAuthoritiesExtractor}
+	 * 		true when {@link Token#getAuthorities()} should only extract local scopes. Local scopes means that
+	 * 		non-application specific scopes are filtered out and scopes are returned without appId prefix, e.g. "Display".
+	 * 		Creates a new converter with a new {@link LocalAuthoritiesExtractor}
 	 * @return the token authenticator itself
 	 */
 	public TokenAuthenticationConverter setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {

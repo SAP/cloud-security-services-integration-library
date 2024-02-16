@@ -1,6 +1,6 @@
 /**
  * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *<p>
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.config;
@@ -18,15 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests that the {@link IdentityServicesPropertySourceFactory} puts 2 XSUAA
- * service instances with plan 'application' and 2 with plan 'broker' into the
- * Spring properties in the correct order. For backward-compatibility, the order
- * of the service instance must be as follows: Index 0: Configuration accessible
- * via Environment#getXsuaaConfiguration (Application) Index 1: Configuration
- * accessible via Environment#getXsuaaConfigurationForTokenExchange (Broker) if
- * exists, otherwise next XSUAA configuration Index 2+: Remaining XSUAA
- * configurations In addition, tests that the IAS service instance from the
- * environment is correctly added as well.
+ * Tests that the {@link IdentityServicesPropertySourceFactory} puts 2 XSUAA service instances with plan 'application'
+ * and 2 with plan 'broker' into the Spring properties in the correct order. For backward-compatibility, the order of
+ * the service instance must be as follows: Index 0: Configuration accessible via Environment#getXsuaaConfiguration
+ * (Application) Index 1: Configuration accessible via Environment#getXsuaaConfigurationForTokenExchange (Broker) if
+ * exists, otherwise next XSUAA configuration Index 2+: Remaining XSUAA configurations In addition, tests that the IAS
+ * service instance from the environment is correctly added as well.
  */
 @SpringBootTest(classes = { FourXsuaaOneIasTestConfigurationFromFile.class })
 class IdentityServicesPropertySourceFactoryFourXsuaaOneIasTest {

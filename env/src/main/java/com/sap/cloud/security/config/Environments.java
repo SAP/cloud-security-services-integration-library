@@ -11,8 +11,7 @@ import java.io.InputStream;
 import java.util.Scanner;
 
 /**
- * Central entry point to access the current SAP Cloud Platform
- * {@link Environment}.
+ * Central entry point to access the current SAP Cloud Platform {@link Environment}.
  */
 public class Environments {
 
@@ -35,12 +34,11 @@ public class Environments {
 	}
 
 	/**
-	 * Reads {@link Environment} not from system environment but from
-	 * {@link InputStream}. Is applicable only to CF environment and expects the
-	 * input to be in VCAP services format.
+	 * Reads {@link Environment} not from system environment but from {@link InputStream}. Is applicable only to CF
+	 * environment and expects the input to be in VCAP services format.
 	 *
 	 * @param input
-	 *            e.g. from file
+	 * 		e.g. from file
 	 * @return the environment
 	 */
 	public static Environment readFromInput(InputStream input) {

@@ -30,7 +30,6 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * Creates a SSLContext (without Bouncy Castle crypto lib).
- *
  */
 public class SSLContextFactory {
 	private static final char[] noPassword = "".toCharArray();
@@ -46,20 +45,17 @@ public class SSLContextFactory {
 	}
 
 	/**
-	 * Creates a SSLContext which can be used to parameterize your Rest client, in
-	 * order to support mutual TLS.
+	 * Creates a SSLContext which can be used to parameterize your Rest client, in order to support mutual TLS.
 	 *
 	 * @param x509Certificates
-	 *            you can get from your Service Configuration
-	 *            {@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 * 		you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
 	 * @param rsaPrivateKey
-	 *            you can get from your Service
-	 *            Configuration{@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 * 		you can get from your Service Configuration{@link OAuth2ServiceConfiguration#getClientIdentity()}
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
-	 *             in case of key parsing errors
+	 * 		in case of key parsing errors
 	 * @throws IOException
-	 *             in case of KeyStore initialization errors
+	 * 		in case of KeyStore initialization errors
 	 */
 	public SSLContext create(String x509Certificates, String rsaPrivateKey)
 			throws GeneralSecurityException, IOException {
@@ -70,17 +66,15 @@ public class SSLContextFactory {
 	}
 
 	/**
-	 * Creates a SSLContext which can be used to parameterize your Rest client, in
-	 * order to support mutual TLS.
+	 * Creates a SSLContext which can be used to parameterize your Rest client, in order to support mutual TLS.
 	 *
 	 * @param clientIdentity
-	 *            you can get from your Service Configuration
-	 *            {@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 * 		you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
-	 *             in case of key parsing errors
+	 * 		in case of key parsing errors
 	 * @throws IOException
-	 *             in case of KeyStore initialization errors
+	 * 		in case of KeyStore initialization errors
 	 */
 	public SSLContext create(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
 		assertNotNull(clientIdentity, "clientIdentity must not be null");
@@ -96,17 +90,15 @@ public class SSLContextFactory {
 	}
 
 	/**
-	 * Initializes a KeyStore which can be used to parameterize your Rest client, in
-	 * order to support mutual TLS.
+	 * Initializes a KeyStore which can be used to parameterize your Rest client, in order to support mutual TLS.
 	 *
 	 * @param clientIdentity
-	 *            you can get from your Service Configuration
-	 *            {@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 * 		you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
 	 * @return a new KeyStore instance
 	 * @throws GeneralSecurityException
-	 *             in case of key parsing errors
+	 * 		in case of key parsing errors
 	 * @throws IOException
-	 *             in case of KeyStore initialization errors
+	 * 		in case of KeyStore initialization errors
 	 */
 	public KeyStore createKeyStore(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
 		assertNotNull(clientIdentity, "clientIdentity must not be null");

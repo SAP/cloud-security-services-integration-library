@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * PoJo of Spring configuration properties. It implements the
- * {@link OAuth2ServiceConfiguration} and enhances it with
+ * PoJo of Spring configuration properties. It implements the {@link OAuth2ServiceConfiguration} and enhances it with
  * <ul>
  * <li>setters</li>
  * <li>Xsuaa specific setters to map Xsuaa specific configuration such as
@@ -37,7 +36,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Creates a new instance to map configuration of a dedicated identity service.
 	 *
 	 * @param service
-	 *            the kind of service
+	 * 		the kind of service
 	 */
 	public OAuth2ServiceConfigurationProperties(Service service) {
 		builder = OAuth2ServiceConfigurationBuilder.forService(service);
@@ -52,7 +51,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets client id of identity service instance.
 	 *
 	 * @param clientId
-	 *            client identifier
+	 * 		client identifier
 	 */
 	public void setClientId(String clientId) {
 		builder.withClientId(clientId);
@@ -62,7 +61,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets certificate of of identity service instance.
 	 *
 	 * @param certificate
-	 *            PEM encoded certificate
+	 * 		PEM encoded certificate
 	 */
 	public void setCertificate(String certificate) {
 		builder.withCertificate(certificate);
@@ -72,7 +71,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets private key of identity service instance.
 	 *
 	 * @param key
-	 *            PEM encoded private key
+	 * 		PEM encoded private key
 	 */
 	public void setKey(String key) {
 		builder.withPrivateKey(key);
@@ -87,7 +86,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets client secret of identity service instance.
 	 *
 	 * @param clientSecret
-	 *            client secret
+	 * 		client secret
 	 */
 	public void setClientSecret(String clientSecret) {
 		builder.withClientSecret(clientSecret);
@@ -107,7 +106,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets credential type of identity service instance.
 	 *
 	 * @param credentialType
-	 *            the credential type
+	 * 		the credential type
 	 */
 	public void setCredentialType(String credentialType) {
 		builder.withCredentialType(
@@ -123,7 +122,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets cert url of identity service instance.
 	 *
 	 * @param certUrl
-	 *            the cert url
+	 * 		the cert url
 	 */
 	public void setCertUrl(String certUrl) {
 		builder.withCertUrl(certUrl);
@@ -144,11 +143,11 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	}
 
 	/**
-	 * Sets base URL of the OAuth2 identity service instance. In multi tenancy
-	 * scenarios this is the url where the service instance was created.
+	 * Sets base URL of the OAuth2 identity service instance. In multi tenancy scenarios this is the url where the
+	 * service instance was created.
 	 *
 	 * @param url
-	 *            base url
+	 * 		base url
 	 */
 	public void setUrl(String url) {
 		builder.withUrl(url);
@@ -158,7 +157,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets uaa domain of identity service instance.
 	 *
 	 * @param uaaDomain
-	 *            uaa domain
+	 * 		uaa domain
 	 */
 	public void setUaaDomain(String uaaDomain) {
 		builder.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, uaaDomain);
@@ -168,7 +167,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets application name of xsuaa service instance.
 	 *
 	 * @param xsAppName
-	 *            the xsappname as specified in the {@code xs-security.json}.
+	 * 		the xsappname as specified in the {@code xs-security.json}.
 	 */
 	public void setXsAppName(String xsAppName) {
 		builder.withProperty(ServiceConstants.XSUAA.APP_ID, xsAppName);
@@ -178,8 +177,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 * Sets the verification key of xsuaa service instance.
 	 *
 	 * @param verificationKey
-	 *            the verification key that provides the public key of the private
-	 *            key the token is signed with.
+	 * 		the verification key that provides the public key of the private key the token is signed with.
 	 */
 	public void setVerificationKey(String verificationKey) {
 		builder.withProperty(ServiceConstants.XSUAA.VERIFICATION_KEY, verificationKey);

@@ -17,11 +17,10 @@ public class ServiceBindingMapper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceBindingMapper.class);
 
 	/**
-	 * Parses a service binding by extracting the configuration information and
-	 * passing it to a configuration builder.
+	 * Parses a service binding by extracting the configuration information and passing it to a configuration builder.
 	 *
-	 * @return a new {@link OAuth2ServiceConfigurationBuilder} that is configured
-	 *         based on the given {@link ServiceBinding}.
+	 * @return a new {@link OAuth2ServiceConfigurationBuilder} that is configured based on the given
+	 *        {@link ServiceBinding}.
 	 */
 	@Nullable
 	public static OAuth2ServiceConfigurationBuilder mapToOAuth2ServiceConfigurationBuilder(ServiceBinding b) {
@@ -52,11 +51,11 @@ public class ServiceBindingMapper {
 	}
 
 	/**
-	 * Parses the 'domains' key in the credentials of an IAS configuration and
-	 * configures the given builder with them if present.
+	 * Parses the 'domains' key in the credentials of an IAS configuration and configures the given builder with them if
+	 * present.
 	 *
 	 * @param credentials
-	 *            value of JSON key 'credentials' in an IAS service configuration
+	 * 		value of JSON key 'credentials' in an IAS service configuration
 	 */
 	private static void parseDomains(OAuth2ServiceConfigurationBuilder builder, TypedMapView credentials) {
 		List<String> domains;

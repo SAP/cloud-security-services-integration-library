@@ -145,12 +145,12 @@ public class JwtGeneratorTest {
 
 		Token token = cut
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, clientId) // this has changed incompatible with version
-																		// 2.8.0!!!
+				// 2.8.0!!!
 				.createToken();
 
 		assertThat(token.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID)).isEqualTo(clientId); // for compatibility
 		assertThat(token.getClientId()).isEqualTo(DEFAULT_CLIENT_ID); // client id can only be overwritten by setting
-																		// AUTHORIZATION_PARTY
+		// AUTHORIZATION_PARTY
 	}
 
 	@Test

@@ -15,11 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 @java.lang.SuppressWarnings("squid:S2699")
 class ApplicationTest {
-    @Autowired
-    XsuaaTokenFlows tokenflows;
+	@Autowired
+	XsuaaTokenFlows tokenflows;
 
-    @Test
-    void whenSpringContextIsBootstrapped_thenNoExceptions() {
-        assertNotNull(tokenflows.clientCredentialsTokenFlow());
-    }
+	@Test
+	void whenSpringContextIsBootstrapped_thenNoExceptions() {
+		assertNotNull(tokenflows.clientCredentialsTokenFlow());
+	}
 }

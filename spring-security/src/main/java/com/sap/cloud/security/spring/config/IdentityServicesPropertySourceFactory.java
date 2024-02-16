@@ -40,7 +40,6 @@ import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
  *
  * &#64;Value("${xsuaa.url:}")
  * </pre>
- *
  */
 public class IdentityServicesPropertySourceFactory implements PropertySourceFactory {
 	private static final Logger logger = LoggerFactory.getLogger(IdentityServicesPropertySourceFactory.class);

@@ -20,8 +20,8 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 
 /**
- * Validate audience using audience field content. In case this field is empty,
- * the audience is derived from the scope field.
+ * Validate audience using audience field content. In case this field is empty, the audience is derived from the scope
+ * field.
  */
 public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	private final Map<String, String> appIdClientIdMap = new HashMap<>();
@@ -72,11 +72,10 @@ public class XsuaaAudienceValidator implements OAuth2TokenValidator<Jwt> {
 	}
 
 	/**
-	 * Retrieve audiences from token. In case the audience list is empty, takes
-	 * audiences based on the scope names.
+	 * Retrieve audiences from token. In case the audience list is empty, takes audiences based on the scope names.
 	 *
 	 * @param token
-	 *            Jwt token
+	 * 		Jwt token
 	 * @return (empty) set of audiences
 	 */
 	static Set<String> getAllowedAudiences(Jwt token) {

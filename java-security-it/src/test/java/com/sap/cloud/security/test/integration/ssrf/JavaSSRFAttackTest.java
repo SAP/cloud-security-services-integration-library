@@ -32,10 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 
 /**
- * Test cases for <a href=
- * "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF
- * (Server Side Request Forgery)</a> attacks.
- *
+ * Test cases for <a href= "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF (Server Side
+ * Request Forgery)</a> attacks.
  */
 class JavaSSRFAttackTest {
 
@@ -45,15 +43,14 @@ class JavaSSRFAttackTest {
 	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA).setPort(4242);
 
 	/**
-	 * This tests checks that an attacker cannot trick the token validation into
-	 * using his/her own token key server by manipulating the JWKS url. The
-	 * challenge is to redirect the request to a different token key server without
-	 * the token validation steps to fail.
+	 * This tests checks that an attacker cannot trick the token validation into using his/her own token key server by
+	 * manipulating the JWKS url. The challenge is to redirect the request to a different token key server without the
+	 * token validation steps to fail.
 	 *
 	 * @param jwksUrl
-	 *            the JWKS url containing malicious parts
+	 * 		the JWKS url containing malicious parts
 	 * @param isValid
-	 *            {@code true} if the token validation is expected to be successful
+	 *        {@code true} if the token validation is expected to be successful
 	 */
 	@ParameterizedTest
 	@CsvSource({

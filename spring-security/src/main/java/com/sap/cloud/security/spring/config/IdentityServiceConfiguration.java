@@ -13,7 +13,6 @@ public class IdentityServiceConfiguration extends OAuth2ServiceConfigurationProp
 
 	/**
 	 * Creates a new instance to map configuration of a dedicated identity service.
-	 *
 	 */
 	public IdentityServiceConfiguration() {
 		super(Service.IAS);

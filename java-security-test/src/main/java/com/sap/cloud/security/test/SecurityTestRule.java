@@ -5,11 +5,6 @@
  */
 package com.sap.cloud.security.test;
 
-import javax.annotation.Nullable;
-
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.junit.rules.ExternalResource;
-
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
@@ -17,9 +12,12 @@ import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.api.ServiceMockConfiguration;
 import com.sap.cloud.security.token.Token;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.junit.rules.ExternalResource;
+
+import javax.annotation.Nullable;
 
 public class SecurityTestRule extends ExternalResource
 		implements SecurityTestContext, ServiceMockConfiguration, ApplicationServerConfiguration {
@@ -39,7 +37,7 @@ public class SecurityTestRule extends ExternalResource
 	 * Creates an instance of the test rule for the given service.
 	 *
 	 * @param service
-	 *            the service for which the test rule should be created.
+	 * 		the service for which the test rule should be created.
 	 * @return the test rule instance.
 	 */
 	public static SecurityTestRule getInstance(Service service) {

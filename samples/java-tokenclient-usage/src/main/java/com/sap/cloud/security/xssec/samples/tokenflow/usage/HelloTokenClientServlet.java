@@ -42,13 +42,11 @@ public class HelloTokenClientServlet extends HttpServlet {
 	}
 
 	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 * response)
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		response.setContentType("text/plain");
-
 
 		OAuth2TokenResponse tokenResponse = tokenFlows.clientCredentialsTokenFlow().execute();
 

@@ -29,68 +29,68 @@ import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.be
 // Test properties are provided with /resources/application.yml
 public class TestControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
+	@Autowired
+	private MockMvc mvc;
 
-    private String jwtXsuaa;
-    private String jwtIas;
+	private String jwtXsuaa;
+	private String jwtIas;
 
-    @ClassRule
-    public static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA);
-    @ClassRule
-    public static SecurityTestRule ruleIas = SecurityTestRule.getInstance(Service.IAS);
+	@ClassRule
+	public static SecurityTestRule ruleXsuaa = SecurityTestRule.getInstance(Service.XSUAA);
+	@ClassRule
+	public static SecurityTestRule ruleIas = SecurityTestRule.getInstance(Service.IAS);
 
-    @Before
-    public void setUp() {
-        jwtXsuaa = ruleXsuaa.getPreconfiguredJwtGenerator()
-                .withLocalScopes("Read")
-                .createToken().getTokenValue();
-        jwtIas = ruleIas.getPreconfiguredJwtGenerator()
-                .withClaimsFromFile("/iasClaims.json")
-                .createToken().getTokenValue();
-    }
+	@Before
+	public void setUp() {
+		jwtXsuaa = ruleXsuaa.getPreconfiguredJwtGenerator()
+				.withLocalScopes("Read")
+				.createToken().getTokenValue();
+		jwtIas = ruleIas.getPreconfiguredJwtGenerator()
+				.withClaimsFromFile("/iasClaims.json")
+				.createToken().getTokenValue();
+	}
 
-    @Test
-    public void sayHello() throws Exception {
-        String response = mvc
-                .perform(get("/sayHello").with(bearerToken(jwtXsuaa)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+	@Test
+	public void sayHello() throws Exception {
+		String response = mvc
+				.perform(get("/sayHello").with(bearerToken(jwtXsuaa)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
 
-        assertTrue(response.contains("sb-clientId!t0815"));
-        assertTrue(response.contains("xsapp!t0815.Read"));
+		assertTrue(response.contains("sb-clientId!t0815"));
+		assertTrue(response.contains("xsapp!t0815.Read"));
 
-        response = mvc
-                .perform(get("/sayHello").with(bearerToken(jwtIas)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+		response = mvc
+				.perform(get("/sayHello").with(bearerToken(jwtIas)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
 
-        assertTrue(response.contains(SecurityTestRule.DEFAULT_CLIENT_ID));
-        assertTrue(response.contains(JwtGenerator.DEFAULT_APP_TID));
-    }
+		assertTrue(response.contains(SecurityTestRule.DEFAULT_CLIENT_ID));
+		assertTrue(response.contains(JwtGenerator.DEFAULT_APP_TID));
+	}
 
-    @Test
-    public void readData_OK() throws Exception {
-        String response = mvc
-                .perform(get("/method").with(bearerToken(jwtXsuaa)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        assertTrue(response.contains("You got the sensitive data for tenant 'the-zone-id'."));
+	@Test
+	public void readData_OK() throws Exception {
+		String response = mvc
+				.perform(get("/method").with(bearerToken(jwtXsuaa)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+		assertTrue(response.contains("You got the sensitive data for tenant 'the-zone-id'."));
 
-        response = mvc
-                .perform(get("/method").with(bearerToken(jwtIas)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-        assertTrue(response.contains("You got the sensitive data for tenant 'the-app-tid'."));
-    }
+		response = mvc
+				.perform(get("/method").with(bearerToken(jwtIas)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+		assertTrue(response.contains("You got the sensitive data for tenant 'the-app-tid'."));
+	}
 
-    @Test
-    public void readData_FORBIDDEN() throws Exception {
-        String jwtNoScopes = ruleXsuaa.getPreconfiguredJwtGenerator()
-                .createToken().getTokenValue();
+	@Test
+	public void readData_FORBIDDEN() throws Exception {
+		String jwtNoScopes = ruleXsuaa.getPreconfiguredJwtGenerator()
+				.createToken().getTokenValue();
 
-        mvc.perform(get("/method").with(bearerToken(jwtNoScopes)))
-                .andExpect(status().isForbidden());
-    }
+		mvc.perform(get("/method").with(bearerToken(jwtNoScopes)))
+				.andExpect(status().isForbidden());
+	}
 
 }

@@ -13,7 +13,6 @@ public class XsuaaServiceConfiguration extends OAuth2ServiceConfigurationPropert
 
 	/**
 	 * Creates a new instance to map configuration of a dedicated identity service.
-	 *
 	 */
 	public XsuaaServiceConfiguration() {
 		super(Service.XSUAA);
