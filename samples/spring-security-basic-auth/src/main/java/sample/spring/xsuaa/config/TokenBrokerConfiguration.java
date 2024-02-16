@@ -14,15 +14,16 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class TokenBrokerConfiguration {
 
-    @Bean
-    public Cache tokenBrokerCache() {
-        return new CaffeineCache("TokenBrokerResolverCache",
-                Caffeine.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).maximumSize(100).build(), false);
-    }
+	@Bean
+	public Cache tokenBrokerCache() {
+		return new CaffeineCache("TokenBrokerResolverCache",
+				Caffeine.newBuilder().expireAfterWrite(15, TimeUnit.MINUTES).maximumSize(100).build(), false);
+	}
 
-    /** Configures a TokenBrokerResolver with the default XsuaaTokenFlows and the specific cache configured for it. */
-    @Bean
-    public TokenBrokerResolver tokenBrokerResolver(XsuaaTokenFlows tokenFlows, @Qualifier("tokenBrokerCache") Cache cache) {
-        return new TokenBrokerResolver(tokenFlows, cache);
-    }
+	/** Configures a TokenBrokerResolver with the default XsuaaTokenFlows and the specific cache configured for it. */
+	@Bean
+	public TokenBrokerResolver tokenBrokerResolver(XsuaaTokenFlows tokenFlows,
+			@Qualifier("tokenBrokerCache") Cache cache) {
+		return new TokenBrokerResolver(tokenFlows, cache);
+	}
 }

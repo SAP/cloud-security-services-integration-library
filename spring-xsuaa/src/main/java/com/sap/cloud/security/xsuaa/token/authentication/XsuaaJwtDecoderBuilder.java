@@ -30,7 +30,7 @@ public class XsuaaJwtDecoderBuilder {
 	 * Utility for building a JWT decoder configuration
 	 *
 	 * @param configuration
-	 *            of the Xsuaa service
+	 * 		of the Xsuaa service
 	 */
 	public XsuaaJwtDecoderBuilder(XsuaaServiceConfiguration configuration) {
 		this.configuration = configuration;
@@ -68,11 +68,10 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Decoders cache the signing keys. Overwrite the cache time (default: 900
-	 * seconds).
+	 * Decoders cache the signing keys. Overwrite the cache time (default: 900 seconds).
 	 *
 	 * @param timeInSeconds
-	 *            time to cache the signing keys
+	 * 		time to cache the signing keys
 	 * @return this
 	 */
 	public XsuaaJwtDecoderBuilder withDecoderCacheTime(int timeInSeconds) {
@@ -81,11 +80,10 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Overwrite size of cached decoder (default: 100). Mainly relevant for multi
-	 * tenant applications.
+	 * Overwrite size of cached decoder (default: 100). Mainly relevant for multi tenant applications.
 	 *
 	 * @param size
-	 *            number of cached decoders
+	 * 		number of cached decoders
 	 * @return this
 	 */
 	public XsuaaJwtDecoderBuilder withDecoderCacheSize(int size) {
@@ -94,11 +92,10 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Sets the PostValidationActions that are executed after successful
-	 * verification and validation of the token.
+	 * Sets the PostValidationActions that are executed after successful verification and validation of the token.
 	 *
 	 * @param postValidationActions
-	 *            the PostValidationActions
+	 * 		the PostValidationActions
 	 * @return this
 	 */
 	public XsuaaJwtDecoderBuilder withPostValidationActions(PostValidationAction... postValidationActions) {
@@ -107,11 +104,10 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Configures clone token validator, in case of two xsuaa bindings (application
-	 * and broker plan).
+	 * Configures clone token validator, in case of two xsuaa bindings (application and broker plan).
 	 *
 	 * @param tokenValidators
-	 *            the token validators
+	 * 		the token validators
 	 * @return this
 	 */
 	public XsuaaJwtDecoderBuilder withTokenValidators(OAuth2TokenValidator<Jwt>... tokenValidators) {
@@ -120,12 +116,11 @@ public class XsuaaJwtDecoderBuilder {
 	}
 
 	/**
-	 * Sets the {@link RestOperations} instance which is used by the JwtDecoder to
-	 * perform HTTP requests. This does not effect the {@link ReactiveJwtDecoder}
-	 * that is constructed with {@link #buildAsReactive()}
+	 * Sets the {@link RestOperations} instance which is used by the JwtDecoder to perform HTTP requests. This does not
+	 * effect the {@link ReactiveJwtDecoder} that is constructed with {@link #buildAsReactive()}
 	 *
 	 * @param restOperations
-	 *            the {@link RestOperations} instance.
+	 * 		the {@link RestOperations} instance.
 	 * @return the builder itself.
 	 */
 	public XsuaaJwtDecoderBuilder withRestOperations(RestOperations restOperations) {

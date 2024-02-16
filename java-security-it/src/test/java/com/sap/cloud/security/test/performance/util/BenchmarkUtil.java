@@ -18,7 +18,7 @@ public class BenchmarkUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BenchmarkUtil.class);
 
 	public static String getSystemInfo() {
-		String systemInfo =  String.format("Running on %s's %s %s, home is %s", System.getProperty("java.vm.vendor"),
+		String systemInfo = String.format("Running on %s's %s %s, home is %s", System.getProperty("java.vm.vendor"),
 				System.getProperty("java.vm.name"), System.getProperty("java.vm.version"),
 				System.getProperty("java.home"));
 		String compilerInfo = String.format("   %s, %s", System.getProperty("sun.management.compiler"),

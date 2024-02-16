@@ -34,16 +34,13 @@ public class PasswordTokenFlow {
 	}
 
 	/**
-	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT
-	 * token is returned.
+	 * Executes this flow against the XSUAA endpoint. As a result the exchanged JWT token is returned.
 	 *
 	 * @return the JWT instance returned by XSUAA.
 	 * @throws IllegalStateException
-	 *             - in case not all mandatory fields of the token flow request have
-	 *             been set.
+	 * 		- in case not all mandatory fields of the token flow request have been set.
 	 * @throws TokenFlowException
-	 *             - in case of an error during the flow, or when the token cannot
-	 *             be obtained.
+	 * 		- in case of an error during the flow, or when the token cannot be obtained.
 	 */
 	public OAuth2TokenResponse execute() throws TokenFlowException {
 		checkParameter(username, "Username must be set!");
@@ -61,11 +58,10 @@ public class PasswordTokenFlow {
 	}
 
 	/**
-	 * The password for the user trying to get a token. This is a required
-	 * parameter.
+	 * The password for the user trying to get a token. This is a required parameter.
 	 *
 	 * @param password
-	 *            - the password.
+	 * 		- the password.
 	 * @return this builder.
 	 */
 	public PasswordTokenFlow password(String password) {
@@ -74,11 +70,10 @@ public class PasswordTokenFlow {
 	}
 
 	/**
-	 * The username for the user trying to get a token. This is a required
-	 * parameter.
+	 * The username for the user trying to get a token. This is a required parameter.
 	 *
 	 * @param username
-	 *            - the username.
+	 * 		- the username.
 	 * @return this builder.
 	 */
 	public PasswordTokenFlow username(String username) {
@@ -90,7 +85,7 @@ public class PasswordTokenFlow {
 	 * Set the Subdomain the token is requested for.
 	 *
 	 * @param subdomain
-	 *            - the subdomain.
+	 * 		- the subdomain.
 	 * @return this builder.
 	 */
 	public PasswordTokenFlow subdomain(String subdomain) {
@@ -102,7 +97,7 @@ public class PasswordTokenFlow {
 	 * Adds additional authorization attributes to the request.
 	 *
 	 * @param optionalParameters
-	 *            - the optional parameters.
+	 * 		- the optional parameters.
 	 * @return this builder.
 	 */
 	public PasswordTokenFlow optionalParameters(Map<String, String> optionalParameters) {
@@ -114,7 +109,7 @@ public class PasswordTokenFlow {
 	 * Can be used to disable the cache for the flow.
 	 *
 	 * @param disableCache
-	 *            - disables cache when set to {@code true}.
+	 * 		- disables cache when set to {@code true}.
 	 * @return this builder.
 	 */
 	public PasswordTokenFlow disableCache(boolean disableCache) {

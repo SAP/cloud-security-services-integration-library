@@ -26,10 +26,9 @@ public final class TokenClaims {
 	public static final String FAMILY_NAME = "family_name";
 	public static final String EMAIL = "email";
 	/**
-	 * IAS applications provide this attribute if the user was authenticated via an
-	 * OIDC trust to an IAS tenant and if the user actually has a user UUID. This is
-	 * true if the user physically exists in the IAS user store and IAS is not a
-	 * pure proxy which simply forwards all information from the corporate IdP.
+	 * IAS applications provide this attribute if the user was authenticated via an OIDC trust to an IAS tenant and if
+	 * the user actually has a user UUID. This is true if the user physically exists in the IAS user store and IAS is
+	 * not a pure proxy which simply forwards all information from the corporate IdP.
 	 */
 	public static final String SAP_GLOBAL_SCIM_ID = "scim_id";
 	public static final String SAP_GLOBAL_USER_ID = "user_uuid";

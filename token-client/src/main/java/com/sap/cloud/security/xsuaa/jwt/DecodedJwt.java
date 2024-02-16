@@ -8,11 +8,9 @@ package com.sap.cloud.security.xsuaa.jwt;
 import java.io.Serializable;
 
 /**
- * A Jwt token consists of three parts, separated by ".":
- * header.payload.signature
+ * A Jwt token consists of three parts, separated by ".": header.payload.signature
  * <p>
- * Use {@code Base64JwtDecoder.getInstance().decode(token)} to get a
- * {@link DecodedJwt} instance.
+ * Use {@code Base64JwtDecoder.getInstance().decode(token)} to get a {@link DecodedJwt} instance.
  */
 
 public interface DecodedJwt extends Serializable {

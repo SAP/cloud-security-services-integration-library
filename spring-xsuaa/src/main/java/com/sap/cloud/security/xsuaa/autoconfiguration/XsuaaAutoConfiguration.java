@@ -24,15 +24,13 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Nonnull;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
- * the XSUAA client library.
+ * {@link EnableAutoConfiguration Auto-configuration} for default beans used by the XSUAA client library.
  * <p>
  * Activates when there is a class of type {@link Jwt} on the classpath.
  *
  * <p>
- * can be disabled
- * with @EnableAutoConfiguration(exclude={XsuaaAutoConfiguration.class}) or with
- * property spring.xsuaa.auto = false
+ * can be disabled with @EnableAutoConfiguration(exclude={XsuaaAutoConfiguration.class}) or with property
+ * spring.xsuaa.auto = false
  */
 @Configuration
 @ConditionalOnClass(Jwt.class)
@@ -76,8 +74,7 @@ public class XsuaaAutoConfiguration {
 	}
 
 	/**
-	 * Creates a {@link RestOperations} instance if the application has not defined
-	 * any.
+	 * Creates a {@link RestOperations} instance if the application has not defined any.
 	 *
 	 * @return the {@link RestOperations} instance.
 	 */
@@ -90,8 +87,7 @@ public class XsuaaAutoConfiguration {
 	}
 
 	/**
-	 * Creates a certificate based {@link RestOperations} instance if the
-	 * application has not defined any.
+	 * Creates a certificate based {@link RestOperations} instance if the application has not defined any.
 	 *
 	 * @return the {@link RestOperations} instance.
 	 */

@@ -23,13 +23,12 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.APP_ID;
 
 /**
- * {@link EnableAutoConfiguration} exposes a {@link JwtDecoder}, which is able
- * to decode and validate tokens from Xsuaa and Identity service.
+ * {@link EnableAutoConfiguration} exposes a {@link JwtDecoder}, which is able to decode and validate tokens from Xsuaa
+ * and Identity service.
  *
  * <p>
- * Can be disabled with
- * {@code @EnableAutoConfiguration(exclude={HybridIdentityServicesAutoConfiguration.class})}
- * or with property {@code sap.spring.security.hybrid.auto = false}.
+ * Can be disabled with {@code @EnableAutoConfiguration(exclude={HybridIdentityServicesAutoConfiguration.class})} or
+ * with property {@code sap.spring.security.hybrid.auto = false}.
  */
 @Configuration
 @ConditionalOnProperty(name = "sap.spring.security.hybrid.auto", havingValue = "true", matchIfMissing = true)

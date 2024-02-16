@@ -5,15 +5,6 @@
  */
 package com.sap.cloud.security.test.extension;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.Charset;
-
 import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import org.apache.commons.io.IOUtils;
@@ -24,6 +15,15 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+
+import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.Charset;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class SecurityTestExtensionTest {
 

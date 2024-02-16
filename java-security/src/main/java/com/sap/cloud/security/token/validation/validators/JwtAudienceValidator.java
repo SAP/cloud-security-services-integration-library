@@ -20,12 +20,10 @@ import java.util.Set;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 
 /**
- * Validates if the jwt access token is intended for the OAuth2 client of this
- * application. The aud (audience) claim identifies the recipients the JWT is
- * issued for.
+ * Validates if the jwt access token is intended for the OAuth2 client of this application. The aud (audience) claim
+ * identifies the recipients the JWT is issued for.
  * <p>
- * Validates whether there is one audience that matches one of the configured
- * OAuth2 client ids.
+ * Validates whether there is one audience that matches one of the configured OAuth2 client ids.
  */
 public class JwtAudienceValidator implements Validator<Token> {
 	private static final Logger logger = LoggerFactory.getLogger(JwtAudienceValidator.class);
@@ -120,8 +118,8 @@ public class JwtAudienceValidator implements Validator<Token> {
 	}
 
 	/**
-	 * In case of audiences, the namespaces are trimmed. In case of scopes, the
-	 * namespaces and the scope names are trimmed.
+	 * In case of audiences, the namespaces are trimmed. In case of scopes, the namespaces and the scope names are
+	 * trimmed.
 	 *
 	 * @param scopeOrAudience
 	 * @return

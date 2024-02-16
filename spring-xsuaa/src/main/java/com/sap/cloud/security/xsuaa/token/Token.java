@@ -16,18 +16,16 @@ import java.util.Collection;
 public interface Token extends UserDetails {
 
 	/**
-	 * Return subaccount identifier which is in most cases same like the identity
-	 * zone. DO only use this for metering purposes. DO NOT longer use this method
-	 * to get the unique tenant id! For that use {@link #getZoneId()}.
+	 * Return subaccount identifier which is in most cases same like the identity zone. DO only use this for metering
+	 * purposes. DO NOT longer use this method to get the unique tenant id! For that use {@link #getZoneId()}.
 	 *
 	 * @return the subaccount identifier.
 	 */
 	String getSubaccountId();
 
 	/**
-	 * Return zone identifier which should be used as tenant discriminator (tenant
-	 * id). For most of the old subaccounts this matches the id returned by
-	 * {@link #getSubaccountId()}.
+	 * Return zone identifier which should be used as tenant discriminator (tenant id). For most of the old subaccounts
+	 * this matches the id returned by {@link #getSubaccountId()}.
 	 *
 	 * @return the zone identifier.
 	 */
@@ -41,10 +39,9 @@ public interface Token extends UserDetails {
 	String getSubdomain();
 
 	/**
-	 * Returns the OAuth2 client identifier of the authentication token if present.
-	 * Following OpenID Connect 1.0 standard specifications, client identifier is
-	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
-	 * claim, but only in case there is one audience.
+	 * Returns the OAuth2 client identifier of the authentication token if present. Following OpenID Connect 1.0
+	 * standard specifications, client identifier is obtained from "azp" claim if present or when "azp" is not present
+	 * from "aud" claim, but only in case there is one audience.
 	 *
 	 * @return the OAuth client ID.
 	 */
@@ -58,9 +55,8 @@ public interface Token extends UserDetails {
 	String getGrantType();
 
 	/**
-	 * Returns a unique user name of a user ({@code user_name} claim), using
-	 * information from the JWT. For tokens that were issued as a result of a client
-	 * credentials flow, the OAuth client ID will be returned in a special format.
+	 * Returns a unique user name of a user ({@code user_name} claim), using information from the JWT. For tokens that
+	 * were issued as a result of a client credentials flow, the OAuth client ID will be returned in a special format.
 	 * The following information is required to uniquely identify a user: <br>
 	 *
 	 * <ul>
@@ -76,9 +72,8 @@ public interface Token extends UserDetails {
 	String getLogonName();
 
 	/**
-	 * Returns the given name of the user if present. Will try to find it first in
-	 * the {@code ext_attr.given_name} claim before trying to find a
-	 * {@code given_name} claim.
+	 * Returns the given name of the user if present. Will try to find it first in the {@code ext_attr.given_name} claim
+	 * before trying to find a {@code given_name} claim.
 	 *
 	 * @return the given name if present.
 	 */
@@ -86,9 +81,8 @@ public interface Token extends UserDetails {
 	String getGivenName();
 
 	/**
-	 * Returns the family name of the user if present. Will try to find it first in
-	 * the {@code ext_attr.family_name} claim before trying to find a
-	 * {@code family_name} claim.
+	 * Returns the family name of the user if present. Will try to find it first in the {@code ext_attr.family_name}
+	 * claim before trying to find a {@code family_name} claim.
 	 *
 	 * @return the family name if present.
 	 */
@@ -104,13 +98,11 @@ public interface Token extends UserDetails {
 	String getEmail();
 
 	/**
-	 * Returns the user origin. The origin is an alias that refers to a user store
-	 * in which the user is persisted. For example, users that are authenticated by
-	 * the UAA itself with a username / password combination have their origin set
-	 * to the value "uaa".
+	 * Returns the user origin. The origin is an alias that refers to a user store in which the user is persisted. For
+	 * example, users that are authenticated by the UAA itself with a username / password combination have their origin
+	 * set to the value "uaa".
 	 * <p>
-	 * May be null in case this JWT was not created with OAuth 2.0 client
-	 * credentials flow.
+	 * May be null in case this JWT was not created with OAuth 2.0 client credentials flow.
 	 *
 	 * @return the user origin if present.
 	 */
@@ -118,32 +110,30 @@ public interface Token extends UserDetails {
 	String getOrigin();
 
 	/**
-	 * Returns the value of an attribute from the 'xs.user.attributes' claim. Will
-	 * first try to find the attribute in 'ext_ctx' claim.
+	 * Returns the value of an attribute from the 'xs.user.attributes' claim. Will first try to find the attribute in
+	 * 'ext_ctx' claim.
 	 *
 	 * @param attributeName
-	 *            name of the attribute inside 'ext_ctx' or 'xs.user.attributes'.
+	 * 		name of the attribute inside 'ext_ctx' or 'xs.user.attributes'.
 	 * @return the attribute values array or null if there exists no such attribute.
 	 */
 	@Nullable
 	String[] getXSUserAttribute(String attributeName);
 
 	/**
-	 * Additional custom authentication attributes included by the OAuth client
-	 * component. Note: this is data controlled by the requester of a token. Might
-	 * be not trustworthy.
+	 * Additional custom authentication attributes included by the OAuth client component. Note: this is data controlled
+	 * by the requester of a token. Might be not trustworthy.
 	 *
 	 * @param attributeName
-	 *            name of the authentication attribute
+	 * 		name of the authentication attribute
 	 * @return additional attribute value if present.
 	 */
 	@Nullable
 	String getAdditionalAuthAttribute(String attributeName);
 
 	/**
-	 * Returns the XSUAA clone instance ID, if present. This will only be set for
-	 * tokens that were issued by an XSUAA with plan broker. Contains the service
-	 * instance id if present.
+	 * Returns the XSUAA clone instance ID, if present. This will only be set for tokens that were issued by an XSUAA
+	 * with plan broker. Contains the service instance id if present.
 	 *
 	 * @return the XSUAA clone service instance id if present.
 	 */
@@ -151,8 +141,7 @@ public interface Token extends UserDetails {
 	String getCloneServiceInstanceId();
 
 	/**
-	 * Get the encoded authentication token, e.g. for token forwarding to another
-	 * app.
+	 * Get the encoded authentication token, e.g. for token forwarding to another app.
 	 * <p>
 	 * Never expose this token via log or via HTTP.
 	 *

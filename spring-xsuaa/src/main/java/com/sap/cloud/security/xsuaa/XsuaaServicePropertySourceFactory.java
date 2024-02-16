@@ -36,7 +36,6 @@ import java.util.Properties;
  *
  * &#64;Value("${xsuaa.url:}")
  * </pre>
- *
  */
 public class XsuaaServicePropertySourceFactory implements PropertySourceFactory {
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaServicePropertySourceFactory.class);
@@ -66,7 +65,7 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 		}
 		if (environment.getNumberOfXsuaaConfigurations() > 1
 				&& environment.getXsuaaConfigurationForTokenExchange() != null) { // TODO check for number of xsuaa and
-																					// ignore api plan
+			// ignore api plan
 			throw new IllegalStateException(
 					"Found more than one xsuaa bindings. Please consider unified broker plan or use com.sap.cloud.security:spring-security client library.");
 		}
@@ -85,10 +84,9 @@ public class XsuaaServicePropertySourceFactory implements PropertySourceFactory 
 	 * Creates a PropertySource object for a map of xsuaa properties.
 	 *
 	 * @param name
-	 *            of the propertySource. Use only "xsuaa" as name in case you like
-	 *            to overwrite/set all properties.
+	 * 		of the propertySource. Use only "xsuaa" as name in case you like to overwrite/set all properties.
 	 * @param properties
-	 *            map of xsuaa properties
+	 * 		map of xsuaa properties
 	 * @return created @Code{PropertySource}
 	 */
 	public static PropertySource create(String name, Properties properties) {

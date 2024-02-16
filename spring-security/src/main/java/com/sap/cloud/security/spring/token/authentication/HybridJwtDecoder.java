@@ -18,10 +18,8 @@ import org.springframework.util.Assert;
 import javax.annotation.Nullable;
 
 /**
- * Internal class that decodes and validates the provided encoded token using
- * {@code java-security} client library.<br>
- * In case of successful validation, the token gets parsed and returned as
- * {@link Jwt}.
+ * Internal class that decodes and validates the provided encoded token using {@code java-security} client library.<br>
+ * In case of successful validation, the token gets parsed and returned as {@link Jwt}.
  * <p>
  * Supports tokens issued by ias or xsuaa identity service.
  */
@@ -31,15 +29,13 @@ public class HybridJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * Creates instance with a set of validators for validating the access / oidc
-	 * token issued by the dedicated identity service.
+	 * Creates instance with a set of validators for validating the access / oidc token issued by the dedicated identity
+	 * service.
 	 *
 	 * @param xsuaaValidator
-	 *            set of validators that should be used to validate a xsuaa access
-	 *            token.
+	 * 		set of validators that should be used to validate a xsuaa access token.
 	 * @param iasValidator
-	 *            set of validators that should be used to validate an ias oidc
-	 *            token.
+	 * 		set of validators that should be used to validate an ias oidc token.
 	 */
 	public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator,
 			@Nullable CombiningValidator<Token> iasValidator) {
@@ -80,7 +76,7 @@ public class HybridJwtDecoder implements JwtDecoder {
 	 * Parses decoded Jwt token to {@link Jwt}
 	 *
 	 * @param token
-	 *            the token
+	 * 		the token
 	 * @return Jwt class
 	 */
 	public static Jwt parseJwt(Token token) {

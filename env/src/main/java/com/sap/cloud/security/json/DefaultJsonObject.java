@@ -19,8 +19,7 @@ import java.util.*;
 
 /**
  * Use this class to parse a Json String. This might be relevant in case the
- * {@link com.sap.cloud.security.config.OAuth2ServiceConfiguration} does not
- * provide all required properties.
+ * {@link com.sap.cloud.security.config.OAuth2ServiceConfiguration} does not provide all required properties.
  */
 public class DefaultJsonObject implements JsonObject {
 
@@ -35,7 +34,7 @@ public class DefaultJsonObject implements JsonObject {
 	 * Create an instance
 	 *
 	 * @param jsonString
-	 *            the content in json format that should be parsed.
+	 * 		the content in json format that should be parsed.
 	 */
 	public DefaultJsonObject(String jsonString) {
 		this.jsonObject = createJsonObject(jsonString);

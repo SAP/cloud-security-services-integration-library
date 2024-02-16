@@ -53,7 +53,7 @@ public class XsuaaIntegrationTest {
 	@Test
 	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() {
 		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
-				"/xsa-simple/vcap_services-single.json")
+						"/xsa-simple/vcap_services-single.json")
 				.runInLegacyMode(true)
 				.build();
 
@@ -68,7 +68,7 @@ public class XsuaaIntegrationTest {
 	@Test
 	public void xsuaaTokenValidationFails_withIasCombiningValidator() {
 		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
-				"/ias-simple/vcap_services-single.json")
+						"/ias-simple/vcap_services-single.json")
 				.withDomains("myauth.com")
 				.build();
 

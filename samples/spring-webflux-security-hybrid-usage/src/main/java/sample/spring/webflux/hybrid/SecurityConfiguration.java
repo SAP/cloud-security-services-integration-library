@@ -32,65 +32,62 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = {""})
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
 // might be auto-configured in a future release
 public class SecurityConfiguration {
 
-    @Autowired
-    Converter<Jwt, AbstractAuthenticationToken> authConverter;
+	@Autowired
+	Converter<Jwt, AbstractAuthenticationToken> authConverter;
 
-    @Autowired
-    XsuaaServiceConfiguration xsuaaServiceConfiguration;
-    @Autowired
-    IdentityServiceConfiguration iasServiceConfiguration;
+	@Autowired
+	XsuaaServiceConfiguration xsuaaServiceConfiguration;
+	@Autowired
+	IdentityServiceConfiguration iasServiceConfiguration;
 
-    NoOpServerSecurityContextRepository sessionConfig = NoOpServerSecurityContextRepository.getInstance();
+	NoOpServerSecurityContextRepository sessionConfig = NoOpServerSecurityContextRepository.getInstance();
 
+	@Bean
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		http.authorizeExchange((exchanges) ->
+						exchanges
+								.pathMatchers("v1/sayHello").hasAuthority("Read"))
+				.securityContextRepository(sessionConfig)
+				.oauth2ResourceServer(oauth2 -> oauth2
+						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwt2 ->
+										new MyCustomHybridTokenAuthenticationConverter().convert(jwt2))
+								.jwtDecoder(new JwtDecoderBuilder()
+										.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
+										.withIasServiceConfiguration(iasServiceConfiguration)
+										.buildAsReactive())));
+		return http.build();
+	}
 
-    @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        http.authorizeExchange((exchanges) ->
-                        exchanges
-                                .pathMatchers("v1/sayHello").hasAuthority("Read"))
-                .securityContextRepository(sessionConfig)
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwt2 ->
-                                        new MyCustomHybridTokenAuthenticationConverter().convert(jwt2))
-                                .jwtDecoder(new JwtDecoderBuilder()
-                                        .withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
-                                        .withIasServiceConfiguration(iasServiceConfiguration)
-                                        .buildAsReactive())));
-        return http.build();
-    }
+	/**
+	 * Workaround for hybrid use case until Cloud Authorization Service is globally available.
+	 */
+	class MyCustomHybridTokenAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
 
+		public AbstractAuthenticationToken doConversion(Jwt jwt) {
+			if (jwt.hasClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
+				return authConverter.convert(jwt);
+			}
+			return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
+		}
 
-    /**
-     * Workaround for hybrid use case until Cloud Authorization Service is globally available.
-     */
-    class MyCustomHybridTokenAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
+		private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
+			Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
+			if (jwt.hasClaim(TokenClaims.GROUPS)) {
+				List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+				for (String group : groups) {
+					groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
+				}
+			}
+			return groupAuthorities;
+		}
 
-        public AbstractAuthenticationToken doConversion(Jwt jwt) {
-            if (jwt.hasClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
-                return authConverter.convert(jwt);
-            }
-            return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
-        }
-
-
-        private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
-            Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
-            if (jwt.hasClaim(TokenClaims.GROUPS)) {
-                List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
-                for (String group : groups) {
-                    groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
-                }
-            }
-            return groupAuthorities;
-        }
-
-        public Mono<AbstractAuthenticationToken> convert(Jwt jwt) {
-            return Mono.just(jwt).map(this::doConversion);
-        }
-    }
+		public Mono<AbstractAuthenticationToken> convert(Jwt jwt) {
+			return Mono.just(jwt).map(this::doConversion);
+		}
+	}
 
 }

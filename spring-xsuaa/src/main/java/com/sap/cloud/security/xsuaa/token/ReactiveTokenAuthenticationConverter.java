@@ -13,10 +13,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import reactor.core.publisher.Mono;
 
 /**
- * Encapsulates the {@link TokenAuthenticationConverter} that extracts
- * authorization related information from the Jwt token. For example
- * the{@link LocalAuthoritiesExtractor} can remove the ugly application id
- * prefix (e.g.my-application-demo!t1229) from the scopes in the JWT.
+ * Encapsulates the {@link TokenAuthenticationConverter} that extracts authorization related information from the Jwt
+ * token. For example the{@link LocalAuthoritiesExtractor} can remove the ugly application id prefix
+ * (e.g.my-application-demo!t1229) from the scopes in the JWT.
  */
 public class ReactiveTokenAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
 	final TokenAuthenticationConverter converter;
@@ -26,15 +25,12 @@ public class ReactiveTokenAuthenticationConverter implements Converter<Jwt, Mono
 	}
 
 	/**
-	 * This method allows to overwrite the default behavior of the
-	 * {@link Token#getAuthorities()} implementation.
+	 * This method allows to overwrite the default behavior of the {@link Token#getAuthorities()} implementation.
 	 *
 	 * @param extractLocalScopesOnly
-	 *            * true when {@link Token#getAuthorities()} should only extract
-	 *            local * scopes. Local scopes means that non-application specific
-	 *            scopes * are filtered out and scopes are returned without appId
-	 *            prefix, * e.g. "Display". Creates a new converter with a new *
-	 *            {@link LocalAuthoritiesExtractor}
+	 * 		* true when {@link Token#getAuthorities()} should only extract local * scopes. Local scopes means that
+	 * 		non-application specific scopes * are filtered out and scopes are returned without appId prefix, * e.g.
+	 * 		"Display". Creates a new converter with a new * {@link LocalAuthoritiesExtractor}
 	 * @return the token authenticator itself
 	 */
 	public ReactiveTokenAuthenticationConverter setLocalScopeAsAuthorities(boolean extractLocalScopesOnly) {

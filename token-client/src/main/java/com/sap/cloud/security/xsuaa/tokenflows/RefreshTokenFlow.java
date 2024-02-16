@@ -14,9 +14,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
- * A refresh token flow builder. <br>
- * Applications can use this flow exchange a given refresh token for a
- * (refreshed) JWT token.
+ * A refresh token flow builder. <br> Applications can use this flow exchange a given refresh token for a (refreshed)
+ * JWT token.
  */
 public class RefreshTokenFlow {
 	private final ClientIdentity clientIdentity;
@@ -30,12 +29,11 @@ public class RefreshTokenFlow {
 	 * Creates a new instance.
 	 *
 	 * @param tokenService
-	 *            - the {@link OAuth2TokenService} used to execute the final
-	 *            request.
+	 * 		- the {@link OAuth2TokenService} used to execute the final request.
 	 * @param endpointsProvider
-	 *            - the endpoints provider
+	 * 		- the endpoints provider
 	 * @param clientIdentity
-	 *            - the OAuth client identity
+	 * 		- the OAuth client identity
 	 */
 	RefreshTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
 			ClientIdentity clientIdentity) {
@@ -52,7 +50,7 @@ public class RefreshTokenFlow {
 	 * Sets the subdomain (tenant) the token is requested for.<br>
 	 *
 	 * @param subdomain
-	 *            - the subdomain.
+	 * 		- the subdomain.
 	 * @return this builder.
 	 */
 	public RefreshTokenFlow subdomain(String subdomain) {
@@ -64,7 +62,7 @@ public class RefreshTokenFlow {
 	 * Sets the mandatory refresh token to be exchanged for a (refreshed) JWT.
 	 *
 	 * @param refreshToken
-	 *            - the refresh token to be exchanged for a JWT.
+	 * 		- the refresh token to be exchanged for a JWT.
 	 * @return this builder object.
 	 */
 	public RefreshTokenFlow refreshToken(String refreshToken) {
@@ -77,7 +75,7 @@ public class RefreshTokenFlow {
 	 * Can be used to disable the cache for the flow.
 	 *
 	 * @param disableCache
-	 *            - disables cache when set to {@code true}.
+	 * 		- disables cache when set to {@code true}.
 	 * @return this builder.
 	 */
 	public RefreshTokenFlow disableCache(boolean disableCache) {
@@ -88,16 +86,14 @@ public class RefreshTokenFlow {
 	/**
 	 * Executes the refresh token flow against XSUAA.
 	 *
-	 * @return the refreshed OAuth access token returned by XSUAA or an exception in
-	 *         case the token could not be refreshed.
+	 * @return the refreshed OAuth access token returned by XSUAA or an exception in case the token could not be
+	 * 		refreshed.
 	 * @throws IllegalStateException
-	 *             - in case not all mandatory fields of the token flow request have
-	 *             been set.
+	 * 		- in case not all mandatory fields of the token flow request have been set.
 	 * @throws IllegalArgumentException
-	 *             - in case the refresh token flow request is not valid.
+	 * 		- in case the refresh token flow request is not valid.
 	 * @throws TokenFlowException
-	 *             - in case of an error during the flow, or when the token cannot
-	 *             be refreshed.
+	 * 		- in case of an error during the flow, or when the token cannot be refreshed.
 	 */
 	public OAuth2TokenResponse execute() throws IllegalStateException, IllegalArgumentException, TokenFlowException {
 		if (refreshToken == null) {

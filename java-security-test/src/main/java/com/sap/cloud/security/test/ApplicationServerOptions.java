@@ -15,8 +15,7 @@ import com.sap.cloud.security.servlet.XsuaaTokenAuthenticator;
 import com.sap.cloud.security.xsuaa.Assertions;
 
 /**
- * This class is used to configure the application server to serve test servlets
- * inside the {@link SecurityTestRule}.
+ * This class is used to configure the application server to serve test servlets inside the {@link SecurityTestRule}.
  */
 public class ApplicationServerOptions {
 
@@ -34,13 +33,13 @@ public class ApplicationServerOptions {
 	}
 
 	/**
-	 * Creates an instance of ApplicationServerOptions. Overwrites the application
-	 * id that is required by the XsuaaAudienceValidator.
+	 * Creates an instance of ApplicationServerOptions. Overwrites the application id that is required by the
+	 * XsuaaAudienceValidator.
 	 *
 	 * @param appId
-	 *            the xsuaa application name e.g. myapp!t123.
+	 * 		the xsuaa application name e.g. myapp!t123.
 	 * @param clientId
-	 *            the xsuaa client id of the application
+	 * 		the xsuaa client id of the application
 	 * @return the application server options.
 	 */
 	public static ApplicationServerOptions forXsuaaService(String appId, String clientId) {
@@ -55,47 +54,46 @@ public class ApplicationServerOptions {
 	 * Creates an instance of ApplicationServerOptions.
 	 *
 	 * @param service
-	 *            the identity service
+	 * 		the identity service
 	 * @return the application server options.
 	 */
 	public static ApplicationServerOptions forService(Service service, int jwksPort) {
 		tokenKeysPort = jwksPort;
 		return switch (service) {
-		case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
-		case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
-				.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
-						.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
-						.withUrl("http://localhost")
-						.withDomains("localhost")
-						.build()));
-		default ->
-			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
+			case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
+			case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
+					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
+							.withUrl("http://localhost")
+							.withDomains("localhost")
+							.build()));
+			default ->
+					throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		};
 
 	}
 
 	public static ApplicationServerOptions forService(Service service) {
 		return switch (service) {
-		case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
-		case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
-				.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
-						.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
-						.withUrl("http://localhost")
-						.withDomains("localhost")
-						.build()));
-		default ->
-			throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
+			case XSUAA -> forXsuaaService(SecurityTestRule.DEFAULT_APP_ID, SecurityTestRule.DEFAULT_CLIENT_ID);
+			case IAS -> new ApplicationServerOptions(new IasTokenAuthenticator()
+					.withServiceConfiguration(OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
+							.withClientId(SecurityTestRule.DEFAULT_CLIENT_ID)
+							.withUrl("http://localhost")
+							.withDomains("localhost")
+							.build()));
+			default ->
+					throw new UnsupportedOperationException("Identity Service " + service + " is not yet supported.");
 		};
 
 	}
 
 	/**
-	 * Use this method to configure a custom {@link TokenAuthenticator} that will be
-	 * used in the application server to authenticate the user via tokens retrieved
-	 * in the authorization header.
+	 * Use this method to configure a custom {@link TokenAuthenticator} that will be used in the application server to
+	 * authenticate the user via tokens retrieved in the authorization header.
 	 *
 	 * @param tokenAuthenticator
-	 *            the custom {@link TokenAuthenticator}.
+	 * 		the custom {@link TokenAuthenticator}.
 	 * @return the new configuration object.
 	 */
 	public ApplicationServerOptions useTokenAuthenticator(TokenAuthenticator tokenAuthenticator) {
@@ -103,12 +101,11 @@ public class ApplicationServerOptions {
 	}
 
 	/**
-	 * Use this method to configure a custom port on which the application server
-	 * will listen to. If not set, the servlet server will use on a free random
-	 * port.
+	 * Use this method to configure a custom port on which the application server will listen to. If not set, the
+	 * servlet server will use on a free random port.
 	 *
 	 * @param port
-	 *            the custom port.
+	 * 		the custom port.
 	 * @return the new configuration object.
 	 */
 	public ApplicationServerOptions usePort(int port) {

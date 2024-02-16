@@ -35,7 +35,7 @@ public class X509Certificate implements Certificate {
 	 * Creates a new instance of X.509 certificate.
 	 *
 	 * @param certificate
-	 *            the certificate encoded in base64 or PEM format
+	 * 		the certificate encoded in base64 or PEM format
 	 * @return instance of X509certificate
 	 */
 	@Nullable

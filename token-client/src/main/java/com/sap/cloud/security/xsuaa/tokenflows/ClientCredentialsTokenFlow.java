@@ -22,9 +22,8 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SC
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAdditionalAuthoritiesJson;
 
 /**
- * A client credentials flow builder class. Applications retrieve an instance of
- * this builder from {@link XsuaaTokenFlows} and then create the flow request
- * using a builder pattern.
+ * A client credentials flow builder class. Applications retrieve an instance of this builder from
+ * {@link XsuaaTokenFlows} and then create the flow request using a builder pattern.
  */
 public class ClientCredentialsTokenFlow {
 	private final OAuth2TokenService tokenService;
@@ -40,12 +39,11 @@ public class ClientCredentialsTokenFlow {
 	 * Creates a new instance.
 	 *
 	 * @param tokenService
-	 *            - the {@link OAuth2TokenService} used to execute the final
-	 *            request.
+	 * 		- the {@link OAuth2TokenService} used to execute the final request.
 	 * @param endpointsProvider
-	 *            - the endpoints provider
+	 * 		- the endpoints provider
 	 * @param clientIdentity
-	 *            - the OAuth client identity
+	 * 		- the OAuth client identity
 	 */
 	ClientCredentialsTokenFlow(OAuth2TokenService tokenService, OAuth2ServiceEndpointsProvider endpointsProvider,
 			ClientIdentity clientIdentity) {
@@ -59,12 +57,11 @@ public class ClientCredentialsTokenFlow {
 	}
 
 	/**
-	 * Adds additional authorization attributes to the request. <br>
-	 * Clients can use this to request additional attributes in the
-	 * {@code 'az_attr'} claim of the returned token.
+	 * Adds additional authorization attributes to the request. <br> Clients can use this to request additional
+	 * attributes in the {@code 'az_attr'} claim of the returned token.
 	 *
 	 * @param additionalAuthorizationAttributes
-	 *            - the additional attributes.
+	 * 		- the additional attributes.
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow attributes(Map<String, String> additionalAuthorizationAttributes) {
@@ -76,7 +73,7 @@ public class ClientCredentialsTokenFlow {
 	 * Sets the subdomain (tenant) the token is requested for.<br>
 	 *
 	 * @param subdomain
-	 *            - the subdomain.
+	 * 		- the subdomain.
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow subdomain(String subdomain) {
@@ -88,7 +85,7 @@ public class ClientCredentialsTokenFlow {
 	 * Sets the zone Id of the tenant<br>
 	 *
 	 * @param zoneId
-	 *            - the zoneId.
+	 * 		- the zoneId.
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow zoneId(String zoneId) {
@@ -97,14 +94,12 @@ public class ClientCredentialsTokenFlow {
 	}
 
 	/**
-	 * Sets the scope attribute for the token request. This will restrict the scope
-	 * of the created token to the scopes provided. By default the scope is not
-	 * restricted and the created token contains all granted scopes. <br>
-	 * If you specify a scope that is not authorized for the client, the token
-	 * request will fail.
+	 * Sets the scope attribute for the token request. This will restrict the scope of the created token to the scopes
+	 * provided. By default the scope is not restricted and the created token contains all granted scopes. <br> If you
+	 * specify a scope that is not authorized for the client, the token request will fail.
 	 *
 	 * @param scopes
-	 *            - one or many scopes as string.
+	 * 		- one or many scopes as string.
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow scopes(@Nonnull String... scopes) {
@@ -117,7 +112,7 @@ public class ClientCredentialsTokenFlow {
 	 * Can be used to disable the cache for the flow.
 	 *
 	 * @param disableCache
-	 *            - disables cache when set to {@code true}.
+	 * 		- disables cache when set to {@code true}.
 	 * @return this builder.
 	 */
 	public ClientCredentialsTokenFlow disableCache(boolean disableCache) {
@@ -130,11 +125,9 @@ public class ClientCredentialsTokenFlow {
 	 *
 	 * @return the encoded OAuth access token returned by XSUAA.
 	 * @throws IllegalArgumentException
-	 *             - in case not all mandatory fields of the token flow request have
-	 *             been set.
+	 * 		- in case not all mandatory fields of the token flow request have been set.
 	 * @throws TokenFlowException
-	 *             - in case of an error during the flow, or when the token cannot
-	 *             be refreshed.
+	 * 		- in case of an error during the flow, or when the token cannot be refreshed.
 	 */
 	@Nullable
 	public OAuth2TokenResponse execute() throws IllegalArgumentException, TokenFlowException {

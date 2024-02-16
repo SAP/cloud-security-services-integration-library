@@ -97,7 +97,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 						.withStatusCode(statusCode)
 						.withUri(requestUri)
 						.withHeaders(response.getAllHeaders() != null ? Arrays.stream(response.getAllHeaders()).map(
-								Header::toString)
+										Header::toString)
 								.toArray(String[]::new) : null)
 						.withResponseBody(body)
 						.build();

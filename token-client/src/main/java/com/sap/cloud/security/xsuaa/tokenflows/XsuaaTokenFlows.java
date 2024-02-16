@@ -15,10 +15,9 @@ import java.io.Serializable;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
- * A bean that can be {@code @Autowired} by applications to get access to token
- * flow builders. The token flow builders allow for the execution of a client
- * credentials flow (to get a technical user token) and a jwt bearer token flow
- * (to get an exchange token with different scopes). <br>
+ * A bean that can be {@code @Autowired} by applications to get access to token flow builders. The token flow builders
+ * allow for the execution of a client credentials flow (to get a technical user token) and a jwt bearer token flow (to
+ * get an exchange token with different scopes). <br>
  *
  * This class uses a RestTemplate which it passes on to the builders.
  */
@@ -31,29 +30,28 @@ public class XsuaaTokenFlows implements Serializable {
 	private final OAuth2ServiceEndpointsProvider endpointsProvider;
 
 	/**
-	 * Create a new instance of this bean with the given RestTemplate. Applications
-	 * should {@code @Autowire} instances of this bean.
+	 * Create a new instance of this bean with the given RestTemplate. Applications should {@code @Autowire} instances
+	 * of this bean.
 	 *
 	 * @param oAuth2TokenService
-	 *            the OAuth2TokenService that will be used to send the token
-	 *            exchange request.
+	 * 		the OAuth2TokenService that will be used to send the token exchange request.
 	 * @param endpointsProvider
-	 *            the endpoint provider that serves the token endpoint.
+	 * 		the endpoint provider that serves the token endpoint.
 	 * @param clientIdentity
-	 *            the OAuth2.0 client identity
+	 * 		the OAuth2.0 client identity
 	 *
-	 *            <pre>
-	 *            {@code
-	 * String clientId     = "<<get your client id from your service binding>>";
-	 * String clientSecret = "<<get your client secret from your service binding>>";
-	 * String xsuaaBaseUrl = "<<get your xsuaa base url from service binding>>";
+	 * 		<pre>
+	 *                          {@code
+	 * 				String clientId     = "<<get your client id from your service binding>>";
+	 * 				String clientSecret = "<<get your client secret from your service binding>>";
+	 * 				String xsuaaBaseUrl = "<<get your xsuaa base url from service binding>>";
 	 *
-	 * XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-	     *                           new DefaultOAuth2TokenService(),
-	     *                           new XsuaaDefaultEndpoints(xsuaaBaseUrl),
-	     *                           new ClientCredentials(clientId, clientSecret));
-	 * }
-	 *            </pre>
+	 * 				XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
+	 * 				                          new DefaultOAuth2TokenService(),
+	 * 				                          new XsuaaDefaultEndpoints(xsuaaBaseUrl),
+	 * 				                          new ClientCredentials(clientId, clientSecret));
+	 *               }
+	 * 				           </pre>
 	 */
 	public XsuaaTokenFlows(OAuth2TokenService oAuth2TokenService,
 			OAuth2ServiceEndpointsProvider endpointsProvider, ClientIdentity clientIdentity) {
@@ -67,9 +65,8 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new Client Credentials Flow builder object. <br>
-	 * Token, authorize and key set endpoints will be derived relative to the base
-	 * URI.
+	 * Creates a new Client Credentials Flow builder object. <br> Token, authorize and key set endpoints will be derived
+	 * relative to the base URI.
 	 *
 	 * @return the {@link ClientCredentialsTokenFlow} builder object.
 	 */
@@ -78,9 +75,8 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new Refresh Token Flow builder object.<br>
-	 * Token, authorize and key set endpoints will be derived relative to the base
-	 * URI.
+	 * Creates a new Refresh Token Flow builder object.<br> Token, authorize and key set endpoints will be derived
+	 * relative to the base URI.
 	 *
 	 * @return the {@link RefreshTokenFlow} builder object.
 	 */
@@ -89,9 +85,8 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new Password Token Flow builder object.<br>
-	 * Token, authorize and key set endpoints will be derived relative to the base
-	 * URI.
+	 * Creates a new Password Token Flow builder object.<br> Token, authorize and key set endpoints will be derived
+	 * relative to the base URI.
 	 *
 	 * @return the {@link PasswordTokenFlow} builder object.
 	 */
@@ -100,9 +95,8 @@ public class XsuaaTokenFlows implements Serializable {
 	}
 
 	/**
-	 * Creates a new JWT Bearer Token Flow builder object.<br>
-	 * Token, authorize and key set endpoints will be derived relative to the base
-	 * URI.
+	 * Creates a new JWT Bearer Token Flow builder object.<br> Token, authorize and key set endpoints will be derived
+	 * relative to the base URI.
 	 *
 	 * @return the {@link JwtBearerTokenFlow} builder object.
 	 */

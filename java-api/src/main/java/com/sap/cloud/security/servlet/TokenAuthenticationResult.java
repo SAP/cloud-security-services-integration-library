@@ -13,8 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Class that represents the result of the authentication check performed by a
- * {@link TokenAuthenticator}.
+ * Class that represents the result of the authentication check performed by a {@link TokenAuthenticator}.
  */
 public interface TokenAuthenticationResult {
 	/**
@@ -52,8 +51,7 @@ public interface TokenAuthenticationResult {
 	/**
 	 * If not authenticated, this returns the reason why as text.
 	 *
-	 * @return the textual description why the request was not authenticated. Empty
-	 *         string if authenticated.
+	 * @return the textual description why the request was not authenticated. Empty string if authenticated.
 	 */
 	default String getUnauthenticatedReason() {
 		return "";

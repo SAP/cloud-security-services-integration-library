@@ -109,8 +109,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	/**
 	 * Creates a copy of the given map or a new empty map of type MultiValueMap.
 	 *
-	 * @return a new @link{MultiValueMap} that contains all entries of the optional
-	 *         map.
+	 * @return a new @link{MultiValueMap} that contains all entries of the optional map.
 	 */
 	private MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
 		MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();

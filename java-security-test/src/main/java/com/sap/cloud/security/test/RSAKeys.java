@@ -40,22 +40,20 @@ public class RSAKeys {
 	}
 
 	/**
-	 * Creates an instance with the given key pair. For more information see
-	 * {@link RSAKeys#loadPublicKey(String)} and
+	 * Creates an instance with the given key pair. For more information see {@link RSAKeys#loadPublicKey(String)} and
 	 * {@link RSAKeys#loadPrivateKey(String)}.
 	 *
 	 * @param publicKeyResource
-	 *            the resource path to the key file, e.g. "/publicKey.txt"
+	 * 		the resource path to the key file, e.g. "/publicKey.txt"
 	 * @param privateKeyResource
-	 *            the resource path to the key file, e.g. "/privateKey.txt"
+	 * 		the resource path to the key file, e.g. "/privateKey.txt"
 	 * @return the instance.
 	 * @throws IOException
-	 *             in case the files could not be read.
+	 * 		in case the files could not be read.
 	 * @throws NoSuchAlgorithmException
-	 *             see {@link KeyFactory#getInstance(java.lang.String)}.
+	 * 		see {@link KeyFactory#getInstance(java.lang.String)}.
 	 * @throws InvalidKeySpecException
-	 *             see
-	 *             {@link KeyFactory#generatePublic(java.security.spec.KeySpec)}.
+	 * 		see {@link KeyFactory#generatePublic(java.security.spec.KeySpec)}.
 	 */
 	public static RSAKeys fromKeyFiles(String publicKeyResource, String privateKeyResource)
 			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -64,19 +62,18 @@ public class RSAKeys {
 	}
 
 	/**
-	 * Loads the public key from the given file. The key is expected to be encoded
-	 * according to the X.509 standard and in base64 format (pem).
+	 * Loads the public key from the given file. The key is expected to be encoded according to the X.509 standard and
+	 * in base64 format (pem).
 	 *
 	 * @param publicKeyResource
-	 *            the resource path to the key file.
+	 * 		the resource path to the key file.
 	 * @return the {@link PublicKey} instance.
 	 * @throws IOException
-	 *             in case the file could not be read.
+	 * 		in case the file could not be read.
 	 * @throws NoSuchAlgorithmException
-	 *             see {@link KeyFactory#getInstance(java.lang.String)}.
+	 * 		see {@link KeyFactory#getInstance(java.lang.String)}.
 	 * @throws InvalidKeySpecException
-	 *             see
-	 *             {@link KeyFactory#generatePublic(java.security.spec.KeySpec)}.
+	 * 		see {@link KeyFactory#generatePublic(java.security.spec.KeySpec)}.
 	 */
 	public static PublicKey loadPublicKey(String publicKeyResource)
 			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -86,19 +83,18 @@ public class RSAKeys {
 	}
 
 	/**
-	 * Loads the private key from the given file. The key is expected to be
-	 * according to PKCS #8 standard and in base64 format (pem).
+	 * Loads the private key from the given file. The key is expected to be according to PKCS #8 standard and in base64
+	 * format (pem).
 	 *
 	 * @param privateKeyResource
-	 *            the resource path to the key file.
+	 * 		the resource path to the key file.
 	 * @return the {@link PrivateKey} instance.
 	 * @throws IOException
-	 *             in case the file could not be read.
+	 * 		in case the file could not be read.
 	 * @throws NoSuchAlgorithmException
-	 *             see {@link KeyFactory#getInstance(java.lang.String)}.
+	 * 		see {@link KeyFactory#getInstance(java.lang.String)}.
 	 * @throws InvalidKeySpecException
-	 *             see
-	 *             {@link KeyFactory#generatePublic(java.security.spec.KeySpec)}.
+	 * 		see {@link KeyFactory#generatePublic(java.security.spec.KeySpec)}.
 	 */
 	public static PrivateKey loadPrivateKey(String privateKeyResource)
 			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -127,7 +123,6 @@ public class RSAKeys {
 	}
 
 	/**
-	 *
 	 * @return the public key of the pair.
 	 */
 	public PublicKey getPublic() {
@@ -135,7 +130,6 @@ public class RSAKeys {
 	}
 
 	/**
-	 *
 	 * @return the private key of the pair.
 	 */
 	public PrivateKey getPrivate() {

@@ -34,7 +34,7 @@ public class OAuth2TokenServiceConstants {
 	@Deprecated
 	public static final String GRANT_TYPE_CLIENT_X509 = "client_x509";
 	public static final String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code"; // not supported by token-client
-																						// lib
+	// lib
 	public static final String TOKEN_FORMAT = "token_format";
 	public static final String TOKEN_TYPE_OPAQUE = "opaque";
 

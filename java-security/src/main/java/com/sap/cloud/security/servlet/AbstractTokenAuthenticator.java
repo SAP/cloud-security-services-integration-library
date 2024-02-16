@@ -63,7 +63,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 * Use to configure the token key cache.
 	 *
 	 * @param cacheConfiguration
-	 *            the cache configuration
+	 * 		the cache configuration
 	 * @return this authenticator
 	 */
 	public AbstractTokenAuthenticator withCacheConfiguration(CacheConfiguration cacheConfiguration) {
@@ -72,11 +72,10 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
-	 * Use to configure the HttpClient that is used to retrieve token keys or to
-	 * perform a token-exchange.
+	 * Use to configure the HttpClient that is used to retrieve token keys or to perform a token-exchange.
 	 *
 	 * @param httpClient
-	 *            the HttpClient
+	 * 		the HttpClient
 	 * @return this authenticator
 	 */
 	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
@@ -88,7 +87,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 * Use to override the service configuration used.
 	 *
 	 * @param serviceConfiguration
-	 *            the service configuration to use
+	 * 		the service configuration to use
 	 * @return this authenticator
 	 */
 	public AbstractTokenAuthenticator withServiceConfiguration(OAuth2ServiceConfiguration serviceConfiguration) {
@@ -104,11 +103,11 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
-	 * Adds the validation listener to the jwt validator that is being used by the
-	 * authenticator to validate the tokens.
+	 * Adds the validation listener to the jwt validator that is being used by the authenticator to validate the
+	 * tokens.
 	 *
 	 * @param validationListener
-	 *            the listener to be added.
+	 * 		the listener to be added.
 	 * @return the authenticator instance
 	 */
 	public AbstractTokenAuthenticator withValidationListener(ValidationListener validationListener) {
@@ -117,12 +116,11 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
-	 * Return configured service configuration or Environments.getCurrent() if not
-	 * configured.
+	 * Return configured service configuration or Environments.getCurrent() if not configured.
 	 *
 	 * @return the actual service configuration
 	 * @throws IllegalStateException
-	 *             in case service configuration is null
+	 * 		in case service configuration is null
 	 */
 	protected abstract OAuth2ServiceConfiguration getServiceConfiguration();
 
@@ -138,7 +136,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 * Extracts the {@link Token} from the authorization header.
 	 *
 	 * @param authorizationHeader
-	 *            the value of the 'Authorization' request header
+	 * 		the value of the 'Authorization' request header
 	 * @return the {@link Token} instance.
 	 */
 	protected abstract Token extractFromHeader(String authorizationHeader);
@@ -180,11 +178,10 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
-	 * Extracts the forwarded client certificate from 'x-forwarded-client-cert'
-	 * header.
+	 * Extracts the forwarded client certificate from 'x-forwarded-client-cert' header.
 	 *
 	 * @param request
-	 *            the HttpServletRequest
+	 * 		the HttpServletRequest
 	 * @return the client certificate object
 	 */
 	@Nullable

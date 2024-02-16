@@ -15,9 +15,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests whether ServiceBindingMapper correctly handles 'domains' key in service
- * configurations. Asserts that a warning is printed when no domains are found
- * in an IAS configuration.
+ * Tests whether ServiceBindingMapper correctly handles 'domains' key in service configurations. Asserts that a warning
+ * is printed when no domains are found in an IAS configuration.
  */
 class ServiceBindingMapperDomainsTest {
 	private static ServiceBinding xsuaaBinding;

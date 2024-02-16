@@ -83,7 +83,7 @@ Contributed content can be accepted if it:
 Some of the most important rules are listed below:
 
 -   Follow a clean coding style principles that complies with JAVA naming convention
--   Apply maven formatter goal `mvn formatter:format` when you're ready to push your code
+-   Apply formatting with the following settings [JavaLibFormatting.xml](./etc/JavaLibFormatting.xml)
 -   Provide full test coverage for your implementation
 -   Comment your code where it gets non-trivial and keep the JavaDocs up to date
 -   Use the most restrictive access level possible for any given member

@@ -13,8 +13,8 @@ import java.time.Duration;
 public interface CacheConfiguration {
 
 	/**
-	 * Returns the duration of the expire after write property of the cache. Cached
-	 * elements are automatically invalidated after this fixed duration has elapsed.
+	 * Returns the duration of the expire after write property of the cache. Cached elements are automatically
+	 * invalidated after this fixed duration has elapsed.
 	 *
 	 * @return duration of expire after write.
 	 */
@@ -37,8 +37,8 @@ public interface CacheConfiguration {
 	}
 
 	/**
-	 * Returns {@code true} if cache statistics recording has been enabled. If it is
-	 * enabled, cache statistics might be obtained from the {@code Cacheable}.
+	 * Returns {@code true} if cache statistics recording has been enabled. If it is enabled, cache statistics might be
+	 * obtained from the {@code Cacheable}.
 	 *
 	 * @return {@code true} if cache statistics is enabled
 	 */

@@ -19,8 +19,8 @@ public interface ClientIdentity {
 	String getId();
 
 	/**
-	 * Returns true, if the mandatory attributes in ClientIdentity class are filled
-	 * for the specified authentication method i.e X.509 or client secret
+	 * Returns true, if the mandatory attributes in ClientIdentity class are filled for the specified authentication
+	 * method i.e X.509 or client secret
 	 *
 	 * @return the boolean
 	 */

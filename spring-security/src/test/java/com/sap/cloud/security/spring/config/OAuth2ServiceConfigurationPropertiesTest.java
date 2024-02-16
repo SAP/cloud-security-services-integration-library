@@ -50,7 +50,7 @@ class OAuth2ServiceConfigurationPropertiesTest {
 		cutIas.setCertificate(ANY_VALUE);
 		cutIas.setClientId(ANY_VALUE);
 		cutIas.setClientSecret(ANY_VALUE); // to make sure that getClientIdentity uses ClientCertificate impl as default
-											// when possible
+		// when possible
 		assertEquals(ANY_VALUE, cutIas.getClientIdentity().getKey());
 		assertEquals(ANY_VALUE, cutIas.getClientIdentity().getCertificate());
 		assertTrue(cutIas.getClientIdentity().isCertificateBased());
@@ -67,7 +67,7 @@ class OAuth2ServiceConfigurationPropertiesTest {
 		cutXsuaa.setKey(ANY_VALUE);
 		cutXsuaa.setClientId(ANY_VALUE);
 		cutXsuaa.setClientSecret(ANY_VALUE); // to make sure that getClientIdentity uses ClientCertificate impl as
-												// default when possible
+		// default when possible
 		assertEquals(ANY_VALUE, cutXsuaa.getProperty(CLIENT_SECRET));
 		assertEquals(ANY_VALUE, cutXsuaa.getClientIdentity().getCertificate());
 		assertEquals(ANY_VALUE, cutXsuaa.getClientIdentity().getKey());

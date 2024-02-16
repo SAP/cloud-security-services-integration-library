@@ -39,16 +39,16 @@ class HybridAuthorizationAutoConfigurationTest {
 	void autoConfigurationActiveInclProperties() {
 		runner.withPropertyValues("sap.security.services.xsuaa.xsappname:theAppName",
 				"sap.spring.security.hybrid.auto:true").run((context) -> {
-					assertNotNull(context.getBean(XsuaaTokenAuthorizationConverter.class));
-				});
+			assertNotNull(context.getBean(XsuaaTokenAuthorizationConverter.class));
+		});
 	}
 
 	@Test
 	void autoConfigurationDisabledByProperty() {
 		runner.withPropertyValues("sap.security.services.xsuaa.xsappname:theAppName",
 				"sap.spring.security.hybrid.auto:false").run((context) -> {
-					assertFalse(context.containsBean("xsuaaAuthConverter"));
-				});
+			assertFalse(context.containsBean("xsuaaAuthConverter"));
+		});
 	}
 
 	@Test

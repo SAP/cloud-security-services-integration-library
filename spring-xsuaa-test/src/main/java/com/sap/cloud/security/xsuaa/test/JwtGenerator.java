@@ -24,8 +24,8 @@ import static com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders.JKU;
 import static com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders.KID;
 
 /**
- * Create tokens with a fixed private/public key and dummy values. The client
- * ID, identity zone, and scopes are configurable.
+ * Create tokens with a fixed private/public key and dummy values. The client ID, identity zone, and scopes are
+ * configurable.
  */
 public class JwtGenerator {
 
@@ -88,10 +88,9 @@ public class JwtGenerator {
 	 * Specifies authorization party of the JWT token claim.
 	 *
 	 * @param clientId
-	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
-	 *            value of the JWT token claims "azp" and "cid". A token is
-	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
-	 *            service configuration (VCAP_SERVICES).
+	 * 		the XSUAA client id, e.g. sb-applicationName!t123, defines the value of the JWT token claims "azp" and "cid". A
+	 * 		token is considered to be valid when it matches the "xsuaa.clientid" xsuaa service configuration
+	 * 		(VCAP_SERVICES).
 	 */
 	public JwtGenerator(String clientId) {
 		this(clientId, MOCK_XSUAA_DEFAULT_PORT);
@@ -101,12 +100,11 @@ public class JwtGenerator {
 	 * Specifies authorization party of the JWT token claim.
 	 *
 	 * @param clientId
-	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
-	 *            value of the JWT token claims "azp" and "cid". A token is
-	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
-	 *            service configuration (VCAP_SERVICES).
+	 * 		the XSUAA client id, e.g. sb-applicationName!t123, defines the value of the JWT token claims "azp" and "cid". A
+	 * 		token is considered to be valid when it matches the "xsuaa.clientid" xsuaa service configuration
+	 * 		(VCAP_SERVICES).
 	 * @param port
-	 *            the port that is used to connect to the XSUAA mock web server.
+	 * 		the port that is used to connect to the XSUAA mock web server.
 	 */
 	public JwtGenerator(String clientId, int port) {
 		this(clientId, "", DEFAULT_IDENTITY_ZONE_ID);
@@ -117,14 +115,12 @@ public class JwtGenerator {
 	 * Overwrites some default values of the JWT token claims.
 	 *
 	 * @param clientId
-	 *            the XSUAA client id, e.g. sb-applicationName!t123, defines the
-	 *            value of the JWT token claims "azp" and "cid". A token is
-	 *            considered to be valid when it matches the "xsuaa.clientid" xsuaa
-	 *            service configuration (VCAP_SERVICES).
+	 * 		the XSUAA client id, e.g. sb-applicationName!t123, defines the value of the JWT token claims "azp" and "cid". A
+	 * 		token is considered to be valid when it matches the "xsuaa.clientid" xsuaa service configuration
+	 * 		(VCAP_SERVICES).
 	 * @param subdomain
-	 *            of the subaccount, e.g. d012345trial. This defines the value of
-	 *            the claim "zdn". Furthermore the identity-zone-id claim "zid" is
-	 *            derived from that.
+	 * 		of the subaccount, e.g. d012345trial. This defines the value of the claim "zdn". Furthermore the
+	 * 		identity-zone-id claim "zid" is derived from that.
 	 */
 	public JwtGenerator(String clientId, String subdomain) {
 		this(clientId, subdomain, subdomain + "-id");
@@ -138,9 +134,8 @@ public class JwtGenerator {
 	}
 
 	/**
-	 *
 	 * @param port
-	 *            the port that is used to connect to the XSUAA mock web server.
+	 * 		the port that is used to connect to the XSUAA mock web server.
 	 */
 	public JwtGenerator(int port) {
 		this(CLIENT_ID, port);
@@ -151,11 +146,10 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Changes the value of the jwt claim "user_name". The user name is also used
-	 * for the "email" claim.
+	 * Changes the value of the jwt claim "user_name". The user name is also used for the "email" claim.
 	 *
 	 * @param userName
-	 *            the user name
+	 * 		the user name
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator setUserName(String userName) {
@@ -167,7 +161,7 @@ public class JwtGenerator {
 	 * Sets the roles as claim "scope" to the jwt.
 	 *
 	 * @param scopes
-	 *            the scopes that should be part of the token
+	 * 		the scopes that should be part of the token
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator addScopes(String... scopes) {
@@ -179,9 +173,9 @@ public class JwtGenerator {
 	 * Adds the attributes as claim "xs.user.attribute" to the jwt.
 	 *
 	 * @param attributeName
-	 *            the attribute name that should be part of the token
+	 * 		the attribute name that should be part of the token
 	 * @param attributeValues
-	 *            the attribute value that should be part of the token
+	 * 		the attribute value that should be part of the token
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator addAttribute(String attributeName, String[] attributeValues) {
@@ -194,7 +188,7 @@ public class JwtGenerator {
 	 * Sets the keyId value as "kid" header to the jwt.
 	 *
 	 * @param keyId
-	 *            the value of the signed jwt token header "kid"
+	 * 		the value of the signed jwt token header "kid"
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator setJwtHeaderKeyId(String keyId) {
@@ -206,7 +200,7 @@ public class JwtGenerator {
 	 * Adds additional custom claims.
 	 *
 	 * @param customClaims
-	 *            the claims that should be part of the token
+	 * 		the claims that should be part of the token
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator addCustomClaims(Map<String, Object> customClaims) {
@@ -215,11 +209,10 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Derives audiences claim ("aud") from scopes. For example in case e.g.
-	 * "xsappid.scope".
+	 * Derives audiences claim ("aud") from scopes. For example in case e.g. "xsappid.scope".
 	 *
 	 * @param shallDeriveAudiences
-	 *            if true, audiences are automatically set
+	 * 		if true, audiences are automatically set
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator deriveAudiences(boolean shallDeriveAudiences) {
@@ -245,7 +238,7 @@ public class JwtGenerator {
 	 * Sets the url which is used to retrieve the verification keys
 	 *
 	 * @param jku
-	 *            the url to retrieve the keys
+	 * 		the url to retrieve the keys
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator setJku(String jku) {
@@ -257,7 +250,7 @@ public class JwtGenerator {
 	 * Sets the port which is used to retrieve the verification keys
 	 *
 	 * @param port
-	 *            the port that is used to connect to the XSUAA mock web server.
+	 * 		the port that is used to connect to the XSUAA mock web server.
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator setPort(int port) {
@@ -266,8 +259,7 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Builds a basic Jwt with the given azp, userName, scopes, user attributes
-	 * claims and the keyId header.
+	 * Builds a basic Jwt with the given azp, userName, scopes, user attributes claims and the keyId header.
 	 *
 	 * @return jwt
 	 */
@@ -312,8 +304,8 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Creates a Jwt from a template file, which contains the claims. Optionally,
-	 * configure the "keyId" header via {@link #setJwtHeaderKeyId(String)}
+	 * Creates a Jwt from a template file, which contains the claims. Optionally, configure the "keyId" header via
+	 * {@link #setJwtHeaderKeyId(String)}
 	 *
 	 * This replaces these placeholders:
 	 * <ul>
@@ -322,16 +314,16 @@ public class JwtGenerator {
 	 * <li>"$zdn" with the configured subdomain
 	 * {@link #JwtGenerator(String, String)}</li>
 	 * <li>"$zid" with "uaa" or with the configured subdomain
-	 * {@link #JwtGenerator(String,String)}</li>
+	 * {@link #JwtGenerator(String, String)}</li>
 	 * <li>"$username" with the configured user name {@link #setUserName(String)}
 	 * </li>
 	 * </ul>
 	 *
 	 * @param pathToTemplate
-	 *            classpath resource
+	 * 		classpath resource
 	 * @return a jwt
 	 * @throws IOException
-	 *             in case the template file can not be read
+	 * 		in case the template file can not be read
 	 */
 	public Jwt createFromTemplate(String pathToTemplate) throws IOException {
 		String claimsFromTemplate = IOUtils.resourceToString(pathToTemplate, StandardCharsets.UTF_8);
@@ -343,10 +335,10 @@ public class JwtGenerator {
 	 * Creates a Jwt from a file, which contains an encoded Jwt token.
 	 *
 	 * @param pathToJwt
-	 *            classpath resource
+	 * 		classpath resource
 	 * @return a jwt
 	 * @throws IOException
-	 *             in case the template file can not be read
+	 * 		in case the template file can not be read
 	 */
 	public static Jwt createFromFile(String pathToJwt) throws IOException {
 		return convertTokenToOAuthJwt(IOUtils.resourceToString(pathToJwt, StandardCharsets.UTF_8));
@@ -356,7 +348,7 @@ public class JwtGenerator {
 	 * Creates an individual Jwt based on the provided set of claims.
 	 *
 	 * @param claimsSet
-	 *            that can be created with Nimbus JOSE + JWT JWTClaimsSet.Builder
+	 * 		that can be created with Nimbus JOSE + JWT JWTClaimsSet.Builder
 	 * @return a jwt
 	 */
 	public static Jwt createFromClaims(JWTClaimsSet claimsSet) {
@@ -367,10 +359,9 @@ public class JwtGenerator {
 	 * Creates an individual Jwt based on the provided set of claims.
 	 *
 	 * @param claimsSet
-	 *            that can be created with Nimbus JOSE + JWT JWTClaimsSet.Builder
+	 * 		that can be created with Nimbus JOSE + JWT JWTClaimsSet.Builder
 	 * @param tokenHeaders
-	 *            that contains a set of headers that should be included in the
-	 *            final jwt.
+	 * 		that contains a set of headers that should be included in the final jwt.
 	 * @return a jwt
 	 */
 	public static Jwt createFromClaims(JWTClaimsSet claimsSet, Map<String, String> tokenHeaders) {

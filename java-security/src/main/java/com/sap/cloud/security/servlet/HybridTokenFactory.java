@@ -25,9 +25,8 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ENHANCER;
 
 /**
- * Creates a {@link Token} instance. Supports Jwt tokens from IAS and XSUAA
- * identity service. TokenFactory loads and instantiates the respective Token
- * dynamically.
+ * Creates a {@link Token} instance. Supports Jwt tokens from IAS and XSUAA identity service. TokenFactory loads and
+ * instantiates the respective Token dynamically.
  */
 public class HybridTokenFactory implements TokenFactory {
 
@@ -36,12 +35,10 @@ public class HybridTokenFactory implements TokenFactory {
 	static ScopeConverter xsScopeConverter;
 
 	/**
-	 * Determines whether the JWT token is issued by XSUAA or IAS identity service,
-	 * and creates a Token for it.
+	 * Determines whether the JWT token is issued by XSUAA or IAS identity service, and creates a Token for it.
 	 *
 	 * @param jwtToken
-	 *            the encoded JWT token (access_token or id_token), e.g. from the
-	 *            Authorization Header.
+	 * 		the encoded JWT token (access_token or id_token), e.g. from the Authorization Header.
 	 * @return the new token instance
 	 */
 	public Token create(String jwtToken) {
@@ -63,7 +60,7 @@ public class HybridTokenFactory implements TokenFactory {
 	 * For testing purposes, in case CF Environment is not set.
 	 *
 	 * @param xsAppId
-	 *            the application identifier of your xsuaa service.
+	 * 		the application identifier of your xsuaa service.
 	 */
 	static void withXsuaaAppId(@Nonnull String xsAppId) {
 		LOGGER.debug("XSUAA app id = {}", xsAppId);
@@ -94,11 +91,10 @@ public class HybridTokenFactory implements TokenFactory {
 	}
 
 	/**
-	 * Determines if the provided decoded jwt token is issued by the XSUAA identity
-	 * service.
+	 * Determines if the provided decoded jwt token is issued by the XSUAA identity service.
 	 *
 	 * @param decodedJwt
-	 *            jwt to be checked
+	 * 		jwt to be checked
 	 * @return true if provided token is a XSUAA token
 	 */
 	private static boolean isXsuaaToken(DecodedJwt decodedJwt) {

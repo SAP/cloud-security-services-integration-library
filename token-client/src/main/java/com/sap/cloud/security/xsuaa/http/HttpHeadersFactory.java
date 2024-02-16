@@ -19,7 +19,7 @@ public class HttpHeadersFactory {
 	 * Adds the {@code  Authorization: Bearer <token>} header to the set of headers.
 	 *
 	 * @param token
-	 *            - the token which should be part of the header.
+	 * 		- the token which should be part of the header.
 	 * @return the builder instance.
 	 */
 	public static HttpHeaders createWithAuthorizationBearerHeader(String token) {
@@ -30,8 +30,7 @@ public class HttpHeadersFactory {
 	}
 
 	/**
-	 * Creates the set of HTTP headers with client-credentials basic authentication
-	 * header.
+	 * Creates the set of HTTP headers with client-credentials basic authentication header.
 	 *
 	 * @return the HTTP headers.
 	 */

@@ -20,8 +20,8 @@ import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ZDN;
 
 /**
- * Decorates a {@code Token} issued by xsuaa to provide compatibility methods
- * for spring-xsuaa's {@code Token} interface.
+ * Decorates a {@code Token} issued by xsuaa to provide compatibility methods for spring-xsuaa's {@code Token}
+ * interface.
  *
  * @deprecated use methods exposed by the {@link Token} interface.
  */
@@ -37,7 +37,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Creates an instance.
 	 *
 	 * @param token
-	 *            a token issued by xsuaa
+	 * 		a token issued by xsuaa
 	 * @deprecated use methods exposed by the {@link Token} interface.
 	 */
 	@Deprecated
@@ -52,8 +52,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Creates an instance.
 	 *
 	 * @param jwtToken
-	 *            the encoded access token, e.g. from the {@code Authorization}
-	 *            header.
+	 * 		the encoded access token, e.g. from the {@code Authorization} header.
 	 * @deprecated use methods exposed by the {@link Token} interface.
 	 */
 	@Deprecated
@@ -66,9 +65,8 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Return subaccount identifier which is in most cases same like the identity
-	 * zone. DO only use this for metering purposes. DO NOT longer use this method
-	 * to get the unique tenant id! For that use {@link #getZoneId()}.
+	 * Return subaccount identifier which is in most cases same like the identity zone. DO only use this for metering
+	 * purposes. DO NOT longer use this method to get the unique tenant id! For that use {@link #getZoneId()}.
 	 *
 	 * @return the subaccount identifier.
 	 * @deprecated use {@link AccessToken#getSubaccountId()} instead.
@@ -79,9 +77,8 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Return zone identifier which should be used as tenant discriminator (tenant
-	 * id). For most of the old subaccounts this matches the id returned by
-	 * {@link #getSubaccountId()}.
+	 * Return zone identifier which should be used as tenant discriminator (tenant id). For most of the old subaccounts
+	 * this matches the id returned by {@link #getSubaccountId()}.
 	 *
 	 * @return the zone identifier.
 	 * @deprecated use {@link Token#getZoneId()} instead.
@@ -95,8 +92,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Returns the subdomain of the calling tenant's subaccount.
 	 *
 	 * @return the subdomain of the tenant the JWT belongs to.
-	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)}
-	 *             instead
+	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)} instead
 	 */
 	@Deprecated
 	public String getSubdomain() {
@@ -104,10 +100,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Returns the OAuth2 client identifier of the authentication token if present.
-	 * Following OpenID Connect 1.0 standard specifications, client identifier is
-	 * obtained from "azp" claim if present or when "azp" is not present from "aud"
-	 * claim, but only in case there is one audience.
+	 * Returns the OAuth2 client identifier of the authentication token if present. Following OpenID Connect 1.0
+	 * standard specifications, client identifier is obtained from "azp" claim if present or when "azp" is not present
+	 * from "aud" claim, but only in case there is one audience.
 	 *
 	 * @return the OAuth client ID.
 	 * @deprecated use {@link Token#getClientId()} instead.
@@ -129,9 +124,8 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Returns a unique user name of a user ({@code user_name} claim), using
-	 * information from the JWT. For tokens that were issued as a result of a client
-	 * credentials flow, the OAuth client ID will be returned in a special format.
+	 * Returns a unique user name of a user ({@code user_name} claim), using information from the JWT. For tokens that
+	 * were issued as a result of a client credentials flow, the OAuth client ID will be returned in a special format.
 	 * The following information is required to uniquely identify a user: <br>
 	 *
 	 * <ul>
@@ -150,9 +144,8 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Returns the given name of the user if present. Will try to find it first in
-	 * the {@code ext_attr.given_name} claim before trying to find a
-	 * {@code given_name} claim.
+	 * Returns the given name of the user if present. Will try to find it first in the {@code ext_attr.given_name} claim
+	 * before trying to find a {@code given_name} claim.
 	 *
 	 * @return the given name if present.
 	 * @deprecated use {@link Token#getClaimAsString(String)} instead
@@ -163,9 +156,8 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Returns the family name of the user if present. Will try to find it first in
-	 * the {@code ext_attr.family_name} claim before trying to find a
-	 * {@code family_name} claim.
+	 * Returns the family name of the user if present. Will try to find it first in the {@code ext_attr.family_name}
+	 * claim before trying to find a {@code family_name} claim.
 	 *
 	 * @return the family name if present.
 	 * @deprecated use {@link Token#getClaimAsString(String)} instead
@@ -187,13 +179,11 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Returns the user origin. The origin is an alias that refers to a user store
-	 * in which the user is persisted. For example, users that are authenticated by
-	 * the UAA itself with a username / password combination have their origin set
-	 * to the value "uaa".
+	 * Returns the user origin. The origin is an alias that refers to a user store in which the user is persisted. For
+	 * example, users that are authenticated by the UAA itself with a username / password combination have their origin
+	 * set to the value "uaa".
 	 * <p>
-	 * May be null in case this JWT was not created with OAuth 2.0 client
-	 * credentials flow.
+	 * May be null in case this JWT was not created with OAuth 2.0 client credentials flow.
 	 *
 	 * @return the user origin if present.
 	 * @deprecated use {@link Token#getClaimAsString(String)} instead
@@ -207,11 +197,9 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	 * Returns the value of an attribute from the 'xs.user.attributes' claim.
 	 *
 	 * @param attributeName
-	 *            name of the attribute inside 'xs.user.attributes'.
+	 * 		name of the attribute inside 'xs.user.attributes'.
 	 * @return the attribute values array or null if there exists no such attribute.
-	 * @deprecated use
-	 *             {@link Token#getAttributeFromClaimAsStringList(String, String)}
-	 *             (String)} instead
+	 * @deprecated use {@link Token#getAttributeFromClaimAsStringList(String, String)} (String)} instead
 	 */
 	@Deprecated
 	public String[] getXSUserAttribute(String attributeName) {
@@ -221,15 +209,13 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Additional custom authentication attributes included by the OAuth client
-	 * component. Note: this is data controlled by the requester of a token. Might
-	 * be not trustworthy.
+	 * Additional custom authentication attributes included by the OAuth client component. Note: this is data controlled
+	 * by the requester of a token. Might be not trustworthy.
 	 *
 	 * @param attributeName
-	 *            name of the authentication attribute
+	 * 		name of the authentication attribute
 	 * @return additional attribute value if present.
-	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)}
-	 *             instead
+	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)} instead
 	 */
 	@Deprecated
 	public String getAdditionalAuthAttribute(String attributeName) {
@@ -237,13 +223,11 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Returns the XSUAA clone instance ID, if present. This will only be set for
-	 * tokens that were issued by an XSUAA with plan broker. Contains the service
-	 * instance id if present.
+	 * Returns the XSUAA clone instance ID, if present. This will only be set for tokens that were issued by an XSUAA
+	 * with plan broker. Contains the service instance id if present.
 	 *
 	 * @return the XSUAA clone service instance id if present.
-	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)}
-	 *             instead
+	 * @deprecated use {@link Token#getAttributeFromClaimAsString(String, String)} instead
 	 */
 	@Deprecated
 	public String getCloneServiceInstanceId() {
@@ -251,8 +235,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 	}
 
 	/**
-	 * Get the encoded authentication token, e.g. for token forwarding to another
-	 * app.
+	 * Get the encoded authentication token, e.g. for token forwarding to another app.
 	 * <p>
 	 * Never expose this token via log or via HTTP.
 	 *
@@ -277,7 +260,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 
 	/**
 	 * @throws UnsupportedOperationException
-	 *             in any case
+	 * 		in any case
 	 */
 	@Override
 	@Deprecated
@@ -288,7 +271,7 @@ public class XsuaaTokenComp implements com.sap.cloud.security.xsuaa.token.Token 
 
 	/**
 	 * @throws UnsupportedOperationException
-	 *             in any case
+	 * 		in any case
 	 */
 	@Override
 	@Deprecated

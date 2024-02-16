@@ -16,8 +16,8 @@ import java.util.Collection;
 import java.util.Objects;
 
 /**
- * Internal class used to expose the {@link Token} implementation as the
- * standard Principal for Spring Security Jwt handling. <br>
+ * Internal class used to expose the {@link Token} implementation as the standard Principal for Spring Security Jwt
+ * handling. <br>
  * <br>
  *
  * The {@link Token} instance is accessible via the Security Context:
@@ -25,7 +25,6 @@ import java.util.Objects;
  *
  * @see Token
  * @see XsuaaTokenAuthorizationConverter
- *
  */
 public class AuthenticationToken extends JwtAuthenticationToken {
 	@Serial
@@ -36,11 +35,9 @@ public class AuthenticationToken extends JwtAuthenticationToken {
 	 * Creates
 	 *
 	 * @param jwt
-	 *            Spring Security's representation of the jwt token
+	 * 		Spring Security's representation of the jwt token
 	 * @param grantedAuthorities
-	 *            the authorities that were extracted by Spring Security frameworks
-	 *            and potentially modified by the application.
-	 *
+	 * 		the authorities that were extracted by Spring Security frameworks and potentially modified by the application.
 	 */
 	public AuthenticationToken(Jwt jwt, Collection<GrantedAuthority> grantedAuthorities) {
 		super(jwt, grantedAuthorities);
