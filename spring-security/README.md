@@ -106,7 +106,12 @@ public Converter<Jwt, AbstractAuthenticationToken> xsuaaAuthConverter(XsuaaServi
 	return new XsuaaTokenAuthorizationConverter(xsuaaConfigs.getConfigurations().get(0).getProperty(APP_ID));
 }
 ```
-You may want to filter the list accessible via `XsuaaServiceConfigurations#getConfigurations` based on the configuration properties to find a specific configuration from the list.
+
+A further example can be
+found [here](../samples/spring-security-hybrid-usage/src/main/java/sample/spring/security/XsuaaAuthzConverter.java).
+
+You may want to filter the list accessible via `XsuaaServiceConfigurations#getConfigurations` based on the configuration
+properties to find a specific configuration from the list.
 
 ### Security Configuration
 This is an example how to configure your application as Spring Security OAuth 2.0 Resource Server for authentication of HTTP requests:
@@ -303,6 +308,7 @@ In detail `com.sap.cloud.security.token.SpringSecurityContext` wraps the Spring 
 In case you want to implement a reactive token authentication flow, you can use the [ReactiveHybridJwtDecoder](./src/main/java/com/sap/cloud/security/spring/token/authentication/ReactiveHybridJwtDecoder.java) and the [ReactiveSecurityContext](./src/main/java/com/sap/cloud/security/spring/token/ReactiveSecurityContext.java). The reactive authentication flow allows to build non-blocking, asynchronous and event-driven applications.
 </details>
 
+
 ## Testing
 
 ### JUnit
@@ -330,7 +336,22 @@ sap.security.services:
 ```  
 	
 #### Multiple XSUAA bindings
-If you need to manually configure the application for more than one XSUAA service instances (e.g. one of plan `application` and another one of plan `broker`), you need to provide them as `VCAP_SERVICES` environment variable (see second point of [Local Testing](#local-testing) section).
+
+If you need to manually configure the application for more than one XSUAA service instances (e.g. one of
+plan `application` and another one of plan `broker`).
+
+````yaml
+ sap.security.services:
+   xsuaa[0]:
+     ...     # credentials of XSUAA of plan 'application' 
+   xsuaa[1]:
+     clientid:  # clientid of XSUAA of plan 'broker' 
+````
+
+:warning: Autoconfiguration for multiple Xsuaa service instance bindings is not available for
+the [Converter bean](https://github.com/SAP/cloud-security-services-integration-library/blob/main/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridAuthorizationAutoConfiguration.java#L46).
+You will need to provide it manually. An example can be
+found [here](../samples/spring-security-hybrid-usage/src/main/java/sample/spring/security/XsuaaAuthzConverter.java).
 
 ### Local testing
 To run or debug your secured application locally you need to provide the mandatory Xsuaa or Identity service configuration attributes prior to launching the application. 
@@ -434,7 +455,12 @@ Make sure that you have defined the following mandatory attribute in the service
 
 :bulb: Example of minimal application configuration [application.yml](../samples/spring-security-hybrid-usage/src/test/resources/application.yml) for local setup.
 
-❗Limitation❗ Multiple Xsuaa services cannot be defined as application properties in Spring application.yml or application.properties files as Spring does not recognize arrays in the property files. The service Configurations have to be defined as environment variable e.g. `VCAP_SERVICES={"xsuaa": [...]} `
+##### Multiple Xsuaa service bindings
+
+Autoconfiguration for multiple Xsuaa service instance bindings is not available for
+the [Converter bean](https://github.com/SAP/cloud-security-services-integration-library/blob/main/spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridAuthorizationAutoConfiguration.java#L46).
+You will need to provide it manually. An example can be
+found [here](../samples/spring-security-hybrid-usage/src/main/java/sample/spring/security/XsuaaAuthzConverter.java).
 
 ## Samples
 - [Hybrid Usage](../samples/spring-security-hybrid-usage)    

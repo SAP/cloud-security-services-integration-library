@@ -31,6 +31,11 @@ docker push <repositoryName>/<imageName>
 ## Configure the deployment.yml
 In deployment.yml replace the image repository placeholder `<YOUR IMAGE REPOSITORY>` with the one created in the previous step.
 
+If you want to test the app with multiple Xsuaa bindings (application and broker plan) uncomment the following lines:
+- [Service Instance definition and the binding](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L39-L72)
+- [Volume mount for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L127-L129)
+- [Volume for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L138-L140)
+
 ## Deploy the application
 Deploy the application using [kubectl cli](https://kubernetes.io/docs/reference/kubectl/)
 ```shell script
@@ -78,7 +83,7 @@ Finally, delete your application and your service instances using the following 
 
 # Deployment on Cloud Foundry
 To deploy the application, the following steps are required:
-- Create a XSUAA service instance
+- Create an XSUAA service instance
 - Create an Identity service instance
 - Configure manifest.yml
 - Compile and deploy the application
@@ -88,10 +93,13 @@ To deploy the application, the following steps are required:
 
 
 ## Create the XSUAA Service Instance
-Use the [xs-security.json](./xs-security.json) to define the X.509 authentication method with Xsuaa managed certificate and create a service instance
+Use the [xs-security.json](./xs-security.json) to define the X.509 authentication method with Xsuaa managed certificate and create a service instance.
 ```shell
+cf create-service xsuaa broker xsuaa-broker -c xs-security.json #optional
 cf create-service xsuaa application xsuaa-authn -c xs-security.json
 ```
+:grey_exclamation:  Xsuaa broker instance is optional. Use it if you want to test the application with multiple Xsuaa Service instances.
+You would also need to update the [manifest.yml](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/manifest.yml#L19) with the broker instance information.
 
 ## Create the IAS Service Instance
 Use the ias service broker and create an identity service instance
@@ -127,7 +135,6 @@ You need administrator permissions to create a Groups "Read" in IAS and assign i
 1. Follow [HowToFetchToken](../../docs/HowToFetchToken.md) guide to fetch IAS and XSUAA tokens. 
     1. Get an IAS oidc token via ``password`` grant token flow.
        You can get the information to fill the placeholders from your system environment `cf env spring-security-hybrid-usage` -> ``VCAP_SERVICES``.`identity`
-
     2. Get a XSUAA access token via ``client-certificate`` token flow.
        You can get the information to fill the placeholders from your system environment `cf env spring-security-hybrid-usage` -> ``VCAP_SERVICES``.`xsuaa`
 
@@ -138,15 +145,16 @@ You need administrator permissions to create a Groups "Read" in IAS and assign i
    :bulb: If you call the same endpoint without `Authorization` header you should get a `401`.
 
 3. Have a look into the logs with:
-   ```
+   ```shell
    cf logs spring-security-hybrid-usage --recent
    ```
 
 ## Clean-Up
 
 Finally delete your application and your service instances using the following commands:
-```
+```shell
 cf delete -f spring-security-hybrid-usage
 cf delete-service -f xsuaa-authn
+cf delete-service -f xsuaa-broker # optional
 cf delete-service -f ias-authn
 ```
