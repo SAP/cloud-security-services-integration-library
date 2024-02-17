@@ -120,29 +120,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>net.revelc.code.formatter</groupId>
-                        <artifactId>formatter-maven-plugin</artifactId>
-                        <version>2.22.0</version>
-                        <configuration>
-                            <encoding>${project.build.sourceEncoding}</encoding>
-                            <lineEnding>LF</lineEnding>
-                            <directories>
-                                <directory>${project.basedir}/src/main/java</directory>
-                                <directory>${project.basedir}/src/test/java</directory>
-                            </directories>
-                            <configFile>${project.basedir}/../etc/eclipse_settings.xml</configFile>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <phase>process-sources</phase>
-                                <goals>
-                                    <goal>format</goal> <!-- run with mvn formatter:format -->
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-
-                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>${maven.source.plugin.version}</version>
