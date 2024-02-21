@@ -20,7 +20,8 @@ import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFA
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KID_PARAMETER_NAME;
 
 /**
- * Jwt Signature validator for OIDC tokens issued by Identity service
+ * Jwt Signature validator for OIDC tokens issued by Identity service. This validator MUST only be
+ * called after validating the token's issuer claim via {@link JwtIssuerValidator} first.
  */
 class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 	private boolean isTenantIdCheckEnabled = true;
