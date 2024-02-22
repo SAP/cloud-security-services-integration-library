@@ -115,12 +115,11 @@ class JwtIssuerValidator implements Validator<Token> {
 					"Issuer validation can not be performed because token issuer is not a valid URL suitable for https.");
 		}
 
-		String issuerDomain = issuerUrl.substring(issuerUrl.indexOf("://") + 3); // issuerUrl was validated above to
-		// begin either with http:// or
-		// https://
+		// issuerUrl was validated above to begin either with http:// or https://
+		String issuerDomain = issuerUrl.substring(issuerUrl.indexOf("://") + 3);
 		for (String d : domains) {
-			// a string that ends with .<trustedDomain> and contains 1-63 letters, digits or
-			// '-' before that for the subdomain
+			// issuerDomain is valid if it is a string that ends with .<d> and contains 1-63 letters,
+			// digits or '-' before that for the subdomain
 			String validSubdomainPattern = String.format("^[a-zA-Z0-9-]{1,63}\\.%s$", Pattern.quote(d));
 			if (Objects.equals(d, issuerDomain) || issuerDomain.matches(validSubdomainPattern)) {
 				return createValid();
