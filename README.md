@@ -22,7 +22,8 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
 4. [Troubleshooting](#troubleshooting)
 5. [Common Pitfalls](#common-pitfalls)
 6. [Contributing](#contributing)
-7. [License](#license)
+7. [How to get support](#how-to-get-support)
+8. [License](#license)
 
 ## Prerequisites
 Before you can use the SAP Cloud Security Services Integration libraries, you must fulfil the following requirements:
@@ -179,7 +180,24 @@ For a workaround please refer to the https://github.com/SAP/cloud-security-servi
 We welcome contributions to this project. Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details on how to contribute.
 
 ## How to get support
-Please use SAP official support channels to get help. Use `BC-CP-CF-SEC-LIB` or `Security Client Libraries` components.
+
+**Support is no longer provided via the Issues feature in this Github repository.**
+
+Please use SAP official support channels to get support under component `BC-CP-CF-SEC-LIB` or `Security Client Libraries`.
+
+Before opening support tickets, please check the [Troubleshooting](#troubleshooting) and [Common Pitfalls](#common-pitfalls) sections first in addition to the READMEs of the modules that you are using from this repository.
+
+Make sure to include the following mandatory information to get a response:
+
+- List of module(s) of this library used by your application (java-security, spring-security, spring-xsuaa etc...) and version of this library installed in your application.\
+  *Alternative*: maven dependency tree
+- Auth service set-up of your application (XSUAA, IAS, XSUAA+IAS, IAS+AMS, etc.)
+- For exceptions: Stack trace that includes the executed code locations of this library that lead to the exception
+- For unexpected 401 / 403 response codes: relevant log output of this library with active DEBUG flag (see module READMEs for a guide how to enable it)
+- Steps you have tried to fix the problem
+- Reason why you believe a bug in this library is causing your problem
+
+Unfortunately, we can *NOT* offer consulting via support channels.
 
 ## License
 Please see our [LICENSE](LICENSES/Apache-2.0.txt) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available in the [REUSE tool](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration).
