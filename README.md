@@ -180,10 +180,11 @@ For a workaround please refer to the https://github.com/SAP/cloud-security-servi
 We welcome contributions to this project. Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details on how to contribute.
 
 ## How to get support
-Before opening support tickets, please check the [Troubleshooting](#troubleshooting) and [Common Pitfalls](#common-pitfalls) sections first in addition to the READMEs of the modules that you are using from this repository.
+
+**Support is no longer provided via the Issues feature in this Github repository.**
 
 Please use SAP official support channels to get support. Use `BC-CP-CF-SEC-LIB` or `Security Client Libraries` components.
-Support is no longer provided via the Issues feature in this Github repository.
+Before opening support tickets, please check the [Troubleshooting](#troubleshooting) and [Common Pitfalls](#common-pitfalls) sections first in addition to the READMEs of the modules that you are using from this repository.
 
 Make sure to include the following mandatory information to get a response:
 
