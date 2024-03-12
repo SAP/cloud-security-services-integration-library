@@ -52,11 +52,11 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		this.baseUri = config.getUrl();
-		if (config.getCredentialType() == CredentialType.X509) {
-			this.certUri = config.getCertUrl();
-		} else {
-			this.certUri = null;
-		}
+		final CredentialType credentialType = config.getCredentialType() != null ? config.getCredentialType() : CredentialType.BINDING_SECRET;
+		this.certUri = switch (credentialType) {
+			case X509, X509_GENERATED, X509_PROVIDED, X509_ATTESTED -> config.getCertUrl();
+			case BINDING_SECRET, INSTANCE_SECRET -> null;
+		};
 	}
 
 	@Override
