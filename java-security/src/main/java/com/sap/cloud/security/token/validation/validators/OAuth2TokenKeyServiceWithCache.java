@@ -25,9 +25,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_SUB;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
@@ -139,11 +141,19 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		assertHasText(keyId, "keyId must not be null.");
 		assertNotNull(keyUri, "keyUrl must not be null.");
 
-		CacheKey cacheKey = new CacheKey(keyUri, params);
+		CacheKey cacheKey;
+		if (params.containsKey(HttpHeaders.X_CLIENT_CERT)) {
+			Map<String, String> cacheKeyParams = new HashMap<>(params);
+			cacheKeyParams.remove(HttpHeaders.X_CLIENT_CERT);
+			cacheKey = new CacheKey(keyUri, cacheKeyParams);
+			params.remove(FWD_CLIENT_CERT_SUB);
+		} else {
+			cacheKey = new CacheKey(keyUri, params);
+		}
 		JsonWebKeySet jwks = getCache().getIfPresent(cacheKey.toString());
 
 		if (jwks == null) {
-			jwks = retrieveTokenKeysAndUpdateCache(cacheKey);
+			jwks = retrieveTokenKeysAndUpdateCache(cacheKey, params);
 		}
 
 		if (jwks.getAll().isEmpty()) {
@@ -161,8 +171,9 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		throw new IllegalArgumentException("Key with kid " + keyId + " not found in JWKS.");
 	}
 
-	private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey) throws OAuth2ServiceException {
-		String jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), cacheKey.params());
+	private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey, Map<String, String> params)
+			throws OAuth2ServiceException {
+		String jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), params);
 
 		JsonWebKeySet keySet = JsonWebKeySetFactory.createFromJson(jwksJson);
 		getCache().put(cacheKey.toString(), keySet);

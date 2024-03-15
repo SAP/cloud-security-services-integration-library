@@ -26,9 +26,11 @@ public class X509Certificate implements Certificate {
 
 	private final java.security.cert.X509Certificate x509;
 	private String thumbprint;
+	private final String pem;
 
-	private X509Certificate(java.security.cert.X509Certificate x509Certificate) {
+	private X509Certificate(java.security.cert.X509Certificate x509Certificate, String pem) {
 		this.x509 = x509Certificate;
+		this.pem = pem;
 	}
 
 	/**
@@ -42,7 +44,7 @@ public class X509Certificate implements Certificate {
 	public static X509Certificate newCertificate(String certificate) {
 		if (certificate != null && !certificate.isEmpty()) {
 			try {
-				return new X509Certificate(X509Parser.parseCertificate(certificate));
+				return new X509Certificate(X509Parser.parseCertificate(certificate), certificate);
 			} catch (CertificateException e) {
 				LOGGER.warn("Could not parse the certificate string", e);
 			}
@@ -73,6 +75,10 @@ public class X509Certificate implements Certificate {
 				dn -> dn.split("=")[0].trim(),
 				dn -> dn.split("=")[1],
 				(dn1, dn2) -> dn1 + "," + dn2));
+	}
+
+	public String getPEM() {
+		return this.pem;
 	}
 
 }

@@ -5,22 +5,31 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.x509.Certificate;
+import com.sap.cloud.security.x509.X509Certificate;
+import com.sap.cloud.security.x509.X509Constants;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -29,8 +38,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -72,6 +80,11 @@ public class SapIdJwtSignatureValidatorTest {
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
 						.withOidcConfigurationService(oidcConfigServiceMock));
+	}
+
+	@After
+	public void tearDown() {
+		SecurityContext.clear();
 	}
 
 	@Test
@@ -135,6 +148,48 @@ public class SapIdJwtSignatureValidatorTest {
 						.withOidcConfigurationService(oidcConfigServiceMock));
 		cut.disableTenantIdCheck();
 		assertTrue(cut.validate(iasPaasToken).isValid());
+	}
+
+	@Test
+	public void validate_withEnabledProofTokenCheck() throws IOException {
+		String certString = IOUtils.resourceToString("/cf-forwarded-client-cert.txt", UTF_8);
+		Certificate cert = X509Certificate.newCertificate(certString);
+		SecurityContext.setClientCertificate(cert);
+
+		OAuth2TokenKeyService tokenKeyMock = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyMock
+				.retrieveTokenKeys(any(), argThat(new ParamsHasClientCertHeader())))
+				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+
+		SapIdJwtSignatureValidator cut = new SapIdJwtSignatureValidator(
+				mockConfiguration,
+				OAuth2TokenKeyServiceWithCache.getInstance()
+						.withTokenKeyService(tokenKeyMock),
+				OidcConfigurationServiceWithCache.getInstance()
+						.withOidcConfigurationService(oidcConfigServiceMock));
+		cut.enableProofTokenValidationCheck();
+		assertTrue(cut.validate(iasToken).isValid());
+	}
+
+	@Test
+	public void validationFails_withEnabledProofTokenCheck_noCert() {
+		when(mockConfiguration.getClientIdentity()).thenReturn(new ClientCredentials("client", "secret"));
+		SapIdJwtSignatureValidator cut = new SapIdJwtSignatureValidator(
+				mockConfiguration,
+				OAuth2TokenKeyServiceWithCache.getInstance()
+						.withTokenKeyService(tokenKeyServiceMock),
+				OidcConfigurationServiceWithCache.getInstance()
+						.withOidcConfigurationService(oidcConfigServiceMock));
+		cut.enableProofTokenValidationCheck();
+		assertTrue(cut.validate(iasToken).isErroneous());
+	}
+
+	static class ParamsHasClientCertHeader implements ArgumentMatcher<Map<String, String>> {
+
+		@Override
+		public boolean matches(Map<String, String> map) {
+			return map.get(X509Constants.FWD_CLIENT_CERT_SUB) == null && map.get(HttpHeaders.X_CLIENT_CERT) != null;
+		}
 	}
 
 	@Test
