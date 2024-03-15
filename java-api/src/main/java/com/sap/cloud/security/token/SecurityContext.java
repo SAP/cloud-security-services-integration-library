@@ -40,7 +40,7 @@ public class SecurityContext {
 	 * 		certificate to be saved.
 	 */
 	public static void setClientCertificate(Certificate certificate) {
-		LOGGER.info("Sets certificate to SecurityContext (thread-locally). {}",
+		LOGGER.debug("Sets certificate to SecurityContext (thread-locally). {}",
 				certificate);
 		certificateStorage.set(certificate);
 	}
@@ -63,7 +63,7 @@ public class SecurityContext {
 	 * 		token to be saved.
 	 */
 	public static void setToken(Token token) {
-		LOGGER.info("Sets token of service {} to SecurityContext (thread-locally).",
+		LOGGER.debug("Sets token of service {} to SecurityContext (thread-locally).",
 				token != null ? token.getService() : "null");
 		tokenStorage.set(token);
 	}
