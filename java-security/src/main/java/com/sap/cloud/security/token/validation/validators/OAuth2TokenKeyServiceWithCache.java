@@ -25,11 +25,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_SUB;
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
@@ -105,25 +103,21 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	}
 
 	/**
-	 * Returns {@link OAuth2TokenKeyServiceWithCache#getPublicKey(JwtSignatureAlgorithm, String, URI, Map)} with
+	 * Returns {@link OAuth2TokenKeyServiceWithCache#getPublicKey(KeyParameters, Map)} with
 	 * {@link HttpHeaders#X_APP_TID} = appTid inside params.
 	 */
 	@Nullable
 	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		return getPublicKey(keyAlgorithm, keyId, keyUri, Map.of(HttpHeaders.X_APP_TID, appTid));
+		return getPublicKey(new KeyParameters(keyAlgorithm, keyId, keyUri), Map.of(HttpHeaders.X_APP_TID, appTid));
 	}
 
 	/**
 	 * Returns the cached key by id and type or requests the keys from the jwks URI of the identity service.
 	 *
-	 * @param keyAlgorithm
-	 * 		the Key Algorithm of the Access Token.
-	 * @param keyId
-	 * 		the Key Id of the Access Token.
-	 * @param keyUri
-	 * 		the Token Key Uri (jwks) of the Access Token (can be tenant specific).
-	 * @param params
+	 * @param keyParameters
+	 * 		public key parameters such as Key Algorithm, Key ID, Key URI
+	 * @param requestParameters
 	 * 		additional parameters that are sent along with the request. Use constants from {@link HttpHeaders} for the
 	 * 		parameter keys.
 	 * @return a PublicKey
@@ -134,41 +128,59 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	 * @throws NoSuchAlgorithmException
 	 * 		in case the algorithm of the json web key is not supported.
 	 */
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri,
-			Map<String, String> params)
+	public PublicKey getPublicKey(KeyParameters keyParameters, Map<String, String> requestParameters)
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		assertNotNull(keyAlgorithm, "keyAlgorithm must not be null.");
-		assertHasText(keyId, "keyId must not be null.");
-		assertNotNull(keyUri, "keyUrl must not be null.");
+		assertNotNull(keyParameters.keyAlgorithm(), "keyAlgorithm must not be null.");
+		assertHasText(keyParameters.keyId(), "keyId must not be null.");
+		assertNotNull(keyParameters.keyUri(), "keyUrl must not be null.");
 
-		CacheKey cacheKey;
-		if (params.containsKey(HttpHeaders.X_CLIENT_CERT)) {
-			Map<String, String> cacheKeyParams = new HashMap<>(params);
-			cacheKeyParams.remove(HttpHeaders.X_CLIENT_CERT);
-			cacheKey = new CacheKey(keyUri, cacheKeyParams);
-			params.remove(FWD_CLIENT_CERT_SUB);
-		} else {
-			cacheKey = new CacheKey(keyUri, params);
-		}
+		CacheKey cacheKey = new CacheKey(keyParameters.keyUri(), requestParameters);
+		return getPublicKey(keyParameters, requestParameters, cacheKey);
+	}
+
+	/**
+	 * Returns the cached key by id and type or requests the keys from the jwks URI of the identity service.
+	 *
+	 * @param keyParameters
+	 * 		public key parameters such as Key Algorithm, Key ID, Key URI
+	 * @param requestParameters
+	 * 		additional parameters that are sent along with the request. Use constants from {@link HttpHeaders} for the
+	 * 		parameter keys.
+	 * @param cacheKey
+	 * 		Parameters that should be used as a key for public key cache
+	 * @return a PublicKey
+	 * @throws OAuth2ServiceException
+	 * 		in case the call to the jwks endpoint of the identity service failed.
+	 * @throws InvalidKeySpecException
+	 * 		in case the PublicKey generation for the json web key failed.
+	 * @throws NoSuchAlgorithmException
+	 * 		in case the algorithm of the json web key is not supported.
+	 */
+	public PublicKey getPublicKey(KeyParameters keyParameters, Map<String, String> requestParameters,
+			CacheKey cacheKey) throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+		assertNotNull(keyParameters.keyAlgorithm(), "keyAlgorithm must not be null.");
+		assertHasText(keyParameters.keyId(), "keyId must not be null.");
+		assertNotNull(keyParameters.keyUri(), "keyUrl must not be null.");
+
 		JsonWebKeySet jwks = getCache().getIfPresent(cacheKey.toString());
 
 		if (jwks == null) {
-			jwks = retrieveTokenKeysAndUpdateCache(cacheKey, params);
+			jwks = retrieveTokenKeysAndUpdateCache(cacheKey, requestParameters);
 		}
 
 		if (jwks.getAll().isEmpty()) {
-			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", keyUri);
+			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", keyParameters.keyUri);
 			return null;
 		}
 
 		for (JsonWebKey jwk : jwks.getAll()) {
-			if (keyId.equals(jwk.getId()) && jwk.getKeyAlgorithm().equals(keyAlgorithm)) {
+			if (keyParameters.keyId.equals(jwk.getId()) && jwk.getKeyAlgorithm().equals(keyParameters.keyAlgorithm)) {
 				return jwk.getPublicKey();
 			}
 		}
 
 		LOGGER.warn("No matching key found. Cached keys: {}", jwks);
-		throw new IllegalArgumentException("Key with kid " + keyId + " not found in JWKS.");
+		throw new IllegalArgumentException("Key with kid " + keyParameters.keyId + " not found in JWKS.");
 	}
 
 	private JsonWebKeySet retrieveTokenKeysAndUpdateCache(CacheKey cacheKey, Map<String, String> params)
@@ -261,5 +273,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 			// e.g. url:<url>|app_tid:<app_tid>|client_id:<client_id>|azp:<azp>
 			return String.format("url:%s|%s", keyUri, paramString);
 		}
+	}
+
+	record KeyParameters(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri) {
 	}
 }

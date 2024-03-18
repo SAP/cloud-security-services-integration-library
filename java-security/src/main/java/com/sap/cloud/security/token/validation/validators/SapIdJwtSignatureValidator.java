@@ -63,12 +63,15 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 		if (token.hasHeaderParameter(KID_PARAMETER_NAME)) {
 			keyId = token.getHeaderParameterAsString(KID_PARAMETER_NAME);
 		}
+		OAuth2TokenKeyServiceWithCache.KeyParameters keyParams = new OAuth2TokenKeyServiceWithCache.KeyParameters(
+				algorithm, keyId, getJwksUri(token));
 
-		URI jkuUri = getJwksUri(token);
-		Map<String, String> params = new HashMap<>(3, 1);
-		params.put(HttpHeaders.X_APP_TID, token.getAppTid());
-		params.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
-		params.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
+		Map<String, String> requestParams = new HashMap<>(3, 1);
+		OAuth2TokenKeyServiceWithCache.CacheKey cacheKey;
+
+		requestParams.put(HttpHeaders.X_APP_TID, token.getAppTid());
+		requestParams.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
+		requestParams.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
 		if (isProofTokenValidationEnabled) {
 			X509Certificate cert = (X509Certificate) SecurityContext.getClientCertificate();
 			if (cert == null) {
@@ -78,13 +81,19 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 			if (cert == null) {
 				throw new OAuth2ServiceException("Proof token was not found");
 			} else {
-				params.put(HttpHeaders.X_CLIENT_CERT, cert.getPEM());
-				params.put(X509Constants.FWD_CLIENT_CERT_SUB, cert.getSubjectDN());
+				Map<String, String> cacheKeyParams = new HashMap<>(requestParams);
+
+				requestParams.put(HttpHeaders.X_CLIENT_CERT, cert.getPEM());
+				cacheKeyParams.put(X509Constants.FWD_CLIENT_CERT_SUB, cert.getSubjectDN());
+
+				cacheKey = new OAuth2TokenKeyServiceWithCache.CacheKey(keyParams.keyUri(), cacheKeyParams);
 			}
+		} else {
+			cacheKey = new OAuth2TokenKeyServiceWithCache.CacheKey(keyParams.keyUri(), requestParams);
 		}
 
 		try {
-			return tokenKeyService.getPublicKey(algorithm, keyId, jkuUri, params);
+			return tokenKeyService.getPublicKey(keyParams, requestParams, cacheKey);
 		} catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
 			throw new IllegalArgumentException(e);
 		}
