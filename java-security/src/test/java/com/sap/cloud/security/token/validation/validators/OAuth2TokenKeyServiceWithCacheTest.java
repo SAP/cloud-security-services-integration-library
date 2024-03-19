@@ -119,15 +119,6 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	}
 
 	@Test
-	public void retrieveNoTokenKeys_returnsNull()
-			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		cut.withTokenKeyService(mock(OAuth2TokenKeyService.class));
-		PublicKey key = cut.getPublicKey(JwtSignatureAlgorithm.RS256, "key-id-0", TOKEN_KEYS_URI, APP_TID);
-
-		assertThat(key).isNull();
-	}
-
-	@Test
 	public void requestFails_throwsException() throws OAuth2ServiceException {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any(), anyMap()))
 				.thenThrow(new OAuth2ServiceException("Currently unavailable"));

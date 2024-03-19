@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -100,16 +99,6 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 	public OAuth2TokenKeyServiceWithCache withTokenKeyService(OAuth2TokenKeyService tokenKeyService) {
 		this.tokenKeyService = tokenKeyService;
 		return this;
-	}
-
-	/**
-	 * Returns {@link OAuth2TokenKeyServiceWithCache#getPublicKey(KeyParameters, Map)} with
-	 * {@link HttpHeaders#X_APP_TID} = appTid inside params.
-	 */
-	@Nullable
-	public PublicKey getPublicKey(JwtSignatureAlgorithm keyAlgorithm, String keyId, URI keyUri, String appTid)
-			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
-		return getPublicKey(new KeyParameters(keyAlgorithm, keyId, keyUri), Map.of(HttpHeaders.X_APP_TID, appTid));
 	}
 
 	/**
