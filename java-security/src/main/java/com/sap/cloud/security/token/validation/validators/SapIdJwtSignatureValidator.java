@@ -74,10 +74,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 		requestParams.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
 		if (isProofTokenValidationEnabled) {
 			X509Certificate cert = (X509Certificate) SecurityContext.getClientCertificate();
-			if (cert == null) {
-				// fallback to access the certificate from the configuration binding
-				cert = X509Certificate.newCertificate(configuration.getClientIdentity().getCertificate());
-			}
+
 			if (cert == null) {
 				throw new OAuth2ServiceException("Proof token was not found");
 			} else {

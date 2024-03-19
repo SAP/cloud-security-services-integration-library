@@ -5,7 +5,6 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
@@ -173,7 +172,6 @@ public class SapIdJwtSignatureValidatorTest {
 
 	@Test
 	public void validationFails_withEnabledProofTokenCheck_noCert() {
-		when(mockConfiguration.getClientIdentity()).thenReturn(new ClientCredentials("client", "secret"));
 		SapIdJwtSignatureValidator cut = new SapIdJwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance()
