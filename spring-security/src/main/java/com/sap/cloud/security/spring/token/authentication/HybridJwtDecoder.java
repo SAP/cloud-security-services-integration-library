@@ -5,17 +5,24 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.x509.X509Certificate;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Nullable;
+
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 
 /**
  * Internal class that decodes and validates the provided encoded token using {@code java-security} client library.<br>
@@ -45,6 +52,15 @@ public class HybridJwtDecoder implements JwtDecoder {
 
 	@Override
 	public Jwt decode(String encodedToken) {
+		ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+		if (servletRequestAttributes != null) {
+			HttpServletRequest request = servletRequestAttributes.getRequest();
+			String clientCert = String.valueOf(request.getHeader(FWD_CLIENT_CERT_HEADER));
+			if (clientCert != null) {
+				SecurityContext.setClientCertificate(X509Certificate.newCertificate(clientCert));
+			}
+		}
 		Token token;
 		Jwt jwt;
 		try {
