@@ -58,8 +58,8 @@
 		<maven.source.plugin.version>3.2.1</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
 		<spring.boot.version>3.2.3</spring.boot.version>
-		<spring.core.version>6.1.4</spring.core.version>
-		<spring.security.version>6.2.2</spring.security.version>
+		<spring.core.version>6.1.5</spring.core.version>
+		<spring.security.version>6.2.3</spring.security.version>
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<org.eclipse.jetty.version>12.0.5</org.eclipse.jetty.version>
@@ -67,7 +67,7 @@
 		<log4j2.version>2.23.1</log4j2.version>
 		<slf4j.api.version>2.0.12</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20240303</org.json.version>
-		<sap.cloud.env.servicebinding.version>0.10.3</sap.cloud.env.servicebinding.version>
+		<sap.cloud.env.servicebinding.version>0.10.4</sap.cloud.env.servicebinding.version>
 		<apache.httpclient5.version>5.3.1</apache.httpclient5.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.1.5</caffeine.version>
@@ -385,7 +385,7 @@
 						<plugin>
 							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
 							<artifactId>dependency-check-maven</artifactId>
-							<version>9.0.9</version>
+							<version>9.0.10</version>
 							<executions>
 								<execution>
 									<goals>
