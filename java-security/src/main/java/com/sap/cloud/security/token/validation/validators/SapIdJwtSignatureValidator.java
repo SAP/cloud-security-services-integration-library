@@ -49,9 +49,8 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 
 	/**
 	 * Enables ProofToken Validation check for forwarded client certificates. If the check is enabled and no forwarded
-	 * certificate in the request is available, a certificate from the bound service configuration is taken as a
-	 * fallback option. In case no certificate is found in the service configuration, the token will be evaluated as
-	 * invalid. With this check enabled the forwarded certificate is added to the token keys request.
+	 * certificate in the request is available, the token will be evaluated as invalid.
+	 * With this check enabled, the forwarded certificate is added to the token keys request.
 	 */
 	protected void enableProofTokenValidationCheck() {
 		this.isProofTokenValidationEnabled = true;
