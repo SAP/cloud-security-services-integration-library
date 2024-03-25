@@ -27,6 +27,7 @@ public class HttpHeaders {
 	public static final String X_APP_TID = "x-app_tid";
 	public static final String X_CLIENT_ID = "x-client_id";
 	public static final String X_AZP = "x-azp";
+	public static final String X_CLIENT_CERT = "x-client_cert";
 
 	private final Set<HttpHeader> headers;
 

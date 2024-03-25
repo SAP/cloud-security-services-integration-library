@@ -1,8 +1,11 @@
 package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.x509.X509Certificate;
+import com.sap.cloud.security.x509.X509Constants;
 import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
@@ -25,6 +28,7 @@ import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConst
  */
 class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 	private boolean isTenantIdCheckEnabled = true;
+	private boolean isProofTokenValidationEnabled = false;
 
 	SapIdJwtSignatureValidator(OAuth2ServiceConfiguration configuration, OAuth2TokenKeyServiceWithCache tokenKeyService,
 			OidcConfigurationServiceWithCache oidcConfigurationService) {
@@ -43,21 +47,49 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 		this.isTenantIdCheckEnabled = false;
 	}
 
+	/**
+	 * Enables ProofToken Validation check for forwarded client certificates. If the check is enabled and no forwarded
+	 * certificate in the request is available, the token will be evaluated as invalid.
+	 * With this check enabled, the forwarded certificate is added to the token keys request.
+	 */
+	protected void enableProofTokenValidationCheck() {
+		this.isProofTokenValidationEnabled = true;
+	}
+
 	@Override
 	protected PublicKey getPublicKey(Token token, JwtSignatureAlgorithm algorithm) throws OAuth2ServiceException {
 		String keyId = DEFAULT_KEY_ID;
 		if (token.hasHeaderParameter(KID_PARAMETER_NAME)) {
 			keyId = token.getHeaderParameterAsString(KID_PARAMETER_NAME);
 		}
+		OAuth2TokenKeyServiceWithCache.KeyParameters keyParams = new OAuth2TokenKeyServiceWithCache.KeyParameters(
+				algorithm, keyId, getJwksUri(token));
 
-		URI jkuUri = getJwksUri(token);
-		Map<String, String> params = new HashMap<>(3, 1);
-		params.put(HttpHeaders.X_APP_TID, token.getAppTid());
-		params.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
-		params.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
+		Map<String, String> requestParams = new HashMap<>(3, 1);
+		OAuth2TokenKeyServiceWithCache.CacheKey cacheKey;
+
+		requestParams.put(HttpHeaders.X_APP_TID, token.getAppTid());
+		requestParams.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
+		requestParams.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
+		if (isProofTokenValidationEnabled) {
+			X509Certificate cert = (X509Certificate) SecurityContext.getClientCertificate();
+
+			if (cert == null) {
+				throw new OAuth2ServiceException("Proof token was not found");
+			} else {
+				Map<String, String> cacheKeyParams = new HashMap<>(requestParams);
+
+				requestParams.put(HttpHeaders.X_CLIENT_CERT, cert.getPEM());
+				cacheKeyParams.put(X509Constants.FWD_CLIENT_CERT_SUB, cert.getSubjectDN());
+
+				cacheKey = new OAuth2TokenKeyServiceWithCache.CacheKey(keyParams.keyUri(), cacheKeyParams);
+			}
+		} else {
+			cacheKey = new OAuth2TokenKeyServiceWithCache.CacheKey(keyParams.keyUri(), requestParams);
+		}
 
 		try {
-			return tokenKeyService.getPublicKey(algorithm, keyId, jkuUri, params);
+			return tokenKeyService.getPublicKey(keyParams, requestParams, cacheKey);
 		} catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
 			throw new IllegalArgumentException(e);
 		}

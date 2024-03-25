@@ -11,4 +11,5 @@ public final class X509Constants {
 	}
 
 	public static final String FWD_CLIENT_CERT_HEADER = "x-forwarded-client-cert";
+	public static final String FWD_CLIENT_CERT_SUB = "cert-sub";
 }

@@ -167,6 +167,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 		WebApplicationContextRunner runner = new WebApplicationContextRunner()
 				.withPropertyValues(identityProperties.toArray(new String[0]))
+				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
 				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
 		runner.run(context -> assertNotNull(context.getBean("iasJwtDecoder", IasJwtDecoder.class)));
 	}

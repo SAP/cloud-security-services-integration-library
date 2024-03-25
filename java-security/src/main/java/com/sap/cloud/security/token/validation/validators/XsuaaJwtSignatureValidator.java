@@ -103,7 +103,8 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
 		URI uri = URI.create(jwksUri);
 		uri = uri.isAbsolute() ? uri : URI.create("https://" + jwksUri);
 		Map<String, String> params = Collections.singletonMap(HttpHeaders.X_ZID, token.getAppTid());
-		return tokenKeyService.getPublicKey(algorithm, keyId, uri, params);
+		return tokenKeyService.getPublicKey(new OAuth2TokenKeyServiceWithCache.KeyParameters(algorithm, keyId, uri),
+				params);
 	}
 
 	private String composeZidQueryParameter(Token token) {
