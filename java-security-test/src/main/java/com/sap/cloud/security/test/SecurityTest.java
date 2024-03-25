@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -229,8 +230,13 @@ public class SecurityTest
 
 		WebAppContext context = new WebAppContext();
 		context.setContextPath("/");
-		context.setBaseResourceAsString("src/main/webapp");
 		context.setSecurityHandler(security);
+		File file = new File("src/main/webapp");
+		if (file.exists() && file.isDirectory()) {
+			context.setBaseResourceAsString("src/main/webapp");
+		} else {
+			context.setBaseResourceAsString("src/main/java");
+		}
 
 		applicationServletsByPath
 				.forEach((path, servletHolder) -> context.addServlet(servletHolder, path));
