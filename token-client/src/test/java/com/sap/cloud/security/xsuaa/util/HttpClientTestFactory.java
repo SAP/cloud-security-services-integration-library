@@ -17,6 +17,7 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 public class HttpClientTestFactory {
@@ -33,8 +34,8 @@ public class HttpClientTestFactory {
 		when(response.getEntity()).thenReturn(new StringEntity(responseAsJson, ContentType.APPLICATION_JSON));
 		when(response.getAllHeaders()).thenReturn(headers);
 		Arrays.stream(headers).distinct().forEach(h -> {
-			when(response.containsHeader(h.getName())).thenReturn(true);
-			when(response.getFirstHeader(h.getName())).thenReturn(h);
+			lenient().when(response.containsHeader(h.getName())).thenReturn(true);
+			lenient().when(response.getFirstHeader(h.getName())).thenReturn(h);
 		});
 		return response;
 	}
