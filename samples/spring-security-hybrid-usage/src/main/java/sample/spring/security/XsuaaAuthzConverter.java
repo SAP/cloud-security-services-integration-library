@@ -6,6 +6,7 @@ package sample.spring.security;
 
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.XsuaaTokenAuthorizationConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,6 +21,7 @@ import static com.sap.cloud.security.config.ServiceConstants.XSUAA.APP_ID;
 public class XsuaaAuthzConverter {
 
 	@Bean
+	@ConditionalOnProperty("sap.security.services.xsuaa[0].uaadomain")
 	public XsuaaTokenAuthorizationConverter multipleXsuaaConfigAuthzConverter(
 			XsuaaServiceConfigurations xsuaaConfigs) {
 		return new XsuaaTokenAuthorizationConverterExt (
