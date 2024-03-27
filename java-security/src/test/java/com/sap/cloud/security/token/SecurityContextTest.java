@@ -88,4 +88,11 @@ public class SecurityContextTest {
 		assertThat(SecurityContext.getAccessToken()).isEqualTo(accessToken);
 	}
 
+	@Test
+	public void setGetRemoveServicePlan() {
+		SecurityContext.setServicePlan("plan");
+		assertThat(SecurityContext.getServicePlan()).isEqualTo("plan");
+		SecurityContext.clearServicePlan();
+		assertThat(SecurityContext.getServicePlan()).isNull();
+	}
 }

@@ -6,6 +6,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.Header;
@@ -24,6 +25,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
+
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
@@ -71,6 +74,9 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				}
 
 				LOGGER.debug("Successfully retrieved token keys from {} with params {}.", tokenKeysEndpointUri, params);
+				if (response.containsHeader(X_OSB_PLAN)) {
+					SecurityContext.setServicePlan(response.getFirstHeader(X_OSB_PLAN).getValue());
+				}
 				return body;
 			});
 		} catch (IOException e) {

@@ -21,6 +21,7 @@ public class SecurityContext {
 	}
 
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
+	private static final ThreadLocal<String> planStorage = new ThreadLocal<>();
 	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
 
 	/**
@@ -68,6 +69,7 @@ public class SecurityContext {
 		tokenStorage.set(token);
 	}
 
+
 	/**
 	 * Returns the token that is saved in thread wide storage.
 	 *
@@ -101,11 +103,44 @@ public class SecurityContext {
 	}
 
 	/**
+	 * Returns an Identity service broker plan that's been stored in thread local storage
+	 *
+	 * @return Identity service broker plan
+	 */
+	public static String getServicePlan() {
+		return planStorage.get();
+	}
+
+	/**
+	 * Saves the Identity service broker plan name in thread local storage
+	 *
+	 * @param plan
+	 * 		Identity service broker plan name
+	 */
+	public static void setServicePlan(String plan) {
+		LOGGER.debug("Sets Identity Service Plan to SecurityContext (thread-locally).",
+				plan);
+		planStorage.set(plan);
+	}
+
+	/**
+	 * Clears the current Token from thread wide storage.
+	 */
+	public static void clearServicePlan() {
+		final String plan = planStorage.get();
+		if (plan != null) {
+			LOGGER.debug("Service plan {} removed from SecurityContext (thread-locally).", plan);
+			planStorage.remove();
+		}
+	}
+
+	/**
 	 * Clears the current token and certificate from thread wide storage.
 	 */
 	public static void clear() {
 		clearCertificate();
 		clearToken();
+		clearServicePlan();
 	}
 
 }
