@@ -118,7 +118,7 @@ public class SecurityContext {
 	 * 		Identity service broker plan name
 	 */
 	public static void setServicePlan(String plan) {
-		LOGGER.debug("Sets Identity Service Plan to SecurityContext (thread-locally).",
+		LOGGER.debug("Sets Identity Service Plan {} to SecurityContext (thread-locally).",
 				plan);
 		planStorage.set(plan);
 	}
