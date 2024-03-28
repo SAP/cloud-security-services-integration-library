@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -124,7 +125,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	}
 
 	@Test
-	public void retrieveTokenKeys_app2Service_ProofToken() throws IOException {
+	public void retrieveTokenKeys_app2Service_proofToken() throws IOException {
 		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponseWithHeaders(jsonWebKeysAsString,
 				new BasicHeader[] { new BasicHeader(X_OSB_PLAN, "plan") });
 
@@ -137,6 +138,23 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		requestParams.put(HttpHeaders.X_CLIENT_CERT, "cert");
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, requestParams);
 		assertNotNull(SecurityContext.getServicePlan());
+		assertThat(SecurityContext.getServicePlan()).containsExactly("plan");
+	}
+
+	@Test
+	public void retrieveTokenKeys_app2service_proofToken_multiplePlans() throws IOException {
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponseWithHeaders(jsonWebKeysAsString,
+				new BasicHeader[] { new BasicHeader(X_OSB_PLAN, "plan1, plan2") });
+
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
+
+		Map<String, String> requestParams = new HashMap<>();
+		requestParams.put(HttpHeaders.X_CLIENT_CERT, "cert");
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, requestParams);
+		assertThat(SecurityContext.getServicePlan()).containsExactly("plan1", "plan2");
 	}
 
 	@Test

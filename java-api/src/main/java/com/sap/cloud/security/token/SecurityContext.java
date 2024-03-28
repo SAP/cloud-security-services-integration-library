@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 /**
  * Thread wide {@link Token} storage.
@@ -21,7 +22,7 @@ public class SecurityContext {
 	}
 
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
-	private static final ThreadLocal<String> planStorage = new ThreadLocal<>();
+	private static final ThreadLocal<String[]> planStorage = new ThreadLocal<>();
 	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
 
 	/**
@@ -105,9 +106,9 @@ public class SecurityContext {
 	/**
 	 * Returns an Identity service broker plan that's been stored in thread local storage
 	 *
-	 * @return Identity service broker plan
+	 * @return an array of Identity service broker plans
 	 */
-	public static String getServicePlan() {
+	public static String[] getServicePlan() {
 		return planStorage.get();
 	}
 
@@ -117,19 +118,23 @@ public class SecurityContext {
 	 * @param plan
 	 * 		Identity service broker plan name
 	 */
-	public static void setServicePlan(String plan) {
-		LOGGER.debug("Sets Identity Service Plan {} to SecurityContext (thread-locally).",
-				plan);
+	public static void setServicePlan(String... plan) {
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Sets Identity Service Plan {} to SecurityContext (thread-locally).",
+					Arrays.toString(plan));
+		}
 		planStorage.set(plan);
 	}
 
 	/**
-	 * Clears the current Token from thread wide storage.
+	 * Clears the current Identity Broker Service Plan from thread wide storage.
 	 */
 	public static void clearServicePlan() {
-		final String plan = planStorage.get();
-		if (plan != null) {
-			LOGGER.debug("Service plan {} removed from SecurityContext (thread-locally).", plan);
+		final String[] plan = planStorage.get();
+		if (plan != null && plan.length != 0) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Service plan {} removed from SecurityContext (thread-locally).", Arrays.toString(plan));
+			}
 			planStorage.remove();
 		}
 	}

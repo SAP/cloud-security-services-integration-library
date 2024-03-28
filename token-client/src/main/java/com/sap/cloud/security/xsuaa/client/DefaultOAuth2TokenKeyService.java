@@ -74,8 +74,11 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				}
 
 				LOGGER.debug("Successfully retrieved token keys from {} with params {}.", tokenKeysEndpointUri, params);
+				// This is required for app2service communication. In case x-client_cert is provided in the request,
+				// the response can contain identity service broker plan header. Values
 				if (response.containsHeader(X_OSB_PLAN)) {
-					SecurityContext.setServicePlan(response.getFirstHeader(X_OSB_PLAN).getValue());
+					SecurityContext.setServicePlan(
+							response.getFirstHeader(X_OSB_PLAN).getValue().trim().split("\\s*,\\s*"));
 				}
 				return body;
 			});
