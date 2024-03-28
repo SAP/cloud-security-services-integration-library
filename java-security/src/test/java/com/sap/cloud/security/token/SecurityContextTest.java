@@ -91,7 +91,7 @@ public class SecurityContextTest {
 	@Test
 	public void setGetRemoveServicePlan() {
 		SecurityContext.setServicePlan("plan");
-		assertThat(SecurityContext.getServicePlan()).isEqualTo("plan");
+		assertThat(SecurityContext.getServicePlan()).containsExactly("plan");
 		SecurityContext.clearServicePlan();
 		assertThat(SecurityContext.getServicePlan()).isNull();
 	}
