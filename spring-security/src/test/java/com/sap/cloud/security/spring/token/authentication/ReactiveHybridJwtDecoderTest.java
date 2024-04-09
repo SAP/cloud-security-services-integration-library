@@ -36,7 +36,7 @@ class ReactiveHybridJwtDecoderTest {
 	}
 
 	@Test
-	void parseJwt() {
+	void parseJwtIasToken() {
 		Jwt jwtToken = ReactiveHybridJwtDecoder.parseJwt(jwtGenerator.createToken()).block();
 
 		assertEquals(2, jwtToken.getHeaders().size());
@@ -44,6 +44,18 @@ class ReactiveHybridJwtDecoderTest {
 		assertEquals(1, jwtToken.getExpiresAt().compareTo(Instant.now()));
 		assertEquals("theClientId", jwtToken.getClaims().get(TokenClaims.AUTHORIZATION_PARTY));
 
+	}
+
+	@Test
+	void parseJwtXsuaaToken() {
+		JwtGenerator jwtGeneratorXsuaa = JwtGenerator.getInstance(XSUAA, "theClientId").withClaimValue("iat", "1704063600");
+
+		Jwt jwtToken = ReactiveHybridJwtDecoder.parseJwt(jwtGeneratorXsuaa.createToken()).block();
+
+		assertEquals(3, jwtToken.getHeaders().size());
+		assertEquals(7, jwtToken.getClaims().size());
+		assertEquals(1, jwtToken.getExpiresAt().compareTo(Instant.now()));
+		assertEquals("theClientId", jwtToken.getClaims().get(TokenClaims.AUTHORIZATION_PARTY));
 	}
 
 	@Test
