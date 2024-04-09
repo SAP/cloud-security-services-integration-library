@@ -89,11 +89,6 @@
             </dependency>
             <dependency>
                 <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>xsuaa-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
                 <artifactId>spring-xsuaa-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -105,11 +100,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>spring-security</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>resourceserver-security-spring-boot-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
