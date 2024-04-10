@@ -50,7 +50,7 @@ public class SecurityConfiguration {
 ```
 
 ## Access VCAP_SERVICES values
-```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find a sample property file [here](/samples/spring-security-hybrid-usage/src/test/resources/application-multixsuaa.yml).  
+```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find a sample property file [here](/samples/spring-security-hybrid-usage/src/test/resources/application.yml).  
 
 #### ``@Value``
   **Before**  
