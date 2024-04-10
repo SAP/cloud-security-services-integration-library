@@ -9,13 +9,13 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.3.5</version>
+		<version>3.4.0</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
 	<artifactId>spring-security</artifactId>
 	<packaging>jar</packaging>
-	<version>3.3.5</version>
+	<version>3.4.0</version>
 
 	<dependencies>
 <!--		TODO remove once spring-security-oauth2-jose has a newer version with updated nimbus dependency-->
