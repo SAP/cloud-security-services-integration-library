@@ -79,8 +79,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				if (response.containsHeader(X_OSB_PLAN)) {
 					String xOsbPlan = response.getFirstHeader(X_OSB_PLAN).getValue();
 					if (xOsbPlan != null) {
-						SecurityContext.setServicePlan(
-								xOsbPlan.trim().split("\\s*,\\s*"));
+						SecurityContext.setServicePlan(xOsbPlan);
 					}
 				}
 				return body;

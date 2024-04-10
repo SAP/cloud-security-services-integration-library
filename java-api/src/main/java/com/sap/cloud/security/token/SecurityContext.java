@@ -115,15 +115,16 @@ public class SecurityContext {
 	/**
 	 * Saves the Identity service broker plan name in thread local storage
 	 *
-	 * @param plan
-	 * 		Identity service broker plan name
+	 * @param planHeader
+	 * 		Identity service broker plan header (x-osb_plan)
 	 */
-	public static void setServicePlan(String... plan) {
+	public static void setServicePlan(String planHeader) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Sets Identity Service Plan {} to SecurityContext (thread-locally).",
-					Arrays.toString(plan));
+					planHeader);
 		}
-		planStorage.set(plan);
+
+		planStorage.set(planHeader.trim().split("\\s*,\\s*"));
 	}
 
 	/**
