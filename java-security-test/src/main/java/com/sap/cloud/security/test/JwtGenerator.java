@@ -216,8 +216,7 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given integer value. Note: for overwriting client Id claim, "azp" claim
-	 * value should be overwritten instead of deprecated "cid"
+	 * Sets the claim with the given name to the given integer value.
 	 *
 	 * @param claimName
 	 * 		the name of the claim to be set.

@@ -52,6 +52,7 @@ class ReactiveHybridJwtDecoderTest {
 
 		assertEquals("theClientId", cut.decode(encodedToken).block().getClaim(TokenClaims.AUTHORIZATION_PARTY));
         assertTrue(jwtToken.hasClaim(TokenClaims.XSUAA.ISSUED_AT));
+		assertEquals(1704067200, jwtToken.getClaims().get(TokenClaims.XSUAA.ISSUED_AT));
 	}
 
 	@Test
