@@ -6,6 +6,8 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.x509.Certificate;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +24,7 @@ public class SecurityContext {
 	}
 
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
-	private static final ThreadLocal<String[]> planStorage = new ThreadLocal<>();
+	private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<List<String>>();
 	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
 
 	/**
@@ -70,7 +72,6 @@ public class SecurityContext {
 		tokenStorage.set(token);
 	}
 
-
 	/**
 	 * Returns the token that is saved in thread wide storage.
 	 *
@@ -104,44 +105,53 @@ public class SecurityContext {
 	}
 
 	/**
-	 * Returns an Identity service broker plan that's been stored in thread local storage
+	 * Returns the Identity service broker plans that are stored in the thread local storage
 	 *
-	 * @return an array of Identity service broker plans
+	 * @return a list of Identity service broker plans
 	 */
-	public static String[] getServicePlan() {
-		return planStorage.get();
+	public static List<String> getServicePlans() {
+		return servicePlanStorage.get();
 	}
 
 	/**
-	 * Saves the Identity service broker plan name in thread local storage
+	 * Saves the Identity service broker plans in thread local storage.
 	 *
-	 * @param planHeader
-	 * 		Identity service broker plan header (x-osb_plan)
+	 * @param servicePlansHeader unprocessed Identity Service broker plan header value from response
 	 */
-	public static void setServicePlan(String planHeader) {
+	public static void setServicePlans(String servicePlansHeader) {
+		// the header format contains a comma-separated list of quoted plan names, e.g. "plan1","plan \"two\"","plan3"
+		String[] planParts = servicePlansHeader
+				.trim()
+				.split("\\s*,\\s*"); // split by <whitespaces>,<whitespaces>
+
+		// remove " around plan names
+		List<String> plans = Arrays.stream(planParts)
+				.map(plan -> plan.substring(1, plan.length() - 1))
+				.collect(Collectors.toList());
+
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Sets Identity Service Plan {} to SecurityContext (thread-locally).",
-					planHeader);
+					plans);
 		}
 
-		planStorage.set(planHeader.trim().split("\\s*,\\s*"));
+		servicePlanStorage.set(plans);
 	}
 
 	/**
-	 * Clears the current Identity Broker Service Plan from thread wide storage.
+	 * Clears the current Identity Service broker plans from thread wide storage.
 	 */
 	public static void clearServicePlan() {
-		final String[] plan = planStorage.get();
-		if (plan != null && plan.length != 0) {
+		final List<String> plans = servicePlanStorage.get();
+		if (plans != null && plans.size() != 0) {
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Service plan {} removed from SecurityContext (thread-locally).", Arrays.toString(plan));
+				LOGGER.debug("Service plans {} removed from SecurityContext (thread-locally).", plans);
 			}
-			planStorage.remove();
+			servicePlanStorage.remove();
 		}
 	}
 
 	/**
-	 * Clears the current token and certificate from thread wide storage.
+	 * Clears the current token, certificate and Identity service broker plans from thread wide storage.
 	 */
 	public static void clear() {
 		clearCertificate();

@@ -5,18 +5,17 @@
  */
 package com.sap.cloud.security.token;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 public class SecurityContextTest {
 
@@ -90,9 +89,9 @@ public class SecurityContextTest {
 
 	@Test
 	public void setGetRemoveServicePlan() {
-		SecurityContext.setServicePlan("plan");
-		assertThat(SecurityContext.getServicePlan()).containsExactly("plan");
+		SecurityContext.setServicePlans("\"plan1\" , \"plan \"two\"\",\"plan3\"");
+		assertThat(SecurityContext.getServicePlans()).containsExactly("plan1", "plan \"two\"", "plan3");
 		SecurityContext.clearServicePlan();
-		assertThat(SecurityContext.getServicePlan()).isNull();
+		assertThat(SecurityContext.getServicePlans()).isNull();
 	}
 }
