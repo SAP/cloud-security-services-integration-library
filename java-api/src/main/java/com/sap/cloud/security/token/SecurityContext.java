@@ -119,7 +119,7 @@ public class SecurityContext {
 	 * @param servicePlansHeader unprocessed Identity Service broker plan header value from response
 	 */
 	public static void setServicePlans(String servicePlansHeader) {
-		// the header format contains a comma-separated list of quoted plan names, e.g. "plan1","plan \"two","plan3"
+		// the header format contains a comma-separated list of quoted plan names, e.g. "plan1","plan \"two\"","plan3"
 		String[] planParts = servicePlansHeader
 				.trim()
 				.split("\\s*,\\s*"); // split by <whitespaces>,<whitespaces>
