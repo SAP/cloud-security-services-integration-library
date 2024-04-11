@@ -140,7 +140,7 @@ public class SecurityContext {
 	/**
 	 * Clears the current Identity Service broker plans from thread wide storage.
 	 */
-	public static void clearServicePlan() {
+	public static void clearServicePlans() {
 		final List<String> plans = servicePlanStorage.get();
 		if (plans != null && plans.size() != 0) {
 			if (LOGGER.isDebugEnabled()) {
@@ -156,7 +156,7 @@ public class SecurityContext {
 	public static void clear() {
 		clearCertificate();
 		clearToken();
-		clearServicePlan();
+		clearServicePlans();
 	}
 
 }

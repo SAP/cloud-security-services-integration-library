@@ -88,10 +88,10 @@ public class SecurityContextTest {
 	}
 
 	@Test
-	public void setGetRemoveServicePlan() {
+	public void setGetRemoveServicePlans() {
 		SecurityContext.setServicePlans("\"plan1\" , \"plan \"two\"\",\"plan3\"");
 		assertThat(SecurityContext.getServicePlans()).containsExactly("plan1", "plan \"two\"", "plan3");
-		SecurityContext.clearServicePlan();
+		SecurityContext.clearServicePlans();
 		assertThat(SecurityContext.getServicePlans()).isNull();
 	}
 }
