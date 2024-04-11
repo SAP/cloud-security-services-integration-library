@@ -216,6 +216,20 @@ public class JwtGenerator {
 	}
 
 	/**
+	 * Sets the claim with the given name to the given integer value.
+	 *
+	 * @param claimName
+	 * 		the name of the claim to be set.
+	 * @param value
+	 * 		the integer value of the claim to be set.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withClaimValue(String claimName, int value) {
+		jsonPayload.put(claimName, value);
+		return this;
+	}
+
+	/**
 	 * Sets the claim with the given name to the given string value. Note: for overwriting client Id claim, "azp" claim
 	 * value should be overwritten instead of deprecated "cid"
 	 *
