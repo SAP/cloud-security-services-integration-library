@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 
 - Bump commons-io:commons-io from 2.15.1 to 2.16.1
 - Bump spring.boot.version from 3.2.2 to 3.2.4
+- Bump spring.core.version from 6.1.5 to 6.1.6
 - Bump io.projectreactor:reactor-core from 3.6.2 to 3.6.5
 - Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from
   0.10.3 to 0.10.4
