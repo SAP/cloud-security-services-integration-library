@@ -55,7 +55,27 @@ public class ServiceConstants {
 	 * Represents service plans of identity services.
 	 */
 	public enum Plan {
-		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
+		/**
+		 * @deprecated
+		 * Service Plan default will be deprecated in 2024
+		 */
+		@Deprecated
+		DEFAULT,
+		BROKER,
+		APPLICATION,
+		/**
+		 * @deprecated
+		 * Service Plan space will be deprecated in 2024
+		 */
+		@Deprecated
+		SPACE,
+		/**
+		 * @deprecated
+		 * Service Plan apiaccess will be deprecated in 2024
+		 */
+		@Deprecated
+		APIACCESS,
+		SYSTEM;
 
 		public static Plan from(String planAsString) {
 			if (planAsString == null) {
