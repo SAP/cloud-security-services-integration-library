@@ -1,15 +1,30 @@
 # Change Log
+
 All notable changes to this project will be documented in this file.
 
+## 2.17.4
+
+#### Dependency upgrades
+
+- bump spring-core version to 5.3.33
+- bump spring-security version to 5.8.11
+- bump og4j2.version to 2.23.1
+- bump commons io version to 2.16.1
+- bump org.json.version to 20240303
+- bump sap.cloud.env.servicebinding.version to 0.10.4
+
 ## 2.17.3
+
 - [java-security]
   - add name property of service binding as property to OAuth2ServiceConfiguration
 - [java-api]
   - add ServiceConstant#NAME which can be used to access that property
 - [env]
-  -  service plan property is no longer uppercased when building OAuth2ServiceConfiguration from service bindings of the environment
+  - service plan property is no longer uppercased when building OAuth2ServiceConfiguration from service bindings of the
+    environment
 - [spring-security]
-  - fixes a bug in which a second XSUAA configuration of plan "broker" was ignored in spring-security auto-configuration for versions >= 2.16.0 and < 2.17.3
+  - fixes a bug in which a second XSUAA configuration of plan "broker" was ignored in spring-security auto-configuration
+    for versions >= 2.16.0 and < 2.17.3
   - add setName getName, setPlan, getPlan to OAuth2ServiceConfigurationProperties, which means, the list of XsuaaServiceConfigurations can now be filtered based on these properties.
 - [token-client] 
   - remove httpclient caching from DefaultHttpClientFactory (#1416)
