@@ -28,6 +28,7 @@ public class HttpHeaders {
 	public static final String X_CLIENT_ID = "x-client_id";
 	public static final String X_AZP = "x-azp";
 	public static final String X_CLIENT_CERT = "x-client_cert";
+	public static final String X_OSB_PLAN = "x-osb_plan";
 
 	private final Set<HttpHeader> headers;
 

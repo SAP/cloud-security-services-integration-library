@@ -1,7 +1,34 @@
 # Change Log
+
 All notable changes to this project will be documented in this file.
 
+## 3.4.0
+
+- [java-api] `SecurityContext` has been extended with a thread local storage for Service
+  Plans. `setServicePlans()`, `getServicePlans()`, `clearServicePlans()` methods have been added.
+- [java-security]
+  - added support for Identity Service Proof Token validation. Proof Token validation can be enabled by
+    calling `JwtValidatorBuilder.enableProofTokenCheck()`. Once enabled, it will forward the X509 client certificate from the
+    request header `x-fowarded-client-cert` as `x-client_cert` header to the `/oauth2/token_keys` endpoint.
+  - `DefaultOAuth2TokenKeyService` saves the service plans from response header `x-osb_plan` (identity broker service plan) 
+    in the new `SecurityContext` thread local storage for Service Plans. The header should be available when proof token validation is enabled.
+    In this case, a `x-client_cert` is sent in the request to `/oauth2/token_keys` which should trigger the `x-osb_plan` response header.
+- [spring-security] fixes a bug in `ReactiveHybridJwtDecoder` when parsing `iat` claim #1490
+
+#### Dependency upgrades
+
+- Bump commons-io:commons-io from 2.15.1 to 2.16.1
+- Bump spring.boot.version from 3.2.2 to 3.2.4
+- Bump spring.core.version from 6.1.5 to 6.1.6
+- Bump io.projectreactor:reactor-core from 3.6.2 to 3.6.5
+- Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from
+  0.10.3 to 0.10.4
+- Bump spring.security.version from 6.2.1 to 6.2.3
+- Bump org.springframework:spring-web from 6.1.4 to 6.1.5
+- Bump org.json:json from 20240205 to 20240303
+
 ## 3.3.5
+
 - [spring-xsuaa] fixes a NPE bug in `XsuaaJwtDecoder` when uaadomain value is null
 - [spring-security] reactive token validation supported with a help of `ReactiveSecurityContext`
   and  `ReactiveHybridJwtDecoder` to allow more versatile use of spring-security library, also

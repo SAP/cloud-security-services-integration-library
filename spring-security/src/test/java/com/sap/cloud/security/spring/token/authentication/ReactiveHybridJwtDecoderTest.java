@@ -15,8 +15,7 @@ import java.time.Instant;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +43,16 @@ class ReactiveHybridJwtDecoderTest {
 		assertEquals(1, jwtToken.getExpiresAt().compareTo(Instant.now()));
 		assertEquals("theClientId", jwtToken.getClaims().get(TokenClaims.AUTHORIZATION_PARTY));
 
+	}
+
+	@Test
+	void decodeXsuaaTokenWithIatClaim() {
+		Token jwtToken = JwtGenerator.getInstance(XSUAA, "theClientId").withClaimValue(TokenClaims.XSUAA.ISSUED_AT, 1704067200).createToken();
+		String encodedToken = jwtToken.getTokenValue();
+
+		assertEquals("theClientId", cut.decode(encodedToken).block().getClaim(TokenClaims.AUTHORIZATION_PARTY));
+        assertTrue(jwtToken.hasClaim(TokenClaims.XSUAA.ISSUED_AT));
+		assertEquals(1704067200, jwtToken.getClaims().get(TokenClaims.XSUAA.ISSUED_AT));
 	}
 
 	@Test

@@ -6,6 +6,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.apache.http.Header;
@@ -24,6 +25,8 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
+
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
@@ -71,6 +74,17 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				}
 
 				LOGGER.debug("Successfully retrieved token keys from {} with params {}.", tokenKeysEndpointUri, params);
+
+				/* This is required for Identity Service App2Service communication. When proof token validation is enabled,
+				 the response can contain an Identity Service broker plan header whose content needs to be accessible
+				 on the SecurityContext. */
+				if (response.containsHeader(X_OSB_PLAN)) {
+					String xOsbPlan = response.getFirstHeader(X_OSB_PLAN).getValue();
+					if (xOsbPlan != null) {
+						SecurityContext.setServicePlans(xOsbPlan);
+					}
+				}
+
 				return body;
 			});
 		} catch (IOException e) {
