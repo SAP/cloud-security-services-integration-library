@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import org.apache.commons.io.IOUtils;
@@ -13,6 +14,7 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
@@ -23,9 +25,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
@@ -116,6 +122,39 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
 				.isInstanceOf(OAuth2ServiceException.class)
 				.hasMessageContaining(errorMessage);
+	}
+
+	@Test
+	public void retrieveTokenKeys_app2Service_proofToken() throws IOException {
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponseWithHeaders(jsonWebKeysAsString,
+				new BasicHeader[] { new BasicHeader(X_OSB_PLAN, "\"plan1\"") });
+
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
+
+		Map<String, String> requestParams = new HashMap<>();
+		requestParams.put(HttpHeaders.X_CLIENT_CERT, "cert");
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, requestParams);
+		assertNotNull(SecurityContext.getServicePlans());
+		assertThat(SecurityContext.getServicePlans()).containsExactly("plan1");
+	}
+
+	@Test
+	public void retrieveTokenKeys_app2service_proofToken_multiplePlans() throws IOException {
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponseWithHeaders(jsonWebKeysAsString,
+				new BasicHeader[] { new BasicHeader(X_OSB_PLAN, "\"plan1\" , \"plan \"two\"\",\"plan3\"") });
+
+		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
+			ResponseHandler responseHandler = invocation.getArgument(1);
+			return responseHandler.handleResponse(response);
+		});
+
+		Map<String, String> requestParams = new HashMap<>();
+		requestParams.put(HttpHeaders.X_CLIENT_CERT, "cert");
+		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, requestParams);
+		assertThat(SecurityContext.getServicePlans()).containsExactly("plan1", "plan \"two\"", "plan3");
 	}
 
 	@Test
