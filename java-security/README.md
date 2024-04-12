@@ -271,22 +271,42 @@ This validator is not part of the default `CombiningValidator`, it needs to be a
 It can be done in the following manner:
 ```java
 JwtValidatorBuilder.getInstance(oAuth2ServiceConfiguration)
-    .with(new JwtX5tValidator(oAuth2ServiceConfiguration))
-    .build();
+		.with(new JwtX5tValidator(oAuth2ServiceConfiguration))
+		.build();
 ```
-Or it can be used as a standalone `Validator`, by creating a new instance of it and calling `JwtX5tValidator.validate(Token token)` method with the token to be validated as a method's parameter. See [here](#retrieve-additional-information-from-token) how to get a token from `SecurityContext`
+
+Or it can be used as a standalone `Validator`, by creating a new instance of it and
+calling `JwtX5tValidator.validate(Token token)` method with the token to be validated as a method's parameter.
+See [here](#retrieve-additional-information-from-token) how to get a token from `SecurityContext`
+
 ```java
-JwtX5tValidator validator = new JwtX5tValidator(oAuth2ServiceConfiguration);
-ValidationResult result = validator.validate(token);
+JwtX5tValidator validator=new JwtX5tValidator(oAuth2ServiceConfiguration);
+		ValidationResult result=validator.validate(token);
+```
+
+#### Proof Token validation
+
+Once enabled, it will forward the X509 client certificate from the request header `x-fowarded-client-cert`
+as `x-client_cert` header to the `/oauth2/token_keys` endpoint.
+To enable Proof Token validation for `JwtSignatureValidator`:
+
+```java
+JwtValidatorBuilder.getInstance(oAuth2ServiceConfiguration)
+		.enableProofTokenCheck()
+		.build();
 ```
 
 ### `Token` usage
-#### Create a Token Object 
-This code snippet decodes a given JSON Web Token (JWT) and extracts its JSON header and payload. The `Token` interface allows for easy access to JWT header parameters and claims. The claim constants can be found in the [`TokenClaims`](/java-api/src/main/java/com/sap/cloud/security/token/TokenClaims.java) class.
+
+#### Create a Token Object
+
+This code snippet decodes a given JSON Web Token (JWT) and extracts its JSON header and payload. The `Token` interface
+allows for easy access to JWT header parameters and claims. The claim constants can be found in
+the [`TokenClaims`](/java-api/src/main/java/com/sap/cloud/security/token/TokenClaims.java) class.
 
 ```java
-String authorizationHeader = "Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
-		Token token = Token.create(authorizationHeader); // compatible with tokens issued by xsuaa and ias
+String authorizationHeader="Bearer eyJhbGciOiJGUzI1NiJ2.eyJhh...";
+		Token token=Token.create(authorizationHeader); // compatible with tokens issued by xsuaa and ias
 ```
 
 #### Retrieve additional information from Token

@@ -43,6 +43,7 @@ public class JwtValidatorBuilder {
 	private Validator<Token> customAudienceValidator;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 	private boolean isTenantIdCheckDisabled;
+	private boolean isProofTokenCheckEnabled;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidatorBuilder.class);
 
@@ -191,6 +192,16 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
+	 * Enables proof token check for JwtSignatureValidator. This method enables the Proof Token check.
+	 *
+	 * @return this builder
+	 */
+	public JwtValidatorBuilder enableProofTokenCheck() {
+		this.isProofTokenCheckEnabled = true;
+		return this;
+	}
+
+	/**
 	 * Builds the validators with the applied parameters.
 	 *
 	 * @return the combined validators.
@@ -223,6 +234,9 @@ public class JwtValidatorBuilder {
 					getOidcConfigurationServiceWithCache());
 			if (isTenantIdCheckDisabled) {
 				((SapIdJwtSignatureValidator) signatureValidator).disableTenantIdCheck();
+			}
+			if (isProofTokenCheckEnabled) {
+				((SapIdJwtSignatureValidator) signatureValidator).enableProofTokenValidationCheck();
 			}
 		}
 
