@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.17.5
+
+#### Dependency upgrades
+
+- bump spring-core version to 5.3.34
+
 ## 2.17.4
 
 #### Dependency upgrades
