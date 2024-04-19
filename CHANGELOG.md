@@ -3,15 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.17.5
-
 #### Dependency upgrades
-
 - bump spring-core version to 5.3.34
+- bump spring-security version to 5.8.12
 
 ## 2.17.4
 
 #### Dependency upgrades
-
 - bump spring-core version to 5.3.33
 - bump spring-security version to 5.8.11
 - bump og4j2.version to 2.23.1
