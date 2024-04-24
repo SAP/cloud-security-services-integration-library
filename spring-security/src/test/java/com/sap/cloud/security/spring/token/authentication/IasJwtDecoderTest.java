@@ -74,6 +74,15 @@ class IasJwtDecoderTest {
 	}
 
 	@Test
+	void decodeIasTokenWithoutFwdCert() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+		String encodedToken = jwtGenerator.createToken().getTokenValue();
+		assertEquals("theClientId", cut.decode(encodedToken).getClaim(TokenClaims.AUTHORIZATION_PARTY));
+	}
+
+	@Test
 	void decodeInvalidToken_throwsAccessDeniedException() {
 		CombiningValidator<Token> combiningValidator = Mockito.mock(CombiningValidator.class);
 		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
