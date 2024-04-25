@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.4.2
+
+- [spring-security]
+  - fixes a NPE bug introduced in the `HybridJwtDecoder` when the incoming request does not
+    contain `x-forwarded-client-cert` header
+  - `SecurityContextAutoConfiguration` which synchronises all SecurityContexts is now enabled by default. To disable it
+    set the `sap.spring.security.hybrid.sync_securitycontext` spring property to false
+
 ## 3.4.1
 
 - [spring-security] fixes a NPE bug introduced in the `IasJwtDecoder` when the incoming request does not
