@@ -2,15 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.4.1
+
+- [spring-security] fixes a NPE bug introduced in the `IasJwtDecoder` when the incoming request does not
+  contain `x-forwarded-client-cert` header
+
+#### Dependency upgrades
+
+- Bumps `spring.boot.version` from 3.2.4 to 3.2.5.
+- Bumps `slf4j.api.version` from 2.0.12 to 2.0.13
+- Bumps `spring.security.version` from 6.2.3 to 6.2.4.
+
 ## 3.4.0
 
 - [java-api] `SecurityContext` has been extended with a thread local storage for Service
   Plans. `setServicePlans()`, `getServicePlans()`, `clearServicePlans()` methods have been added.
 - [java-security]
   - added support for Identity Service Proof Token validation. Proof Token validation can be enabled by
-    calling `JwtValidatorBuilder.enableProofTokenCheck()`. Once enabled, it will forward the X509 client certificate from the
+    calling `JwtValidatorBuilder.enableProofTokenCheck()`. Once enabled, it will forward the X509 client certificate
+    from the
     request header `x-fowarded-client-cert` as `x-client_cert` header to the `/oauth2/token_keys` endpoint.
-  - `DefaultOAuth2TokenKeyService` saves the service plans from response header `x-osb_plan` (identity broker service plan) 
+  - `DefaultOAuth2TokenKeyService` saves the service plans from response header `x-osb_plan` (identity broker service
+    plan)
     in the new `SecurityContext` thread local storage for Service Plans. The header should be available when proof token validation is enabled.
     In this case, a `x-client_cert` is sent in the request to `/oauth2/token_keys` which should trigger the `x-osb_plan` response header.
 - [spring-security] fixes a bug in `ReactiveHybridJwtDecoder` when parsing `iat` claim #1490
