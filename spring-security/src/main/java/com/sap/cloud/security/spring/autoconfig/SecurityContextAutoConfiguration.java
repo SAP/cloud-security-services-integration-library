@@ -29,7 +29,7 @@ public class SecurityContextAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(SecurityContextHolderStrategy.class)
-	@ConditionalOnProperty(name = "sap.spring.security.hybrid.sync_securitycontext", havingValue = "true")
+	@ConditionalOnProperty(name = "sap.spring.security.hybrid.sync_securitycontext", havingValue = "true", matchIfMissing = true)
 	public MethodInvokingFactoryBean methodInvokingFactoryBean() {
 		MethodInvokingFactoryBean methodInvokingFactoryBean = new MethodInvokingFactoryBean();
 		methodInvokingFactoryBean.setTargetClass(SecurityContextHolder.class);
