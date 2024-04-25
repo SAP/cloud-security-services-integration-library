@@ -56,7 +56,7 @@ public class HybridJwtDecoder implements JwtDecoder {
 
 		if (servletRequestAttributes != null) {
 			HttpServletRequest request = servletRequestAttributes.getRequest();
-			String clientCert = String.valueOf(request.getHeader(FWD_CLIENT_CERT_HEADER));
+			String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
 			if (clientCert != null) {
 				SecurityContext.setClientCertificate(X509Certificate.newCertificate(clientCert));
 			}

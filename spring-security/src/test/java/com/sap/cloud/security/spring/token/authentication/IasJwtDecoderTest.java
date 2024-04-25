@@ -5,16 +5,22 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
+import com.sap.cloud.security.x509.X509Certificate;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -75,11 +81,17 @@ class IasJwtDecoderTest {
 
 	@Test
 	void decodeIasTokenWithoutFwdCert() {
+		ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+		Logger logger = (Logger) LoggerFactory.getLogger(X509Certificate.class);
+		listAppender.start();
+		logger.addAppender(listAppender);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
 		String encodedToken = jwtGenerator.createToken().getTokenValue();
-		assertEquals("theClientId", cut.decode(encodedToken).getClaim(TokenClaims.AUTHORIZATION_PARTY));
+		cut.decode(encodedToken);
+		Assertions.assertThat(listAppender.list).isEmpty();
+		listAppender.stop();
 	}
 
 	@Test
