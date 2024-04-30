@@ -29,7 +29,7 @@ class SecurityContextAutoConfigurationTest {
 	@Test
 	void autoConfigurationActiveByDefault() {
 		runner.run(context -> {
-			assertNotNull(context.getBean("securityContextAutoConfiguration"));
+			assertNotNull(context.getBean("securityContextSetter"));
 			assertEquals(JavaSecurityContextHolderStrategy.class,
 					SecurityContextHolder.getContextHolderStrategy().getClass());
 		});
@@ -38,32 +38,32 @@ class SecurityContextAutoConfigurationTest {
 	@Test
 	void autoConfigurationDisabledByProperty() {
 		runner.withPropertyValues("sap.spring.security.hybrid.auto:false")
-				.run((context) -> assertFalse(context.containsBean("securityContextAutoConfiguration")));
+				.run((context) -> assertFalse(context.containsBean("securityContextSetter")));
 	}
 
 	@Test
 	void autoConfigurationDisabledBySpecificProperty() {
 		runner.withPropertyValues("sap.spring.security.hybrid.sync_securitycontext:false")
-				.run((context) -> assertFalse(context.containsBean("securityContextAutoConfiguration")));
+				.run((context) -> assertFalse(context.containsBean("securityContextSetter")));
 	}
 
 	@Test
 	void autoConfigurationEnabledByProperty() {
 		runner.withPropertyValues("sap.spring.security.hybrid.auto:true")
-				.run((context) -> assertTrue(context.containsBean("securityContextAutoConfiguration")));
+				.run((context) -> assertTrue(context.containsBean("securityContextSetter")));
 	}
 
 	@Test
 	void autoConfigurationEnabledBySpecificProperty() {
 		runner.withPropertyValues("sap.spring.security.hybrid.sync_securitycontext:true")
-				.run((context) -> assertTrue(context.containsBean("securityContextAutoConfiguration")));
+				.run((context) -> assertTrue(context.containsBean("securityContextSetter")));
 	}
 
 	@Test
 	void userConfigurationCanOverrideDefaultBeans() {
 		runner.withUserConfiguration(UserConfiguration.class)
 				.run((context) -> {
-					assertFalse(context.containsBean("securityContextAutoConfiguration"));
+					assertFalse(context.containsBean("securityContextSetter"));
 					assertNotNull(context.getBean("customStrategy", SecurityContextHolderStrategy.class));
 					assertNotEquals(JavaSecurityContextHolderStrategy.class,
 							SecurityContextHolder.getContextHolderStrategy().getClass());
