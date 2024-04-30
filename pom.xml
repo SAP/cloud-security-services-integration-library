@@ -67,7 +67,7 @@
 		<log4j2.version>2.23.1</log4j2.version>
 		<slf4j.api.version>2.0.13</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20240303</org.json.version>
-		<sap.cloud.env.servicebinding.version>0.10.4</sap.cloud.env.servicebinding.version>
+		<sap.cloud.env.servicebinding.version>0.10.5</sap.cloud.env.servicebinding.version>
 		<apache.httpclient5.version>5.3.1</apache.httpclient5.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.1.5</caffeine.version>
