@@ -13,11 +13,12 @@ applications:
     - route: spring-security-hybrid-usage-((ID)).((LANDSCAPE_APPS_DOMAIN))
   path: target/spring-security-hybrid-usage.jar
   buildpacks:
+    - zero_trust_sidecar_buildpack
     - java_buildpack
+  stack: cflinuxfs4
   env:
     JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
   services:
-    - name: xsuaa-authn
-    - name: ias-authn
-      parameters: { "credential-type": "X509_GENERATED" }
-
+    - name: xsuaa
+      parameters: { "credential-type": "X509_ATTESTED" }
+    - name: ztis

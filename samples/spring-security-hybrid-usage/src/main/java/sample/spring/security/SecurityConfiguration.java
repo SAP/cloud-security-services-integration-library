@@ -47,8 +47,9 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authz ->
                         authz.requestMatchers("/sayHello").hasAuthority("Read")
                                 .requestMatchers("/comp/sayHello").hasAuthority("Read")
-                                .requestMatchers("/*").authenticated()
-                                .anyRequest().denyAll())
+                                .requestMatchers("/method").hasAuthority("Read")
+								.requestMatchers("/health").permitAll()
+                                )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .jwtAuthenticationConverter(new MyCustomHybridTokenAuthenticationConverter()))); // Adjust the converter to represent your use case
@@ -94,5 +95,6 @@ public class SecurityConfiguration {
 			return new AuthenticationToken(jwt, groupAuthorities);
 		}
 	}
+
 }
 

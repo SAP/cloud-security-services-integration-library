@@ -5,10 +5,19 @@
  */
 package sample.spring.security;
 
+import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.comp.XsuaaTokenComp;
+import com.sap.cloud.security.config.ClientCertificate;
+import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import io.spiffe.exception.SocketEndpointAddressException;
+import io.spiffe.exception.X509SourceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +28,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +45,9 @@ public class TestController {
 	 * XSUAA.
 	 */
 	private final DataService dataService;
+
+	@Autowired
+	XsuaaServiceConfiguration config;
 
 	@Autowired
 	public TestController(DataService dataService) {
@@ -67,6 +81,25 @@ public class TestController {
 			result.put("grant type", token.getClaimAsString(TokenClaims.XSUAA.GRANT_TYPE));
 		}
 		return result;
+	}
+
+	@GetMapping("/health")
+	public String tokenFlows()
+			throws GeneralSecurityException, IOException, SocketEndpointAddressException, X509SourceException {
+
+		ClientCertificate clientIdentity = new ClientCertificate(
+				X509SourceSingletonWrapper.getInstance().getX509Source().getX509Svid().getChainArray(),
+				X509SourceSingletonWrapper.getInstance().getX509Source().getX509Svid().getPrivateKey(),
+				config.getClientId());
+
+		logger.info("certificate: {}, key: {}", clientIdentity.getCertificateChain(),
+				clientIdentity.getPrivateKey().getAlgorithm());
+
+		OAuth2TokenService oAuth2TokenService = new DefaultOAuth2TokenService(
+				HttpClientFactory.create(clientIdentity));
+		XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(oAuth2TokenService, new XsuaaDefaultEndpoints(config),
+				clientIdentity);
+		return tokenFlows.clientCredentialsTokenFlow().execute().getAccessToken();
 	}
 
 	@GetMapping("/comp/sayHello")

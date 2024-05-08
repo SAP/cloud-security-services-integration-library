@@ -72,12 +72,37 @@
 			<artifactId>cf-java-logging-support-servlet-jakarta</artifactId>
 			<version>3.7.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>io.spiffe</groupId>
+			<artifactId>java-spiffe-provider</artifactId>
+			<version>0.8.4</version>
+			<!-- if necessary exclude grcp-netty-macos/-aarch64 explicitly -->
+			<!-- seemingly required with cflinuxfs4 or 0.8.4-->
+			<exclusions>
+				<exclusion>
+					<groupId>io.spiffe</groupId>
+					<artifactId>grpc-netty-macos</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.spiffe</groupId>
+					<artifactId>grpc-netty-macos-aarch64</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>io.spiffe</groupId>
+					<artifactId>grpc-netty-linux</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.spiffe</groupId>
+			<artifactId>grpc-netty-linux</artifactId>
+			<version>0.8.4</version>
+		</dependency>
 		<!-- test dependencies-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>com.vaadin.external.google</groupId>
