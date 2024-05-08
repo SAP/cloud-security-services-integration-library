@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.5.0
+
+- [java-api] `ClientIdentity` interface has been extended with 2 new methods `getCertificateChain()`
+  and `getPrivateKey()`
+  and `ClientCertificate` class has been extended with new constructor that takes `java.security.cert.Certificate[]`
+  and `java.security.PrivateKey` as an argument and corresponding getters for these fields.
+- [token-client] `SSLContextFactory` class has been extended and supports Keys in PKCS#8 format with ECC algorithm.
+
 ## 3.4.2
 
 - [spring-security]

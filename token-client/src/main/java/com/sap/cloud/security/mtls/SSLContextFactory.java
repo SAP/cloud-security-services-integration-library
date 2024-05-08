@@ -91,8 +91,17 @@ public class SSLContextFactory {
 	 */
 	public SSLContext create(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
 		assertNotNull(clientIdentity, "clientIdentity must not be null");
-		assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
-		assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
+		try {
+			assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
+			assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
+		} catch (IllegalArgumentException e) {
+			logger.debug(
+					"clientIdentity.getCertificate() or clientIdentity.getKey() is null. Trying to use certificateChain and privateKey instead.");
+			assertNotNull(clientIdentity.getCertificateChain(),
+					e.getMessage() + " or clientIdentity.getCertificateChain() must not return null");
+			assertNotNull(clientIdentity.getPrivateKey(),
+					e.getMessage() + " or clientIdentity.getKey() or clientIdentity.getPrivateKey() must not return null");
+		}
 
 		KeyStore keystore = createKeyStore(clientIdentity);
 		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
@@ -133,30 +142,52 @@ public class SSLContextFactory {
 	 */
 	public KeyStore createKeyStore(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
 		assertNotNull(clientIdentity, "clientIdentity must not be null");
-		assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
-		assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
-
-		PrivateKey privateKey = getPrivateKeyFromString(clientIdentity.getKey());
-		Certificate[] certificateChain = getCertificatesFromString(clientIdentity.getCertificate());
+		try {
+			assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
+			assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
+		} catch (IllegalArgumentException e) {
+			logger.debug(
+					"clientIdentity.getCertificate() or clientIdentity.getKey() is null. Trying to use certificateChain and privateKey instead.");
+			assertNotNull(clientIdentity.getCertificateChain(),
+					e.getMessage() + " or clientIdentity.getCertificateChain() must not return null");
+			assertNotNull(clientIdentity.getPrivateKey(),
+					e.getMessage() + " or clientIdentity.getKey() or clientIdentity.getPrivateKey() must not return null");
+		}
+		PrivateKey privateKey = getPrivateKey(clientIdentity);
+		Certificate[] certificateChain;
+		if (clientIdentity.getCertificateChain() != null) {
+			certificateChain = clientIdentity.getCertificateChain();
+		} else {
+			certificateChain = getCertificatesFromString(clientIdentity.getCertificate());
+		}
 
 		return initializeKeyStore(privateKey, certificateChain);
 	}
 
-	private PrivateKey getPrivateKeyFromString(final String privateKey) throws GeneralSecurityException {
-		KeySpec keySpec;
-		KeyFactory keyFactory;
+	private PrivateKey getPrivateKey(final ClientIdentity clientIdentity) throws GeneralSecurityException {
+		KeySpec keySpec = null;
+		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		String pemPrivateKey = clientIdentity.getKey();
+		PrivateKey privateKey = clientIdentity.getPrivateKey();
 
-		if (privateKey.startsWith("-----BEGIN RSA PRIVATE")) {
-			keySpec = parsePKCS1PrivateKey(Base64.getDecoder().decode(removeHeaders(privateKey)));
-			keyFactory = KeyFactory.getInstance("RSA");
-		} else {
-			keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(removeHeaders(privateKey)));
+		if (privateKey != null && privateKey.getAlgorithm().equals("EC")) {
 			keyFactory = KeyFactory.getInstance("EC");
+			keySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("privateKeyPem: '{}...{}'", privateKey.substring(5, 40),
-					privateKey.substring(privateKey.length() - 25));
+
+		if (pemPrivateKey != null) {
+			if (pemPrivateKey.startsWith("-----BEGIN RSA PRIVATE")) {
+				keySpec = parsePKCS1PrivateKey(Base64.getDecoder().decode(removeHeaders(pemPrivateKey)));
+			} else {
+				keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(removeHeaders(pemPrivateKey)));
+				keyFactory = KeyFactory.getInstance("EC");
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("privateKeyPem: '{}...{}'", pemPrivateKey.substring(5, 40),
+						pemPrivateKey.substring(pemPrivateKey.length() - 25));
+			}
 		}
+		logger.debug("Private key encoding algorithm: {}", keyFactory.getAlgorithm());
 
 		return keyFactory.generatePrivate(keySpec);
 	}
