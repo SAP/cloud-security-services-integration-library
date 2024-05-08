@@ -1,6 +1,11 @@
 # Change Log
-
 All notable changes to this project will be documented in this file.
+
+## 3.4.3
+- [spring-security] improved custom SecurityContextStrategy registration for the `SecurityContextAutoConfiguration` class. It uses `ServletContextInitializer` to hook early into the initialization phase.
+
+#### Dependency upgrades
+- Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from 0.10.4 to 0.10.5.
 
 ## 3.4.2
 
