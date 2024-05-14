@@ -1,6 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.4.4
+- [spring-security] fixed NPE in IdentityServicesPropertySourceFactory on application startup when bound to a list of XSUAA services whose service plans are ALL not supported
+
 ## 3.4.3
 - [spring-security] improved custom SecurityContextStrategy registration for the `SecurityContextAutoConfiguration` class. It uses `ServletContextInitializer` to hook early into the initialization phase.
 
