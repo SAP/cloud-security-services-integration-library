@@ -90,15 +90,19 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 
 	private void mapXsuaaProperties(@Nonnull Environment environment) {
 		final int numberOfXsuaaConfigurations = environment.getNumberOfXsuaaConfigurations();
-		if (numberOfXsuaaConfigurations == 0) {
+		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
+
+		if (numberOfXsuaaConfigurations == 0 || xsuaaConfiguration == null) {
+			/*
+			 * Case "no XSUAA service configurations or only configurations with unsupported plans"
+			 */
 			return;
 		}
-		
+
 		/*
-		 * Case "single XSUAA service configuration":
-		 * Then we do not use an array for describing the properties.
+		 * Case "single XSUAA service configuration": Then we do not use an array for
+		 * describing the properties.
 		 */
-		final OAuth2ServiceConfiguration xsuaaConfiguration = environment.getXsuaaConfiguration();
 		if (numberOfXsuaaConfigurations == 1) {
 			mapXsuaaAttributesSingleInstance(xsuaaConfiguration, XSUAA_PREFIX);
 			return;

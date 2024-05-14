@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.17.6
+- [spring-security] fixed NPE in IdentityServicesPropertySourceFactory on application startup when bound to a list of XSUAA services whose service plans are ALL not supported
+
 ## 2.17.5
 #### Dependency upgrades
 - bump spring-core version to 5.3.34
