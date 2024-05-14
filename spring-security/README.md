@@ -87,10 +87,11 @@ In addition, a bean of type [XsuaaTokenFlows](../token-client/src/main/java/com/
 | [SecurityContextAutoConfiguration](./src/main/java/com/sap/cloud/security/spring/autoconfig/SecurityContextAutoConfiguration.java)               | Configures [`JavaSecurityContextHolderStrategy`](./src/main/java/com/sap/cloud/security/spring/token/authentication/JavaSecurityContextHolderStrategy.java) to be used as `SecurityContextHolderStrategy` to keep the `com.sap.cloud.security.token.SecurityContext` in sync                                                                                                                                                                                                   |
 
 #### Autoconfiguration properties
-| Autoconfiguration property           | Default value | Description                                                                                                             |
-|--------------------------------------|---------------|-------------------------------------------------------------------------------------------------------------------------|
-| sap.spring.security.hybrid.auto      | true          | This enables all auto-configurations that setup your project for hybrid IAS and/or XSUAA token validation.              |
-| sap.spring.security.xsuaa.flows.auto | true          | This enables all auto-configurations required for XSUAA token exchange using [`token-client`](../token-client) library. |
+| Autoconfiguration property              | Default value | Description                                                                                                             |
+|-----------------------------------------|---------------|-------------------------------------------------------------------------------------------------------------------------|
+| sap.spring.security.hybrid.auto         | true          | This enables all auto-configurations that setup your project for hybrid IAS and/or XSUAA token validation.              |
+| sap.spring.security.xsuaa.flows.auto    | true          | This enables all auto-configurations required for XSUAA token exchange using [`token-client`](../token-client) library. |
+| sap.spring.security.identity.prooftoken | true          | This creates a `JwtDecoder` for identity service with enabled prooftoken check                                          |
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 

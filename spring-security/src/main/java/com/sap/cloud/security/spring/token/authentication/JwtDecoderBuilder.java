@@ -33,6 +33,7 @@ public class JwtDecoderBuilder {
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	protected CloseableHttpClient httpClient;
 	private CacheConfiguration tokenKeyCacheConfiguration;
+	private boolean enableProofTokenCheck;
 
 	/**
 	 * Use to configure the token key cache.
@@ -160,12 +161,19 @@ public class JwtDecoderBuilder {
 			}
 			return xsuaaValidatorBuilder.build();
 		}
-		if (name == Service.IAS) {
-			if (iasConfiguration != null && !iasConfiguration.getProperties().isEmpty()) {
-				JwtValidatorBuilder iasValidatorBuilder = initializeBuilder(iasConfiguration);
-				return iasValidatorBuilder.build();
+		if (name == Service.IAS && (iasConfiguration != null && !iasConfiguration.getProperties().isEmpty())) {
+			JwtValidatorBuilder iasValidatorBuilder = initializeBuilder(iasConfiguration);
+			if (enableProofTokenCheck) {
+				iasValidatorBuilder.enableProofTokenCheck();
 			}
+			return iasValidatorBuilder.build();
+
 		}
 		return null;
+	}
+
+	public JwtDecoderBuilder enableProofTokenCheck() {
+		this.enableProofTokenCheck = true;
+		return this;
 	}
 }
