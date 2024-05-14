@@ -90,19 +90,6 @@ public class SSLContextFactory {
 	 * 		in case of KeyStore initialization errors
 	 */
 	public SSLContext create(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
-		assertNotNull(clientIdentity, "clientIdentity must not be null");
-		try {
-			assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
-			assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
-		} catch (IllegalArgumentException e) {
-			logger.debug(
-					"clientIdentity.getCertificate() or clientIdentity.getKey() is null. Trying to use certificateChain and privateKey instead.");
-			assertNotNull(clientIdentity.getCertificateChain(),
-					e.getMessage() + " or clientIdentity.getCertificateChain() must not return null");
-			assertNotNull(clientIdentity.getPrivateKey(),
-					e.getMessage() + " or clientIdentity.getKey() or clientIdentity.getPrivateKey() must not return null");
-		}
-
 		KeyStore keystore = createKeyStore(clientIdentity);
 		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
 		keyManagerFactory.init(keystore, noPassword);
@@ -153,13 +140,8 @@ public class SSLContextFactory {
 			assertNotNull(clientIdentity.getPrivateKey(),
 					e.getMessage() + " or clientIdentity.getKey() or clientIdentity.getPrivateKey() must not return null");
 		}
+		Certificate[] certificateChain = getCertificateChain(clientIdentity);
 		PrivateKey privateKey = getPrivateKey(clientIdentity);
-		Certificate[] certificateChain;
-		if (clientIdentity.getCertificateChain() != null) {
-			certificateChain = clientIdentity.getCertificateChain();
-		} else {
-			certificateChain = getCertificatesFromString(clientIdentity.getCertificate());
-		}
 
 		return initializeKeyStore(privateKey, certificateChain);
 	}
@@ -170,11 +152,6 @@ public class SSLContextFactory {
 		String pemPrivateKey = clientIdentity.getKey();
 		PrivateKey privateKey = clientIdentity.getPrivateKey();
 
-		if (privateKey != null && privateKey.getAlgorithm().equals("EC")) {
-			keyFactory = KeyFactory.getInstance("EC");
-			keySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
-		}
-
 		if (pemPrivateKey != null) {
 			if (pemPrivateKey.startsWith("-----BEGIN RSA PRIVATE")) {
 				keySpec = parsePKCS1PrivateKey(Base64.getDecoder().decode(removeHeaders(pemPrivateKey)));
@@ -183,22 +160,36 @@ public class SSLContextFactory {
 				keyFactory = KeyFactory.getInstance("EC");
 			}
 			if (logger.isDebugEnabled()) {
-				logger.debug("privateKeyPem: '{}...{}'", pemPrivateKey.substring(5, 40),
+				logger.debug("PEM private key: '{}...{}'", pemPrivateKey.substring(5, 40),
 						pemPrivateKey.substring(pemPrivateKey.length() - 25));
 			}
+		} else if (privateKey != null && privateKey.getAlgorithm().equals("EC")) {
+			keyFactory = KeyFactory.getInstance("EC");
+			keySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
 		}
 		logger.debug("Private key encoding algorithm: {}", keyFactory.getAlgorithm());
 
 		return keyFactory.generatePrivate(keySpec);
 	}
 
-	private Certificate[] getCertificatesFromString(String certificates) throws CertificateException {
-		CertificateFactory factory = CertificateFactory.getInstance("X.509");
-		byte[] certificatesBytes = certificates.replace("\\n", "\n").getBytes();
+	private Certificate[] getCertificateChain(ClientIdentity clientIdentity) throws CertificateException {
+		String certificates = clientIdentity.getCertificate();
+		Certificate[] certificateChain = null;
+		if (clientIdentity.getCertificate() != null) {
+			CertificateFactory factory = CertificateFactory.getInstance("X.509");
+			byte[] certificatesBytes = certificates.replace("\\n", "\n").getBytes();
 
-		Collection<Certificate> certificateList = (Collection<Certificate>) factory
-				.generateCertificates(new ByteArrayInputStream(certificatesBytes));
-		return certificateList.toArray(new Certificate[0]);
+			Collection<Certificate> certificateList = (Collection<Certificate>) factory
+					.generateCertificates(new ByteArrayInputStream(certificatesBytes));
+			if (logger.isDebugEnabled()) {
+				logger.debug("PEM Certificate: '{}...{}'", certificates.substring(5, 40),
+						certificates.substring(certificates.length() - 25));
+			}
+			certificateChain = certificateList.toArray(new Certificate[0]);
+		} else if (clientIdentity.getCertificateChain() != null) {
+			certificateChain = clientIdentity.getCertificateChain();
+		}
+		return certificateChain;
 	}
 
 	private KeySpec parsePKCS1PrivateKey(byte[] privateKeyDerEncoded)

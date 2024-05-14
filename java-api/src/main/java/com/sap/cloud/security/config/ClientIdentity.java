@@ -36,8 +36,8 @@ public interface ClientIdentity {
 	 * @return the boolean
 	 */
 	default boolean isCertificateBased() {
-		return hasValue(getCertificate()) && hasValue(
-				getKey()) || getCertificateChain() != null && getPrivateKey() != null;
+		return hasValue(getCertificate()) && hasValue(getKey()) ||
+				getCertificateChain() != null && getPrivateKey() != null;
 	}
 
 	/**
@@ -73,6 +73,7 @@ public interface ClientIdentity {
 	/**
 	 * @return Certificate chain array
 	 */
+	@Nullable
 	default Certificate[] getCertificateChain() {
 		return null;
 	}
@@ -80,6 +81,7 @@ public interface ClientIdentity {
 	/**
 	 * @return Private key
 	 */
+	@Nullable
 	default PrivateKey getPrivateKey() {
 		return null;
 	}
