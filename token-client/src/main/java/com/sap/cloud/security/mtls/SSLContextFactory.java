@@ -21,6 +21,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPrivateCrtKeySpec;
 import java.util.Base64;
 import java.util.Collection;
@@ -44,25 +45,36 @@ public class SSLContextFactory {
 		return instance;
 	}
 
+	private static String removeHeaders(String privateKey) {
+		return privateKey
+				.replace("-----BEGIN RSA PRIVATE KEY-----", "")
+				.replace("-----BEGIN PRIVATE KEY-----", "")
+				.replace("-----END RSA PRIVATE KEY-----", "")
+				.replace("-----END PRIVATE KEY-----", "")
+				.replace("\\n", "")
+				.replace("\n", "");
+	}
+
 	/**
 	 * Creates a SSLContext which can be used to parameterize your Rest client, in order to support mutual TLS.
 	 *
 	 * @param x509Certificates
 	 * 		you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
-	 * @param rsaPrivateKey
-	 * 		you can get from your Service Configuration{@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 * @param privateKey
+	 * 		you can get from your Service Configuration{@link OAuth2ServiceConfiguration#getClientIdentity()} PKCS#1 (RSA
+	 * 		algorithm) and PKCS#8 (ECC algorithm) key encryption standards are supported.
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
 	 * 		in case of key parsing errors
 	 * @throws IOException
 	 * 		in case of KeyStore initialization errors
 	 */
-	public SSLContext create(String x509Certificates, String rsaPrivateKey)
+	public SSLContext create(String x509Certificates, String privateKey)
 			throws GeneralSecurityException, IOException {
 		assertHasText(x509Certificates, "x509Certificate is required");
-		assertHasText(rsaPrivateKey, "rsaPrivateKey is required");
+		assertHasText(privateKey, "privateKey is required");
 
-		return create(new ClientCertificate(x509Certificates, rsaPrivateKey, null));
+		return create(new ClientCertificate(x509Certificates, privateKey, null));
 	}
 
 	/**
@@ -70,6 +82,7 @@ public class SSLContextFactory {
 	 *
 	 * @param clientIdentity
 	 * 		you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 * 		PKCS#1 (RSA algorithm) and PKCS#8 (ECC algorithm) key encryption standards are supported.
 	 * @return a new SSLContext instance
 	 * @throws GeneralSecurityException
 	 * 		in case of key parsing errors
@@ -77,38 +90,12 @@ public class SSLContextFactory {
 	 * 		in case of KeyStore initialization errors
 	 */
 	public SSLContext create(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
-		assertNotNull(clientIdentity, "clientIdentity must not be null");
-		assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
-		assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
-
 		KeyStore keystore = createKeyStore(clientIdentity);
 		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
 		keyManagerFactory.init(keystore, noPassword);
 		SSLContext sslContext = createDefaultSSLContext();
 		sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
 		return sslContext;
-	}
-
-	/**
-	 * Initializes a KeyStore which can be used to parameterize your Rest client, in order to support mutual TLS.
-	 *
-	 * @param clientIdentity
-	 * 		you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
-	 * @return a new KeyStore instance
-	 * @throws GeneralSecurityException
-	 * 		in case of key parsing errors
-	 * @throws IOException
-	 * 		in case of KeyStore initialization errors
-	 */
-	public KeyStore createKeyStore(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
-		assertNotNull(clientIdentity, "clientIdentity must not be null");
-		assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
-		assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
-
-		PrivateKey privateKey = getPrivateKeyFromString(clientIdentity.getKey());
-		Certificate[] certificateChain = getCertificatesFromString(clientIdentity.getCertificate());
-
-		return initializeKeyStore(privateKey, certificateChain);
 	}
 
 	private KeyStore initializeKeyStore(PrivateKey privateKey, Certificate[] certificateChain)
@@ -128,35 +115,87 @@ public class SSLContextFactory {
 		return SSLContext.getInstance("TLS");
 	}
 
-	private PrivateKey getPrivateKeyFromString(final String rsaPrivateKey) throws GeneralSecurityException {
-		String privateKeyPEM = rsaPrivateKey;
-		privateKeyPEM = privateKeyPEM.replace("-----BEGIN RSA PRIVATE KEY-----", "");
-		privateKeyPEM = privateKeyPEM.replace("-----END RSA PRIVATE KEY-----", "");
-		privateKeyPEM = privateKeyPEM.replace("\n", "");
-		privateKeyPEM = privateKeyPEM.replace("\\n", "");
-		if (logger.isDebugEnabled()) {
-			logger.debug("privateKeyPem: '{}...{}'", privateKeyPEM.substring(0, 7),
-					privateKeyPEM.substring(privateKeyPEM.length() - 7));
+	/**
+	 * Initializes a KeyStore which can be used to parameterize your Rest client, in order to support mutual TLS.
+	 *
+	 * @param clientIdentity
+	 * 		you can get from your Service Configuration {@link OAuth2ServiceConfiguration#getClientIdentity()}
+	 * 		PKCS#1 (RSA algorithm) and PKCS#8 (ECC algorithm) key encryption standards are supported.
+	 * @return a new KeyStore instance
+	 * @throws GeneralSecurityException
+	 * 		in case of key parsing errors
+	 * @throws IOException
+	 * 		in case of KeyStore initialization errors
+	 */
+	public KeyStore createKeyStore(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
+		assertNotNull(clientIdentity, "clientIdentity must not be null");
+		try {
+			assertHasText(clientIdentity.getCertificate(), "clientIdentity.getCertificate() must not return null");
+			assertHasText(clientIdentity.getKey(), "clientIdentity.getKey() must not return null");
+		} catch (IllegalArgumentException e) {
+			logger.debug(
+					"clientIdentity.getCertificate() or clientIdentity.getKey() is null. Trying to use certificateChain and privateKey instead.");
+			assertNotNull(clientIdentity.getCertificateChain(),
+					e.getMessage() + " or clientIdentity.getCertificateChain() must not return null");
+			assertNotNull(clientIdentity.getPrivateKey(),
+					e.getMessage() + " or clientIdentity.getKey() or clientIdentity.getPrivateKey() must not return null");
 		}
+		Certificate[] certificateChain = getCertificateChain(clientIdentity);
+		PrivateKey privateKey = getPrivateKey(clientIdentity);
 
-		KeySpec keySpec = parseDERPrivateKey(Base64.getDecoder().decode(privateKeyPEM));
+		return initializeKeyStore(privateKey, certificateChain);
+	}
 
+	private PrivateKey getPrivateKey(final ClientIdentity clientIdentity) throws GeneralSecurityException {
+		KeySpec keySpec = null;
 		KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+		String pemPrivateKey = clientIdentity.getKey();
+		PrivateKey privateKey = clientIdentity.getPrivateKey();
+
+		if (pemPrivateKey != null) {
+			if (pemPrivateKey.startsWith("-----BEGIN RSA PRIVATE")) {
+				keySpec = parsePKCS1PrivateKey(Base64.getDecoder().decode(removeHeaders(pemPrivateKey)));
+			} else {
+				keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(removeHeaders(pemPrivateKey)));
+				keyFactory = KeyFactory.getInstance("EC");
+			}
+			if (logger.isDebugEnabled()) {
+				logger.debug("PEM private key: '{}...{}'", pemPrivateKey.substring(5, 40),
+						pemPrivateKey.substring(pemPrivateKey.length() - 25));
+			}
+		} else if (privateKey != null && privateKey.getAlgorithm().equals("EC")) {
+			keyFactory = KeyFactory.getInstance("EC");
+			keySpec = new PKCS8EncodedKeySpec(privateKey.getEncoded());
+		}
+		logger.debug("Private key encoding algorithm: {}", keyFactory.getAlgorithm());
+
 		return keyFactory.generatePrivate(keySpec);
 	}
 
-	private Certificate[] getCertificatesFromString(String certificates) throws CertificateException {
-		CertificateFactory factory = CertificateFactory.getInstance("X.509");
-		byte[] certificatesBytes = certificates.replace("\\n", "\n").getBytes();
+	private Certificate[] getCertificateChain(ClientIdentity clientIdentity) throws CertificateException {
+		String certificates = clientIdentity.getCertificate();
+		Certificate[] certificateChain = null;
+		if (clientIdentity.getCertificate() != null) {
+			CertificateFactory factory = CertificateFactory.getInstance("X.509");
+			byte[] certificatesBytes = certificates.replace("\\n", "\n").getBytes();
 
-		Collection<Certificate> certificateList = (Collection<Certificate>) factory
-				.generateCertificates(new ByteArrayInputStream(certificatesBytes));
-		return certificateList.toArray(new Certificate[0]);
+			Collection<Certificate> certificateList = (Collection<Certificate>) factory
+					.generateCertificates(new ByteArrayInputStream(certificatesBytes));
+			if (logger.isDebugEnabled()) {
+				logger.debug("PEM Certificate: '{}...{}'", certificates.substring(5, 40),
+						certificates.substring(certificates.length() - 25));
+			}
+			certificateChain = certificateList.toArray(new Certificate[0]);
+		} else if (clientIdentity.getCertificateChain() != null) {
+			certificateChain = clientIdentity.getCertificateChain();
+		}
+		return certificateChain;
 	}
 
-	private KeySpec parseDERPrivateKey(byte[] privateKeyDerEncoded)
+	private KeySpec parsePKCS1PrivateKey(byte[] privateKeyDerEncoded)
 			throws GeneralSecurityException {
 		KeySpec keySpec;
+
 		MinimalDERParser parser = new MinimalDERParser(privateKeyDerEncoded);
 
 		try {
