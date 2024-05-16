@@ -13,7 +13,9 @@ All notable changes to this project will be documented in this file.
     whose service plans are ALL not supported
   - provides an autoconfiguration that creates an Identity Service JwtDecoder with enabled proof token check. To enable
     it, set the `sap.spring.security.identity.prooftoken` spring property to true.
-
+  - Fixes an issue with MockMvc when the SecurityContexts are synced. It sets SecurityContextStrategy based on an
+    EnvironmentPostProcessor as in this scenario the servlet initialization is not happening and the code runs too late
+    due to that.
 
 ## 3.4.3
 - [spring-security] improved custom SecurityContextStrategy registration for the `SecurityContextAutoConfiguration` class. It uses `ServletContextInitializer` to hook early into the initialization phase.
