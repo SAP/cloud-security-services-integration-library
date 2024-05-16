@@ -16,7 +16,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-xsuaa-usage</artifactId>
-	<version>3.4.3</version>
+	<version>3.5.0</version>
 	<name>spring-security-xsuaa-usage</name>
 
 	<properties>
@@ -29,7 +29,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.4.3</sap.cloud.security.version>
+		<sap.cloud.security.version>3.5.0</sap.cloud.security.version>
 		<http.client5>5.2.1</http.client5>
 	</properties>
 

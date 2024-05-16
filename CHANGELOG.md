@@ -3,23 +3,37 @@ All notable changes to this project will be documented in this file.
 
 
 ## 3.5.0
-- [java-api] `ClientIdentity` interface has been extended with 2 new methods `getCertificateChain()`
-  and `getPrivateKey()`
-  and `ClientCertificate` class has been extended with new constructor that takes `java.security.cert.Certificate[]`
-  and `java.security.PrivateKey` as an argument and corresponding getters for these fields.
+- [java-api]
+  - `ClientIdentity` interface has been extended with 2 new methods `getCertificateChain()`
+    and `getPrivateKey()`
+    and `ClientCertificate` class has been extended with new constructor that takes `java.security.cert.Certificate[]`
+    and `java.security.PrivateKey` as an argument and corresponding getters for these fields.
+  - `user_token` grant type has been re-added to `GrantType` enum
 - [token-client] `SSLContextFactory` class has been extended and supports Keys in PKCS#8 format with ECC algorithm.
 - [spring-security]
   - fixed NPE in IdentityServicesPropertySourceFactory on application startup when bound to a list of XSUAA services
     whose service plans are ALL not supported
   - provides an autoconfiguration that creates an Identity Service JwtDecoder with enabled proof token check. To enable
     it, set the `sap.spring.security.identity.prooftoken` spring property to true.
-
-
-## 3.4.3
-- [spring-security] improved custom SecurityContextStrategy registration for the `SecurityContextAutoConfiguration` class. It uses `ServletContextInitializer` to hook early into the initialization phase.
+  - Fixes an issue with MockMvc when the SecurityContexts are synced. It sets SecurityContextStrategy based on an
+    EnvironmentPostProcessor as in this scenario the servlet initialization is not happening and the code runs too late
+    due to that.
 
 #### Dependency upgrades
-- Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from 0.10.4 to 0.10.5.
+
+- Bump io.projectreactor:reactor-core from 3.6.5 to 3.6.6
+- Bump com.nimbusds:nimbus-jose-jwt from 9.37.3 to 9.39.1
+- Bump spring.core.version from 6.1.6 to 6.1.7
+
+## 3.4.3
+
+- [spring-security] improved custom SecurityContextStrategy registration for the `SecurityContextAutoConfiguration`
+  class. It uses `ServletContextInitializer` to hook early into the initialization phase.
+
+#### Dependency upgrades
+
+- Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from
+  0.10.4 to 0.10.5.
 
 ## 3.4.2
 
