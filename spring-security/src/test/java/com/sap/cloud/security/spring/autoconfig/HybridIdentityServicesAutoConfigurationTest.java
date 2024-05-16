@@ -172,6 +172,21 @@ class HybridIdentityServicesAutoConfigurationTest {
 		runner.run(context -> assertNotNull(context.getBean("iasJwtDecoder", IasJwtDecoder.class)));
 	}
 
+	@Test
+	void autoConfigurationProofTokenCheckEnabled() {
+		List<String> identityProperties = new ArrayList<>();
+		identityProperties.add("sap.security.services.identity.url:http://localhost");
+		identityProperties.add("sap.security.services.identity.domains:localhost");
+		identityProperties.add("sap.security.services.identity.clientid:cid");
+		identityProperties.add("sap.spring.security.identity.prooftoken:true");
+
+		WebApplicationContextRunner runner = new WebApplicationContextRunner()
+				.withPropertyValues(identityProperties.toArray(new String[0]))
+				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+		runner.run(context -> assertNotNull(context.getBean("iasJwtDecoderWithProofTokenCheck", IasJwtDecoder.class)));
+	}
+
 	@Configuration
 	static class UserConfiguration {
 

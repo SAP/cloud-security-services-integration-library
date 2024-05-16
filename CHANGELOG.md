@@ -8,7 +8,11 @@ All notable changes to this project will be documented in this file.
   and `ClientCertificate` class has been extended with new constructor that takes `java.security.cert.Certificate[]`
   and `java.security.PrivateKey` as an argument and corresponding getters for these fields.
 - [token-client] `SSLContextFactory` class has been extended and supports Keys in PKCS#8 format with ECC algorithm.
-- [spring-security] fixed NPE in IdentityServicesPropertySourceFactory on application startup when bound to a list of XSUAA services whose service plans are ALL not supported
+- [spring-security]
+  - fixed NPE in IdentityServicesPropertySourceFactory on application startup when bound to a list of XSUAA services
+    whose service plans are ALL not supported
+  - provides an autoconfiguration that creates an Identity Service JwtDecoder with enabled proof token check. To enable
+    it, set the `sap.spring.security.identity.prooftoken` spring property to true.
 
 
 ## 3.4.3
