@@ -1,4 +1,3 @@
 com.sap.cloud.security.spring.autoconfig.HybridIdentityServicesAutoConfiguration
 com.sap.cloud.security.spring.autoconfig.HybridAuthorizationAutoConfiguration
 com.sap.cloud.security.spring.autoconfig.XsuaaTokenFlowAutoConfiguration
-com.sap.cloud.security.spring.autoconfig.SecurityContextAutoConfiguration
