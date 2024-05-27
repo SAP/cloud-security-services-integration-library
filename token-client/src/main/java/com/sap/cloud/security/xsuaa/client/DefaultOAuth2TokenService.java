@@ -75,7 +75,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 		} catch (IOException | URISyntaxException e) {
 			if (e instanceof OAuth2ServiceException oAuth2Exception)
 				throw oAuth2Exception;
-			throw new OAuth2ServiceException("Unexpected error retrieving JWT token: " + e.getMessage());
+			throw new OAuth2ServiceException("Unexpected error retrieving JWT token: " + e);
 		}
 	}
 
