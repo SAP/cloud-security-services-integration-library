@@ -129,10 +129,10 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			validateJwksParameters(kid, uaaDomain);
 
 			return verifyToken(jwt.getParsedString(), kid, uaaDomain, getZid(jwt));
-		} catch (BadJwtException e) {
+		} catch (JwtException e) {
 			if (e.getMessage().contains("Couldn't retrieve remote JWK set")
 					|| e.getMessage().contains("Cannot verify with online token key, uaadomain is")) {
-				logger.debug(e.getMessage());
+				logger.error(e.getMessage());
 				return tryToVerifyWithVerificationKey(jwt.getParsedString(), e);
 			} else {
 				throw e;
@@ -169,13 +169,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 			}
 		}
 
-		try {
 			return verifyWithKey(token, jku, kid);
-		} catch (JwtValidationException ex) {
-			throw ex;
-		} catch (JwtException ex) {
-			throw new BadJwtException("JWT verification failed: " + ex.getMessage());
-		}
+
 	}
 
 	private void validateJwksParameters(String kid, String uaadomain) {
@@ -232,18 +227,19 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 		if (!hasText(verificationKey)) {
 			throw verificationException;
 		}
-		return verifyWithVerificationKey(token, verificationKey);
+		return verifyWithVerificationKey(token, verificationKey, verificationException);
 	}
 
-	private Jwt verifyWithVerificationKey(String token, String verificationKey) {
+	private Jwt verifyWithVerificationKey(String token, String verificationKey,
+			JwtException onlineVerificationException) {
 		try {
 			RSAPublicKey rsaPublicKey = createPublicKey(verificationKey);
 			NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(rsaPublicKey).build();
 			decoder.setJwtValidator(tokenValidators);
 			return decoder.decode(token);
-		} catch (NoSuchAlgorithmException | IllegalArgumentException | InvalidKeySpecException | BadJwtException e) {
-			logger.debug("Jwt signature validation with fallback verificationkey failed: {}", e.getMessage());
-			throw new BadJwtException("Jwt validation with fallback verificationkey failed");
+		} catch (NoSuchAlgorithmException | IllegalArgumentException | InvalidKeySpecException e) {
+			logger.error("Jwt signature validation with fallback verificationkey failed: {}", e.getMessage());
+			throw new JwtException("Jwt validation with fallback verificationkey failed", onlineVerificationException);
 		}
 	}
 

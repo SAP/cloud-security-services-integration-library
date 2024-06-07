@@ -10,6 +10,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -77,6 +78,38 @@ public class XsuaaJwtSignatureValidatorTest {
 	}
 
 	@Test
+	public void onlineVerificationFails_noVerificationKey() throws IOException {
+		when(tokenKeyServiceMock
+				.retrieveTokenKeys(
+						URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys?zid=uaa"),
+						Map.of(HttpHeaders.X_ZID, "uaa")))
+				.thenThrow(new OAuth2ServiceException("Error retrieving token keys"));
+
+		ValidationResult result = cut.validate(xsuaaToken);
+		assertThat(result.isErroneous(), is(true));
+		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
+	}
+
+	@Test
+	public void onlineVerificationFails_withNotWorkingVerificationKey() throws IOException {
+		when(tokenKeyServiceMock
+				.retrieveTokenKeys(
+						URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys?zid=uaa"),
+						Map.of(HttpHeaders.X_ZID, "uaa")))
+				.thenThrow(new OAuth2ServiceException("Error retrieving token keys"));
+		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
+		when(mockConfiguration.getProperty("verificationkey")).thenReturn(
+				"""
+						-----BEGIN PUBLIC KEY-----
+						MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/
+						oQIDAQAB
+						-----END PUBLIC KEY-----""");
+		ValidationResult result = cut.validate(xsuaaToken);
+		assertThat(result.isErroneous(), is(true));
+		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
+	}
+
+	@Test
 	public void generatedToken_SignatureMatchesVerificationkey() {
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
 		when(mockConfiguration.getProperty("verificationkey")).thenReturn(
@@ -94,7 +127,7 @@ public class XsuaaJwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validationFails_whenVerificationkeyIsInvalid() {
+	public void validationFails_whenVerificationKeyIsInvalid() {
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
 		when(mockConfiguration.getProperty("verificationkey")).thenReturn("INVALIDKEY");
 

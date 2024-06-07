@@ -17,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
@@ -101,7 +100,7 @@ public class XsuaaJwtDecoderTest {
 
 		final JwtDecoder cut = new XsuaaJwtDecoderBuilder(config).build();
 
-		assertThatThrownBy(() -> cut.decode(rsaToken)).isInstanceOf(BadJwtException.class)
+		assertThatThrownBy(() -> cut.decode(rsaToken)).isInstanceOf(JwtException.class)
 				.hasMessageContaining("Jwt validation with fallback verificationkey failed");
 	}
 
