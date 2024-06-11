@@ -83,7 +83,7 @@ public class HybridJwtDecoder implements JwtDecoder {
 		default -> throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
 		}
 		if (validationResult.isErroneous()) {
-			if (validationResult.getErrorDescription().contains("Error retrieving token keys")) {
+			if (validationResult.getErrorDescription().contains("JWKS could not be fetched")) {
 				throw new JwtException(validationResult.getErrorDescription());
 			} else {
 				throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
