@@ -84,7 +84,7 @@ public class HybridJwtDecoder implements JwtDecoder {
 		}
 		if (validationResult.isErroneous()) {
 			if (validationResult.getErrorDescription().contains("Error retrieving token keys")) {
-				throw new JwtException("Error retrieving token keys: " + validationResult.getErrorDescription());
+				throw new JwtException(validationResult.getErrorDescription());
 			} else {
 				throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
 			}
