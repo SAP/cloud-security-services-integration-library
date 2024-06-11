@@ -73,7 +73,7 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
 					IllegalArgumentException illegalArgEx = new IllegalArgumentException(
 							"Fallback validation key supplied via " + ServiceConstants.XSUAA.VERIFICATION_KEY
 									+ " property in service credentials could not be used: " + ex.getMessage());
-					if (e.getClass().equals(OAuth2ServiceException.class)) {
+					if (e instanceof OAuth2ServiceException) {
 						e.addSuppressed(illegalArgEx);
 						throw e;
 					}
