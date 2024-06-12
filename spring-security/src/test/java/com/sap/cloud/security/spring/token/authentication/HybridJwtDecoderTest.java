@@ -8,12 +8,14 @@ package com.sap.cloud.security.spring.token.authentication;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
+import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.x509.X509Certificate;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -125,6 +128,17 @@ class HybridJwtDecoderTest {
 		assertThrows(BadJwtException.class, () -> cut.decode("Bearer"));
 		assertThrows(BadJwtException.class, () -> cut.decode(null));
 		assertThrows(BadJwtException.class, () -> cut.decode("Bearerabc"));
+	}
+
+	@Test
+	void decode_cantRetrieveJWK() {
+		OAuth2ServiceConfiguration configuration = Mockito.mock(OAuth2ServiceConfiguration.class);
+		when(configuration.getService()).thenReturn(XSUAA);
+		when(configuration.getClientId()).thenReturn("theClientId");
+		CombiningValidator<Token> xsuaaValidators = JwtValidatorBuilder.getInstance(configuration).build();
+		HybridJwtDecoder cut = new HybridJwtDecoder(xsuaaValidators, null);
+		String encodedToken = JwtGenerator.getInstance(XSUAA, "theClientId").createToken().getTokenValue();
+		assertThrows(JwtException.class, () -> cut.decode(encodedToken));
 	}
 
 	@Test
