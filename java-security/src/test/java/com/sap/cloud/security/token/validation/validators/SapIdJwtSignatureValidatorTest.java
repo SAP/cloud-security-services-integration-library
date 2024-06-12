@@ -150,7 +150,7 @@ public class SapIdJwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validate_withEnabledProofTokenCheck() throws IOException {
+	public void validate_withEnabledProofTokenCheck_app2service() throws IOException {
 		String certString = IOUtils.resourceToString("/cf-forwarded-client-cert.txt", UTF_8);
 		Certificate cert = X509Certificate.newCertificate(certString);
 		SecurityContext.setClientCertificate(cert);
@@ -164,6 +164,21 @@ public class SapIdJwtSignatureValidatorTest {
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance()
 						.withTokenKeyService(tokenKeyMock),
+				OidcConfigurationServiceWithCache.getInstance()
+						.withOidcConfigurationService(oidcConfigServiceMock));
+		cut.enableProofTokenValidationCheck();
+		assertTrue(cut.validate(iasToken).isValid());
+	}
+
+	@Test
+	public void validate_withEnabledProofTokenCheck_app2app() {
+		Token iasToken = new SapIdToken(
+				"eyJraWQiOiJkZWZhdWx0LWtpZC1pYXMiLCJhbGciOiJSUzI1NiJ9.eyJleHAiOjY5NzQwMzE2MDAsImF6cCI6IlQwMDAzMTAiLCJjaWQiOiJUMDAwMzEwIiwiYXVkIjoiVDAwMDMxMCIsInpvbmVfdXVpZCI6InRoZS16b25lLWlkIiwiYXBwX3RpZCI6InRoZS1hcHAtdGlkIiwidXNlcl91dWlkIjoiMTIzNDU2Nzg5MCIsInNjaW1faWQiOiJzY2ltLTEyMzQ1Njc4OTAiLCJzdWIiOiJQMTc2OTQ1IiwiaXNzIjoiaHR0cHM6Ly9hcHBsaWNhdGlvbi5teWF1dGguY29tIiwiZ2l2ZW5fbmFtZSI6ImpvaG4iLCJmYW1pbHlfbmFtZSI6ImRvZSIsImVtYWlsIjoiam9obi5kb2VAZW1haWwub3JnIiwiaWFzX2FwaXMiOiJpYXNfYXBpcyJ9.XScl2bUr12mDNmVJahYIHEr7rlfaBFoyjR4UTJvOuEKXIQIgf58hRqbDNoKNM2pRiue8FvlD4TuI1OQ9r4wQgJ86sa0YIly7YfOhX6XQoDUXCcFVU_MsYTZJo2LMmOziD5EHt9wakRhWN3FqDM7KG4j_-HOhj3k0I72gFt83BToQHcMsW26eDQ7qfeeiNFsuUWzX8U-hZzCdOsl6EGYw2VU9kedEACH7xsOmfDdfLEPHu1HmjRmywdE118z4fPXpIvSN47V4VeXU8jZptRgxz1TDLT2w_zb4IPJInacadMVLNIVcrWqplQKTiS7nUCzCk2_aSKnBjerO5ugoERS9HA");
+
+		SapIdJwtSignatureValidator cut = new SapIdJwtSignatureValidator(
+				mockConfiguration,
+				OAuth2TokenKeyServiceWithCache.getInstance()
+						.withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
 						.withOidcConfigurationService(oidcConfigServiceMock));
 		cut.enableProofTokenValidationCheck();
