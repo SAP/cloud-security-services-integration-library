@@ -9,6 +9,7 @@ import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
 import com.sap.cloud.security.spring.token.authentication.IasJwtDecoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -47,13 +48,13 @@ class HybridIdentityServicesAutoConfigurationTest {
 	@Test
 	void autoConfigurationActiveInclProperties() {
 		runner.withPropertyValues("sap.spring.security.hybrid.auto:true")
-				.run((context) -> assertNotNull(context.getBean(HybridJwtDecoder.class)));
+				.run(context -> assertNotNull(context.getBean(HybridJwtDecoder.class)));
 	}
 
 	@Test
 	void autoConfigurationDisabledByProperty() {
 		runner.withPropertyValues("sap.spring.security.hybrid.auto:false")
-				.run((context) -> assertFalse(context.containsBean("hybridJwtDecoder")));
+				.run(context -> assertFalse(context.containsBean("hybridJwtDecoder")));
 	}
 
 	@Test
@@ -152,7 +153,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 	@Test
 	void userConfigurationCanOverrideDefaultBeans() {
 		runner.withUserConfiguration(UserConfiguration.class)
-				.run((context) -> {
+				.run(context -> {
 					assertFalse(context.containsBean("hybridJwtDecoder"));
 					assertNotNull(context.getBean("customJwtDecoder", NimbusJwtDecoder.class));
 				});
@@ -165,26 +166,82 @@ class HybridIdentityServicesAutoConfigurationTest {
 		identityProperties.add("sap.security.services.identity.domains:localhost");
 		identityProperties.add("sap.security.services.identity.clientid:cid");
 
-		WebApplicationContextRunner runner = new WebApplicationContextRunner()
+		WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 				.withPropertyValues(identityProperties.toArray(new String[0]))
 				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
 				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
-		runner.run(context -> assertNotNull(context.getBean("iasJwtDecoder", IasJwtDecoder.class)));
+		contextRunner.run(context -> assertNotNull(context.getBean("iasJwtDecoder", IasJwtDecoder.class)));
 	}
 
 	@Test
-	void autoConfigurationProofTokenCheckEnabled() {
+	void autoConfigurationProofTokenCheckEnabled_ias() {
 		List<String> identityProperties = new ArrayList<>();
 		identityProperties.add("sap.security.services.identity.url:http://localhost");
 		identityProperties.add("sap.security.services.identity.domains:localhost");
 		identityProperties.add("sap.security.services.identity.clientid:cid");
 		identityProperties.add("sap.spring.security.identity.prooftoken:true");
 
-		WebApplicationContextRunner runner = new WebApplicationContextRunner()
+		WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 				.withPropertyValues(identityProperties.toArray(new String[0]))
 				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
 				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
-		runner.run(context -> assertNotNull(context.getBean("iasJwtDecoderWithProofTokenCheck", IasJwtDecoder.class)));
+		contextRunner.run(context -> {
+			assertNotNull(context.getBean("iasJwtDecoderWithProofTokenCheck", IasJwtDecoder.class));
+			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("hybridJwtDecoder"));
+			assertThrows(NoSuchBeanDefinitionException.class,
+					() -> context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled"));
+			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoder"));
+		});
+	}
+
+	@Test
+	void autoConfigurationProofTokenCheckEnabled_hybrid() {
+		List<String> configProperties = new ArrayList<>();
+		configProperties.add("sap.security.services.identity.url:http://localhost");
+		configProperties.add("sap.security.services.identity.domains:localhost");
+		configProperties.add("sap.security.services.identity.clientid:cid");
+		configProperties.add("sap.spring.security.identity.prooftoken:true");
+		configProperties.add("sap.security.services.xsuaa.uaadomain:domain");
+		configProperties.add("sap.security.services.xsuaa.clientid:client");
+
+		WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
+				.withPropertyValues(configProperties.toArray(new String[0]))
+				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+		contextRunner.run(context -> {
+			assertNotNull(
+					context.getBean("hybridJwtDecoderWithProofTokenCheck", HybridJwtDecoder.class));
+			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("hybridJwtDecoder"));
+			assertThrows(NoSuchBeanDefinitionException.class,
+					() -> context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled"));
+			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoder"));
+		});
+	}
+
+	@Test
+	void autoConfigurationProofTokenCheckEnabled_hybridMultipleXsuaa() {
+		List<String> configProperties = new ArrayList<>();
+		configProperties.add("sap.security.services.identity.url:http://localhost");
+		configProperties.add("sap.security.services.identity.domains:localhost");
+		configProperties.add("sap.security.services.identity.clientid:cid");
+		configProperties.add("sap.spring.security.identity.prooftoken:true");
+		configProperties.add("sap.security.services.xsuaa[0].uaadomain:domain");
+		configProperties.add("sap.security.services.xsuaa[0].clientid:client");
+
+		WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
+				.withPropertyValues(configProperties.toArray(new String[0]))
+				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+		contextRunner.run(context -> {
+					assertNotNull(
+							context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled", HybridJwtDecoder.class));
+					assertThrows(NoSuchBeanDefinitionException.class,
+							() -> context.getBean("hybridJwtDecoderWithProofTokenCheck"));
+					assertThrows(NoSuchBeanDefinitionException.class,
+							() -> context.getBean("iasJwtDecoderWithProofTokenCheck"));
+					assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoder"));
+				}
+		);
 	}
 
 	@Configuration

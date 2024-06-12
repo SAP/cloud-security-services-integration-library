@@ -20,12 +20,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
+import org.springframework.core.env.Environment;
+import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET;
@@ -49,6 +50,10 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 // specifies JwtDecoder
 public class HybridIdentityServicesAutoConfiguration {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
+	private static final String SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN = "sap.spring.security.identity.prooftoken";
+	private static final String SAP_SECURITY_SERVICES_IDENTITY_DOMAINS = "sap.security.services.identity.domains";
+	private static final String SAP_SECURITY_SERVICES_XSUAA_UAADOMAIN = "sap.security.services.xsuaa.uaadomain";
+	private static final String SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN = "sap.security.services.xsuaa[0].uaadomain";
 
 	HybridIdentityServicesAutoConfiguration() {
 		// no need to create an instance
@@ -65,7 +70,20 @@ public class HybridIdentityServicesAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnProperty("sap.security.services.xsuaa.uaadomain")
+		@Conditional(ProofTokenHybridCondition.class)
+		public JwtDecoder hybridJwtDecoderWithProofTokenCheck(XsuaaServiceConfiguration xsuaaConfig,
+				IdentityServiceConfiguration identityConfig) {
+			LOGGER.debug("auto-configures HybridJwtDecoder with proofToken check enabled.");
+			return new JwtDecoderBuilder()
+					.withIasServiceConfiguration(identityConfig)
+					.enableProofTokenCheck()
+					.withXsuaaServiceConfiguration(xsuaaConfig)
+					.build();
+		}
+
+		@Bean
+		@ConditionalOnMissingBean(JwtDecoder.class)
+		@ConditionalOnProperty(SAP_SECURITY_SERVICES_XSUAA_UAADOMAIN)
 		public JwtDecoder hybridJwtDecoder(XsuaaServiceConfiguration xsuaaConfig,
 				IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures HybridJwtDecoder.");
@@ -76,8 +94,35 @@ public class HybridIdentityServicesAutoConfiguration {
 		}
 
 		@Bean
+		@Conditional(ProofTokenHybridMultiXsuaaCondition.class)
+		public JwtDecoder hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled(
+				IdentityServiceConfiguration identityConfig) {
+			LOGGER.debug(
+					"auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances and proof token check is enabled.");
+
+			/*
+			 * Use only primary XSUAA config and up to 1 more config of type BROKER to stay
+			 * backward-compatible now that XsuaaServiceConfigurations contains all XSUAA
+			 * configurations instead of only two.
+			 */
+			List<XsuaaServiceConfiguration> allXsuaaConfigs = xsuaaConfigs.getConfigurations();
+			List<XsuaaServiceConfiguration> usedXsuaaConfigs = allXsuaaConfigs.subList(0,
+					Math.min(2, allXsuaaConfigs.size()));
+			if (usedXsuaaConfigs.size() == 2 && !ServiceConstants.Plan.BROKER.toString()
+					.equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
+				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
+			}
+
+			return new JwtDecoderBuilder()
+					.withIasServiceConfiguration(identityConfig)
+					.enableProofTokenCheck()
+					.withXsuaaServiceConfigurations(usedXsuaaConfigs)
+					.build();
+		}
+
+		@Bean
 		@Primary
-		@ConditionalOnProperty("sap.security.services.xsuaa[0].uaadomain")
+		@ConditionalOnProperty(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN)
 		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
 
@@ -101,8 +146,7 @@ public class HybridIdentityServicesAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnProperty(name = "sap.spring.security.identity.prooftoken", havingValue = "true")
-		@ConditionalOnMissingBean(JwtDecoder.class)
+		@Conditional(ProofTokenIasCondition.class)
 		public JwtDecoder iasJwtDecoderWithProofTokenCheck(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures iasJwtDecoderWithProofTokenCheck.");
 			return new JwtDecoderBuilder()
@@ -112,13 +156,51 @@ public class HybridIdentityServicesAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnProperty("sap.security.services.identity.domains")
+		@ConditionalOnProperty(SAP_SECURITY_SERVICES_IDENTITY_DOMAINS)
 		@ConditionalOnMissingBean(JwtDecoder.class)
 		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures IasJwtDecoder.");
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
 					.build();
+		}
+	}
+
+	private static class ProofTokenIasCondition implements Condition {
+		@Override
+		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
+			Environment env = context.getEnvironment();
+			String proofTokenEnabled = env.getProperty(SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN);
+			String iasBound = env.getProperty(SAP_SECURITY_SERVICES_IDENTITY_DOMAINS);
+			String xsuaaBound = env.getProperty(SAP_SECURITY_SERVICES_XSUAA_UAADOMAIN);
+			String xsuaaMultiBound = env.getProperty(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN);
+
+			return proofTokenEnabled != null && proofTokenEnabled.equals(
+					"true") && iasBound != null && !iasBound.isBlank() && xsuaaBound == null && xsuaaMultiBound == null;
+		}
+	}
+
+	private static class ProofTokenHybridCondition implements Condition {
+		@Override
+		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
+			Environment env = context.getEnvironment();
+			String proofTokenEnabled = env.getProperty(SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN);
+			String xsuaaBound = env.getProperty(SAP_SECURITY_SERVICES_XSUAA_UAADOMAIN);
+
+			return proofTokenEnabled != null && proofTokenEnabled.equals(
+					"true") && xsuaaBound != null && !xsuaaBound.isBlank();
+		}
+	}
+
+	private static class ProofTokenHybridMultiXsuaaCondition implements Condition {
+		@Override
+		public boolean matches(ConditionContext context, @Nonnull AnnotatedTypeMetadata metadata) {
+			Environment env = context.getEnvironment();
+			String proofTokenEnabled = env.getProperty(SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN);
+			String xsuaaBound = env.getProperty(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN);
+
+			return proofTokenEnabled != null && proofTokenEnabled.equals(
+					"true") && xsuaaBound != null && !xsuaaBound.isBlank();
 		}
 	}
 
