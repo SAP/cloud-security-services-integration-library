@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.sap.cloud.security.spring.autoconfig.SapSecurityProperties.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HybridIdentityServicesAutoConfigurationTest {
@@ -29,7 +30,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 	@BeforeEach
 	void setup() {
 		properties.add("sap.security.services.xsuaa.url:http://localhost");
-		properties.add("sap.security.services.xsuaa.uaadomain:localhost");
+		properties.add(SAP_SECURITY_SERVICES_XSUAA_UAADOMAIN + ":localhost");
 		properties.add("sap.security.services.xsuaa.xsappname:theAppName");
 		properties.add("sap.security.services.xsuaa.clientid:cid");
 		properties.add("sap.security.services.identity.url:http://localhost");
@@ -37,18 +38,27 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 		runner = new WebApplicationContextRunner()
 				.withPropertyValues(properties.toArray(new String[0]))
-				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
+						HybridIdentityServicesProofTokenAutoConfiguration.class));
 	}
 
 	@Test
 	void autoConfigurationActive() {
-		runner.run(context -> assertNotNull(context.getBean("hybridJwtDecoder", HybridJwtDecoder.class)));
+		runner.run(context -> {
+			assertNotNull(context.getBean("hybridJwtDecoder", HybridJwtDecoder.class));
+			assertThrows(NoSuchBeanDefinitionException.class,
+					() -> context.getBean("hybridJwtDecoderProofTokenEnabled"));
+		});
 	}
 
 	@Test
 	void autoConfigurationActiveInclProperties() {
-		runner.withPropertyValues("sap.spring.security.hybrid.auto:true")
-				.run(context -> assertNotNull(context.getBean(HybridJwtDecoder.class)));
+		runner.withPropertyValues("sap.spring.security.hybrid.auto:true",
+						SapSecurityProperties.SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN + ":true")
+				.run(context -> {
+					assertNotNull(context.getBean("hybridJwtDecoderProofTokenEnabled"));
+					assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("hybridJwtDecoder"));
+				});
 	}
 
 	@Test
@@ -63,7 +73,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 		List<String> mt_properties = new ArrayList<>();
 		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
-		mt_properties.add("sap.security.services.xsuaa[0].uaadomain:localhost");
+		mt_properties.add(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN + ":localhost");
 		mt_properties.add("sap.security.services.xsuaa[0].xsappname:theAppName");
 		mt_properties.add("sap.security.services.xsuaa[0].clientid:cid");
 		mt_properties.add("sap.security.services.identity.url:http://localhost");
@@ -85,7 +95,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 		List<String> mt_properties = new ArrayList<>(properties);
 		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
-		mt_properties.add("sap.security.services.xsuaa[0].uaadomain:localhost");
+		mt_properties.add(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN + ":localhost");
 		mt_properties.add("sap.security.services.xsuaa[0].xsappname:theAppName");
 		mt_properties.add("sap.security.services.xsuaa[0].clientid:cid");
 		mt_properties.add("sap.security.services.xsuaa[1].clientid:cid2");
@@ -133,7 +143,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 
 		List<String> mt_properties = new ArrayList<>();
 		mt_properties.add("sap.security.services.xsuaa[0].url:http://localhost");
-		mt_properties.add("sap.security.services.xsuaa[0].uaadomain:localhost");
+		mt_properties.add(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN + ":localhost");
 		mt_properties.add("sap.security.services.xsuaa[0].xsappname:theAppName");
 		mt_properties.add("sap.security.services.xsuaa[0].clientid:xsuaacid");
 		mt_properties.add("sap.security.services.xsuaa[1].clientid:cid2");
@@ -163,7 +173,7 @@ class HybridIdentityServicesAutoConfigurationTest {
 	void autoConfigurationIdentityServiceOnly() {
 		List<String> identityProperties = new ArrayList<>();
 		identityProperties.add("sap.security.services.identity.url:http://localhost");
-		identityProperties.add("sap.security.services.identity.domains:localhost");
+		identityProperties.add(SAP_SECURITY_SERVICES_IDENTITY_DOMAINS + ":localhost");
 		identityProperties.add("sap.security.services.identity.clientid:cid");
 
 		WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
@@ -177,16 +187,18 @@ class HybridIdentityServicesAutoConfigurationTest {
 	void autoConfigurationProofTokenCheckEnabled_ias() {
 		List<String> identityProperties = new ArrayList<>();
 		identityProperties.add("sap.security.services.identity.url:http://localhost");
-		identityProperties.add("sap.security.services.identity.domains:localhost");
+		identityProperties.add(SAP_SECURITY_SERVICES_IDENTITY_DOMAINS + ":localhost");
 		identityProperties.add("sap.security.services.identity.clientid:cid");
-		identityProperties.add("sap.spring.security.identity.prooftoken:true");
+		identityProperties.add(SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN + ":true");
+		identityProperties.add(SapSecurityProperties.SAP_SPRING_SECURITY_HYBRID + ":true");
 
 		WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 				.withPropertyValues(identityProperties.toArray(new String[0]))
 				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
-				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
+						HybridIdentityServicesProofTokenAutoConfiguration.class));
 		contextRunner.run(context -> {
-			assertNotNull(context.getBean("iasJwtDecoderWithProofTokenCheck", IasJwtDecoder.class));
+			assertNotNull(context.getBean("iasJwtDecoderProofTokenEnabled", IasJwtDecoder.class));
 			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("hybridJwtDecoder"));
 			assertThrows(NoSuchBeanDefinitionException.class,
 					() -> context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled"));
@@ -198,19 +210,21 @@ class HybridIdentityServicesAutoConfigurationTest {
 	void autoConfigurationProofTokenCheckEnabled_hybrid() {
 		List<String> configProperties = new ArrayList<>();
 		configProperties.add("sap.security.services.identity.url:http://localhost");
-		configProperties.add("sap.security.services.identity.domains:localhost");
+		configProperties.add(SAP_SECURITY_SERVICES_XSUAA_UAADOMAIN + ":localhost");
 		configProperties.add("sap.security.services.identity.clientid:cid");
-		configProperties.add("sap.spring.security.identity.prooftoken:true");
-		configProperties.add("sap.security.services.xsuaa.uaadomain:domain");
+		configProperties.add(SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN + ":true");
+		configProperties.add(SAP_SECURITY_SERVICES_IDENTITY_DOMAINS + ":domain");
 		configProperties.add("sap.security.services.xsuaa.clientid:client");
+		configProperties.add("sap.spring.security.hybrid.auto:true");
 
 		WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 				.withPropertyValues(configProperties.toArray(new String[0]))
 				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
-				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
+						HybridIdentityServicesProofTokenAutoConfiguration.class));
 		contextRunner.run(context -> {
 			assertNotNull(
-					context.getBean("hybridJwtDecoderWithProofTokenCheck", HybridJwtDecoder.class));
+					context.getBean("hybridJwtDecoderProofTokenEnabled", HybridJwtDecoder.class));
 			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("hybridJwtDecoder"));
 			assertThrows(NoSuchBeanDefinitionException.class,
 					() -> context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled"));
@@ -222,23 +236,27 @@ class HybridIdentityServicesAutoConfigurationTest {
 	void autoConfigurationProofTokenCheckEnabled_hybridMultipleXsuaa() {
 		List<String> configProperties = new ArrayList<>();
 		configProperties.add("sap.security.services.identity.url:http://localhost");
-		configProperties.add("sap.security.services.identity.domains:localhost");
+		configProperties.add(SAP_SECURITY_SERVICES_IDENTITY_DOMAINS + ":localhost");
 		configProperties.add("sap.security.services.identity.clientid:cid");
-		configProperties.add("sap.spring.security.identity.prooftoken:true");
-		configProperties.add("sap.security.services.xsuaa[0].uaadomain:domain");
+		configProperties.add(SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN + ":true");
+		configProperties.add(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN + ":domain");
 		configProperties.add("sap.security.services.xsuaa[0].clientid:client");
+		configProperties.add(SapSecurityProperties.SAP_SPRING_SECURITY_HYBRID + ":true");
+
+
 
 		WebApplicationContextRunner contextRunner = new WebApplicationContextRunner()
 				.withPropertyValues(configProperties.toArray(new String[0]))
 				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
-				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class,
+						HybridIdentityServicesProofTokenAutoConfiguration.class));
 		contextRunner.run(context -> {
 					assertNotNull(
 							context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled", HybridJwtDecoder.class));
 					assertThrows(NoSuchBeanDefinitionException.class,
-							() -> context.getBean("hybridJwtDecoderWithProofTokenCheck"));
+							() -> context.getBean("hybridJwtDecoderProofTokenEnabled"));
 					assertThrows(NoSuchBeanDefinitionException.class,
-							() -> context.getBean("iasJwtDecoderWithProofTokenCheck"));
+							() -> context.getBean("iasJwtDecoderProofTokenEnabled"));
 					assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoder"));
 				}
 		);
