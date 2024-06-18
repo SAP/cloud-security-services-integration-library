@@ -51,6 +51,10 @@ public class HybridJwtDecoder implements JwtDecoder {
 		iasTokenValidators = iasValidator;
 	}
 
+	public boolean proofTokenCheckEnabled() {
+		return iasTokenValidators.isProofTokenEnabled();
+	}
+
 	@Override
 	public Jwt decode(String encodedToken) {
 		ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

@@ -26,7 +26,7 @@ import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConst
  * Jwt Signature validator for OIDC tokens issued by Identity service. This validator MUST only be
  * called after validating the token's issuer claim via {@link JwtIssuerValidator} first.
  */
-class SapIdJwtSignatureValidator extends JwtSignatureValidator {
+public class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 	private boolean isTenantIdCheckEnabled = true;
 	private boolean isProofTokenValidationEnabled = false;
 
@@ -45,6 +45,10 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 	 */
 	protected void disableTenantIdCheck() {
 		this.isTenantIdCheckEnabled = false;
+	}
+
+	public boolean isProofTokenValidationEnabled() {
+		return isProofTokenValidationEnabled;
 	}
 
 	/**

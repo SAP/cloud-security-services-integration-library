@@ -43,6 +43,10 @@ public class IasJwtDecoder implements JwtDecoder {
 		tokenValidators = validator;
 	}
 
+	public boolean proofTokenCheckEnabled() {
+		return tokenValidators.isProofTokenEnabled();
+	}
+
 	@Override
 	public Jwt decode(String encodedToken) {
 		try {

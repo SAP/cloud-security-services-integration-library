@@ -5,14 +5,12 @@
  */
 package com.sap.cloud.security.token.validation;
 
+import com.sap.cloud.security.token.validation.validators.SapIdJwtSignatureValidator;
 import com.sap.cloud.security.xsuaa.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This is a special validator that combines several validators into one. By default the validation stops after one
@@ -26,15 +24,32 @@ public class CombiningValidator<T> implements Validator<T> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(CombiningValidator.class);
 	private final List<Validator<T>> validators;
 	private final Set<ValidationListener> validationListeners = new HashSet<>();
+	private boolean proofTokenEnabled = false;
 
 	public CombiningValidator(List<Validator<T>> validators) {
 		Assertions.assertNotNull(validators, "validators must not be null.");
 		this.validators = validators;
+		extractProofTokenValue(validators);
 	}
 
 	public CombiningValidator(Validator<T>... validators) {
 		Assertions.assertNotNull(validators, "validators must not be null.");
 		this.validators = Arrays.asList(validators);
+		extractProofTokenValue(Arrays.stream(validators).toList());
+	}
+
+	private void extractProofTokenValue(List<Validator<T>> validators) {
+		Optional<Validator<T>> v = validators.stream()
+				.filter(validator -> validator instanceof SapIdJwtSignatureValidator)
+				.findFirst();
+		if (v.isPresent()) {
+			SapIdJwtSignatureValidator sapIdValidator = (SapIdJwtSignatureValidator) v.get();
+			this.proofTokenEnabled = sapIdValidator.isProofTokenValidationEnabled();
+		}
+	}
+
+	public boolean isProofTokenEnabled() {
+		return proofTokenEnabled;
 	}
 
 	@Override

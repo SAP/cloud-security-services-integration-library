@@ -12,6 +12,7 @@ import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -50,6 +51,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 public class HybridIdentityServicesAutoConfiguration {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HybridIdentityServicesAutoConfiguration.class);
 
+
 	HybridIdentityServicesAutoConfiguration() {
 		// no need to create an instance
 	}
@@ -58,6 +60,10 @@ public class HybridIdentityServicesAutoConfiguration {
 	@ConditionalOnMissingBean({ JwtDecoder.class })
 	@ConditionalOnWebApplication(type = SERVLET)
 	public static class JwtDecoderConfigurations {
+		@Value("${sap.spring.security.identity.prooftoken:true}")
+		private boolean proofTokenEnabled;
+
+
 		XsuaaServiceConfigurations xsuaaConfigs;
 
 		JwtDecoderConfigurations(XsuaaServiceConfigurations xsuaaConfigs) {
@@ -68,6 +74,14 @@ public class HybridIdentityServicesAutoConfiguration {
 		@ConditionalOnProperty("sap.security.services.xsuaa.uaadomain")
 		public JwtDecoder hybridJwtDecoder(XsuaaServiceConfiguration xsuaaConfig,
 				IdentityServiceConfiguration identityConfig) {
+			if (proofTokenEnabled) {
+				LOGGER.debug("auto-configures HybridJwtDecoder with enabled ProofToken check.");
+				return new JwtDecoderBuilder()
+						.withIasServiceConfiguration(identityConfig)
+						.enableProofTokenCheck()
+						.withXsuaaServiceConfiguration(xsuaaConfig)
+						.build();
+			}
 			LOGGER.debug("auto-configures HybridJwtDecoder.");
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
@@ -79,7 +93,6 @@ public class HybridIdentityServicesAutoConfiguration {
 		@Primary
 		@ConditionalOnProperty("sap.security.services.xsuaa[0].uaadomain")
 		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
-			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
 
 			/*
 			 * Use only primary XSUAA config and up to 1 more config of type BROKER to stay
@@ -93,7 +106,16 @@ public class HybridIdentityServicesAutoConfiguration {
 					.equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
 				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
 			}
-
+			if (proofTokenEnabled) {
+				LOGGER.debug(
+						"auto-configures HybridJwtDecoder with multiple xsuaa service instances and enabled proof token check.");
+				return new JwtDecoderBuilder()
+						.withIasServiceConfiguration(identityConfig)
+						.enableProofTokenCheck()
+						.withXsuaaServiceConfigurations(usedXsuaaConfigs)
+						.build();
+			}
+			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
 					.withXsuaaServiceConfigurations(usedXsuaaConfigs)
@@ -101,20 +123,17 @@ public class HybridIdentityServicesAutoConfiguration {
 		}
 
 		@Bean
-		@ConditionalOnProperty(name = "sap.spring.security.identity.prooftoken", havingValue = "true")
-		@ConditionalOnMissingBean(JwtDecoder.class)
-		public JwtDecoder iasJwtDecoderWithProofTokenCheck(IdentityServiceConfiguration identityConfig) {
-			LOGGER.debug("auto-configures iasJwtDecoderWithProofTokenCheck.");
-			return new JwtDecoderBuilder()
-					.withIasServiceConfiguration(identityConfig)
-					.enableProofTokenCheck()
-					.build();
-		}
-
-		@Bean
 		@ConditionalOnProperty("sap.security.services.identity.domains")
 		@ConditionalOnMissingBean(JwtDecoder.class)
 		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig) {
+			if (proofTokenEnabled) {
+				LOGGER.debug("auto-configures IasJwtDecoder with enabled ProofToken check.");
+				return new JwtDecoderBuilder()
+						.withIasServiceConfiguration(identityConfig)
+						.enableProofTokenCheck()
+						.build();
+			}
+
 			LOGGER.debug("auto-configures IasJwtDecoder.");
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
