@@ -11,6 +11,7 @@ package com.sap.cloud.security.token;
  */
 public final class TokenClaims {
 
+
 	private TokenClaims() {
 		throw new IllegalStateException("Utility class");
 	}
@@ -25,6 +26,8 @@ public final class TokenClaims {
 	public static final String GIVEN_NAME = "given_name";
 	public static final String FAMILY_NAME = "family_name";
 	public static final String EMAIL = "email";
+	public static final String IAS_APIS = "ias_apis";
+
 	/**
 	 * IAS applications provide this attribute if the user was authenticated via an OIDC trust to an IAS tenant and if
 	 * the user actually has a user UUID. This is true if the user physically exists in the IAS user store and IAS is
