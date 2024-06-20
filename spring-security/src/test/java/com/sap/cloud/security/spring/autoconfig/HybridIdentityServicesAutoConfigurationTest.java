@@ -202,6 +202,10 @@ class HybridIdentityServicesAutoConfigurationTest {
 			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("hybridJwtDecoder"));
 			assertThrows(NoSuchBeanDefinitionException.class,
 					() -> context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled"));
+			assertThrows(NoSuchBeanDefinitionException.class,
+					() -> context.getBean("hybridJwtDecoderMultiXsuaaServices"));
+			assertThrows(NoSuchBeanDefinitionException.class,
+					() -> context.getBean("hybridJwtDecoderProofTokenEnabled"));
 			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoder"));
 		});
 	}
@@ -226,9 +230,12 @@ class HybridIdentityServicesAutoConfigurationTest {
 			assertNotNull(
 					context.getBean("hybridJwtDecoderProofTokenEnabled", HybridJwtDecoder.class));
 			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("hybridJwtDecoder"));
+			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoder"));
+			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoderProofTokenEnabled"));
+			assertThrows(NoSuchBeanDefinitionException.class,
+					() -> context.getBean("hybridJwtDecoderMultiXsuaaServices"));
 			assertThrows(NoSuchBeanDefinitionException.class,
 					() -> context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled"));
-			assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoder"));
 		});
 	}
 
@@ -253,8 +260,12 @@ class HybridIdentityServicesAutoConfigurationTest {
 		contextRunner.run(context -> {
 					assertNotNull(
 							context.getBean("hybridJwtDecoderMultiXsuaaServicesProofTokenEnabled", HybridJwtDecoder.class));
+			assertThrows(NoSuchBeanDefinitionException.class,
+					() -> context.getBean("hybridJwtDecoderMultiXsuaaServices"));
 					assertThrows(NoSuchBeanDefinitionException.class,
 							() -> context.getBean("hybridJwtDecoderProofTokenEnabled"));
+			assertThrows(NoSuchBeanDefinitionException.class,
+					() -> context.getBean("hybridJwtDecoder"));
 					assertThrows(NoSuchBeanDefinitionException.class,
 							() -> context.getBean("iasJwtDecoderProofTokenEnabled"));
 					assertThrows(NoSuchBeanDefinitionException.class, () -> context.getBean("iasJwtDecoder"));

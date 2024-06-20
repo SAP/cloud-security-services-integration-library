@@ -33,13 +33,15 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 
 /**
  * {@link EnableAutoConfiguration} exposes a {@link JwtDecoder}, which has the standard Spring Security Jwt validators
- * as well as the SCP identity provider-specific validators.
+ * as well as the SAP BTP identity provider-specific validators.
+ * <p>
+ * This Autoconfiguration creates a JwtDecoders with enabled ProofToken check.
  * <p>
  * Activates when there is a bean of type {@link Jwt} configured in the context.
  *
  * <p>
- * Can be disabled with {@code @EnableAutoConfiguration(exclude={HybridIdentityServicesAutoConfiguration.class})} or
- * with property {@code sap.spring.security.hybrid.auto = false}.
+ * Can be enabled with property {@code sap.spring.security.identity.prooftoken = true}
+ * and {@code sap.spring.security.hybrid.auto = true}.
  */
 @Configuration
 @ConditionalOnClass(Jwt.class)

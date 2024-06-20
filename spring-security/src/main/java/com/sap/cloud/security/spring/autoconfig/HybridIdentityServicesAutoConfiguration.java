@@ -34,7 +34,7 @@ import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebA
 
 /**
  * {@link EnableAutoConfiguration} exposes a {@link JwtDecoder}, which has the standard Spring Security Jwt validators
- * as well as the SCP identity provider-specific validators.
+ * as well as the SAP BTP identity provider-specific validators.
  * <p>
  * Activates when there is a bean of type {@link Jwt} configured in the context.
  *
