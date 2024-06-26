@@ -6,12 +6,6 @@
 package com.sap.cloud.security.xsuaa.token.authentication;
 
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,6 +13,9 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.web.client.RestOperations;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class XsuaaJwtDecoderBuilder {
 
