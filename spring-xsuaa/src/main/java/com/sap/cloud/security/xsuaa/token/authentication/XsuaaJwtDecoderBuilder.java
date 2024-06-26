@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.web.client.RestOperations;
 
@@ -64,7 +64,7 @@ public class XsuaaJwtDecoderBuilder {
 
 	private DelegatingOAuth2TokenValidator<Jwt> getValidators() {
 		return new DelegatingOAuth2TokenValidator<>(new DelegatingOAuth2TokenValidator<>(xsuaaTokenValidators),
-				JwtValidators.createDefault());
+				new JwtTimestampValidator());
 	}
 
 	/**
