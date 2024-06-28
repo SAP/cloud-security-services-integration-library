@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.2
+
+- [spring-xsuaa] Remove new X5tCertificateThumbprintValidator from spring-xsuaa validators
+
+#### Dependency upgrades
+
+- Bump spring.boot.version from 3.3.0 to 3.3.1
+
 ## 3.5.1
 
 - [java-security]
