@@ -1,10 +1,10 @@
 # Description
-:warning: Please note that the SAP Java Buildpack has not yet incorporated the Tomcat 10 runtime, which is required for the `java-security` library and with that this sample is not functional. Stay updated on SAP Java Buildpack releases for future compatibility. 
-In the meantime, you can utilize the `java-security` library with the [Community Cloud Foundry Java Buildpack](https://github.com/cloudfoundry/java-buildpack), as showcased in the [java-security-usage](/samples/java-security-usage) sample.
-
 This sample is a Java Back-End application that demonstrates usage of [SAP Java Buildpack](https://help.sap.com/docs/btp/sap-business-technology-platform/developing-java-in-cloud-foundry-environment).
 SAP Java Buildpack bundles the [Java Security](/java-security/) client library to authenticate JWT tokens issued by the `Xsuaa` service.
 It inspects incoming requests to determine if the user has the appropriate authorization by using the [`XsuaaTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java).
+
+:warning: Please note that this sample is based on the `java-security` library, which requires the Tomcat 10 runtime.
+Therefore, it needs to be deployed using the [SAP Java Buildpack 2](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-jakarta-buildpack) (sap_java_buildpack_jakarta).
 
 In a typical UI5 application, the application router server HTML files and REST data would be provided by a back-end application. To focus on the security part, UI5 has been omitted.
 

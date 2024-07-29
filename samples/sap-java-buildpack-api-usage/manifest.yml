@@ -17,7 +17,7 @@ applications:
   services:
     - xsuaa-buildpack
   buildpacks:
-    - sap_java_buildpack
+    - sap_java_buildpack_jakarta
   env:
     JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
     SET_LOGGING_LEVEL: '{com.sap.xs.security: DEBUG, com.sap.cloud.security: DEBUG}'
