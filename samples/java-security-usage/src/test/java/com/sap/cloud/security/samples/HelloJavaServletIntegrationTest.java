@@ -32,7 +32,9 @@ public class HelloJavaServletIntegrationTest {
 
 	@RegisterExtension
 	static SecurityTestExtension extension = SecurityTestExtension.forService(XSUAA)
-			.useApplicationServer();
+			.useApplicationServer()
+			.addApplicationServlet(HelloJavaServlet.class, HelloJavaServlet.ENDPOINT)
+			.addApplicationServlet(HelloJavaServletScopeProtected.class, HelloJavaServletScopeProtected.ENDPOINT);
 
 	private static CloseableHttpClient httpClient;
 

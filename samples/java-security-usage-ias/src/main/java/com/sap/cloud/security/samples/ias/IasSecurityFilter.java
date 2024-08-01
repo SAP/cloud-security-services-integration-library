@@ -19,6 +19,7 @@ import java.io.IOException;
 
 @WebFilter("/*") // filter for any endpoint
 public class IasSecurityFilter implements Filter {
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(IasSecurityFilter.class);
 	private final IasTokenAuthenticator iasTokenAuthenticator;
 
@@ -27,14 +28,10 @@ public class IasSecurityFilter implements Filter {
 	}
 
 	@Override
-	public void init(FilterConfig filterConfig) {
-	}
-
-	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		if (httpRequest.getRequestURI().equals("/health")) {
+		if (httpRequest.getRequestURI().equals(HealthServlet.ENDPOINT)) {
 			// Allow the request to proceed without any security check
 			chain.doFilter(request, response);
 		} else {
@@ -64,7 +61,4 @@ public class IasSecurityFilter implements Filter {
 		}
 	}
 
-	@Override
-	public void destroy() {
-	}
 }
