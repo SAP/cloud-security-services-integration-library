@@ -7,6 +7,6 @@ updates:
       time: "10:00"
       timezone: Etc/UCT
     reviewers:
-      - "liga-oz"
+      - "kuntzed"
       - "finkmanAtSap"
     open-pull-requests-limit: 10
