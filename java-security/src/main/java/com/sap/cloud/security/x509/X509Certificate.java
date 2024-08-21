@@ -26,23 +26,25 @@ public class X509Certificate implements Certificate {
 
 	private final java.security.cert.X509Certificate x509;
 	private String thumbprint;
+	private final String pem;
 
-	private X509Certificate(java.security.cert.X509Certificate x509Certificate) {
+	private X509Certificate(java.security.cert.X509Certificate x509Certificate, String pem) {
 		this.x509 = x509Certificate;
+		this.pem = pem;
 	}
 
 	/**
 	 * Creates a new instance of X.509 certificate.
 	 *
-	 * @param certificate
-	 *            the certificate encoded in base64 or PEM format
+	 * @param pem
+	 * 		the certificate encoded in base64 or PEM format
 	 * @return instance of X509certificate
 	 */
 	@Nullable
-	public static X509Certificate newCertificate(String certificate) {
-		if (certificate != null && !certificate.isEmpty()) {
+	public static X509Certificate newCertificate(String pem) {
+		if (pem != null && !pem.isEmpty()) {
 			try {
-				return new X509Certificate(X509Parser.parseCertificate(certificate));
+				return new X509Certificate(X509Parser.parseCertificate(pem), pem);
 			} catch (CertificateException e) {
 				LOGGER.warn("Could not parse the certificate string", e);
 			}
@@ -73,6 +75,13 @@ public class X509Certificate implements Certificate {
 				dn -> dn.split("=")[0].trim(),
 				dn -> dn.split("=")[1],
 				(dn1, dn2) -> dn1 + "," + dn2));
+	}
+
+	/**
+	 * @return a base64 encoded DER certificate or certificate in PEM format
+	 */
+	public String getPEM() {
+		return this.pem;
 	}
 
 }

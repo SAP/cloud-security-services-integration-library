@@ -26,7 +26,8 @@ class ServiceBindingEnvironmentTest {
 	static void setUp() throws IOException {
 		String singleXsuaaConfiguration = IOUtils.resourceToString("/vcapXsuaaServiceSingleBinding.json", UTF_8);
 		String multipleXsuaaConfigurations = IOUtils.resourceToString("/vcapXsuaaServiceMultipleBindings.json", UTF_8);
-		String multipleXsuaaApplicationPlanConfigurations = IOUtils.resourceToString("/vcapXsuaaServiceMultipleApplicationPlanBindings.json", UTF_8);
+		String multipleXsuaaApplicationPlanConfigurations = IOUtils
+				.resourceToString("/vcapXsuaaServiceMultipleApplicationPlanBindings.json", UTF_8);
 		String singleIasConfiguration = IOUtils.resourceToString("/vcapIasServiceSingleBinding.json", UTF_8);
 		String unknownXsuaaPlanConfig = IOUtils.resourceToString("/vcapUnknownServicePlan.json", UTF_8);
 		vcapXsa = IOUtils.resourceToString("/vcapXsuaaXsaSingleBinding.json", UTF_8);
@@ -73,7 +74,9 @@ class ServiceBindingEnvironmentTest {
 		assertNotSame(cutMultipleXsuaa.getXsuaaConfigurationForTokenExchange(),
 				cutMultipleXsuaa.getXsuaaConfiguration());
 
-		assertThat(cutMultipleApplicationPlanXsuaa.getXsuaaConfigurationForTokenExchange().getProperty(ServiceConstants.SERVICE_PLAN),
+		assertThat(
+				cutMultipleApplicationPlanXsuaa.getXsuaaConfigurationForTokenExchange()
+						.getProperty(ServiceConstants.SERVICE_PLAN),
 				equalToIgnoringCase(ServiceConstants.Plan.BROKER.toString()));
 		assertNotSame(cutMultipleApplicationPlanXsuaa.getXsuaaConfigurationForTokenExchange(),
 				cutMultipleXsuaa.getXsuaaConfiguration());
@@ -138,7 +141,8 @@ class ServiceBindingEnvironmentTest {
 		configs = cutMultipleApplicationPlanXsuaa.getServiceConfigurations();
 		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(2));
 		assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
-		assertThat(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION).getProperty(ServiceConstants.XSUAA.APP_ID), equalTo("na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066"));
+		assertThat(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION)
+				.getProperty(ServiceConstants.XSUAA.APP_ID), equalTo("na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066"));
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.BROKER));
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION));
 

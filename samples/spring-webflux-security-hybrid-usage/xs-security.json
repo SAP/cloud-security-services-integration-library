@@ -1,0 +1,28 @@
+{
+  "xsappname": "spring-webflux-security-hybrid-usage",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Read",
+      "description": "With this scope, information can be read."
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "AccessRole",
+      "description": "Role to call the spring-webflux-security-hybrid-usage service",
+      "scope-references": [
+        "$XSAPPNAME.Read"
+      ]
+    }
+  ],
+  "role-collections": [
+    {
+      "name": "Webflux_API_Viewer",
+      "description": "Role Collection to call the spring-webflux-security-hybrid-usage service",
+      "role-template-references": [
+        "$XSAPPNAME.AccessRole"
+      ]
+    }
+  ]
+}

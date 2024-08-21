@@ -23,8 +23,8 @@ import static com.sap.cloud.security.token.TokenClaims.USER_NAME;
 import static com.sap.cloud.security.token.TokenClaims.XSUAA.*;
 
 /**
- * Decodes and parses encoded access token (JWT) for the Xsuaa identity service
- * and provides access to token header parameters and claims.
+ * Decodes and parses encoded access token (JWT) for the Xsuaa identity service and provides access to token header
+ * parameters and claims.
  */
 public class XsuaaToken extends AbstractToken implements AccessToken {
 
@@ -39,7 +39,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	 * Creates an instance.
 	 *
 	 * @param decodedJwt
-	 *            the decoded jwt
+	 * 		the decoded jwt
 	 */
 	public XsuaaToken(@Nonnull DecodedJwt decodedJwt) {
 		super(decodedJwt);
@@ -49,8 +49,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	 * Creates an instance.
 	 *
 	 * @param accessToken
-	 *            the encoded access token, e.g. from the {@code Authorization}
-	 *            header.
+	 * 		the encoded access token, e.g. from the {@code Authorization} header.
 	 */
 	public XsuaaToken(@Nonnull String accessToken) {
 		super(accessToken);
@@ -60,12 +59,12 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	 * Get unique principal name of a user.
 	 *
 	 * @param origin
-	 *            of the access token
+	 * 		of the access token
 	 * @param userName
-	 *            of the access token
+	 * 		of the access token
 	 * @return unique principal name or <code>null</code> if origin or username is
-	 *         <code>null</code> or empty. Origin must also not contain a '/'
-	 *         character.
+	 * 		<code>null</code> or empty. Origin must also not contain a '/'
+	 * 		character.
 	 */
 	static String getUniquePrincipalName(String origin, String userName) {
 		if (isNullOrEmpty(origin)) {
@@ -89,12 +88,10 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	}
 
 	/**
-	 * Configures a scope converter, e.g. required for the
-	 * {@link #hasLocalScope(String)}
+	 * Configures a scope converter, e.g. required for the {@link #hasLocalScope(String)}
 	 *
 	 * @param converter
-	 *            the scope converter, e.g. {@link XsuaaScopeConverter}
-	 *
+	 * 		the scope converter, e.g. {@link XsuaaScopeConverter}
 	 * @return the token itself
 	 */
 	public XsuaaToken withScopeConverter(@Nullable ScopeConverter converter) {
@@ -109,10 +106,15 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 
 	@Override
 	public Principal getPrincipal() {
-		String principalName = switch (getGrantType()) {
-		case CLIENT_CREDENTIALS, CLIENT_X509 -> String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
-		default -> getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
-		};
+		GrantType grantType = getGrantType();
+		String principalName;
+
+		if (grantType != null
+				&& (grantType.equals(GrantType.CLIENT_CREDENTIALS) || grantType.equals(GrantType.CLIENT_X509))) {
+			principalName = String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
+		} else {
+			principalName = getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
+		}
 		return createPrincipalByName(principalName);
 	}
 
@@ -127,12 +129,11 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	}
 
 	/**
-	 * Check if a local scope is available in the authentication token. <br>
-	 * Requires a {@link ScopeConverter} to be configured with
-	 * {@link #withScopeConverter(ScopeConverter)}.
+	 * Check if a local scope is available in the authentication token. <br> Requires a {@link ScopeConverter} to be
+	 * configured with {@link #withScopeConverter(ScopeConverter)}.
 	 *
 	 * @param scope
-	 *            name of local scope (without the appId)
+	 * 		name of local scope (without the appId)
 	 * @return true if local scope is available
 	 **/
 	@Override
@@ -148,9 +149,8 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 	}
 
 	/**
-	 * Returns the value of the subdomain (zdn) from the external attribute ext_attr
-	 * (ext_attr) claim. If the external attribute or the subdomain is missing, it
-	 * returns {@code null}.
+	 * Returns the value of the subdomain (zdn) from the external attribute ext_attr (ext_attr) claim. If the external
+	 * attribute or the subdomain is missing, it returns {@code null}.
 	 *
 	 * @return the subdomain or {@code null}
 	 */

@@ -19,20 +19,17 @@ import java.util.function.Supplier;
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 
 /**
- * Validates whether the jwt access token is used before the "expiration"
- * ({@code exp}) time and if it is used after the "not before" ({@code nbf})
- * time.
+ * Validates whether the jwt access token is used before the "expiration" ({@code exp}) time and if it is used after the
+ * "not before" ({@code nbf}) time.
  * <p>
  * See specification: <a
- * href=https://tools.ietf.org/html/rfc7519#section-4.1.4>https://tools.ietf.org/html/rfc7519#section-4.1.4</a>
- * <a
+ * href=https://tools.ietf.org/html/rfc7519#section-4.1.4>https://tools.ietf.org/html/rfc7519#section-4.1.4</a> <a
  * href=https://tools.ietf.org/html/rfc7519#section-4.1.5>https://tools.ietf.org/html/rfc7519#section-4.1.5</a>
  */
 class JwtTimestampValidator implements Validator<Token> {
 
 	/**
-	 * Implementers MAY provide for some small leeway, usually no more than a few
-	 * minutes, to account for clock skew.
+	 * Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew.
 	 */
 	private static final TemporalAmount DEFAULT_TOLERANCE = Duration.ofMinutes(1);
 

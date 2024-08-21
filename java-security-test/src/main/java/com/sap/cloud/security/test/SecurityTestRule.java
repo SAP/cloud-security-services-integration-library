@@ -14,7 +14,7 @@ import com.sap.cloud.security.test.api.ServiceMockConfiguration;
 import com.sap.cloud.security.token.Token;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
-import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.junit.rules.ExternalResource;
 
 import javax.annotation.Nullable;
@@ -25,6 +25,7 @@ public class SecurityTestRule extends ExternalResource
 	public static final String DEFAULT_APP_ID = SecurityTest.DEFAULT_APP_ID;
 	public static final String DEFAULT_CLIENT_ID = SecurityTest.DEFAULT_CLIENT_ID;
 	public static final String DEFAULT_DOMAIN = SecurityTest.DEFAULT_DOMAIN;
+	public static final String DEFAULT_UAA_DOMAIN = SecurityTest.DEFAULT_UAA_DOMAIN;
 
 	SecurityTest base;
 
@@ -36,7 +37,7 @@ public class SecurityTestRule extends ExternalResource
 	 * Creates an instance of the test rule for the given service.
 	 *
 	 * @param service
-	 *            the service for which the test rule should be created.
+	 * 		the service for which the test rule should be created.
 	 * @return the test rule instance.
 	 */
 	public static SecurityTestRule getInstance(Service service) {

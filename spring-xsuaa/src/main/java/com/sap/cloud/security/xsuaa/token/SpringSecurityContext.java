@@ -21,16 +21,15 @@ public class SpringSecurityContext {
 	}
 
 	/**
-	 * Obtain the Token object from the Spring Security Context
-	 * {@link SecurityContextHolder}
+	 * Obtain the Token object from the Spring Security Context {@link SecurityContextHolder}
 	 *
 	 * @return Token object
 	 * @throws AccessDeniedException
-	 *             in case there is no token, user is not authenticated
-	 *             <p>
-	 *             Note: This method is introduced with xsuaa spring client lib.
+	 * 		in case there is no token, user is not authenticated
+	 * 		<p>
+	 * 		Note: This method is introduced with xsuaa spring client lib.
 	 */
-	static public Token getToken() {
+	public static Token getToken() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		if (authentication == null) {
@@ -41,23 +40,22 @@ public class SpringSecurityContext {
 			return (Token) principal;
 		}
 		throw new AccessDeniedException(
-				"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token' " + principal);
+				"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token'. Found instead a principal of type "
+						+ principal.getClass());
 	}
 
 	/**
-	 * Initializes the Spring Security Context {@link SecurityContextHolder} and
-	 * extracts the authorities. With version 1.5.0 you can configure your own
-	 * {@link AuthoritiesExtractor} to specify how to extract the authorities.
+	 * Initializes the Spring Security Context {@link SecurityContextHolder} and extracts the authorities. With version
+	 * 1.5.0 you can configure your own {@link AuthoritiesExtractor} to specify how to extract the authorities.
 	 *
 	 * @param encodedJwtToken
-	 *            the jwt token that is decoded with the given JwtDecoder
+	 * 		the jwt token that is decoded with the given JwtDecoder
 	 * @param xsuaaJwtDecoder
-	 *            the decoder of type {@link XsuaaJwtDecoder}
+	 * 		the decoder of type {@link XsuaaJwtDecoder}
 	 * @param authoritiesExtractor
-	 *            the extractor used to turn Jwt scopes into Spring Security
-	 *            authorities.
+	 * 		the extractor used to turn Jwt scopes into Spring Security authorities.
 	 */
-	static public void init(String encodedJwtToken, JwtDecoder xsuaaJwtDecoder,
+	public static void init(String encodedJwtToken, JwtDecoder xsuaaJwtDecoder,
 			AuthoritiesExtractor authoritiesExtractor) {
 		Assert.isInstanceOf(XsuaaJwtDecoder.class, xsuaaJwtDecoder,
 				"Passed JwtDecoder instance must be of type 'XsuaaJwtDecoder'");
@@ -71,10 +69,10 @@ public class SpringSecurityContext {
 	}
 
 	/**
-	 * Cleans up the Spring Security Context {@link SecurityContextHolder} and
-	 * release thread locals for Garbage Collector to avoid memory leaks resources.
+	 * Cleans up the Spring Security Context {@link SecurityContextHolder} and release thread locals for Garbage
+	 * Collector to avoid memory leaks resources.
 	 */
-	static public void clear() {
+	public static void clear() {
 		SecurityContextHolder.clearContext();
 	}
 }

@@ -20,8 +20,10 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
    - [2.3 Testing utilities](#23-testing-utilities)
 3. [Installation](#installation)
 4. [Troubleshooting](#troubleshooting)
-5. [Contributing](#contributing)
-6. [License](#license)
+5. [Common Pitfalls](#common-pitfalls)
+6. [Contributing](#contributing)
+7. [How to get support](#how-to-get-support)
+8. [License](#license)
 
 ## Prerequisites
 Before you can use the SAP Cloud Security Services Integration libraries, you must fulfil the following requirements:
@@ -124,7 +126,7 @@ The SAP Cloud Security Services Integration is published to maven central: https
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-bom</artifactId>
-            <version>3.1.2</version>
+            <version>3.5.2</version>
             <scope>import</scope>
             <type>pom</type>
         </dependency>
@@ -160,12 +162,42 @@ Please refer to each library's Troubleshooting section
 | [java-security](/java-security/README.md#Troubleshooting)     |
 | [token-client](/token-client/README.md#Troubleshooting)       |
 
+## Common Pitfalls
+### java.lang.NoSuchMethodError and java.lang.ClassNotFoundException errors
+Most common reason for these errors are out of sync client library versions. All the modules of the Security Client libraries
+should be always in the same version. 
+This can be verified by executing `mvn dependency:tree` command.
+
+The easiest way to manage the module versions and keep them in sync is to use the [BOM](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#bill-of-materials-bom-poms)
+
+The usage of the Security Client Libraries BOM is demonstrated also in the [spring-security-hybrid-usage sample](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/pom.xml#L35-L45)
+
+### reference-instance plan not supported
+The `reference-instance` plan is not an original plan of the Xsuaa service, therefore it is not supported by the Security Client Libraries out of the box.
+For a workaround please refer to the https://github.com/SAP/cloud-security-services-integration-library/issues/1279#issuecomment-1735542987
 
 ## Contributing
 We welcome contributions to this project. Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details on how to contribute.
 
 ## How to get support
-Open a [Github issue](https://github.com/SAP/cloud-security-xsuaa-integration/issues/new/choose).
+
+**Support is no longer provided via the Issues feature in this Github repository.**
+
+Please use SAP official support channels to get support under component `BC-CP-CF-SEC-LIB` or `Security Client Libraries`.
+
+Before opening support tickets, please check the [Troubleshooting](#troubleshooting) and [Common Pitfalls](#common-pitfalls) sections first in addition to the READMEs of the modules that you are using from this repository.
+
+Make sure to include the following mandatory information to get a response:
+
+- List of module(s) of this library used by your application (java-security, spring-security, spring-xsuaa etc...) and version of this library installed in your application.\
+  *Alternative*: maven dependency tree
+- Auth service set-up of your application (XSUAA, IAS, XSUAA+IAS, IAS+AMS, etc.)
+- For exceptions: Stack trace that includes the executed code locations of this library that lead to the exception
+- For unexpected 401 / 403 response codes: relevant log output of this library with active DEBUG flag (see module READMEs for a guide how to enable it)
+- Steps you have tried to fix the problem
+- Reason why you believe a bug in this library is causing your problem
+
+Unfortunately, we can *NOT* offer consulting via support channels.
 
 ## License
 Please see our [LICENSE](LICENSES/Apache-2.0.txt) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available in the [REUSE tool](https://api.reuse.software/info/github.com/SAP/cloud-security-xsuaa-integration).

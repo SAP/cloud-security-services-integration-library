@@ -35,6 +35,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,8 +58,7 @@ public class JwtValidatorBuilderTest {
 		JwtValidatorBuilder builder_1 = JwtValidatorBuilder.getInstance(configuration);
 		JwtValidatorBuilder builder_2 = JwtValidatorBuilder.getInstance(configuration);
 		JwtValidatorBuilder builder_3 = JwtValidatorBuilder.getInstance(xsuaaConfigBuilder.build());
-		assertThat(builder_1).isSameAs(builder_2);
-		assertThat(builder_1).isSameAs(builder_3);
+		assertThat(builder_1).isSameAs(builder_2).isSameAs(builder_3);
 	}
 
 	@Test
@@ -78,10 +78,9 @@ public class JwtValidatorBuilderTest {
 				.getValidators();
 
 		assertThat(validators)
-				.hasSize(4)
+				.hasSize(3)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
 				.hasAtLeastOneElementOfType(JwtAudienceValidator.class)
-				.hasAtLeastOneElementOfType(XsuaaJkuValidator.class)
 				.hasAtLeastOneElementOfType(JwtSignatureValidator.class);
 	}
 
@@ -96,8 +95,7 @@ public class JwtValidatorBuilderTest {
 				.hasSize(3)
 				.hasAtLeastOneElementOfType(JwtTimestampValidator.class)
 				.hasAtLeastOneElementOfType(JwtAudienceValidator.class)
-				.hasAtLeastOneElementOfType(JwtSignatureValidator.class)
-				.doesNotHaveAnyElementsOfTypes(XsuaaJkuValidator.class);
+				.hasAtLeastOneElementOfType(JwtSignatureValidator.class);
 	}
 
 	@Test
@@ -127,7 +125,7 @@ public class JwtValidatorBuilderTest {
 		OAuth2ServiceEndpointsProvider endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		OidcConfigurationService oidcConfigServiceMock = Mockito.mock(OidcConfigurationService.class);
 
-		when(tokenKeyServiceMock.retrieveTokenKeys(any(), any(), any()))
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), anyMap()))
 				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
 		when(endpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://application.myauth.com/jwks_uri"));
 		when(oidcConfigServiceMock.retrieveEndpoints(any())).thenReturn(endpointsProviderMock);
@@ -139,7 +137,7 @@ public class JwtValidatorBuilderTest {
 				.build();
 
 		assertThat(combiningValidator.validate(new SapIdToken(
-				"eyJraWQiOiJkZWZhdWx0LWtpZCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJQMTc2OTQ1IiwiYXVkIjoiVDAwMDMxMCIsInVzZXJfdXVpZCI6IjEyMzQ1Njc4OTAiLCJpc3MiOiJodHRwczovL2FwcGxpY2F0aW9uLm15YXV0aC5jb20iLCJleHAiOjY5NzQwMzE2MDAsImdpdmVuX25hbWUiOiJqb2huIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5vcmciLCJjaWQiOiJUMDAwMzEwIn0.Svrb5PriAuHOdhTFXiicr_qizHiby6b73SdovJAFnWCPDr0r8mmFoEWXjJmdLdw08daNzt8ww_r2khJ-rusUZVfiZY3kyRV1hfeChpNROGfmGbfN62KSsYBPi4dBMIGRz8SqkF6nw5nTC-HOr7Gd8mtZjG9KZYC5fKYOYRvbAZN_xyvLDzFUE6LgLmiT6fV7fHPQi5NSUfawpWQbIgK2sJjnp-ODTAijohyxQNuF4Lq1Prqzjt2QZRwvbskTcYM3gK5fgt6RYDN6MbARJIVFsb1Y7wZFg00dp2XhdFzwWoQl6BluvUL8bL73A8iJSam0csm1cuG0A7kMF9spy_whQw"))
+						"eyJraWQiOiJkZWZhdWx0LWtpZCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJQMTc2OTQ1IiwiYXVkIjoiVDAwMDMxMCIsInVzZXJfdXVpZCI6IjEyMzQ1Njc4OTAiLCJpc3MiOiJodHRwczovL2FwcGxpY2F0aW9uLm15YXV0aC5jb20iLCJleHAiOjY5NzQwMzE2MDAsImdpdmVuX25hbWUiOiJqb2huIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5vcmciLCJjaWQiOiJUMDAwMzEwIn0.Svrb5PriAuHOdhTFXiicr_qizHiby6b73SdovJAFnWCPDr0r8mmFoEWXjJmdLdw08daNzt8ww_r2khJ-rusUZVfiZY3kyRV1hfeChpNROGfmGbfN62KSsYBPi4dBMIGRz8SqkF6nw5nTC-HOr7Gd8mtZjG9KZYC5fKYOYRvbAZN_xyvLDzFUE6LgLmiT6fV7fHPQi5NSUfawpWQbIgK2sJjnp-ODTAijohyxQNuF4Lq1Prqzjt2QZRwvbskTcYM3gK5fgt6RYDN6MbARJIVFsb1Y7wZFg00dp2XhdFzwWoQl6BluvUL8bL73A8iJSam0csm1cuG0A7kMF9spy_whQw"))
 				.isValid()).isTrue();
 	}
 

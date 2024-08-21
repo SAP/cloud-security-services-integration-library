@@ -10,8 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A utilities class providing static functions required to build the XSUAA
- * token flow REST requests.
+ * A utilities class providing static functions required to build the XSUAA token flow REST requests.
  */
 class XsuaaTokenFlowsUtils {
 
@@ -21,9 +20,8 @@ class XsuaaTokenFlowsUtils {
 	 * Builds the additional authorities claim 'az_attr' for the JWT.
 	 *
 	 * @param additionalAuthorities
-	 *            to be added to az_attr claim.
-	 * @return the additional authorities az_attr claim as a String or null if
-	 *         additional authorities were null
+	 * 		to be added to az_attr claim.
+	 * @return the additional authorities az_attr claim as a String or null if additional authorities were null
 	 */
 	static String buildAdditionalAuthoritiesJson(Map<String, String> additionalAuthorities) {
 		if (additionalAuthorities != null) {

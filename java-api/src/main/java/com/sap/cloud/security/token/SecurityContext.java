@@ -6,10 +6,13 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.x509.Certificate;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 /**
  * Thread wide {@link Token} storage.
@@ -21,6 +24,7 @@ public class SecurityContext {
 	}
 
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
+	private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<List<String>>();
 	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
 
 	/**
@@ -37,10 +41,10 @@ public class SecurityContext {
 	 * Saves the certificate thread wide.
 	 *
 	 * @param certificate
-	 *            certificate to be saved.
+	 * 		certificate to be saved.
 	 */
 	public static void setClientCertificate(Certificate certificate) {
-		LOGGER.info("Sets certificate to SecurityContext (thread-locally). {}",
+		LOGGER.debug("Sets certificate to SecurityContext (thread-locally). {}",
 				certificate);
 		certificateStorage.set(certificate);
 	}
@@ -60,10 +64,10 @@ public class SecurityContext {
 	 * Saves the validated (!) token thread wide.
 	 *
 	 * @param token
-	 *            token to be saved.
+	 * 		token to be saved.
 	 */
 	public static void setToken(Token token) {
-		LOGGER.info("Sets token of service {} to SecurityContext (thread-locally).",
+		LOGGER.debug("Sets token of service {} to SecurityContext (thread-locally).",
 				token != null ? token.getService() : "null");
 		tokenStorage.set(token);
 	}
@@ -81,8 +85,8 @@ public class SecurityContext {
 	/**
 	 * Returns the token that is saved in thread wide storage.
 	 *
-	 * @return the token or null if the storage is empty or the token does not
-	 *         implement the {@code AccessToken} interface.
+	 * @return the token or null if the storage is empty or the token does not implement the {@code AccessToken}
+	 * 		interface.
 	 */
 	@Nullable
 	public static AccessToken getAccessToken() {
@@ -101,11 +105,58 @@ public class SecurityContext {
 	}
 
 	/**
-	 * Clears the current token and certificate from thread wide storage.
+	 * Returns the Identity service broker plans that are stored in the thread local storage
+	 *
+	 * @return a list of Identity service broker plans
+	 */
+	public static List<String> getServicePlans() {
+		return servicePlanStorage.get();
+	}
+
+	/**
+	 * Saves the Identity service broker plans in thread local storage.
+	 *
+	 * @param servicePlansHeader unprocessed Identity Service broker plan header value from response
+	 */
+	public static void setServicePlans(String servicePlansHeader) {
+		// the header format contains a comma-separated list of quoted plan names, e.g. "plan1","plan \"two\"","plan3"
+		String[] planParts = servicePlansHeader
+				.trim()
+				.split("\\s*,\\s*"); // split by <whitespaces>,<whitespaces>
+
+		// remove " around plan names
+		List<String> plans = Arrays.stream(planParts)
+				.map(plan -> plan.substring(1, plan.length() - 1))
+				.collect(Collectors.toList());
+
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Sets Identity Service Plan {} to SecurityContext (thread-locally).",
+					plans);
+		}
+
+		servicePlanStorage.set(plans);
+	}
+
+	/**
+	 * Clears the current Identity Service broker plans from thread wide storage.
+	 */
+	public static void clearServicePlans() {
+		final List<String> plans = servicePlanStorage.get();
+		if (plans != null && plans.size() != 0) {
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Service plans {} removed from SecurityContext (thread-locally).", plans);
+			}
+			servicePlanStorage.remove();
+		}
+	}
+
+	/**
+	 * Clears the current token, certificate and Identity service broker plans from thread wide storage.
 	 */
 	public static void clear() {
 		clearCertificate();
 		clearToken();
+		clearServicePlans();
 	}
 
 }

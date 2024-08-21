@@ -12,5 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class ApplicationTest {
 
 	@Test
-	public void whenSpringContextIsBootstrapped_thenNoExceptions() {}
+	public void whenSpringContextIsBootstrapped_thenNoExceptions() {
+	}
 }

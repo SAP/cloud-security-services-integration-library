@@ -21,9 +21,9 @@ public class ClientCredentials implements ClientIdentity, Serializable {
 	 * Specifies the OAuth 2.0 client.<br>
 	 *
 	 * @param clientId
-	 *            - the ID of the OAuth 2.0 client requesting the token.
+	 * 		- the ID of the OAuth 2.0 client requesting the token.
 	 * @param clientSecret
-	 *            - the secret of the OAuth 2.0 client requesting the token.
+	 * 		- the secret of the OAuth 2.0 client requesting the token.
 	 */
 	public ClientCredentials(@Nonnull String clientId, @Nonnull String clientSecret) {
 		this.clientId = clientId;

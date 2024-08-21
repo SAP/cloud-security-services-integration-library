@@ -15,19 +15,25 @@ import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Performance test for java-security jwt token validation.
@@ -58,7 +64,7 @@ class JavaSecurityPerformanceIT {
 		String tokenValue = token.getTokenValue();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> tokenValidator.validate(new XsuaaToken(tokenValue)));
-		LOGGER.info("Online validation result: {}", result.toString());
+		LOGGER.info("Online validation result: {}", result);
 	}
 
 	@Test
@@ -70,7 +76,7 @@ class JavaSecurityPerformanceIT {
 		String tokenValue = token.getTokenValue();
 
 		BenchmarkUtil.Result result = BenchmarkUtil.execute(() -> tokenValidator.validate(new XsuaaToken(tokenValue)));
-		LOGGER.info("Offline validation result: {}", result.toString());
+		LOGGER.info("Offline validation result: {}", result);
 	}
 
 	private CombiningValidator<Token> createOfflineTokenValidator() throws IOException {
@@ -78,9 +84,12 @@ class JavaSecurityPerformanceIT {
 		OAuth2ServiceConfiguration configuration = createConfigurationBuilder()
 				.withProperty(VERIFICATION_KEY, publicKey)
 				.build();
+		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), (Map<String, String>) any())).thenThrow(
+				OAuth2ServiceException.class);
 		return JwtValidatorBuilder.getInstance(configuration)
 				// oAuth2TokenKeyService mocked because verificationkey property is used for offline token validation
-				.withOAuth2TokenKeyService((uri, zoneId) -> "{\"keys\": []}")
+				.withOAuth2TokenKeyService(tokenKeyServiceMock)
 				.build();
 	}
 

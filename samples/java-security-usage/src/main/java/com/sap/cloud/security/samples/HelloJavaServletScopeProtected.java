@@ -20,7 +20,7 @@ public class HelloJavaServletScopeProtected extends HttpServlet {
 	 */
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		if(!SecurityContext.getAccessToken().hasLocalScope("Read")) {
+		if (!SecurityContext.getAccessToken().hasLocalScope("Read")) {
 			XsuaaSecurityFilter.sendUnauthorizedResponse(response, "Read");
 		}
 		response.setContentType("text/plain");

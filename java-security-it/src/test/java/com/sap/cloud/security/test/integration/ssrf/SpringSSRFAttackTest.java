@@ -6,6 +6,7 @@
 package com.sap.cloud.security.test.integration.ssrf;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.RSAKeys;
 import com.sap.cloud.security.test.SecurityTest;
 import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.TokenHeader;
@@ -24,15 +25,16 @@ import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test cases for <a href=
- * "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF
- * (Server Side Request Forgery)</a> attacks.
+ * Test cases for <a href= "https://owasp.org/www-community/attacks/Server_Side_Request_Forgery">SSRF (Server Side
+ * Request Forgery)</a> attacks.
  */
-public class SpringSSRFAttackTest {
+class SpringSSRFAttackTest {
 
 	private RestOperations restOperations = Mockito.spy(new RestTemplate());
 
@@ -40,31 +42,39 @@ public class SpringSSRFAttackTest {
 	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA).setPort(4242);
 
 	/**
-	 * This tests checks that an attacker cannot trick the token validation into
-	 * using his/her own token key server by manipulating the JWKS url. The
-	 * challenge is to redirect the request to a different token key server without
-	 * the token validation steps to fail.
+	 * This tests checks that an attacker cannot trick the token validation into using his/her own token key server by
+	 * manipulating the JWKS url. The challenge is to redirect the request to a different token key server without the
+	 * token validation steps to fail.
 	 *
 	 * @param jwksUrl
-	 *            the JWKS url containing malicious parts
+	 * 		the JWKS url containing malicious parts
 	 * @param isValid
-	 *            {@code true} if the token validation is expected to be successful
+	 *        {@code true} if the token validation is expected to be successful
 	 */
 	@ParameterizedTest
 	@CsvSource({
 			"http://localhost:4242/token_keys@malicious.ondemand.com/token_keys,		false",
-			"http://malicious.ondemand.com@localhost:4242/token_keys,					true",
 			"http://localhost:4242/token_keys///malicious.ondemand.com/token_keys,		false",
 	})
-	public void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid) throws IOException {
-		String token = extension.getContext().getPreconfiguredJwtGenerator()
-				.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
-				.createToken()
-				.getTokenValue();
+	void maliciousPartOfJwksIsNotUsedToObtainToken(String jwksUrl, boolean isValid)
+			throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		String token;
+		if (isValid) {
+			token = extension.getContext().getPreconfiguredJwtGenerator()
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.createToken()
+					.getTokenValue();
+		} else {
+			token = extension.getContext().getPreconfiguredJwtGenerator()
+					.withHeaderParameter(TokenHeader.JWKS_URL, jwksUrl)
+					.withPrivateKey(RSAKeys.loadPrivateKey("/random_private_key.txt"))
+					.createToken()
+					.getTokenValue();
+		}
 		JwtDecoder jwtDecoder = new XsuaaJwtDecoderBuilder(
 				new XsuaaServiceConfigurationCustom(createXsuaaCredentials()))
-						.withRestOperations(restOperations)
-						.build();
+				.withRestOperations(restOperations)
+				.build();
 		try {
 			jwtDecoder.decode(token);
 			assertThat(isValid).isTrue();

@@ -76,7 +76,7 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 	@Test
 	public void autoConfigurationWithoutXsuaaServiceConfigurationOnClasspathInactive() {
 		contextRunner.withClassLoader(
-				new FilteredClassLoader(Jwt.class)) // make sure Jwt.class is not on the classpath
+						new FilteredClassLoader(Jwt.class)) // make sure Jwt.class is not on the classpath
 				.run((context) -> {
 					assertThat(context.containsBean("xsuaaJwtDecoder"), is(false));
 				});
@@ -127,11 +127,6 @@ public class XsuaaResourceServerJwkAutoConfigurationTest {
 
 		@Bean
 		public RestTemplate myRestTemplate() {
-			return new RestTemplate();
-		}
-
-		@Bean
-		public RestTemplate xsuaaRestOperations() {
 			return new RestTemplate();
 		}
 

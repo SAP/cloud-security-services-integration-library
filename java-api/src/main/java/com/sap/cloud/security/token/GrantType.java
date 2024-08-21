@@ -19,6 +19,11 @@ public enum GrantType {
 	JWT_BEARER("urn:ietf:params:oauth:grant-type:jwt-bearer"),
 	SAML2_BEARER("urn:ietf:params:oauth:grant-type:saml2-bearer"),
 	/**
+	 * @deprecated in favor of {@link #JWT_BEARER}.
+	 */
+	@Deprecated
+	USER_TOKEN("user_token"),
+	/**
 	 * @deprecated SAP proprietary grant type.
 	 */
 	@Deprecated

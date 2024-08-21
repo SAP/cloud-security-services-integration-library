@@ -5,18 +5,18 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 class JwtDecoderBuilderTest {
 	JwtDecoderBuilder cut = new JwtDecoderBuilder();

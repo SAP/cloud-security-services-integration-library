@@ -1,6 +1,249 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.2
+
+- [spring-xsuaa] Remove new X5tCertificateThumbprintValidator from spring-xsuaa validators
+
+#### Dependency upgrades
+
+- Bump spring.boot.version from 3.3.0 to 3.3.1
+
+## 3.5.1
+
+- [java-security]
+  - Improved JWK fetch error handling
+- [spring-security]
+  - extended autoconfiguration for proof token check for all JwtDecoders
+  - Improved JWK fetch error handling/logging. In case of unsuccessful response from JWK server the error will be mapped
+    to 5XX status code
+
+#### Dependency upgrades
+
+- Bump spring.core.version from 6.1.7 to 6.1.10
+- Bump spring.boot.version from 3.2.5 to 3.3.0
+- Bump spring.security.version from 6.3.0 to 6.3.1
+- bump caffeine version to 3.1.8
+- Bump jakarta.servlet:jakarta.servlet-api from 6.0.0 to 6.1.0
+- Bump io.projectreactor:reactor-core from 3.6.6 to 3.6.7
+- Bump com.nimbusds:nimbus-jose-jwt from 9.39.1 to 9.40
+
+## 3.5.0
+- [java-api]
+  - `ClientIdentity` interface has been extended with 2 new methods `getCertificateChain()`
+    and `getPrivateKey()`
+    and `ClientCertificate` class has been extended with new constructor that takes `java.security.cert.Certificate[]`
+    and `java.security.PrivateKey` as an argument and corresponding getters for these fields.
+  - `user_token` grant type has been re-added to `GrantType` enum
+- [token-client] `SSLContextFactory` class has been extended and supports Keys in PKCS#8 format with ECC algorithm.
+- [spring-security]
+  - fixed NPE in IdentityServicesPropertySourceFactory on application startup when bound to a list of XSUAA services
+    whose service plans are ALL not supported
+  - provides an autoconfiguration that creates an Identity Service JwtDecoder with enabled proof token check. To enable
+    it, set the `sap.spring.security.identity.prooftoken` spring property to true.
+  - Fixes an issue with MockMvc when the SecurityContexts are synced. It sets SecurityContextStrategy based on an
+    EnvironmentPostProcessor as in this scenario the servlet initialization is not happening and the code runs too late
+    due to that.
+
+#### Dependency upgrades
+
+- Bump io.projectreactor:reactor-core from 3.6.5 to 3.6.6
+- Bump com.nimbusds:nimbus-jose-jwt from 9.37.3 to 9.39.1
+- Bump spring.core.version from 6.1.6 to 6.1.7
+
+## 3.4.3
+
+- [spring-security] improved custom SecurityContextStrategy registration for the `SecurityContextAutoConfiguration`
+  class. It uses `ServletContextInitializer` to hook early into the initialization phase.
+
+#### Dependency upgrades
+
+- Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from
+  0.10.4 to 0.10.5.
+
+## 3.4.2
+
+- [spring-security]
+  - fixes a NPE bug introduced in the `HybridJwtDecoder` when the incoming request does not
+    contain `x-forwarded-client-cert` header
+  - `SecurityContextAutoConfiguration` which synchronises all SecurityContexts is now enabled by default. To disable it
+    set the `sap.spring.security.hybrid.sync_securitycontext` spring property to false
+
+## 3.4.1
+
+- [spring-security] fixes a NPE bug introduced in the `IasJwtDecoder` when the incoming request does not
+  contain `x-forwarded-client-cert` header
+
+#### Dependency upgrades
+
+- Bumps `spring.boot.version` from 3.2.4 to 3.2.5.
+- Bumps `slf4j.api.version` from 2.0.12 to 2.0.13
+- Bumps `spring.security.version` from 6.2.3 to 6.2.4.
+
+## 3.4.0
+
+- [java-api] `SecurityContext` has been extended with a thread local storage for Service
+  Plans. `setServicePlans()`, `getServicePlans()`, `clearServicePlans()` methods have been added.
+- [java-security]
+  - added support for Identity Service Proof Token validation. Proof Token validation can be enabled by
+    calling `JwtValidatorBuilder.enableProofTokenCheck()`. Once enabled, it will forward the X509 client certificate
+    from the
+    request header `x-fowarded-client-cert` as `x-client_cert` header to the `/oauth2/token_keys` endpoint.
+  - `DefaultOAuth2TokenKeyService` saves the service plans from response header `x-osb_plan` (identity broker service
+    plan)
+    in the new `SecurityContext` thread local storage for Service Plans. The header should be available when proof token validation is enabled.
+    In this case, a `x-client_cert` is sent in the request to `/oauth2/token_keys` which should trigger the `x-osb_plan` response header.
+- [spring-security] fixes a bug in `ReactiveHybridJwtDecoder` when parsing `iat` claim #1490
+
+#### Dependency upgrades
+
+- Bump commons-io:commons-io from 2.15.1 to 2.16.1
+- Bump spring.boot.version from 3.2.2 to 3.2.4
+- Bump spring.core.version from 6.1.5 to 6.1.6
+- Bump io.projectreactor:reactor-core from 3.6.2 to 3.6.5
+- Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from
+  0.10.3 to 0.10.4
+- Bump spring.security.version from 6.2.1 to 6.2.3
+- Bump org.springframework:spring-web from 6.1.4 to 6.1.5
+- Bump org.json:json from 20240205 to 20240303
+
+## 3.3.5
+
+- [spring-xsuaa] fixes a NPE bug in `XsuaaJwtDecoder` when uaadomain value is null
+- [spring-security] reactive token validation supported with a help of `ReactiveSecurityContext`
+  and  `ReactiveHybridJwtDecoder` to allow more versatile use of spring-security library, also
+  see [spring-security ReadMe.md](spring-security/README.md)
+- [samples]
+  - [spring-security-hybrid-usage](./samples/spring-security-hybrid-usage) demonstrates how to use multiple Xsuaa
+    bindings
+  - new sample [spring-weblux-security-hybrid-usage](./samples/spring-webflux-security-hybrid-usage) that showcases
+    usage of Reactive Token validation
+
+#### Dependency upgrades
+- Bump com.sap.cloud.environment.servicebinding from 0.10.2 to 0.10.3
+- Bump slf4j.api.version from 2.0.11 to 2.0.12
+- Bump org.json:json from 20231013 to 20240205
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.3 to 5.3.1
+- Bump spring.boot.version from 3.2.1 to 3.2.2
+- Bump spring.core.version from 6.1.3 to 6.1.4
+
+
+## 3.3.4
+- [env] service plan property is no longer uppercased when building `OAuth2ServiceConfiguration` from service bindings of the environment
+- [spring-security] fixes a bug in which a second XSUAA configuration of plan "broker" was ignored in spring-security auto-configuration for versions 3.3.2 and 3.3.3
+
+#### Dependency upgrades
+- Bump io.projectreactor:reactor-core from 3.6.1 to 3.6.2
+- Bump spring.core.version from 6.1.2 to 6.1.3
+- Bump slf4j.api.version from 2.0.10 to 2.0.11
+
+## 3.3.3
+- [java-security]
+  - reduce `HybridTokenFactory` logging noise - in case of missing service configuration warn message will be logged just once
+  - upgrade jetty ee9 to jetty ee10
+- [java-security-test]
+  - fixes version mismatch issue when jetty BoM is used
+  - `JwtGenerator` ensures that claims are always in the same order
+- [token-client]
+  - remove httpclient caching from DefaultHttpClientFactory (#1416)
+
+#### Dependency upgrades
+- Bump spring.boot.version from 3.2.0 to 3.2.1
+- Bump spring.core.version from 6.0.14 to 6.1.2
+- Bump log4j2.version from 2.22.0 to 2.22.1
+- Bump slf4j.api.version from 2.0.9 to 2.0.10
+
+
+## 3.3.2
+- [java-security]
+  - add `name` property of service binding as property to OAuth2ServiceConfiguration
+- [java-api]
+  - add ServiceConstant#NAME which can be used to access that property
+- [spring-security]
+  - `IdentityServicesPropertySourceFactory` now populates Spring properties with ALL Xsuaa configurations found in the environment instead of only one (arbitrary) configuration of service plan 'application' and one (optional, arbitrary) additional one of service plan 'broker'.
+  - `XsuaaServiceConfigurations#getConfigurations` now contains ALL Xsuaa configurations found as a result of the previous change
+  - `HybridIdentityServicesAutoConfiguration` was adjusted for backward compatibility to still create a JwtDecoder that uses the same XSUAA configurations as before for token validation (one of plan 'application' and an optional one of plan 'broker')
+  - add `setName` `getName`, `setPlan`, `getPlan` to `OAuth2ServiceConfigurationProperties`, which means, the list of `XsuaaServiceConfigurations` can now be filtered based on these properties.
+- [java-security-test]
+  - upgrade the Jetty servlet to jetty-ee9-servlet (fixes issues with the Spring Boot 3.2 upgrade) 
+
+#### Dependency upgrades
+- Bump spring.boot.version from 3.1.6 to 3.2.0
+- Bump spring.core.version from 6.0.14 to 6.1.2
+- Bump spring.security.version from 6.2.0 to 6.2.1
+- Bump commons-io:commons-io from 2.15.0 to 2.15.1
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.2.3 to 5.3
+- Bump log4j2.version from 2.21.1 to 2.22.0
+- Bump io.projectreactor:reactor-core from 3.5.11 to 3.6.0
+- Bump org.eclipse.jetty:jetty-bom from 11.0.18 to 12.0.5
+
+
+## 3.3.1
+✅ Resolves a Breaking Change introduced in version 3.3.0. Consumers should be able to update to 3.3.1 from a version < 3.3.0 without having to adjust test credentials used in their unit tests when using `java-security-test` or `spring-xsuaa-mock`.
+
+In version 3.3.1, when `java-security-test` is loaded (which should only occur during testing), credentials with `localhost` as the `uaadomain` (XSUAA) or trusted `domains` (IAS) can be used to validate tokens that include a port for `localhost` in their `jku` (XSUAA) or `issuer` (IAS). It's important to note that token validation is less strict in this case and may accept certain edge cases of malicious tokens that would not be accepted in a production environment.
+
+#### Dependency upgrades
+- Bump spring.boot.version from 3.1.5 to 3.1.6
+- Bump spring.core.version from 6.0.13 to 6.0.14
+- Bump spring.security.version from 6.1.5 to 6.2.0
+- Bump apache.httpclient5.version from 5.2.1 to 5.2.3
+- Bump wiremock.version from 3.0.0-beta-10 to 3.3.1 and replace org.wiremock.wiremock-standalone with com.github.tomakehurst.wiremock
+- Bump logback-core, logback-classic from 1.4.6 to 1.4.14
+
+## 3.3.0
+**Breaking Change ⚠️ [java-security-test]** (Resolved in version 3.3.1):
+To validate mocked XSUAA tokens issued by java-security-test module, the UAA_DOMAIN property of the service configuration must now include the full address of the Wiremock server in the format *http://localhost:\<PORT\>*.\
+Likewise, for validating IAS tokens issued by the java-security-test module, the trusted *domains* array of the service configuration needs to include the Wiremock URL including the port but NOT the protocol, i.e. in the format *localhost:\<PORT\>*.\
+The full wiremock URL including *http://* and *\<PORT\>* is available via SecurityTestContext#getWireMockServer#baseUrl.
+
+- [java-security]
+  - [XSUAA/IAS] Adapt optimized server API
+- [spring-xsuaa]
+  - Adapt optimized server API
+
+## 3.2.1
+Hot fix for the CVE-2023-5072
+
+#### Dependency upgrades
+- Bump spring.boot.version from 3.1.4 to 3.1.5
+- Bump log4j2.version from 2.20.0 to 2.21.0
+- Bump spring.security.version from 6.1.4 to 6.1.5
+- Bump org.json:json from 20230618 to 20231013
+
+## 3.2.0
+- [java-security]
+  - add x-azp header to IAS JWKS fetching and adjust JWKS cache key
+  - `OAuth2TokenKeyService` and `OAuth2TokenKeyServiceWithCache`
+    - Refactor API to use generic Map instead of explicit IAS-specific parameters
+    
+#### Dependency upgrades
+- Bump io.projectreactor:reactor-core from 3.5.9 to 3.5.11
+- Bump spring.core.version from 6.0.11 to 6.0.13 
+- Bump spring.security.version from 6.1.3 to 6.1.4
+- Bump commons-io:commons-io from 2.13.0 to 2.14.0
+- Bump com.sap.cloud.environment.servicebinding from 0.9.0 to 0.10.0
+- Bump spring.boot.version from 3.1.3 to 3.1.4
+- Bump slf4j.api.version from 2.0.7 to 2.0.9
+
+## 3.1.3
+- [java-security]
+  - Fixes NPE when accessing `XsuaaToken.getPrincipal()` and `grantType` is null (#1261)
+- [token-client]
+  -  fixes JWKs fetch from identity service issue when `app_tid` is not present in the token - the `X-app_tid` and `X-client_id` headers are only added when both values are available. 
+  - `DefaultOAuth2TokenService` 
+      - fixes issue when in case of unsuccessful token fetch `OAuth2ServiceException.withHeaders()` headers field were filled with only one entry containing all headers as a string
+  - `DefaultOAuth2TokenKeyService` and `SpringOAuth2TokenKeyService`
+    - improved error handling
+      - `OAuth2ServiceException` that's thrown status code != 200 case doesn't get swallowed
+      - fixes `OAuth2ServiceException.withHeaders()` semantically incorrect behavior when headers were filled with request headers instead of response headers
+      - `OAuth2ServiceException` generated by unsuccessful JWKs fetch contains request headers as well
+  - `OAuth2ServiceException` updated header message - contains now `Response Headers` instead of `Headers`
+
+#### Dependency upgrades
+- Bump spring.security.version from 6.1.2 to 6.1.3
+- Bump spring.boot.version from 3.1.2 to 3.1.3
+
 ## 3.1.2
 - [token-client] 
   - `OAuth2ServiceException` has been extended with getter method `getHeaders()` that gives the access to failed request's response headers

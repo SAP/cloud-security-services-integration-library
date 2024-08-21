@@ -30,11 +30,10 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param baseUri
-	 *            - the base URI of XSUAA. Based on the base URI the tokenEndpoint,
-	 *            authorize and key set URI (JWKS) will be derived.
+	 * 		- the base URI of XSUAA. Based on the base URI the tokenEndpoint, authorize and key set URI (JWKS) will be
+	 * 		derived.
 	 * @param certUri
-	 *            - the cert URI of XSUAA. It is required in case of X.509
-	 *            certificate based authentication.
+	 * 		- the cert URI of XSUAA. It is required in case of X.509 certificate based authentication.
 	 */
 	public XsuaaDefaultEndpoints(@Nonnull String baseUri, @Nullable String certUri) {
 		assertNotNull(baseUri, "XSUAA base URI must not be null.");
@@ -47,18 +46,17 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * Creates a new XsuaaDefaultEndpoints.
 	 *
 	 * @param config
-	 *            - OAuth2ServiceConfiguration of XSUAA. Based on the
-	 *            credential-type from the configuration, the tokenEndpoint URI,
-	 *            authorize and key set URI (JWKS) will be derived.
+	 * 		- OAuth2ServiceConfiguration of XSUAA. Based on the credential-type from the configuration, the tokenEndpoint
+	 * 		URI, authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		this.baseUri = config.getUrl();
-		if (config.getCredentialType() == CredentialType.X509) {
-			this.certUri = config.getCertUrl();
-		} else {
-			this.certUri = null;
-		}
+		final CredentialType credentialType = config.getCredentialType() != null ? config.getCredentialType() : CredentialType.BINDING_SECRET;
+		this.certUri = switch (credentialType) {
+			case X509, X509_GENERATED, X509_PROVIDED, X509_ATTESTED -> config.getCertUrl();
+			case BINDING_SECRET, INSTANCE_SECRET -> null;
+		};
 	}
 
 	@Override

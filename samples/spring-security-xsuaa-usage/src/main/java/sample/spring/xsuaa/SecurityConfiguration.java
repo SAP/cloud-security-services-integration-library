@@ -31,9 +31,8 @@ public class SecurityConfiguration {
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
 		http
-				.sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // session is created by approuter
-				.and()
+				.sessionManagement(session -> session
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(authz ->
 						authz.requestMatchers("/v1/sayHello").hasAuthority("Read")
 								.requestMatchers("/v1/*").authenticated()
@@ -43,9 +42,9 @@ public class SecurityConfiguration {
 								.requestMatchers("/health").permitAll()
 								.anyRequest().denyAll()
 				)
-				.oauth2ResourceServer()
-				.jwt()
-				.jwtAuthenticationConverter(getJwtAuthenticationConverter());
+				.oauth2ResourceServer(oauth2 -> oauth2
+						.jwt(jwt -> jwt
+								.jwtAuthenticationConverter(getJwtAuthenticationConverter())));
 		// @formatter:on
 
 		return http.build();

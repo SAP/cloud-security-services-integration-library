@@ -13,8 +13,8 @@ import java.io.Serial;
 import java.util.Collection;
 
 /**
- * Internal class used to expose the {@link Token} implementation as the
- * standard Principal for Spring Security Jwt handling.
+ * Internal class used to expose the {@link Token} implementation as the standard Principal for Spring Security Jwt
+ * handling.
  *
  * @see TokenAuthenticationConverter
  * @see XsuaaToken

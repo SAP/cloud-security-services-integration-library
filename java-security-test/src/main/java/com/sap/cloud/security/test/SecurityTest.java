@@ -11,6 +11,7 @@ import com.sap.cloud.environment.servicebinding.api.ServiceBinding;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceBindingMapper;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.json.JsonParsingException;
 import com.sap.cloud.security.test.api.ApplicationServerConfiguration;
 import com.sap.cloud.security.test.api.SecurityTestContext;
@@ -28,15 +29,16 @@ import jakarta.servlet.DispatcherType;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee10.servlet.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.FilterHolder;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -60,6 +62,7 @@ public class SecurityTest
 	public static final String DEFAULT_APP_ID = "xsapp!t0815";
 	public static final String DEFAULT_CLIENT_ID = "sb-clientId!t0815";
 	public static final String DEFAULT_DOMAIN = "localhost";
+	public static final String DEFAULT_UAA_DOMAIN = "http://localhost";
 	public static final String DEFAULT_URL = "http://localhost";
 
 	protected static final String LOCALHOST_PATTERN = "http://localhost:%d";
@@ -84,18 +87,18 @@ public class SecurityTest
 		this.service = service;
 		this.keys = RSAKeys.generate();
 		this.wireMockServer = new WireMockServer(options().dynamicPort());
-		this.applicationServerOptions = ApplicationServerOptions.forService(service);
 	}
 
 	@Override
 	public SecurityTest useApplicationServer() {
-		return useApplicationServer(ApplicationServerOptions.forService(service));
+		this.useApplicationServer = true;
+		return this;
 	}
 
 	@Override
 	public SecurityTest useApplicationServer(ApplicationServerOptions applicationServerOptions) {
 		this.applicationServerOptions = applicationServerOptions;
-		useApplicationServer = true;
+		this.useApplicationServer = true;
 		return this;
 	}
 
@@ -185,11 +188,16 @@ public class SecurityTest
 			LOGGER.warn("More than one OAuth2 service binding found in resource. Using configuration of first one!");
 		}
 
+		ServiceBinding binding = serviceBindings.get(0);
 		OAuth2ServiceConfigurationBuilder builder = ServiceBindingMapper
-				.mapToOAuth2ServiceConfigurationBuilder(serviceBindings.get(0));
+				.mapToOAuth2ServiceConfigurationBuilder(binding);
 		if (builder != null) {
 			// adjust domain and URL of the config to fit the mocked service instance
 			builder = builder.withDomains(URI.create(issuerUrl).getHost()).withUrl(issuerUrl);
+
+			if (Objects.equals(Service.from(binding.getServiceName().get()), XSUAA)) {
+				builder.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, wireMockServer.baseUrl());
+			}
 		}
 
 		return builder;
@@ -222,8 +230,13 @@ public class SecurityTest
 
 		WebAppContext context = new WebAppContext();
 		context.setContextPath("/");
-		context.setResourceBase("src/main/webapp");
 		context.setSecurityHandler(security);
+		File file = new File("src/main/webapp");
+		if (file.exists() && file.isDirectory()) {
+			context.setBaseResourceAsString("src/main/webapp");
+		} else {
+			context.setBaseResourceAsString("src/main/java");
+		}
 
 		applicationServletsByPath
 				.forEach((path, servletHolder) -> context.addServlet(servletHolder, path));
@@ -257,27 +270,29 @@ public class SecurityTest
 	}
 
 	/**
-	 * Starts the Jetty application web server and the WireMock OAuthServer if not
-	 * running. Otherwise it resets WireMock and configures the stubs. Additionally
-	 * it generates the JWK URL. Should be called before each test. Starts the
+	 * Starts the Jetty application web server and the WireMock OAuthServer if not running. Otherwise it resets WireMock
+	 * and configures the stubs. Additionally it generates the JWK URL. Should be called before each test. Starts the
 	 * server only, if it was not yet started.
 	 *
 	 * @throws IOException
-	 *             if the stub cannot be initialized
+	 * 		if the stub cannot be initialized
 	 */
 	public void setup() throws Exception {
-		if (useApplicationServer && (applicationServer == null || !applicationServer.isStarted())) {
-			startApplicationServer();
-		}
 		if (!wireMockServer.isRunning()) {
 			wireMockServer.start();
 		} else {
 			wireMockServer.resetAll();
 		}
+		if (useApplicationServer && (applicationServer == null || !applicationServer.isStarted())) {
+			if (applicationServerOptions == null) {
+				this.applicationServerOptions = ApplicationServerOptions.forService(service, wireMockServer.port());
+			}
+			startApplicationServer();
+		}
 		// TODO return JSON Media type
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
 				String.format(LOCALHOST_PATTERN, wireMockServer.port()), null);
-		wireMockServer.stubFor(get(urlEqualTo(endpointsProvider.getJwksUri().getPath()))
+		wireMockServer.stubFor(get(urlPathEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())
 						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));
 		wireMockServer.stubFor(get(urlEqualTo(DISCOVERY_ENDPOINT_DEFAULT))
@@ -288,8 +303,8 @@ public class SecurityTest
 	}
 
 	/**
-	 * Shuts down Jetty application web server and WireMock stub. Should be called
-	 * when all tests are executed to avoid unwanted side-effects.
+	 * Shuts down Jetty application web server and WireMock stub. Should be called when all tests are executed to avoid
+	 * unwanted side-effects.
 	 */
 	public void tearDown() {
 		shutdownWireMock();
@@ -303,10 +318,9 @@ public class SecurityTest
 	}
 
 	/**
-	 * The {@code shutdown} method of WireMock does not block the main thread. This
-	 * can cause issues if one static {@link SecurityTestRule} is reused in many
-	 * test classes. Therefore we wait until the WireMock server has really been
-	 * shutdown (or the maximum amount of tries has been reached).
+	 * The {@code shutdown} method of WireMock does not block the main thread. This can cause issues if one static
+	 * {@link SecurityTestRule} is reused in many test classes. Therefore we wait until the WireMock server has really
+	 * been shutdown (or the maximum amount of tries has been reached).
 	 */
 	private void shutdownWireMock() {
 		wireMockServer.shutdown();

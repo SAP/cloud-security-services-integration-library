@@ -5,23 +5,29 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.x509.X509Certificate;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.util.Assert;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Nullable;
 
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+
 /**
- * Internal class that decodes and validates the provided encoded token using
- * {@code java-security} client library.<br>
- * In case of successful validation, the token gets parsed and returned as
- * {@link Jwt}.
+ * Internal class that decodes and validates the provided encoded token using {@code java-security} client library.<br>
+ * In case of successful validation, the token gets parsed and returned as {@link Jwt}.
  * <p>
  * Supports tokens issued by ias or xsuaa identity service.
  */
@@ -31,15 +37,13 @@ public class HybridJwtDecoder implements JwtDecoder {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * Creates instance with a set of validators for validating the access / oidc
-	 * token issued by the dedicated identity service.
+	 * Creates instance with a set of validators for validating the access / oidc token issued by the dedicated identity
+	 * service.
 	 *
 	 * @param xsuaaValidator
-	 *            set of validators that should be used to validate a xsuaa access
-	 *            token.
+	 * 		set of validators that should be used to validate a xsuaa access token.
 	 * @param iasValidator
-	 *            set of validators that should be used to validate an ias oidc
-	 *            token.
+	 * 		set of validators that should be used to validate an ias oidc token.
 	 */
 	public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator,
 			@Nullable CombiningValidator<Token> iasValidator) {
@@ -49,6 +53,15 @@ public class HybridJwtDecoder implements JwtDecoder {
 
 	@Override
 	public Jwt decode(String encodedToken) {
+		ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+		if (servletRequestAttributes != null) {
+			HttpServletRequest request = servletRequestAttributes.getRequest();
+			String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
+			if (clientCert != null) {
+				SecurityContext.setClientCertificate(X509Certificate.newCertificate(clientCert));
+			}
+		}
 		Token token;
 		Jwt jwt;
 		try {
@@ -70,7 +83,11 @@ public class HybridJwtDecoder implements JwtDecoder {
 		default -> throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
 		}
 		if (validationResult.isErroneous()) {
-			throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
+			if (validationResult.getErrorDescription().contains("JWKS could not be fetched")) {
+				throw new JwtException(validationResult.getErrorDescription());
+			} else {
+				throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
+			}
 		}
 		logger.debug("Token issued by {} service was successfully validated.", token.getService());
 		return jwt;
@@ -80,12 +97,11 @@ public class HybridJwtDecoder implements JwtDecoder {
 	 * Parses decoded Jwt token to {@link Jwt}
 	 *
 	 * @param token
-	 *            the token
+	 * 		the token
 	 * @return Jwt class
 	 */
 	public static Jwt parseJwt(Token token) {
 		return new Jwt(token.getTokenValue(), token.getNotBefore(), token.getExpiration(),
 				token.getHeaders(), token.getClaims());
 	}
-
 }

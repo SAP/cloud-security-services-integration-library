@@ -39,7 +39,7 @@ These (spring) dependencies need to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-xsuaa</artifactId>
-    <version>3.1.2</version>
+    <version>3.5.2</version>
 </dependency>
 <dependency> <!-- new with version 1.5.0 -->
     <groupId>org.apache.logging.log4j</groupId>
@@ -53,7 +53,7 @@ These (spring) dependencies need to be provided:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>xsuaa-spring-boot-starter</artifactId>
-    <version>3.1.2</version>
+    <version>3.5.2</version>
 </dependency>
 ```
 
@@ -61,7 +61,7 @@ These (spring) dependencies need to be provided:
 As autoconfiguration requires Spring Boot specific dependencies, autoconfiguration is enabled when using `xsuaa-spring-boot-starter` Spring Boot Starter. 
 Then Xsuaa integration libraries autoconfigures beans, that are required to initialize the Spring Boot application as OAuth resource server.
 
-| Autoconfiguration class                                                                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| Autoconfiguration class                                                                                                                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 |--------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
  | [XsuaaAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaAutoConfiguration.java)                                   | Adds `xsuaa.*` properties to Spring's Environment. The properties are by default parsed from `VCAP_SERVICES` system environment variables and can be overwritten by properties such as `xsuaa.xsappname` e.g. for testing purposes. Furthermore, it exposes an `XsuaaServiceConfiguration` bean that can be used to access Xsuaa service information.  Alternatively, you can access them with `@Value` annotation e.g. `@Value("${xsuaa.xsappname:}") String appId`. |
  | [XsuaaResourceServerJwkAutoConfiguration](/spring-xsuaa/src/main/java/com/sap/cloud/security/xsuaa/autoconfiguration/XsuaaResourceServerJwkAutoConfiguration.java) | Configures a `JwtDecoder` bean with a JWK (JSON Web Keys) endpoint from where to download the tenant (subdomain) specific public key.                                                                                                                                                                                                                                                                                                                                 |
@@ -258,7 +258,7 @@ Finally, you need do re-deploy your application for the changes to take effect.
 If you observe performance degradation for token validation or token flows, `HttpClient` configuration should be adjusted according to your platform's requirements, infrastructure, and anticipated load. You should monitor the performance of your `HttpClient` under various loads and adjust these parameters accordingly to achieve optimal performance.
 
 > You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management](https://www.baeldung.com/httpclient-connection-management).<br>
-To adjust the `HttpClient` parameters you will need to provide your own implementation of `SpringHttpClientFactory` interface.
+> To adjust the `HttpClient` parameters you will need to provide your own implementation of `SpringHttpClientFactory` interface.
 
 - Create an SPI configuration file with name `com.sap.cloud.security.xsuaa.token.authentication.httpclient.SpringHttpClientFactory` in ``src/main/resources/META-INF/services`` directory
 - Enter the fully qualified name of your `SpringHttpClientFactory` implementation class, e.g. `com.mypackage.CustomSpringHttpClientFactory`

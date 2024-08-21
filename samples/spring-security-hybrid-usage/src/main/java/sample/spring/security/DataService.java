@@ -11,22 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Simple DataLayer interface that shows how Spring global message security
- * can be used to control access to data objects on a method level.
+ * Simple DataLayer interface that shows how Spring global message security can be used to control access to data
+ * objects on a method level.
  */
 @Service
 public class DataService {
-    @Autowired
-    XsuaaServiceConfiguration xsuaaConfig;
+	@Autowired
+	XsuaaServiceConfiguration xsuaaConfig;
 
-    /**
-     * Reads sensitive data from the data layer.
-     * User requires scope {@code Admin}
-     * for this to succeed.
-     *
-     */
-    String readSensitiveData() {
-        String zoneId = SpringSecurityContext.getToken().getZoneId();
-        return "You got the sensitive data for zone '" + zoneId + "'.";
-    }
+	/**
+	 * Reads sensitive data from the data layer. User requires scope {@code Admin} for this to succeed.
+	 */
+	String readSensitiveData() {
+		String appTid = SpringSecurityContext.getToken().getAppTid();
+		return "You got the sensitive data for tenant '" + appTid + "'.";
+	}
 }

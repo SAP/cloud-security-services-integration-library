@@ -10,6 +10,7 @@ Files:
     **/*.md
     docs/*
     .gitignore
+    .git-blame-ignore-revs
     **/.gitignore
     */src/*
     **/*.png
@@ -20,6 +21,7 @@ Files:
     samples/**/*.json
     samples/**/Dockerfile
     samples/**/deployment.yml
+    etc/*
     .github/*
 Copyright: 2020-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
 License: Apache-2.0

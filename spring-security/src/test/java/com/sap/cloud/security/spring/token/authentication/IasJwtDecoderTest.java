@@ -5,22 +5,35 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.sap.cloud.security.test.JwtGenerator;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
+import com.sap.cloud.security.x509.X509Certificate;
+import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 import static com.sap.cloud.security.config.Service.IAS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -51,6 +64,34 @@ class IasJwtDecoderTest {
 	void decodeIasTokenWithoutValidators() {
 		String encodedToken = jwtGenerator.createToken().getTokenValue();
 		assertEquals("theClientId", cut.decode(encodedToken).getClaim(TokenClaims.AUTHORIZATION_PARTY));
+	}
+
+	@Test
+	void decodeIasTokenWithProofToken() throws IOException {
+		String cert = IOUtils.resourceToString("/certificate.txt", StandardCharsets.UTF_8);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader(FWD_CLIENT_CERT_HEADER, cert);
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+		String encodedToken = jwtGenerator.createToken().getTokenValue();
+		assertEquals("theClientId", cut.decode(encodedToken).getClaim(TokenClaims.AUTHORIZATION_PARTY));
+		assertNotNull(SecurityContext.getClientCertificate());
+	}
+
+	@Test
+	void decodeIasTokenWithoutFwdCert() {
+		ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+		Logger logger = (Logger) LoggerFactory.getLogger(X509Certificate.class);
+		listAppender.start();
+		logger.addAppender(listAppender);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+
+		String encodedToken = jwtGenerator.createToken().getTokenValue();
+		cut.decode(encodedToken);
+		Assertions.assertThat(listAppender.list).isEmpty();
+		listAppender.stop();
 	}
 
 	@Test

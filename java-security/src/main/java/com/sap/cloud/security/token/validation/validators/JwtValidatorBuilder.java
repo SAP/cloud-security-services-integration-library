@@ -27,11 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
 
 /**
- * Class used to build a token validator for an OAuth service configuration
- * {@link OAuth2ServiceConfiguration}. <br>
+ * Class used to build a token validator for an OAuth service configuration {@link OAuth2ServiceConfiguration}. <br>
  * Custom validators can be added via {@link #with(Validator)} method.
  */
 public class JwtValidatorBuilder {
@@ -45,6 +43,7 @@ public class JwtValidatorBuilder {
 	private Validator<Token> customAudienceValidator;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 	private boolean isTenantIdCheckDisabled;
+	private boolean isProofTokenCheckEnabled;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JwtValidatorBuilder.class);
 
@@ -56,7 +55,7 @@ public class JwtValidatorBuilder {
 	 * Creates a builder instance that can be configured further.
 	 *
 	 * @param configuration
-	 *            the identity service configuration
+	 * 		the identity service configuration
 	 * @return the builder
 	 */
 	public static JwtValidatorBuilder getInstance(OAuth2ServiceConfiguration configuration) {
@@ -74,7 +73,7 @@ public class JwtValidatorBuilder {
 	 * Adds a custom validator to the validation chain.
 	 *
 	 * @param validator
-	 *            the validator used for validation.
+	 * 		the validator used for validation.
 	 * @return this builder.
 	 */
 	public JwtValidatorBuilder with(Validator<Token> validator) {
@@ -86,7 +85,7 @@ public class JwtValidatorBuilder {
 	 * Use to configure the token key cache.
 	 *
 	 * @param tokenKeyCacheConfiguration
-	 *            the cache configuration
+	 * 		the cache configuration
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withCacheConfiguration(CacheConfiguration tokenKeyCacheConfiguration) {
@@ -98,7 +97,7 @@ public class JwtValidatorBuilder {
 	 * Sets / overwrites the default audience validator.
 	 *
 	 * @param audienceValidator
-	 *            the validator used for validation.
+	 * 		the validator used for validation.
 	 * @return this builder.
 	 */
 	public JwtValidatorBuilder withAudienceValidator(Validator<Token> audienceValidator) {
@@ -108,11 +107,10 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * Overwrite in case you want to configure your own
-	 * {@link OAuth2TokenKeyService} instance.
+	 * Overwrite in case you want to configure your own {@link OAuth2TokenKeyService} instance.
 	 *
 	 * @param tokenKeyService
-	 *            your token key service
+	 * 		your token key service
 	 * @return this builder
 	 * @deprecated for internal use only
 	 */
@@ -123,11 +121,10 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * Overwrite in case you want to configure your own
-	 * {@link OAuth2TokenKeyService} instance.
+	 * Overwrite in case you want to configure your own {@link OAuth2TokenKeyService} instance.
 	 *
 	 * @param oidcConfigurationService
-	 *            your token key service
+	 * 		your token key service
 	 * @return this builder
 	 * @deprecated for internal use only
 	 */
@@ -138,11 +135,11 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * In case you want to configure the {@link OidcConfigurationService} and the
-	 * {@link OAuth2TokenKeyService} with your own Rest client.
+	 * In case you want to configure the {@link OidcConfigurationService} and the {@link OAuth2TokenKeyService} with
+	 * your own Rest client.
 	 *
 	 * @param httpClient
-	 *            your own http client
+	 * 		your own http client
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
@@ -154,12 +151,11 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * Allows to provide another service configuration, e.g. in case you have
-	 * multiple Xsuaa identity service instances and you like to accept tokens
-	 * issued for them as well.
+	 * Allows to provide another service configuration, e.g. in case you have multiple Xsuaa identity service instances
+	 * and you like to accept tokens issued for them as well.
 	 *
 	 * @param otherConfiguration
-	 *            the configuration of the other service instance, e.g. the broker
+	 * 		the configuration of the other service instance, e.g. the broker
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder configureAnotherServiceInstance(
@@ -174,7 +170,7 @@ public class JwtValidatorBuilder {
 	 * Adds the validation listener to the jwt validator that is being built.
 	 *
 	 * @param validationListener
-	 *            the listener to be added to the validator.
+	 * 		the listener to be added to the validator.
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder withValidatorListener(ValidationListener validationListener) {
@@ -183,17 +179,25 @@ public class JwtValidatorBuilder {
 	}
 
 	/**
-	 * Disables tenant id check for JwtSignatureValidator. In case Jwt issuer claim
-	 * doesn't match with the url attribute from OAuth2ServiceConfiguration tenant
-	 * id (zid) claim needs to be present in token to ensure that the tenant belongs
-	 * to this issuer. This method disables the tenant id check. Use with caution as
-	 * it relaxes the validation rules! It is not recommended to disable this check
-	 * for standard Identity service setup.
+	 * Disables tenant id check for JwtSignatureValidator. In case Jwt issuer claim doesn't match with the url attribute
+	 * from OAuth2ServiceConfiguration tenant id (zid) claim needs to be present in token to ensure that the tenant
+	 * belongs to this issuer. This method disables the tenant id check. Use with caution as it relaxes the validation
+	 * rules! It is not recommended to disable this check for standard Identity service setup.
 	 *
 	 * @return this builder
 	 */
 	public JwtValidatorBuilder disableTenantIdCheck() {
 		this.isTenantIdCheckDisabled = true;
+		return this;
+	}
+
+	/**
+	 * Enables proof token check for JwtSignatureValidator. This method enables the Proof Token check.
+	 *
+	 * @return this builder
+	 */
+	public JwtValidatorBuilder enableProofTokenCheck() {
+		this.isProofTokenCheckEnabled = true;
 		return this;
 	}
 
@@ -215,30 +219,29 @@ public class JwtValidatorBuilder {
 		List<Validator<Token>> defaultValidators = new ArrayList<>();
 		defaultValidators.add(new JwtTimestampValidator());
 
-		if (configuration.getService() == XSUAA) {
-			if (!configuration.isLegacyMode()) {
-				defaultValidators.add(new XsuaaJkuValidator(configuration.getProperty(UAA_DOMAIN)));
-			}
-		} else if (configuration.getService() == IAS && configuration.getDomains() != null
-				&& !configuration.getDomains().isEmpty()) {
-			defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
-		}
+		JwtSignatureValidator signatureValidator = null;
 		OAuth2TokenKeyServiceWithCache tokenKeyServiceWithCache = getTokenKeyServiceWithCache();
 		Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(tokenKeyServiceWithCache::withCacheConfiguration);
-		JwtSignatureValidator signatureValidator = new JwtSignatureValidator(
-				configuration,
-				tokenKeyServiceWithCache,
-				getOidcConfigurationServiceWithCache());
+		if (configuration.getService() == XSUAA) {
+			signatureValidator = new XsuaaJwtSignatureValidator(configuration, tokenKeyServiceWithCache,
+					getOidcConfigurationServiceWithCache());
+		} else if (configuration.getService() == IAS) {
+			if (configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
+				defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
+			}
 
-		if (configuration.getService() == IAS && isTenantIdCheckDisabled) {
-			signatureValidator.disableTenantIdCheck();
+			signatureValidator = new SapIdJwtSignatureValidator(configuration, tokenKeyServiceWithCache,
+					getOidcConfigurationServiceWithCache());
+			if (isTenantIdCheckDisabled) {
+				((SapIdJwtSignatureValidator) signatureValidator).disableTenantIdCheck();
+			}
+			if (isProofTokenCheckEnabled) {
+				((SapIdJwtSignatureValidator) signatureValidator).enableProofTokenValidationCheck();
+			}
 		}
+
 		defaultValidators.add(signatureValidator);
-
-		Optional.ofNullable(customAudienceValidator).ifPresent(defaultValidators::add);
-		if (customAudienceValidator == null) {
-			defaultValidators.add(createAudienceValidator());
-		}
+		defaultValidators.add(Objects.requireNonNullElseGet(customAudienceValidator, this::createAudienceValidator));
 
 		return defaultValidators;
 	}

@@ -15,6 +15,7 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import org.apache.commons.io.IOUtils;
 import org.junit.ClassRule;
@@ -23,12 +24,15 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
-import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_DOMAIN;
+import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_UAA_DOMAIN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Xsuaa integration test with single binding scenario.
@@ -51,9 +55,9 @@ public class XsuaaIntegrationTest {
 	}
 
 	@Test
-	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() throws IOException {
+	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() {
 		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
-				"/xsa-simple/vcap_services-single.json")
+						"/xsa-simple/vcap_services-single.json")
 				.runInLegacyMode(true)
 				.build();
 
@@ -68,7 +72,7 @@ public class XsuaaIntegrationTest {
 	@Test
 	public void xsuaaTokenValidationFails_withIasCombiningValidator() {
 		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
-				"/ias-simple/vcap_services-single.json")
+						"/ias-simple/vcap_services-single.json")
 				.withDomains("myauth.com")
 				.build();
 
@@ -83,7 +87,7 @@ public class XsuaaIntegrationTest {
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isFalse();
 		assertThat(result.getErrorDescription()).startsWith(
-				"Issuer is not trusted because issuer 'http://auth.com' doesn't match any of these domains '[myauth.com]' of the identity provider");
+				"Issuer http://auth.com was not a trusted domain or a subdomain of the trusted domains [myauth.com].");
 	}
 
 	@Test
@@ -105,14 +109,17 @@ public class XsuaaIntegrationTest {
 		String publicKey = IOUtils.resourceToString("/publicKey.txt", StandardCharsets.UTF_8);
 		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
 				.forService(XSUAA)
-				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, DEFAULT_DOMAIN)
+				.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, DEFAULT_UAA_DOMAIN)
 				.withClientId(DEFAULT_CLIENT_ID)
 				.withProperty(VERIFICATION_KEY, publicKey)
 				.build();
 
+		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), (Map<String, String>) any())).thenThrow(
+				OAuth2ServiceException.class);
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
 				// mocked because we use the key from the verificationkey property here
-				.withOAuth2TokenKeyService(Mockito.mock(OAuth2TokenKeyService.class))
+				.withOAuth2TokenKeyService(tokenKeyServiceMock)
 				.build();
 
 		Token token = rule.getPreconfiguredJwtGenerator().createToken();

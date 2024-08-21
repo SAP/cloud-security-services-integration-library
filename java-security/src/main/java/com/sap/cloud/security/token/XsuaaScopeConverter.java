@@ -15,8 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * This utility class translates XSUAA scopes that are specified in global form
- * and prefixed with the "appId.", to local ones.
+ * This utility class translates XSUAA scopes that are specified in global form and prefixed with the "appId.", to local
+ * ones.
  */
 public class XsuaaScopeConverter implements ScopeConverter {
 
@@ -29,7 +29,7 @@ public class XsuaaScopeConverter implements ScopeConverter {
 	 * Creates an instance of the converter.
 	 *
 	 * @param appId
-	 *            the xs application name e.g. myapp!t123.
+	 * 		the xs application name e.g. myapp!t123.
 	 */
 	public XsuaaScopeConverter(String appId) {
 		Assertions.assertHasText(appId, "appId must not be null or empty.");

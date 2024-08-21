@@ -54,7 +54,7 @@ public class IasSecurityFilter implements Filter {
 		}
 	}
 
-	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason)  {
+	private void sendUnauthenticatedResponse(ServletResponse response, String unauthenticatedReason) {
 		if (response instanceof HttpServletResponse httpServletResponse) {
 			try {
 				httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, unauthenticatedReason); // 401

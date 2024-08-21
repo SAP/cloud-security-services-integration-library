@@ -18,7 +18,7 @@ public interface JsonObject extends Serializable {
 
 	/**
 	 * @param name
-	 *            the name of the property.
+	 * 		the name of the property.
 	 * @return true if the json object contains the given property.
 	 */
 	boolean contains(String name);
@@ -31,80 +31,71 @@ public interface JsonObject extends Serializable {
 	boolean isEmpty();
 
 	/**
-	 * Parses the json object for the given property {@code name} and returns a list
-	 * of type {@link T}. If the property with the given name is not found, an empty
-	 * list is returned.
+	 * Parses the json object for the given property {@code name} and returns a list of type {@link T}. If the property
+	 * with the given name is not found, an empty list is returned.
 	 *
 	 * @param <T>
-	 *            the type of the list elements.
+	 * 		the type of the list elements.
 	 * @param name
-	 *            the property inside this json object which contains a list as
-	 *            values of type {@link T}.
+	 * 		the property inside this json object which contains a list as values of type {@link T}.
 	 * @param type
-	 *            type parameter for generic type {@link T}.
+	 * 		type parameter for generic type {@link T}.
 	 * @return the list of type {@link T}.
 	 * @throws JsonParsingException
-	 *             if the json object with the given key is not a list or list
-	 *             elements are not of type {@link T}.
+	 * 		if the json object with the given key is not a list or list elements are not of type {@link T}.
 	 */
 	<T> List<T> getAsList(String name, Class<T> type);
 
 	/**
-	 * Parses the json object for the given property {@code name} and returns a
-	 * String list. If the property with the given name is not found, an empty list
-	 * is returned.
+	 * Parses the json object for the given property {@code name} and returns a String list. If the property with the
+	 * given name is not found, an empty list is returned.
 	 * <p>
-	 * For example {@code "aud" : "single-value"} or
-	 * {@code "aud" : ["value-1", "value-2"]}
+	 * For example {@code "aud" : "single-value"} or {@code "aud" : ["value-1", "value-2"]}
 	 *
 	 * @param name
-	 *            the property inside this json object which contains a String list.
+	 * 		the property inside this json object which contains a String list.
 	 * @return the String list.
 	 * @throws JsonParsingException
-	 *             if the json object with the given key is not a String array or of
-	 *             type String.
+	 * 		if the json object with the given key is not a String array or of type String.
 	 * @see #getAsString
 	 */
 	List<String> getAsStringList(String name);
 
 	/**
-	 * Returns the string identified by the given property {@code name}. If the
-	 * property with the given name is not found, null is returned.
+	 * Returns the string identified by the given property {@code name}. If the property with the given name is not
+	 * found, null is returned.
 	 *
 	 * @param name
-	 *            the name of the property.
+	 * 		the name of the property.
 	 * @return the json string object.
 	 * @throws JsonParsingException
-	 *             if the json object identified by the given property is not a
-	 *             string.
+	 * 		if the json object identified by the given property is not a string.
 	 */
 	@Nullable
 	String getAsString(String name);
 
 	/**
-	 * Returns an {@link Instant} identified by the given property {@code name}. If
-	 * the property with the given name is not found, null is returned.
+	 * Returns an {@link Instant} identified by the given property {@code name}. If the property with the given name is
+	 * not found, null is returned.
 	 *
 	 * @param name
-	 *            the name of the property.
+	 * 		the name of the property.
 	 * @return the {@link Instant} object.
 	 * @throws JsonParsingException
-	 *             if the json object identified by the given property does not
-	 *             represent a date in unix time.
+	 * 		if the json object identified by the given property does not represent a date in unix time.
 	 */
 	@Nullable
 	Instant getAsInstant(String name);
 
 	/**
-	 * Returns a {@link Long} identified by the given property {@code name}. If the
-	 * property with the given name is not found, null is returned.
+	 * Returns a {@link Long} identified by the given property {@code name}. If the property with the given name is not
+	 * found, null is returned.
 	 *
 	 * @param name
-	 *            the name of property.
+	 * 		the name of property.
 	 * @return the {@link Long} object.
 	 * @throws JsonParsingException
-	 *             if the json object identified by the given property does not
-	 *             represent a long value
+	 * 		if the json object identified by the given property does not represent a long value
 	 */
 	@Nullable
 	Long getAsLong(String name);
@@ -113,26 +104,23 @@ public interface JsonObject extends Serializable {
 	 * Returns a nested JSON object as @{link JsonObject} instance.
 	 *
 	 * @param name
-	 *            the name of property.
+	 * 		the name of property.
 	 * @return the {@link JsonObject}.
 	 * @throws JsonParsingException
-	 *             if the json object identified by the given property is not a JSON
-	 *             object structure.
+	 * 		if the json object identified by the given property is not a JSON object structure.
 	 */
 	@Nullable
 	JsonObject getJsonObject(String name);
 
 	/**
-	 * Returns a nested array of JSON objects as list of {@link JsonObject}
-	 * instances. If the property with the given name is not found, an empty list is
-	 * returned.
+	 * Returns a nested array of JSON objects as list of {@link JsonObject} instances. If the property with the given
+	 * name is not found, an empty list is returned.
 	 *
 	 * @param name
-	 *            the name of property.
+	 * 		the name of property.
 	 * @return a list of {@link JsonObject} instances.
 	 * @throws JsonParsingException
-	 *             if the json object identified by the given property is not an
-	 *             array of JSON objects.
+	 * 		if the json object identified by the given property is not an array of JSON objects.
 	 */
 	List<JsonObject> getJsonObjects(String name);
 

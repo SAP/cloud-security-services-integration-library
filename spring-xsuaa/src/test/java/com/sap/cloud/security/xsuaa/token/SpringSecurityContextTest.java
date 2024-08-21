@@ -48,9 +48,8 @@ public class SpringSecurityContextTest {
 	}
 
 	/**
-	 * This test case spawns two parallel Threads. Each Thread uses a token and
-	 * invokes SpringSecurityContext.init(...). A Token object is retrieved by the
-	 * SpringSecurityContext and returned to the main Thread. On the main Thread, we
+	 * This test case spawns two parallel Threads. Each Thread uses a token and invokes SpringSecurityContext.init(...).
+	 * A Token object is retrieved by the SpringSecurityContext and returned to the main Thread. On the main Thread, we
 	 * assert that both Threads have been in the appropriate Tenant Context.
 	 *
 	 * @throws InterruptedException

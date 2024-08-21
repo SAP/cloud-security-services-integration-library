@@ -19,14 +19,12 @@ public interface OAuth2ServiceEndpointsProvider {
 	/**
 	 * Returns authorize endpoint URI.
 	 *
-	 * @return authorize endpoint, e.g.
-	 *         {@code https://oauth.server.com/oauth/authorize}
+	 * @return authorize endpoint, e.g. {@code https://oauth.server.com/oauth/authorize}
 	 */
 	URI getAuthorizeEndpoint();
 
 	/**
-	 * Returns Jwt Key Set URI (JWKS) as specified in
-	 * /.well-known/openid-configuration.
+	 * Returns Jwt Key Set URI (JWKS) as specified in /.well-known/openid-configuration.
 	 *
 	 * @return jwks_uri , e.g. {@code https://oauth.server.com/token_keys}
 	 */

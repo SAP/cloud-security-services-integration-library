@@ -19,7 +19,8 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests validation with multiple bindings present which is not supported by {@link com.sap.cloud.security.test.SecurityTest}.
+ * Tests validation with multiple bindings present which is not supported by
+ * {@link com.sap.cloud.security.test.SecurityTest}.
  */
 public class XsuaaMultipleBindingsIntegrationTest {
 
@@ -30,7 +31,10 @@ public class XsuaaMultipleBindingsIntegrationTest {
 	@Test
 	public void createToken_integrationTest_tokenValidation() {
 		Token token = rule.getPreconfiguredJwtGenerator().createToken();
-		OAuth2ServiceConfiguration configuration = Environments.readFromInput(XsuaaMultipleBindingsIntegrationTest.class.getResourceAsStream("/vcap_services-multiple.json")).getXsuaaConfiguration();
+		OAuth2ServiceConfiguration configuration = Environments.readFromInput(
+						XsuaaMultipleBindingsIntegrationTest.class.getResourceAsStream("/vcap_services-multiple.json"))
+				.getXsuaaConfiguration();
+
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
 		ValidationResult result = tokenValidator.validate(token);

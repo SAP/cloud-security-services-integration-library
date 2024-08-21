@@ -11,7 +11,8 @@ import javax.annotation.Nullable;
  * Constants denoting the credential types of identity OAuth2 configuration
  */
 public enum CredentialType {
-	X509("x509"), INSTANCE_SECRET("instance-secret"), BINDING_SECRET("binding-secret");
+	X509("x509"), INSTANCE_SECRET("instance-secret"), BINDING_SECRET("binding-secret"),
+	X509_GENERATED("X509_GENERATED"), X509_PROVIDED("X509_PROVIDED"), X509_ATTESTED("X509_ATTESTED");
 
 	private final String typeName;
 
@@ -27,7 +28,7 @@ public enum CredentialType {
 	@Nullable
 	public static CredentialType from(String claimValue) {
 		for (CredentialType credentialType : values()) {
-			if (credentialType.typeName.equals(claimValue)) {
+			if (credentialType.typeName.equalsIgnoreCase(claimValue)) {
 				return credentialType;
 			}
 		}

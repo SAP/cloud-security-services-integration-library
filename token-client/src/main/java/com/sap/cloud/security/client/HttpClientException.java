@@ -13,7 +13,7 @@ public class HttpClientException extends RuntimeException {
 	 * Instantiates a new Service client exception.
 	 *
 	 * @param message
-	 *            the message
+	 * 		the message
 	 */
 	public HttpClientException(String message) {
 		super(message);

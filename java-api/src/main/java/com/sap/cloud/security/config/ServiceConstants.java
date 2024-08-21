@@ -12,6 +12,7 @@ public class ServiceConstants {
 	public static final String VCAP_SERVICES = "VCAP_SERVICES";
 	public static final String VCAP_APPLICATION = "VCAP_APPLICATION";
 	public static final String SERVICE_PLAN = "plan";
+	public static final String NAME = "name";
 	public static final String URL = "url";
 	public static final String CLIENT_ID = "clientid";
 	public static final String CLIENT_SECRET = "clientsecret";
@@ -54,7 +55,27 @@ public class ServiceConstants {
 	 * Represents service plans of identity services.
 	 */
 	public enum Plan {
-		DEFAULT, BROKER, APPLICATION, SPACE, APIACCESS, SYSTEM;
+		/**
+		 * @deprecated
+		 * Service Plan default will be deprecated in 2024
+		 */
+		@Deprecated
+		DEFAULT,
+		BROKER,
+		APPLICATION,
+		/**
+		 * @deprecated
+		 * Service Plan space will be deprecated in 2024
+		 */
+		@Deprecated
+		SPACE,
+		/**
+		 * @deprecated
+		 * Service Plan apiaccess will be deprecated in 2024
+		 */
+		@Deprecated
+		APIACCESS,
+		SYSTEM;
 
 		public static Plan from(String planAsString) {
 			if (planAsString == null) {

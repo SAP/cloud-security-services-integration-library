@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.time.Instant;
@@ -42,8 +43,8 @@ public class JwtGenerator {
 	private static final String DEFAULT_JWKS_URL = "http://localhost/token_keys";
 	private static final char DOT = '.';
 
-	private final JSONObject jsonHeader = new JSONObject();
-	private final JSONObject jsonPayload = new JSONObject();
+	private final JSONObject jsonHeader = newPredictableOrderingJSONObject();
+	private final JSONObject jsonPayload = newPredictableOrderingJSONObject();
 
 	private final SignatureCalculator signatureCalculator;
 	private final Service service;
@@ -61,14 +62,31 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * This factory method creates an {@link JwtGenerator} instance that can be used
-	 * to create tokens for testing purposes. The tokens are prefilled with data so
-	 * that they can be validated successfully.
+	 * Creates a new JSONObject object with LinkedHashMap with predictable iteration order.
+	 *
+	 * @return JSONObject
+	 */
+	private static JSONObject newPredictableOrderingJSONObject() {
+		JSONObject jsonObject = new JSONObject();
+		try {
+			Field declaredMapField = jsonObject.getClass().getDeclaredField("map");
+			declaredMapField.setAccessible(true);
+			declaredMapField.set(jsonObject, new LinkedHashMap<>());
+			declaredMapField.setAccessible(false);
+		} catch (IllegalAccessException | NoSuchFieldException e) {
+			LOGGER.info("Couldn't create a JSONObject with a LinkedHashMap field. {}", e.getMessage());
+		}
+		return jsonObject;
+	}
+
+	/**
+	 * This factory method creates an {@link JwtGenerator} instance that can be used to create tokens for testing
+	 * purposes. The tokens are prefilled with data so that they can be validated successfully.
 	 *
 	 * @param service
-	 *            the {@link Service} for which the token should be generated
+	 * 		the {@link Service} for which the token should be generated
 	 * @param clientId
-	 *            the authorization party of the token.
+	 * 		the authorization party of the token.
 	 * @return a new {@link JwtGenerator} instance.
 	 */
 	public static JwtGenerator getInstance(Service service, String clientId) {
@@ -78,10 +96,9 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * This factory method creates an {@link JwtGenerator} instance that is
-	 * prefilled with data provided by the file resource found at
-	 * {@code tokenJsonResource}. This resource file contains data for the token
-	 * payload and header. The file is expected to be in the following JSON format:
+	 * This factory method creates an {@link JwtGenerator} instance that is prefilled with data provided by the file
+	 * resource found at {@code tokenJsonResource}. This resource file contains data for the token payload and header.
+	 * The file is expected to be in the following JSON format:
 	 *
 	 * <pre>
 	 * 	"header": {
@@ -97,11 +114,9 @@ public class JwtGenerator {
 	 *    }
 	 * </pre>
 	 *
-	 * The payload and header data from the file will be written into the token
-	 * being generated. Note that some properties are overridden. This is for
-	 * convenience so that the token can be verified in a test setup rather then its
-	 * original production setup. The following header and payload properties are
-	 * overridden:
+	 * The payload and header data from the file will be written into the token being generated. Note that some
+	 * properties are overridden. This is for convenience so that the token can be verified in a test setup rather then
+	 * its original production setup. The following header and payload properties are overridden:
 	 * <ul>
 	 * <li>Header: jku, kid</li>
 	 * <li>Payload: exp, iss</li>
@@ -111,13 +126,12 @@ public class JwtGenerator {
 	 * respective methods from the {@link JwtGenerator} instance.
 	 *
 	 * @param tokenJsonResource
-	 *            the resource path to the file containing the json file, e.g.
-	 *            "/token.json"
+	 * 		the resource path to the file containing the json file, e.g. "/token.json"
 	 * @return a new {@link JwtGenerator} instance.
 	 * @throws JsonParsingException
-	 *             if the file does not contain a valid json object
+	 * 		if the file does not contain a valid json object
 	 * @throws IllegalArgumentException
-	 *             if the given file cannot be read
+	 * 		if the given file cannot be read
 	 */
 	public static JwtGenerator getInstanceFromFile(Service service, String tokenJsonResource) {
 		return new JwtGenerator(service, JwtGenerator::calculateSignature).fromFile(tokenJsonResource);
@@ -148,7 +162,8 @@ public class JwtGenerator {
 		withClaimValue(TokenClaims.XSUAA.CLIENT_ID, azp); // Client Id left for backward compatibility
 		if (service == Service.IAS) {
 			jsonPayload.put(TokenClaims.AUDIENCE, azp);
-			jsonPayload.put(TokenClaims.SAP_GLOBAL_ZONE_ID, DEFAULT_ZONE_ID); //TODO to be removed once fallback is not supported
+			jsonPayload.put(TokenClaims.SAP_GLOBAL_ZONE_ID, DEFAULT_ZONE_ID); // TODO to be removed once fallback is not
+			// supported
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_APP_TID, DEFAULT_APP_TID);
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_USER_ID, DEFAULT_USER_ID);
 			jsonPayload.put(TokenClaims.SAP_GLOBAL_SCIM_ID, DEFAULT_USER_ID);
@@ -175,9 +190,9 @@ public class JwtGenerator {
 	 * Sets the header parameter with the given name to the given string value.
 	 *
 	 * @param parameterName
-	 *            the name of the header parameter to be set.
+	 * 		the name of the header parameter to be set.
 	 * @param value
-	 *            the string value of the header parameter to be set.
+	 * 		the string value of the header parameter to be set.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withHeaderParameter(String parameterName, String value) {
@@ -186,14 +201,13 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string value. Note: for
-	 * overwriting client Id claim, "azp" claim value should be overwritten instead
-	 * of deprecated "cid"
+	 * Sets the claim with the given name to the given string value. Note: for overwriting client Id claim, "azp" claim
+	 * value should be overwritten instead of deprecated "cid"
 	 *
 	 * @param claimName
-	 *            the name of the claim to be set.
+	 * 		the name of the claim to be set.
 	 * @param value
-	 *            the string value of the claim to be set.
+	 * 		the string value of the claim to be set.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimValue(String claimName, String value) {
@@ -202,17 +216,30 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string value. Note: for
-	 * overwriting client Id claim, "azp" claim value should be overwritten instead
-	 * of deprecated "cid"
+	 * Sets the claim with the given name to the given integer value.
 	 *
 	 * @param claimName
-	 *            the name of the claim to be set.
+	 * 		the name of the claim to be set.
+	 * @param value
+	 * 		the integer value of the claim to be set.
+	 * @return the builder object.
+	 */
+	public JwtGenerator withClaimValue(String claimName, int value) {
+		jsonPayload.put(claimName, value);
+		return this;
+	}
+
+	/**
+	 * Sets the claim with the given name to the given string value. Note: for overwriting client Id claim, "azp" claim
+	 * value should be overwritten instead of deprecated "cid"
+	 *
+	 * @param claimName
+	 * 		the name of the claim to be set.
 	 * @param object
-	 *            the string value of the claim to be set.
+	 * 		the string value of the claim to be set.
 	 * @return the builder object.
 	 * @throws JsonParsingException
-	 *             if the given object does not contain valid json.
+	 * 		if the given object does not contain valid json.
 	 */
 	public JwtGenerator withClaimValue(String claimName, JsonObject object) {
 		try {
@@ -224,17 +251,16 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claims with the given names to the given string value. Note: for
-	 * overwriting client Id claim, "azp" claim value should be overwritten instead
-	 * of deprecated "cid"
+	 * Sets the claims with the given names to the given string value. Note: for overwriting client Id claim, "azp"
+	 * claim value should be overwritten instead of deprecated "cid"
 	 *
 	 * @param claimName
-	 *            the name of the claim to be set.
+	 * 		the name of the claim to be set.
 	 * @param map
-	 *            map of key value pairs of claims to be set.
+	 * 		map of key value pairs of claims to be set.
 	 * @return the builder object.
 	 * @throws JsonParsingException
-	 *             if the given object does not contain valid json.
+	 * 		if the given object does not contain valid json.
 	 */
 	public JwtGenerator withClaimValue(String claimName, Map<String, String> map) {
 		try {
@@ -246,14 +272,13 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the claim with the given name to the given string values. Note: for
-	 * overwriting client Id claim, "azp" claim value should be overwritten instead
-	 * of deprecated "cid"
+	 * Sets the claim with the given name to the given string values. Note: for overwriting client Id claim, "azp" claim
+	 * value should be overwritten instead of deprecated "cid"
 	 *
 	 * @param claimName
-	 *            the name of the claim to be set.
+	 * 		the name of the claim to be set.
 	 * @param values
-	 *            the string values of the claims to be set.
+	 * 		the string values of the claims to be set.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withClaimValues(String claimName, String... values) {
@@ -262,19 +287,17 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * This method will fill the token with all the claims that are defined inside
-	 * the given file. The file must contain a valid json object. Note: for
-	 * overwriting client Id claim, "azp" claim value should be overwritten instead
-	 * of deprecated "cid"
+	 * This method will fill the token with all the claims that are defined inside the given file. The file must contain
+	 * a valid json object. Note: for overwriting client Id claim, "azp" claim value should be overwritten instead of
+	 * deprecated "cid"
 	 *
-	 * @throws JsonParsingException
-	 *             if the file does not contain a valid json object.
-	 * @throws IllegalArgumentException
-	 *             when the file cannot be read or does not exist.
 	 * @param claimsJsonResource
-	 *            the resource path to the file containing the claims in json
-	 *            format, e.g. "/claims.json"
+	 * 		the resource path to the file containing the claims in json format, e.g. "/claims.json"
 	 * @return the builder object.
+	 * @throws JsonParsingException
+	 * 		if the file does not contain a valid json object.
+	 * @throws IllegalArgumentException
+	 * 		when the file cannot be read or does not exist.
 	 */
 	public JwtGenerator withClaimsFromFile(String claimsJsonResource) throws IllegalArgumentException {
 		String claimsJson = read(claimsJsonResource);
@@ -287,7 +310,7 @@ public class JwtGenerator {
 	 * Sets the expiration claim (exp) of the token to the given moment in time.
 	 *
 	 * @param expiration
-	 *            the moment in time when the token will be expired.
+	 * 		the moment in time when the token will be expired.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withExpiration(@Nonnull Instant expiration) {
@@ -296,11 +319,10 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the signature algorithm that is used to create the signature of the
-	 * token.
+	 * Sets the signature algorithm that is used to create the signature of the token.
 	 *
 	 * @param signatureAlgorithm
-	 *            the signature algorithm.
+	 * 		the signature algorithm.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withSignatureAlgorithm(JwtSignatureAlgorithm signatureAlgorithm) {
@@ -315,7 +337,7 @@ public class JwtGenerator {
 	 * Sets the private key that is used to sign the token.
 	 *
 	 * @param privateKey
-	 *            the private key.
+	 * 		the private key.
 	 * @return the builder object.
 	 */
 	public JwtGenerator withPrivateKey(PrivateKey privateKey) {
@@ -324,17 +346,16 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Sets the roles as claim "scope" to the jwt. Consecutive calls of this method
-	 * will overwrite the data that has previously been set. Calls of this method
-	 * however do not overwrite the data set via
-	 * {@link #withLocalScopes(String...)}}. Note that this is specific to tokens of
-	 * service type {@link Service#XSUAA}.
+	 * Sets the roles as claim "scope" to the jwt. Consecutive calls of this method will overwrite the data that has
+	 * previously been set. Calls of this method however do not overwrite the data set via
+	 * {@link #withLocalScopes(String...)}}. Note that this is specific to tokens of service type
+	 * {@link Service#XSUAA}.
 	 *
 	 * @param scopes
-	 *            the scopes that should be part of the token
+	 * 		the scopes that should be part of the token
 	 * @return the JwtGenerator itself
 	 * @throws IllegalArgumentException
-	 *             if service is not {@link Service#XSUAA}
+	 * 		if service is not {@link Service#XSUAA}
 	 */
 	public JwtGenerator withScopes(String... scopes) {
 		if (service == Service.XSUAA) {
@@ -347,20 +368,17 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Works like {@link #withScopes(String...)}} but prefixes the scopes with
-	 * "appId.". For example if the appId is "xsapp", the scope "Read" will be
-	 * converted to "xsapp.Read". Make sure the appId has been set via
-	 * {@link #withAppId(String)} before calling this method. Consecutive calls of
-	 * this method will overwrite the data that has previously been set. Calls of
-	 * this method however do not overwrite the data set via
-	 * {@link #withScopes(String...)}}. Note that this is specific to tokens of
-	 * service type {@link Service#XSUAA}.
+	 * Works like {@link #withScopes(String...)}} but prefixes the scopes with "appId.". For example if the appId is
+	 * "xsapp", the scope "Read" will be converted to "xsapp.Read". Make sure the appId has been set via
+	 * {@link #withAppId(String)} before calling this method. Consecutive calls of this method will overwrite the data
+	 * that has previously been set. Calls of this method however do not overwrite the data set via
+	 * {@link #withScopes(String...)}}. Note that this is specific to tokens of service type {@link Service#XSUAA}.
 	 *
 	 * @param scopes
-	 *            token scopes
+	 * 		token scopes
 	 * @return the JwtGenerator itself
 	 * @throws IllegalStateException
-	 *             if the appId has not been set via {@link #withAppId(String)}
+	 * 		if the appId has not been set via {@link #withAppId(String)}
 	 */
 	public JwtGenerator withLocalScopes(String... scopes) {
 		if (appId == null) {
@@ -378,12 +396,11 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * This method does not actually set data on the token itself but sets the appId
-	 * that is used by {@link #withLocalScopes(String...)} to create the local
-	 * scopes.
+	 * This method does not actually set data on the token itself but sets the appId that is used by
+	 * {@link #withLocalScopes(String...)} to create the local scopes.
 	 *
 	 * @param appId
-	 *            the appId to be used for local scopes creation
+	 * 		the appId to be used for local scopes creation
 	 * @return the JwtGenerator itself
 	 */
 	public JwtGenerator withAppId(String appId) {
@@ -392,9 +409,8 @@ public class JwtGenerator {
 	}
 
 	/**
-	 * Builds and signs the token using the the algorithm set via
-	 * {@link #withSignatureAlgorithm(JwtSignatureAlgorithm)} and the given key. By
-	 * default{@link JwtSignatureAlgorithm#RS256} is used.
+	 * Builds and signs the token using the the algorithm set via {@link #withSignatureAlgorithm(JwtSignatureAlgorithm)}
+	 * and the given key. By default{@link JwtSignatureAlgorithm#RS256} is used.
 	 *
 	 * @return the token.
 	 */
@@ -403,9 +419,9 @@ public class JwtGenerator {
 			throw new IllegalStateException("Private key was not set!");
 		}
 		return switch (service) {
-		case IAS -> new SapIdToken(createTokenAsString());
-		case XSUAA -> new XsuaaToken(createTokenAsString());
-		default -> throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
+			case IAS -> new SapIdToken(createTokenAsString());
+			case XSUAA -> new XsuaaToken(createTokenAsString());
+			default -> throw new UnsupportedOperationException("Identity Service " + service + " is not supported.");
 		};
 	}
 

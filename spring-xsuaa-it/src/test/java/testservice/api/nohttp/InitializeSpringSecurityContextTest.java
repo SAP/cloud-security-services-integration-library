@@ -104,7 +104,7 @@ class InitializeSpringSecurityContextTest extends MockXsuaaServerConfiguration {
 	}
 
 	@Test
-	// An error occurred while attempting to decode the Jwt: Jwt expired at ...
+		// An error occurred while attempting to decode the Jwt: Jwt expired at ...
 	void decodeExpiredToken_raisesValidationException() {
 		Map customClaims = new HashMap<String, Object>();
 		Instant justOutdated = new Date().toInstant().minusSeconds(3600);

@@ -22,21 +22,35 @@ In case you have configured your `TokenAuthenticationConverter` with `setLocalSc
 
 **Before**
 ```java
-Converter<Jwt, AbstractAuthenticationToken> customJwtAuthenticationConverter() {
+@Configuration
+@EnableWebSecurity
+public class SecurityConfiguration {
+
+  Converter<Jwt, AbstractAuthenticationToken> customJwtAuthenticationConverter() {
     TokenAuthenticationConverter converter = new TokenAuthenticationConverter(xsuaaServiceConfiguration);
     converter.setLocalScopeAsAuthorities(true);
     return converter;
+  }
+  ...
 }
 ```
 
 **After**
 ```java
-@Autowired
-Converter<Jwt, AbstractAuthenticationToken> authConverter;
+@Configuration
+@EnableWebSecurity
+@PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" }) // might be auto-configured in a future release
+public class SecurityConfiguration {
+
+  @Autowired
+  Converter<Jwt, AbstractAuthenticationToken> authConverter;
+  
+  ...
+}
 ```
 
 ## Access VCAP_SERVICES values
-```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find a sample property file [here](/samples/spring-security-hybrid-usage/src/test/resources/application-multixsuaa.yml).  
+```spring-security``` automatically maps the `VCAP_SERVICES` credentials to Spring properties. Please note that the **prefix has changed** from ```xsuaa.*``` to ```sap.security.services.xsuaa``` or ```sap.security.services.xsuaa[0]``` in case of multiple xsuaa service bindings. Please find a sample property file [here](/samples/spring-security-hybrid-usage/src/test/resources/application.yml).  
 
 #### ``@Value``
   **Before**  
@@ -143,7 +157,7 @@ It is provided in an extra module. This maven dependency needs to be provided ad
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-security-compatibility</artifactId>
-    <version>3.1.2</version>
+  <version>3.5.2</version>
 </dependency>
 ```
 
@@ -157,7 +171,7 @@ xsuaaToken.getCloneServiceInstanceId();
 
 The table below gives an overview of the methods that are not directly available in the new ```Token``` interface, but can be accessed via the ``XsuaaTokenComp`` decorator class.
 
-<details><br>
+<br>
  
 | `com.sap.cloud.security.xsuaa.token.Token` methods  | Xsuaa only? | Workaround in `spring.security` (`com.sap.cloud.security.token.Token`) |
 |-------------------------|---|-----------------------------------------------------------------------------------------------|
@@ -180,7 +194,6 @@ The table below gives an overview of the methods that are not directly available
 > :bulb: In case the ```Xsuaa only?``` flag is set, the method returns "null" in case of Id token from identity service.  
 > :bulb: In case of Id token from identity service, the ``Token`` can neither be casted to `AccessToken` nor to `XsuaaToken`.  A cast is possible in case of: ```Service.XSUAA.equals(token.getService())```.   
 
-</details>
  
 #### Spring's `Jwt` methods
 

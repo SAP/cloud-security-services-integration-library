@@ -13,8 +13,10 @@ import java.net.URI;
 import java.util.Map;
 
 /**
- * Retrieves OAuth2 Access Tokens as documented here: <a href=
- * "https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token">https://docs.cloudfoundry.org/api/uaa/version/4.31.0/index.html#token</a>
+ * Retrieves OAuth2 Access Tokens as documented on <a href=
+ * "https://docs.cloudfoundry.org/api/uaa/version/74.1.0/index.html#token">Cloud Foundry UAA</a>.<br> Note that the
+ * XSUAA API might differ slightly from these specs which is why not all parameters from the Cloud Foundry UAA
+ * documentation are configurable via this library.
  */
 public interface OAuth2TokenService {
 
@@ -22,22 +24,20 @@ public interface OAuth2TokenService {
 	 * Requests access token from OAuth Server with client credentials.
 	 *
 	 * @param tokenEndpointUri
-	 *            the token endpoint URI.
+	 * 		the token endpoint URI.
 	 * @param clientIdentity
-	 *            the client identity of the OAuth client, the recipient of the
-	 *            token.
+	 * 		the client identity of the OAuth client, the recipient of the token.
 	 * @param zoneId
-	 *            Zone identifier - tenant discriminator
+	 * 		Zone identifier - tenant discriminator
 	 * @param subdomain
-	 *            optionally indicates what Identity Zone this request goes to by
-	 *            supplying a subdomain (tenant).
+	 * 		optionally indicates what Identity Zone this request goes to by supplying a subdomain (tenant).
 	 * @param optionalParameters
-	 *            optional request parameters, can be null.
+	 * 		optional request parameters, can be null.
 	 * @param disableCacheForRequest
-	 *            set to true disables the token cache for this request.
+	 * 		set to true disables the token cache for this request.
 	 * @return the OAuth2AccessToken.
 	 * @throws OAuth2ServiceException
-	 *             in case of an error during the http request.
+	 * 		in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaClientCredentialsGrant(@Nonnull URI tokenEndpointUri,
 			@Nonnull ClientIdentity clientIdentity,
@@ -51,21 +51,18 @@ public interface OAuth2TokenService {
 	 * Requests access token from OAuth Server with refresh-token.
 	 *
 	 * @param tokenEndpointUri
-	 *            the token endpoint URI.
+	 * 		the token endpoint URI.
 	 * @param clientIdentity
-	 *            the client identity of the OAuth client, the recipient of the
-	 *            token.
+	 * 		the client identity of the OAuth client, the recipient of the token.
 	 * @param refreshToken
-	 *            the refresh token that was returned along with the access token
-	 *            {link #OAuth2AccessToken}.
+	 * 		the refresh token that was returned along with the access token {link #OAuth2AccessToken}.
 	 * @param subdomain
-	 *            optionally indicates what Identity Zone this request goes to by
-	 *            supplying a subdomain (tenant).
+	 * 		optionally indicates what Identity Zone this request goes to by supplying a subdomain (tenant).
 	 * @param disableCacheForRequest
-	 *            set to true disables the token cache for this request.
+	 * 		set to true disables the token cache for this request.
 	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException
-	 *             in case of an error during the http request.
+	 * 		in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaRefreshToken(URI tokenEndpointUri, ClientIdentity clientIdentity,
 			String refreshToken, @Nullable String subdomain, boolean disableCacheForRequest)
@@ -75,24 +72,22 @@ public interface OAuth2TokenService {
 	 * Requests access token from OAuth Server with user / password.
 	 *
 	 * @param tokenEndpointUri
-	 *            the token endpoint URI.
+	 * 		the token endpoint URI.
 	 * @param clientIdentity
-	 *            the client identity of the OAuth client, the recipient of the
-	 *            token.
+	 * 		the client identity of the OAuth client, the recipient of the token.
 	 * @param username
-	 *            the username for the user trying to get a token
+	 * 		the username for the user trying to get a token
 	 * @param password
-	 *            the password for the user trying to get a token
+	 * 		the password for the user trying to get a token
 	 * @param subdomain
-	 *            optionally indicates what Identity Zone this request goes to by
-	 *            supplying a subdomain (tenant).
+	 * 		optionally indicates what Identity Zone this request goes to by supplying a subdomain (tenant).
 	 * @param optionalParameters
-	 *            optional request parameters, can be null.
+	 * 		optional request parameters, can be null.
 	 * @param disableCacheForRequest
-	 *            set to true disables the token cache for this request.
+	 * 		set to true disables the token cache for this request.
 	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException
-	 *             in case of an error during the http request.
+	 * 		in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaPasswordGrant(URI tokenEndpointUri, ClientIdentity clientIdentity,
 			String username, String password, @Nullable String subdomain,
@@ -101,23 +96,20 @@ public interface OAuth2TokenService {
 
 	/**
 	 * @param tokenEndpointUri
-	 *            the token endpoint URI.
+	 * 		the token endpoint URI.
 	 * @param clientIdentity
-	 *            the client identity of the OAuth client, the recipient of the
-	 *            token.
+	 * 		the client identity of the OAuth client, the recipient of the token.
 	 * @param token
-	 *            the JWT token identifying representing the user to be
-	 *            authenticated
+	 * 		the JWT token identifying representing the user to be authenticated
 	 * @param subdomain
-	 *            optionally indicates what Identity Zone this request goes to by
-	 *            supplying a subdomain (tenant).
+	 * 		optionally indicates what Identity Zone this request goes to by supplying a subdomain (tenant).
 	 * @param optionalParameters
-	 *            optional request parameters, can be null.
+	 * 		optional request parameters, can be null.
 	 * @param disableCacheForRequest
-	 *            set to true disables the token cache for this request.
+	 * 		set to true disables the token cache for this request.
 	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException
-	 *             in case of an error during the http request.
+	 * 		in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
 			ClientIdentity clientIdentity, String token, @Nullable String subdomain,
@@ -126,22 +118,20 @@ public interface OAuth2TokenService {
 
 	/**
 	 * @param tokenEndpointUri
-	 *            the token endpoint URI.
+	 * 		the token endpoint URI.
 	 * @param clientIdentity
-	 *            the client identity of the OAuth client, the recipient of the
-	 *            token.
+	 * 		the client identity of the OAuth client, the recipient of the token.
 	 * @param token
-	 *            the JWT token identifying representing the user to be
-	 *            authenticated
+	 * 		the JWT token identifying representing the user to be authenticated
 	 * @param optionalParameters
-	 *            optional request parameters, can be null.
+	 * 		optional request parameters, can be null.
 	 * @param disableCache
-	 *            setting to true disables the token cache for this request.
+	 * 		setting to true disables the token cache for this request.
 	 * @param xZid
-	 *            zone id of the tenant
+	 * 		zone id of the tenant
 	 * @return the OAuth2AccessToken
 	 * @throws OAuth2ServiceException
-	 *             in case of an error during the http request.
+	 * 		in case of an error during the http request.
 	 */
 	OAuth2TokenResponse retrieveAccessTokenViaJwtBearerTokenGrant(URI tokenEndpointUri,
 			ClientIdentity clientIdentity,

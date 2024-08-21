@@ -8,8 +8,7 @@ package com.sap.cloud.security.token.validation;
 import javax.annotation.Nullable;
 
 /**
- * Captures the result of a validation. Normally created by validators that
- * implement the {@link Validator} interface.
+ * Captures the result of a validation. Normally created by validators that implement the {@link Validator} interface.
  */
 public interface ValidationResult {
 

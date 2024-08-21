@@ -113,7 +113,7 @@ public class PasswordTokenFlowTest {
 
 		verify(tokenService, times(1))
 				.retrieveAccessTokenViaPasswordGrant(eq(TOKEN_ENDPOINT_URI), eq(CLIENT_CREDENTIALS), eq(
-						USERNAME),
+								USERNAME),
 						eq(PASSWORD), any(), any(), eq(false));
 	}
 

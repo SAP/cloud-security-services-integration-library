@@ -6,6 +6,8 @@
 package com.sap.cloud.security.config;
 
 import javax.annotation.Nullable;
+import java.security.PrivateKey;
+import java.security.cert.Certificate;
 
 /**
  * Represents xsuaa client identity
@@ -19,8 +21,8 @@ public interface ClientIdentity {
 	String getId();
 
 	/**
-	 * Returns true, if the mandatory attributes in ClientIdentity class are filled
-	 * for the specified authentication method i.e X.509 or client secret
+	 * Returns true, if the mandatory attributes in ClientIdentity class are filled for the specified authentication
+	 * method i.e X.509 or client secret
 	 *
 	 * @return the boolean
 	 */
@@ -34,7 +36,8 @@ public interface ClientIdentity {
 	 * @return the boolean
 	 */
 	default boolean isCertificateBased() {
-		return hasValue(getCertificate()) && hasValue(getKey());
+		return hasValue(getCertificate()) && hasValue(getKey()) ||
+				getCertificateChain() != null && getPrivateKey() != null;
 	}
 
 	/**
@@ -64,6 +67,22 @@ public interface ClientIdentity {
 	 */
 	@Nullable
 	default String getKey() {
+		return null;
+	}
+
+	/**
+	 * @return Certificate chain array
+	 */
+	@Nullable
+	default Certificate[] getCertificateChain() {
+		return null;
+	}
+
+	/**
+	 * @return Private key
+	 */
+	@Nullable
+	default PrivateKey getPrivateKey() {
 		return null;
 	}
 

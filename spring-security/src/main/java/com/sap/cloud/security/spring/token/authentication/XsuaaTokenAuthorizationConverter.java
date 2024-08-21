@@ -17,11 +17,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * An authentication converter that transforms authorization related information
- * from the {@link Jwt} token. For example it removes the application id prefix
- * (e.g.my-application-demo!t1229) from the scope claim of the Xsuaa access
- * token. This allows to perform the {@code hasAuthority} check on the local
- * Xsuaa scope.
+ * An authentication converter that transforms authorization related information from the {@link Jwt} token. For example
+ * it removes the application id prefix (e.g.my-application-demo!t1229) from the scope claim of the Xsuaa access token.
+ * This allows to perform the {@code hasAuthority} check on the local Xsuaa scope.
  */
 public class XsuaaTokenAuthorizationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
@@ -31,7 +29,7 @@ public class XsuaaTokenAuthorizationConverter implements Converter<Jwt, Abstract
 	 * Creates an instance.
 	 *
 	 * @param appId
-	 *            the xsuaa application identifier e.g. myXsAppname!t123
+	 * 		the xsuaa application identifier e.g. myXsAppname!t123
 	 */
 	public XsuaaTokenAuthorizationConverter(String appId) {
 		this.appId = appId;

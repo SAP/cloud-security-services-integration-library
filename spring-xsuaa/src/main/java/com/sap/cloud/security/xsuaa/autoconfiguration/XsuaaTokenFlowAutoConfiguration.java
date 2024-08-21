@@ -24,16 +24,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestOperations;
 
 /**
- * {@link EnableAutoConfiguration Auto-configuration} for default beans used by
- * the XSUAA client library.
+ * {@link EnableAutoConfiguration Auto-configuration} for default beans used by the XSUAA client library.
  * <p>
- * Activates when there is a class of type {@link XsuaaTokenFlows} on the
- * classpath.
+ * Activates when there is a class of type {@link XsuaaTokenFlows} on the classpath.
  *
  * <p>
- * can be disabled
- * with @EnableAutoConfiguration(exclude={XsuaaTokenFlowAutoConfiguration.class})
- * or with property spring.xsuaa.flows.auto = false
+ * can be disabled with @EnableAutoConfiguration(exclude={XsuaaTokenFlowAutoConfiguration.class}) or with property
+ * spring.xsuaa.flows.auto = false
  */
 @Configuration
 @ConditionalOnClass(XsuaaTokenFlows.class)
@@ -43,14 +40,13 @@ public class XsuaaTokenFlowAutoConfiguration {
 	private static final Logger logger = LoggerFactory.getLogger(XsuaaTokenFlowAutoConfiguration.class);
 
 	/**
-	 * Creates a new {@link XsuaaTokenFlows} bean that applications can auto-wire
-	 * into their controllers to perform a programmatic token flow exchange.
+	 * Creates a new {@link XsuaaTokenFlows} bean that applications can auto-wire into their controllers to perform a
+	 * programmatic token flow exchange.
 	 *
 	 * @param xsuaaRestOperations
-	 *            - the {@link RestOperations} to use for the token flow exchange.
+	 * 		- the {@link RestOperations} to use for the token flow exchange.
 	 * @param xsuaaServiceConfiguration
-	 *            - the {@link XsuaaServiceConfiguration} to configure the Xsuaa
-	 *            Base Url.
+	 * 		- the {@link XsuaaServiceConfiguration} to configure the Xsuaa Base Url.
 	 * @return the {@link XsuaaTokenFlows} API.
 	 */
 	@Bean

@@ -33,9 +33,9 @@ public class OAuth2ServiceException extends IOException {
 	 * Creates an exception.
 	 *
 	 * @param message
-	 *            the error message
+	 * 		the error message
 	 * @param httpStatusCode
-	 *            the status code of the HTTP service request
+	 * 		the status code of the HTTP service request
 	 */
 	public OAuth2ServiceException(String message, Integer httpStatusCode) {
 		super(message);
@@ -46,11 +46,11 @@ public class OAuth2ServiceException extends IOException {
 	 * Creates an exception.
 	 *
 	 * @param message
-	 *            the error message
+	 * 		the error message
 	 * @param httpStatusCode
-	 *            the status code of the HTTP service request
+	 * 		the status code of the HTTP service request
 	 * @param headers
-	 * 	          the headers of the HTTP service request
+	 * 		the headers of the HTTP service request
 	 */
 
 	OAuth2ServiceException(String message, Integer httpStatusCode, List<String> headers) {
@@ -59,8 +59,8 @@ public class OAuth2ServiceException extends IOException {
 	}
 
 	/**
-	 * Returns the HTTP status code of the failed OAuth2 service request or
-	 * {@code 0} e.g. in case the service wasn't called at all.
+	 * Returns the HTTP status code of the failed OAuth2 service request or {@code 0} e.g. in case the service wasn't
+	 * called at all.
 	 *
 	 * @return status code or 0
 	 */
@@ -70,6 +70,7 @@ public class OAuth2ServiceException extends IOException {
 
 	/**
 	 * Returns the HTTP headers of the failed OAuth2 service request
+	 *
 	 * @return list of HTTP headers
 	 */
 	public List<String> getHeaders() {
@@ -80,7 +81,7 @@ public class OAuth2ServiceException extends IOException {
 	 * Creates an exception.
 	 *
 	 * @param message
-	 *            the error message
+	 * 		the error message
 	 */
 	public static Builder builder(String message) {
 		return new Builder(message);
@@ -102,7 +103,7 @@ public class OAuth2ServiceException extends IOException {
 		 * Parameterizes the Exception with an HTTP status code.
 		 *
 		 * @param httpStatusCode
-		 *            the http status code
+		 * 		the http status code
 		 * @return the builder
 		 */
 		public Builder withStatusCode(int httpStatusCode) {
@@ -151,7 +152,7 @@ public class OAuth2ServiceException extends IOException {
 		}
 
 		private String createHeaderMessage() {
-			return headersString == null ? null : "Headers " + headersString;
+			return headersString == null ? null : "Response Headers " + headersString;
 		}
 	}
 }

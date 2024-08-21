@@ -28,100 +28,101 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestPropertySource(properties = {"xsuaa.uaadomain=localhost", "xsuaa.xsappname=xsapp!t0815", "xsuaa.clientid=sb-clientId!t0815" })
+@TestPropertySource(properties = { "xsuaa.uaadomain=localhost", "xsuaa.xsappname=xsapp!t0815",
+		"xsuaa.clientid=sb-clientId!t0815" })
 public class TestControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
+	@Autowired
+	private MockMvc mvc;
 
-    private String jwt;
+	private String jwt;
 
-    private String jwtAdmin;
+	private String jwtAdmin;
 
-    @ClassRule
-    public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA);
+	@ClassRule
+	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA);
 
-    @Before
-    public void setUp() {
-        jwt = rule.getPreconfiguredJwtGenerator()
-                .withLocalScopes("Read")
-                //.withClaimValue(TokenClaims.XSUAA.ORIGIN, "sap-default") // optional
-                //.withClaimValue(TokenClaims.USER_NAME, "John") // optional
-                .createToken().getTokenValue();
-        jwtAdmin = rule.getPreconfiguredJwtGenerator()
-                .withLocalScopes("Read", "Admin")
-                .createToken().getTokenValue();
-    }
+	@Before
+	public void setUp() {
+		jwt = rule.getPreconfiguredJwtGenerator()
+				.withLocalScopes("Read")
+				//.withClaimValue(TokenClaims.XSUAA.ORIGIN, "sap-default") // optional
+				//.withClaimValue(TokenClaims.USER_NAME, "John") // optional
+				.createToken().getTokenValue();
+		jwtAdmin = rule.getPreconfiguredJwtGenerator()
+				.withLocalScopes("Read", "Admin")
+				.createToken().getTokenValue();
+	}
 
-    @Test
-    public void v1_sayHello() throws Exception {
-        String response = mvc
-                .perform(get("/v1/sayHello").with(bearerToken(jwtAdmin)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+	@Test
+	public void v1_sayHello() throws Exception {
+		String response = mvc
+				.perform(get("/v1/sayHello").with(bearerToken(jwtAdmin)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
 
-        assertTrue(response.contains("sb-clientId!t0815"));
-        assertTrue(response.contains("xsapp!t0815.Read"));
-        assertTrue(response.contains("xsapp!t0815.Admin"));
-        assertTrue(response.contains("[Read, Admin]"));
-    }
+		assertTrue(response.contains("sb-clientId!t0815"));
+		assertTrue(response.contains("xsapp!t0815.Read"));
+		assertTrue(response.contains("xsapp!t0815.Admin"));
+		assertTrue(response.contains("[Read, Admin]"));
+	}
 
-    @Test
-    public void v2_sayHello() throws Exception {
-        String response = mvc
-                .perform(get("/v2/sayHello").with(bearerToken(jwt)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+	@Test
+	public void v2_sayHello() throws Exception {
+		String response = mvc
+				.perform(get("/v2/sayHello").with(bearerToken(jwt)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
 
-        assertTrue(response.contains("Hello Jwt-Protected World!"));
-    }
+		assertTrue(response.contains("Hello Jwt-Protected World!"));
+	}
 
-    @Test
-    public void v1_readData_OK() throws Exception {
-        String response = mvc
-                .perform(get("/v1/method").with(bearerToken(jwt)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+	@Test
+	public void v1_readData_OK() throws Exception {
+		String response = mvc
+				.perform(get("/v1/method").with(bearerToken(jwt)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
 
-        assertTrue(response.contains("Read-protected method called!"));
-    }
+		assertTrue(response.contains("Read-protected method called!"));
+	}
 
-    @Test
-    public void v1_accessSensitiveData_OK() throws Exception {
-        String response = mvc
-                .perform(get("/v1/getAdminData").with(bearerToken(jwtAdmin)))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+	@Test
+	public void v1_accessSensitiveData_OK() throws Exception {
+		String response = mvc
+				.perform(get("/v1/getAdminData").with(bearerToken(jwtAdmin)))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
 
-        assertTrue(response.contains("You got the sensitive data"));
-    }
+		assertTrue(response.contains("You got the sensitive data"));
+	}
 
-    @Test
-    public void v1_accessSensitiveData_Forbidden() throws Exception {
-        String jwtNoScopes = rule.getPreconfiguredJwtGenerator()
-                .createToken().getTokenValue();
+	@Test
+	public void v1_accessSensitiveData_Forbidden() throws Exception {
+		String jwtNoScopes = rule.getPreconfiguredJwtGenerator()
+				.createToken().getTokenValue();
 
-        mvc.perform(get("/v1/getAdminData").with(bearerToken(jwtNoScopes)))
-                .andExpect(status().isForbidden());
-    }
+		mvc.perform(get("/v1/getAdminData").with(bearerToken(jwtNoScopes)))
+				.andExpect(status().isForbidden());
+	}
 
-    @Test
-    public void v1_accessSensitiveData_unauthenticated() throws Exception {
-        mvc.perform(get("/v1/getAdminData"))
-                .andExpect(status().isUnauthorized());
-    }
+	@Test
+	public void v1_accessSensitiveData_unauthenticated() throws Exception {
+		mvc.perform(get("/v1/getAdminData"))
+				.andExpect(status().isUnauthorized());
+	}
 
-    private record BearerTokenRequestPostProcessor(String token) implements RequestPostProcessor {
+	private record BearerTokenRequestPostProcessor(String token) implements RequestPostProcessor {
 
-        @Override
-            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-                request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.token);
-                return request;
-            }
-        }
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.token);
+			return request;
+		}
+	}
 
-    private static BearerTokenRequestPostProcessor bearerToken(String token) {
-        return new BearerTokenRequestPostProcessor(token);
-    }
+	private static BearerTokenRequestPostProcessor bearerToken(String token) {
+		return new BearerTokenRequestPostProcessor(token);
+	}
 
 }

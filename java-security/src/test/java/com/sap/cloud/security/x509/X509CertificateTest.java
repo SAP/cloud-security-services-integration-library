@@ -37,6 +37,11 @@ class X509CertificateTest {
 	}
 
 	@Test
+	void getPem() {
+		assertThat(cut.getPEM()).isEqualTo(x509_base64);
+	}
+
+	@Test
 	void getSubjectDN() {
 		assertThat(cut.getSubjectDN()).isEqualTo(
 				"CN=bdcd300c-b202-4a7a-bb95-2a7e6d15fe47/2b585405-d391-4986-b76d-b4f24685f3c8, L=aoxk2addh.accounts400.ondemand.com, OU=8e1affb2-62a1-43cc-a687-2ba75e4b3d84, OU=Canary, OU=SAP Cloud Platform Clients, O=SAP SE, C=DE");
@@ -44,10 +49,10 @@ class X509CertificateTest {
 
 	@Test
 	void getSubjectDNMap() {
-		assertThat(cut.getSubjectDNMap().size()).isEqualTo(5);
-		assertThat(cut.getSubjectDNMap().get("CN"))
-				.isEqualTo("bdcd300c-b202-4a7a-bb95-2a7e6d15fe47/2b585405-d391-4986-b76d-b4f24685f3c8");
-		assertThat(cut.getSubjectDNMap().get("OU"))
-				.isEqualTo("8e1affb2-62a1-43cc-a687-2ba75e4b3d84,Canary,SAP Cloud Platform Clients");
+		assertThat(cut.getSubjectDNMap()).hasSize(5);
+		assertThat(cut.getSubjectDNMap()).containsEntry("CN",
+				"bdcd300c-b202-4a7a-bb95-2a7e6d15fe47/2b585405-d391-4986-b76d-b4f24685f3c8");
+		assertThat(cut.getSubjectDNMap()).containsEntry("OU",
+				"8e1affb2-62a1-43cc-a687-2ba75e4b3d84,Canary,SAP Cloud Platform Clients");
 	}
 }

@@ -26,9 +26,9 @@ public class TokenFlowException extends IOException {
 	 * Creates a new exception instances.
 	 *
 	 * @param message
-	 *            - the error message.
+	 * 		- the error message.
 	 * @param cause
-	 *            - the error cause.
+	 * 		- the error cause.
 	 */
 	public TokenFlowException(String message, Throwable cause) {
 		super(message, cause);
@@ -38,7 +38,7 @@ public class TokenFlowException extends IOException {
 	 * Creates a new exception instances.
 	 *
 	 * @param message
-	 *            - the error message.
+	 * 		- the error message.
 	 */
 	public TokenFlowException(String message) {
 		super(message);
@@ -48,7 +48,7 @@ public class TokenFlowException extends IOException {
 	 * Creates a new exception instances.
 	 *
 	 * @param cause
-	 *            - the error cause.
+	 * 		- the error cause.
 	 */
 	public TokenFlowException(Throwable cause) {
 		super(cause);

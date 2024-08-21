@@ -7,13 +7,14 @@ package sample.spring.security.junitjupiter;
 
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import com.sap.cloud.security.test.extension.IasExtension;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,7 +24,6 @@ import static sample.spring.security.util.MockBearerTokenRequestPostProcessor.be
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("multixsuaa") // properties are provided with /resources/application-multixsuaa.yml
 @ExtendWith(IasExtension.class)
 class TestControllerIasTest {
 
@@ -62,7 +62,7 @@ class TestControllerIasTest {
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 
-		assertTrue(response.contains("You got the sensitive data for zone 'the-app-tid'."));
+		assertTrue(response.contains("You got the sensitive data for tenant 'the-app-tid'."));
 	}
 
 	@Test
@@ -72,6 +72,20 @@ class TestControllerIasTest {
 
 		mvc.perform(get("/method").with(bearerToken(jwtNoScopes)))
 				.andExpect(status().isForbidden());
+	}
+
+	/**
+	 * Ensures that tokens with an issuer whose domain is not part of
+	 * {@link com.sap.cloud.security.config.ServiceConstants.IAS#DOMAINS} in the credentials are still not trusted, even
+	 * when java-security-test supplies {@link com.sap.cloud.security.token.validation.LocalhostIssuerValidator}, which
+	 * trusts issuers from tokens targeting localhost.
+	 */
+	@Test
+	void acceptsOnlyLocalhostIssuers(SecurityTestContext securityTest) throws Exception {
+		Token jwt = securityTest.getPreconfiguredJwtGenerator().withClaimsFromFile("/iasClaims.json")
+				.withClaimValue(TokenClaims.IAS_ISSUER, "https://auth.google.com").createToken();
+
+		mvc.perform(get("/sayHello").with(bearerToken(jwt.getTokenValue()))).andExpect(status().isUnauthorized());
 	}
 }
 

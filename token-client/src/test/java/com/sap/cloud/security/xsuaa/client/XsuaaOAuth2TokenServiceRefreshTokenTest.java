@@ -95,10 +95,10 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 		tokenHttpEntityMatcher.addParameter(REFRESH_TOKEN, refreshToken);
 
 		Mockito.when(mockRestOperations
-				.postForEntity(
-						eq(tokenEndpoint),
-						argThat(tokenHttpEntityMatcher),
-						eq(Map.class)))
+						.postForEntity(
+								eq(tokenEndpoint),
+								argThat(tokenHttpEntityMatcher),
+								eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,

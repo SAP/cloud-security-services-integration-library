@@ -6,8 +6,10 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -18,13 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Map;
 
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_APP_TID;
-import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_CLIENT_ID;
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
 
 public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
@@ -42,21 +44,13 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId)
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params)
 			throws OAuth2ServiceException {
-		return retrieveTokenKeys(tokenKeysEndpointUri, tenantId, null);
-	}
-
-	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, @Nullable String tenantId, @Nullable String clientId) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
-		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri); // lgtm[java/ssrf] tokenKeysEndpointUri is validated
-																	// as part of XsuaaJkuValidator in java-security
-		if (tenantId != null) {
-			request.addHeader(X_APP_TID, tenantId);
-		}
-		if (clientId != null){
-			request.addHeader(X_CLIENT_ID, clientId);
+		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
+
+		for (Map.Entry<String, String> p : params.entrySet()) {
+			request.addHeader(p.getKey(), p.getValue());
 		}
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
@@ -68,19 +62,37 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 				LOGGER.debug("Received statusCode {}", statusCode);
 				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 				if (statusCode != HttpStatus.SC_OK) {
-					throw OAuth2ServiceException.builder("Error retrieving token keys for x-app_tid " + tenantId)
+					throw OAuth2ServiceException
+							.builder("Error retrieving token keys. Request headers "
+									+ Arrays.stream(request.getAllHeaders()).toList())
 							.withUri(tokenKeysEndpointUri)
-							.withHeaders(X_APP_TID + "=" + tenantId + ", " +  X_CLIENT_ID + "=" +  clientId)
+							.withHeaders(response.getAllHeaders() != null ? Arrays.stream(response.getAllHeaders())
+									.map(Header::toString).toArray(String[]::new) : null)
 							.withStatusCode(statusCode)
 							.withResponseBody(body)
 							.build();
 				}
 
-				LOGGER.debug("Successfully retrieved token keys from {} for tenant '{}'", tokenKeysEndpointUri, tenantId);
+				LOGGER.debug("Successfully retrieved token keys from {} with params {}.", tokenKeysEndpointUri, params);
+
+				/* This is required for Identity Service App2Service communication. When proof token validation is enabled,
+				 the response can contain an Identity Service broker plan header whose content needs to be accessible
+				 on the SecurityContext. */
+				if (response.containsHeader(X_OSB_PLAN)) {
+					String xOsbPlan = response.getFirstHeader(X_OSB_PLAN).getValue();
+					if (xOsbPlan != null) {
+						SecurityContext.setServicePlans(xOsbPlan);
+					}
+				}
+
 				return body;
 			});
 		} catch (IOException e) {
-			throw new OAuth2ServiceException("Error retrieving token keys: " + e.getMessage());
+			if (e instanceof OAuth2ServiceException oAuth2Exception) {
+				throw oAuth2Exception;
+			} else {
+				throw new OAuth2ServiceException("Error retrieving token keys: " + e.getMessage());
+			}
 		}
 	}
 

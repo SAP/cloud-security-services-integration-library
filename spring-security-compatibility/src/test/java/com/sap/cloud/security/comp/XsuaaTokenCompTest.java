@@ -1,6 +1,6 @@
 /**
- * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- *
+ * SPDX-FileCopyrightText: 2022 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors*
+ * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.comp;
@@ -227,7 +227,7 @@ class XsuaaTokenCompTest {
 	@Test
 	void getAppToken() {
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		assertThat(token.getAppToken(), startsWith("eyJqa3UiOiJodHRwOi8vbG9jYWx"));
+		assertThat(token.getAppToken(), startsWith("eyJraWQiOiJkZWZhdWx0LWtpZCIs"));
 	}
 
 	@Test

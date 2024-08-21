@@ -5,18 +5,18 @@
  */
 package sample.spring.security;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = Application.class)
 @java.lang.SuppressWarnings("squid:S2699")
 // test properties are provided with /resources/application.yml
-public class ApplicationTest {
+class ApplicationTest {
 
     @Test
-    public void whenSpringContextIsBootstrapped_thenNoExceptions() {
+    void whenSpringContextIsBootstrapped_thenNoExceptions() {
     }
 }

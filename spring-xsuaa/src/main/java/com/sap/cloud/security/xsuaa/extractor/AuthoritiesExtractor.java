@@ -11,16 +11,16 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 /**
- * Extracts the authorities from the Jwt token. Can use this method to map /
- * manipulate scopes, e.g. by changing their prefix, etc.
+ * Extracts the authorities from the Jwt token. Can use this method to map / manipulate scopes, e.g. by changing their
+ * prefix, etc.
  */
 public interface AuthoritiesExtractor {
 	/**
-	 * Returns the granted authorities based on the information in the Jwt. A
-	 * standard implementation will base the granted authorities on the scopes.
+	 * Returns the granted authorities based on the information in the Jwt. A standard implementation will base the
+	 * granted authorities on the scopes.
 	 *
 	 * @param jwt
-	 *            the Jwt to extract the authorities from.
+	 * 		the Jwt to extract the authorities from.
 	 * @return the collection of granted authorities.
 	 */
 	Collection<GrantedAuthority> getAuthorities(XsuaaToken jwt);

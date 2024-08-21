@@ -72,12 +72,14 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 			String warningMsg = String.format(
 					"Error retrieving JWT token. Received status code %s. Call to XSUAA was not successful: %s",
 					ex.getStatusCode(), ex.getResponseBodyAsString());
-			throw new OAuth2ServiceException(warningMsg, ex.getStatusCode().value(), getHeaders(ex.getResponseHeaders()));
+			throw new OAuth2ServiceException(warningMsg, ex.getStatusCode().value(),
+					getHeaders(ex.getResponseHeaders()));
 		} catch (HttpServerErrorException ex) {
 			String warningMsg = String.format("Server error while obtaining access token from XSUAA (%s): %s",
 					ex.getStatusCode(), ex.getResponseBodyAsString());
 			LOGGER.error(warningMsg, ex);
-			throw new OAuth2ServiceException(warningMsg, ex.getStatusCode().value(), getHeaders(ex.getResponseHeaders()));
+			throw new OAuth2ServiceException(warningMsg, ex.getStatusCode().value(),
+					getHeaders(ex.getResponseHeaders()));
 		} catch (ResourceAccessException ex) {
 			String warningMsg = String.format(
 					"RestClient isn't configured properly - Error while obtaining access token from XSUAA (%s): %s",
@@ -98,7 +100,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	}
 
 	private static List<String> getHeaders(org.springframework.http.HttpHeaders ex) {
-		if (ex != null){
+		if (ex != null) {
 			return ex.toSingleValueMap().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList();
 		}
 		return Collections.emptyList();
@@ -107,8 +109,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 	/**
 	 * Creates a copy of the given map or a new empty map of type MultiValueMap.
 	 *
-	 * @return a new @link{MultiValueMap} that contains all entries of the optional
-	 *         map.
+	 * @return a new @link{MultiValueMap} that contains all entries of the optional map.
 	 */
 	private MultiValueMap<String, String> copyIntoForm(Map<String, String> parameters) {
 		MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();

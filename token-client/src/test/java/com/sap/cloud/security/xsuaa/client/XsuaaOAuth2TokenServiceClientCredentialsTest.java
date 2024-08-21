@@ -100,10 +100,10 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		tokenHttpEntityMatcher.setGrantType(GRANT_TYPE_CLIENT_CREDENTIALS);
 
 		Mockito.when(mockRestOperations
-				.postForEntity(
-						eq(tokenEndpoint),
-						argThat(tokenHttpEntityMatcher),
-						eq(Map.class)))
+						.postForEntity(
+								eq(tokenEndpoint),
+								argThat(tokenHttpEntityMatcher),
+								eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
@@ -126,9 +126,9 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		tokenHttpEntityMatcher.addParameters(additionalParameters);
 
 		Mockito.when(mockRestOperations.postForEntity(
-				eq(tokenEndpoint),
-				argThat(tokenHttpEntityMatcher),
-				eq(Map.class)))
+						eq(tokenEndpoint),
+						argThat(tokenHttpEntityMatcher),
+						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaClientCredentialsGrant(tokenEndpoint,
@@ -144,9 +144,9 @@ public class XsuaaOAuth2TokenServiceClientCredentialsTest {
 		tokenHttpEntityMatcher.setGrantType(GRANT_TYPE_CLIENT_CREDENTIALS);
 
 		Mockito.when(mockRestOperations.postForEntity(
-				eq(tokenEndpoint),
-				argThat(tokenHttpEntityMatcher),
-				eq(Map.class)))
+						eq(tokenEndpoint),
+						argThat(tokenHttpEntityMatcher),
+						eq(Map.class)))
 				.thenReturn(new ResponseEntity<>(responseMap, HttpStatus.OK));
 
 		Map<String, String> overwrittenGrantType = new HashMap<>();

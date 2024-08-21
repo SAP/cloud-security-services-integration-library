@@ -7,12 +7,13 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +21,13 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Map;
 
+import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -55,14 +56,16 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		mockConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		when(mockConfiguration.getService()).thenReturn(Service.XSUAA);
+		when(mockConfiguration.getProperty(UAA_DOMAIN)).thenReturn("authentication.stagingaws.hanavlab.ondemand.com");
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(eq(URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys")),
-						isNull(), isNull()))
-								.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+				.retrieveTokenKeys(
+						URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys?zid=uaa"),
+						Map.of(HttpHeaders.X_ZID, "uaa")))
+				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
 
-		cut = new JwtSignatureValidator(
+		cut = new XsuaaJwtSignatureValidator(
 				mockConfiguration,
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
@@ -75,44 +78,62 @@ public class XsuaaJwtSignatureValidatorTest {
 	}
 
 	@Test
-	public void validationFails_whenNoJkuHeaderButIssuerIsGiven() throws IOException {
-		/**
-		 *
-		 * Header -------- { "alg": "RS256" } Payload -------- { "iss":
-		 * "https://application.myauth.com" }
-		 */
-		Token tokenWithoutJkuButIssuer = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
-		ValidationResult result = cut.validate(tokenWithoutJkuButIssuer);
+	public void onlineVerificationFails_noVerificationKey() throws IOException {
+		when(tokenKeyServiceMock
+				.retrieveTokenKeys(
+						URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys?zid=uaa"),
+						Map.of(HttpHeaders.X_ZID, "uaa")))
+				.thenThrow(new OAuth2ServiceException("Error retrieving token keys"));
+
+		ValidationResult result = cut.validate(xsuaaToken);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Token does not provide the required 'jku' header or issuer claim."));
+		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
+	}
+
+	@Test
+	public void onlineVerificationFails_withNotWorkingVerificationKey() throws IOException {
+		when(tokenKeyServiceMock
+				.retrieveTokenKeys(
+						URI.create("https://authentication.stagingaws.hanavlab.ondemand.com/token_keys?zid=uaa"),
+						Map.of(HttpHeaders.X_ZID, "uaa")))
+				.thenThrow(new OAuth2ServiceException("Error retrieving token keys"));
+		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
+		when(mockConfiguration.getProperty("verificationkey")).thenReturn(
+				"""
+						-----BEGIN PUBLIC KEY-----
+						MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/
+						oQIDAQAB
+						-----END PUBLIC KEY-----""");
+		ValidationResult result = cut.validate(xsuaaToken);
+		assertThat(result.isErroneous(), is(true));
+		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
 	}
 
 	@Test
 	public void generatedToken_SignatureMatchesVerificationkey() {
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
 		when(mockConfiguration.getProperty("verificationkey")).thenReturn(
-				"-----BEGIN PUBLIC KEY-----\n" +
-						"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/\n" +
-						"2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTN\n" +
-						"VTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9Y\n" +
-						"oU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GP\n" +
-						"n38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0\n" +
-						"frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4\n" +
-						"oQIDAQAB\n" +
-						"-----END PUBLIC KEY-----");
+				"""
+						-----BEGIN PUBLIC KEY-----
+						MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/
+						2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTN
+						VTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9Y
+						oU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GP
+						n38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0
+						frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4
+						oQIDAQAB
+						-----END PUBLIC KEY-----""");
 		assertThat(cut.validate(xsuaaTokenSignedWithVerificationKey).isValid(), is(true));
 	}
 
 	@Test
-	public void validationFails_whenVerificationkeyIsInvalid() {
+	public void validationFails_whenVerificationKeyIsInvalid() {
 		when(mockConfiguration.hasProperty("verificationkey")).thenReturn(true);
 		when(mockConfiguration.getProperty("verificationkey")).thenReturn("INVALIDKEY");
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Fallback with configured 'verificationkey' was not successful."));
+		assertThat(result.getErrorDescription(), containsString("Fallback validation key"));
 	}
 
 	@Test
@@ -123,8 +144,7 @@ public class XsuaaJwtSignatureValidatorTest {
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
 		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Signature of Jwt Token is not valid"));
+		assertThat(result.getErrorDescription(), containsString("Signature of Jwt Token is not valid"));
 		assertThat(result.getErrorDescription(),
 				containsString("(Signature: CetA62rQSNRj93S9mqaHrKJyzONKeEKcEJ9O5wObRD_"));
 	}
