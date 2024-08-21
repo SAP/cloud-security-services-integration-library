@@ -71,7 +71,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 		requestParams.put(HttpHeaders.X_APP_TID, token.getAppTid());
 		requestParams.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
 		requestParams.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
-		if (isProofTokenValidationEnabled) {
+		if (isProofTokenValidationEnabled && !token.hasClaim(TokenClaims.IAS_APIS)) {
 			X509Certificate cert = (X509Certificate) SecurityContext.getClientCertificate();
 
 			if (cert == null) {

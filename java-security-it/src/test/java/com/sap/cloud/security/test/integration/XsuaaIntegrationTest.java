@@ -15,6 +15,7 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import org.apache.commons.io.IOUtils;
 import org.junit.ClassRule;
@@ -23,12 +24,15 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
 import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_UAA_DOMAIN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 /**
  * Xsuaa integration test with single binding scenario.
@@ -110,9 +114,12 @@ public class XsuaaIntegrationTest {
 				.withProperty(VERIFICATION_KEY, publicKey)
 				.build();
 
+		OAuth2TokenKeyService tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), (Map<String, String>) any())).thenThrow(
+				OAuth2ServiceException.class);
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
 				// mocked because we use the key from the verificationkey property here
-				.withOAuth2TokenKeyService(Mockito.mock(OAuth2TokenKeyService.class))
+				.withOAuth2TokenKeyService(tokenKeyServiceMock)
 				.build();
 
 		Token token = rule.getPreconfiguredJwtGenerator().createToken();

@@ -16,7 +16,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-hybrid-usage</artifactId>
-	<version>3.5.0</version>
+	<version>3.5.2</version>
 
 	<properties>
 		<!-- 
@@ -28,7 +28,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.5.0</sap.cloud.security.version>
+		<sap.cloud.security.version>3.5.2</sap.cloud.security.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 	</properties>
 

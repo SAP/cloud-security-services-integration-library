@@ -1,6 +1,32 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.2
+
+- [spring-xsuaa] Remove new X5tCertificateThumbprintValidator from spring-xsuaa validators
+
+#### Dependency upgrades
+
+- Bump spring.boot.version from 3.3.0 to 3.3.1
+
+## 3.5.1
+
+- [java-security]
+  - Improved JWK fetch error handling
+- [spring-security]
+  - extended autoconfiguration for proof token check for all JwtDecoders
+  - Improved JWK fetch error handling/logging. In case of unsuccessful response from JWK server the error will be mapped
+    to 5XX status code
+
+#### Dependency upgrades
+
+- Bump spring.core.version from 6.1.7 to 6.1.10
+- Bump spring.boot.version from 3.2.5 to 3.3.0
+- Bump spring.security.version from 6.3.0 to 6.3.1
+- bump caffeine version to 3.1.8
+- Bump jakarta.servlet:jakarta.servlet-api from 6.0.0 to 6.1.0
+- Bump io.projectreactor:reactor-core from 3.6.6 to 3.6.7
+- Bump com.nimbusds:nimbus-jose-jwt from 9.39.1 to 9.40
 
 ## 3.5.0
 - [java-api]

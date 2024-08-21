@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -82,7 +83,11 @@ public class HybridJwtDecoder implements JwtDecoder {
 		default -> throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
 		}
 		if (validationResult.isErroneous()) {
-			throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
+			if (validationResult.getErrorDescription().contains("JWKS could not be fetched")) {
+				throw new JwtException(validationResult.getErrorDescription());
+			} else {
+				throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
+			}
 		}
 		logger.debug("Token issued by {} service was successfully validated.", token.getService());
 		return jwt;
@@ -99,5 +104,4 @@ public class HybridJwtDecoder implements JwtDecoder {
 		return new Jwt(token.getTokenValue(), token.getNotBefore(), token.getExpiration(),
 				token.getHeaders(), token.getClaims());
 	}
-
 }
