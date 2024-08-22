@@ -6,13 +6,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sap.cloud.security.xssec.samples</groupId>
 	<artifactId>sap-java-buildpack-api-usage</artifactId>
-	<version>3.5.2</version>
+	<version>3.5.3</version>
 	<packaging>war</packaging>
 
 	<properties>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
-		<jakarta.servlet.api.version>6.0.0</jakarta.servlet.api.version>
+		<jakarta.servlet.api.version>6.1.0</jakarta.servlet.api.version>
 	</properties>
 
 	<dependencies>
