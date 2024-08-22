@@ -1,6 +1,20 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.3
+
+- [java-security] Reenable sap-java-buildpack-api-usage sample using Tomcat 10
+
+#### Dependency upgrades
+
+- Bump spring.security.version from 6.3.1 to 6.3.3
+- Bump io.projectreactor:reactor-core from 3.6.7 to 3.6.9
+- Bump slf4j.api.version from 2.0.13 to 2.0.16
+- Bump org.eclipse.jetty.version from 12.0.7 to 12.0.12
+- Bump spring.core.version from 6.1.10 to 6.1.12
+- Bump spring.boot.version from 3.3.1 to 3.3.2
+- Bump org.wiremock:wiremock-standalone from 3.7.0 to 3.9.1
+
 ## 3.5.2
 
 - [spring-xsuaa] Remove new X5tCertificateThumbprintValidator from spring-xsuaa validators
