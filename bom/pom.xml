@@ -52,7 +52,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <xsuaa-groupId>com.sap.cloud.security.xsuaa</xsuaa-groupId>
-        <maven.source.plugin.version>3.2.1</maven.source.plugin.version>
+        <maven.source.plugin.version>3.3.1</maven.source.plugin.version>
     </properties>
 
     <dependencyManagement>
