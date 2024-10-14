@@ -25,6 +25,7 @@ public class HelloJavaServletScopeProtected extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		if (!SecurityContext.getAccessToken().hasLocalScope("Read")) {
 			XsuaaSecurityFilter.sendUnauthorizedResponse(response, "Read");
+			return;
 		}
 		response.setContentType("text/plain");
 		response.getWriter().write("Read-protected method called!");
