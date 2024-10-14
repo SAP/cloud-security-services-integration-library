@@ -20,7 +20,7 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
     <details>
       <summary>curl command</summary>
         
-    ❗Replace the `<<>>` placeholders with the values from the service configuration.   
+    ❗Replace the `<<>>` placeholders with the values from the service configuration.
     ```shell script
     curl --cert certificate.pem --key key.pem -XPOST <<credentials.url>>/oauth2/token \
       -d 'grant_type=password&client_id=<<credentials.clientid>>&username=<<your ias user>>&password=<<your ias password>>'
@@ -44,7 +44,7 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
     <details>
         <summary>curl command</summary>
         
-    ❗Replace the `<<>>` placeholders with the values from the service configuration.  
+    ❗Replace the `<<>>` placeholders with the values from the service configuration.
     ```shell script   
     curl -XPOST -u '<<credentials.clientid>>:<<credentials.clientsecret>>' https://<<credentials.url>>/oauth2/token \
          -d 'grant_type=password&username=<<your ias user>>&password=<<your ias password>>'
@@ -62,22 +62,27 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
   
 ## XSUAA Tokens
 <details>
-  <summary>Using <b>X.509</b> Client Certificate</summary>
+   <summary>Using X.509 Client Certificate</summary>
 
-1.  Store the `certificate` and `key` from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
+1. Store the `certificate` and `key` from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
    > ❗ In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
    > ```shell script
    > awk '{gsub(/\\n/,"\n")}1' <file>.pem
    > ```
 2. Fetch the token using:
-    <details>
-        <summary>curl command</summary>
+   <details>
+      <summary>curl command</summary>
         
-    ❗Replace the `<<>>` placeholders with the values from the service configuration.   
-    ```shell script
-    curl --cert certificate.pem --key key.pem -XPOST <<credentials.certurl>>/oauth/token \
-      -d 'grant_type=password&client_id=<<credentials.clientid>>&username=<<your xsuaa username>>&password=<<your xsuaa password>>'
-    ```
+      ❗Replace the `<<>>` placeholders with the values from the service configuration.
+      ```shell
+      curl --cert certificate.pem --key key.pem \
+      -X POST <<credentials.certurl>>/oauth/token \
+      -H 'Content-Type: application/x-www-form-urlencoded' \
+      --data-urlencode 'client_id=<<credentials.clientid>>' \
+      --data-urlencode 'grant_type=password' \
+      --data-urlencode 'username=<<username in xsuaa tenant>>' \
+      --data-urlencode 'password=<<xsuaa password>>'
+      ```
     </details>
     <details>
         <summary>Postman</summary>
@@ -97,11 +102,16 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
    <details>
      <summary>curl command</summary>
              
-   ❗Replace the `<<>>` placeholders with the values from the service configuration.   
-   ```
-   curl -X POST <<credentials.url>>/oauth/token \
-        -H 'Content-Type: application/x-www-form-urlencoded' \
-        -d 'client_id=<<credentials.clientid>>&client_secret=<<credentials.clientsecret>>&grant_type=password&username=<<your xsuaa username>>&password=<<your xsuaa password>>'
+   ❗Replace the `<<>>` placeholders with the values from the service configuration.
+   ```shell
+   curl \
+   -X POST <<credentials.url>>/oauth/token \
+   -H 'Content-Type: application/x-www-form-urlencoded' \
+   --data-urlencode 'client_id=<<credentials.clientid>>' \
+   --data-urlencode 'client_secret=<<credentials.clientsecret>>' \
+   --data-urlencode 'grant_type=password' \
+   --data-urlencode 'username=<<username in xsuaa tenant>>' \
+   --data-urlencode 'password=<<xsuaa password>>'
    ```
    </details>
    <details>

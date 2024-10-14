@@ -1,4 +1,4 @@
-FROM tomcat:10.1.7-jre17
+FROM --platform=linux/amd64 tomcat:10-jre17
 
 ADD target/java-security-usage.war /usr/local/tomcat/webapps/
 
