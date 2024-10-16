@@ -11,7 +11,7 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
   
 1. Store the `certificate` and `key` from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
    > :warning: In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
-   > ```shell script    
+   > ```shell
    > awk '{gsub(/\\n/,"\n")}1' <file>.pem
    >  ```
  
@@ -43,7 +43,7 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
     </details>
 </details> 
 <details>
-  <summary>Using <b>Client Credentials</b></summary>
+  <summary>Using Client Credentials</summary>
 
 1. Fetch the token using:
     <details>
@@ -75,7 +75,7 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
 
 1. Store the `certificate` and `key` from your service configuration in separate files in [PEM](https://www.ssl.com/guide/pem-der-crt-and-cer-x-509-encodings-and-conversions/#ftoc-heading-1) format.
    > :warning: In case you experience invalid PEM file errors, \\n characters might have to be replaced by newlines \n to have the PEM in the correct format.
-   > ```shell script
+   > ```shell
    > awk '{gsub(/\\n/,"\n")}1' <file>.pem
    > ```
 2. Fetch the token using:
@@ -105,7 +105,7 @@ The documentation assumes the utility `curl` and `awk` to be installed (Mac OS: 
     </details>
 </details>
 <details>
-   <summary>Using <b>Client Credentials</b></summary>
+   <summary>Using Client Credentials</summary>
    
 1. Fetch the token using:    
    <details>
