@@ -1,5 +1,5 @@
 # SAP BTP Java Security Client Library with XSUAA sample application
-This Java backend application uses the [Java Security](../../java-security/) client library to validate JWT tokens issued by the `XSUAA` service.
+This Java backend application uses the [java-security](../../java-security/) module to validate JWT tokens issued by the `XSUAA` service.
 It inspects incoming requests and handles authentication and authorization by using the [`XsuaaTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java).
 
 ## Build and Deploy
@@ -27,7 +27,7 @@ Deploy the application using the cf CLI.
 ```shell
 cf push --vars-file ../vars.yml
 ```
-> :warning: This will expect 1 GB of free memory quota.
+:warning: This will expect 1 GB of free memory quota.
 </details>
 
 <details>
@@ -55,7 +55,7 @@ kubectl apply -f k8s/deployment.yml
 </details>
 
 ### 3. Assign Role Collection to user
-> :bulb: You can postpone this step if you first want to test the application without the required authorization.
+:bulb: You can postpone this step if you first want to test the application without the required authorization.
 
 To get full access to the sample application, you need a user having the role collection `Sample Viewer (java-security-usage)` assigned.
 This can be done in the SAP BTP Cockpit or using the btp CLI.
