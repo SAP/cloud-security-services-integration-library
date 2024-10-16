@@ -1,5 +1,5 @@
 # SAP BTP Java Security Client Library with XSUAA sample application
-This Java backend application uses the [java-security](../../java-security/) module to validate JWT tokens issued by the `XSUAA` service.
+This Java backend application uses the [java-security](/java-security/) module to validate JWT tokens issued by the `XSUAA` service.
 It inspects incoming requests and handles authentication and authorization by using the [`XsuaaTokenAuthenticator`](/java-security/src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java).
 
 ## Build and Deploy

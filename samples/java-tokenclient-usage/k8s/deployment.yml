@@ -1,0 +1,122 @@
+---
+###  SERVICE INSTANCE CONFIGURATION  ###
+# Xsuaa instance
+apiVersion: services.cloud.sap.com/v1
+kind: ServiceInstance
+metadata:
+  name: xsuaa
+spec:
+  serviceOfferingName: xsuaa
+  servicePlanName: application
+  parameters:
+    xsappname: xsuaa-java-security
+    tenant-mode: dedicated
+---
+apiVersion: services.cloud.sap.com/v1
+kind: ServiceBinding
+metadata:
+  name: xsuaa-service-binding
+spec:
+  serviceInstanceName: xsuaa
+---
+# Xsuaa broker instance
+apiVersion: services.cloud.sap.com/v1
+kind: ServiceInstance
+metadata:
+  name: xsuaa-broker
+spec:
+  serviceOfferingName: xsuaa
+  servicePlanName: broker
+  parameters:
+    xsappname: xsuaa-broker
+    tenant-mode: dedicated
+---
+apiVersion: services.cloud.sap.com/v1
+kind: ServiceBinding
+metadata:
+  name: xsuaa-broker-binding
+spec:
+  serviceInstanceName: xsuaa-broker
+---
+###  APPLICATION CONFIGURATION  ###
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: java-tokenclient-usage
+  name: java-tokenclient-usage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-tokenclient-usage
+  template:
+    metadata:
+      labels:
+        app: java-tokenclient-usage
+    spec:
+      containers:
+        - image: <YOUR IMAGE TAG>
+          env:
+            - name: SERVICE_BINDING_ROOT
+              value: "/bindings"
+          imagePullPolicy: Always
+          name: java-tokenclient-usage
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: xsuaa
+              mountPath: "/bindings/xsuaa"
+              readOnly: true
+            - name: xsuaa-broker
+              mountPath: "/bindings/xsuaa-broker"
+              readOnly: true
+      volumes:
+        - name: xsuaa
+          secret:
+            secretName: xsuaa-service-binding
+        - name: xsuaa-broker
+          secret:
+            secretName: xsuaa-broker-binding
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: java-tokenclient-usage
+  name: java-tokenclient-usage
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: java-tokenclient-usage
+
+---
+apiVersion: gateway.kyma-project.io/v1beta1
+kind: APIRule
+metadata:
+  name: java-tokenclient-api
+  labels:
+    app: java-tokenclient-usage
+spec:
+  gateway: kyma-gateway.kyma-system.svc.cluster.local
+  host: java-tokenclient-api
+  rules:
+    - accessStrategies:
+        - config: {}
+          handler: allow
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - HEAD
+      path: /.*
+  service:
+    name: java-tokenclient-usage
+    port: 80
