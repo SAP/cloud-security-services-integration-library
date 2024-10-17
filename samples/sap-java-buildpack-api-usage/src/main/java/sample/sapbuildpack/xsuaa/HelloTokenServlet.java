@@ -17,10 +17,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Servlet implementation configured to check against scope "$XSAPPNAME.Display"
+ * Servlet implementation configured to check against scope "$XSAPPNAME.Read"
  */
 @WebServlet("/hello-token")
-@ServletSecurity(@HttpConstraint(rolesAllowed = { "Display" }))
+@ServletSecurity(@HttpConstraint(rolesAllowed = { "Read" }))
 public class HelloTokenServlet extends HttpServlet {
 
 	/**

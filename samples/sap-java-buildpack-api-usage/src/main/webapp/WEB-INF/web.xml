@@ -2,15 +2,12 @@
 <!-- SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <web-app
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="https://jakarta.ee/xml/ns/jakartaee"
-        xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-        version="5.0">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://jakarta.ee/xml/ns/jakartaee"
+    xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+    version="5.0">
 
     <login-config>
         <auth-method>XSUAA</auth-method>
     </login-config>
-    <security-role>
-        <role-name>Display</role-name>
-    </security-role>
 </web-app>
