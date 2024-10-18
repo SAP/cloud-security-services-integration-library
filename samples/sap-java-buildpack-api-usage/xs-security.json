@@ -1,29 +1,29 @@
 {
 	"xsappname": "sap-java-buildpack-api-usage",
+	"description": "SAP BTP Java Security Client Library Buildpack sample application",
 	"tenant-mode": "dedicated",
-	"scopes":
-	[{
-		"name": "$XSAPPNAME.Display",
-		"description": "With this scope, information can be read."
-	}
+	"scopes": [
+		{
+			"name": "$XSAPPNAME.Read",
+			"description": "Scope for sap-java-buildpack-api-usage sample application"
+		}
 	],
-
-	"role-templates":
-	[{
-		"name": "AccessRole",
-		"description": "Role to call the sap-java-buildpack-api-usage service",
-		"scope-references":
-		[
-			"$XSAPPNAME.Display"
-		]
-	}
+	"role-templates": [
+		{
+			"name": "Viewer",
+			"description": "Role for sap-java-buildpack-api-usage sample application",
+			"scope-references": [
+				"$XSAPPNAME.Read"
+			]
+		}
 	],
-	"role-collections": [{
-		"name": "Buildpack_API_Viewer",
-		"description": "Role Collection to call the sap-java-buildpack-api-usage service",
-		"role-template-references": [
-			"$XSAPPNAME.AccessRole"
-		]
-	}
+	"role-collections": [
+		{
+			"name": "Sample Viewer (sap-java-buildpack-api-usage)",
+			"description": "Role collection for sap-java-buildpack-api-usage sample application",
+			"role-template-references": [
+				"$XSAPPNAME.Viewer"
+			]
+		}
 	]
 }

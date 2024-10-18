@@ -1,0 +1,98 @@
+---
+###  SERVICE INSTANCE CONFIGURATION  ###
+# IAS instance
+apiVersion: services.cloud.sap.com/v1
+kind: ServiceInstance
+metadata:
+  name: ias-authn
+spec:
+  serviceOfferingName: identity
+  servicePlanName: application
+  parameters:
+    credential-type: "X509_GENERATED"
+---
+apiVersion: services.cloud.sap.com/v1
+kind: ServiceBinding
+metadata:
+  name: ias-service-binding
+spec:
+  serviceInstanceName: ias-authn
+  parameters:
+    credential-type: "X509_GENERATED"
+---
+###  APPLICATION CONFIGURATION  ###
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: java-security-usage-ias
+  name: java-security-usage-ias
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: java-security-usage-ias
+  template:
+    metadata:
+      labels:
+        app: java-security-usage-ias
+    spec:
+      containers:
+        - image: <YOUR IMAGE TAG>
+          env:
+            - name: SERVICE_BINDING_ROOT
+              value: "/bindings"
+          imagePullPolicy: Always
+          name: java-security-usage
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: ias-authn
+              mountPath: "/bindings/ias-authn"
+              readOnly: true
+      volumes:
+        - name: ias-authn
+          secret:
+            secretName: ias-service-binding
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: java-security-usage-ias
+  name: java-security-usage-ias
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: java-security-usage-ias
+
+---
+apiVersion: gateway.kyma-project.io/v1beta1
+kind: APIRule
+metadata:
+  name: java-security-ias-api
+  labels:
+    app: java-security-usage-ias
+spec:
+  gateway: kyma-gateway.kyma-system.svc.cluster.local
+  host: java-security-ias-api
+  rules:
+    - accessStrategies:
+        - config: {}
+          handler: allow
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - HEAD
+      path: /.*
+  service:
+    name: java-security-usage-ias
+    port: 80
