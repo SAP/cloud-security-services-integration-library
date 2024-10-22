@@ -64,13 +64,13 @@ prepare_image() {
 
 #prepare deployment file and deploy the app, first argument is sample name
 deploy_app() {
-  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
+  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE TAG>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
   sleep 30
 }
 
 #delete the deployed app, first argument is sample name
 delete_deployment() {
-  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl delete -f - -n "$NAMESPACE"
+  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE TAG>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl delete -f - -n "$NAMESPACE"
   sleep 7
 }
 
