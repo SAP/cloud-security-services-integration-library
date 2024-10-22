@@ -22,8 +22,8 @@
   ],
   "role-collections": [
     {
-      "name": "Sample Viewer (spring-security-hybrid-usage)",
-      "description": "Role collection for spring-security-hybrid-usage sample application",
+      "name": "Sample Viewer via broker (spring-security-hybrid-usage)",
+      "description": "Role collection for spring-security-hybrid-usage broker access",
       "role-template-references": [
         "$XSAPPNAME.Viewer"
       ]

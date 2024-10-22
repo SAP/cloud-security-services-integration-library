@@ -5,7 +5,6 @@
 # configured for EU10. For other landscapes, please adopt LANDSCAPE_APPS_DOMAIN in ../vars.yml
 # If the route is occupied, you might need to change ID in ../vars.yml
 applications:
-# The sample application.
 - name: spring-security-hybrid-usage
   instances: 1
   memory: 896M
@@ -18,6 +17,7 @@ applications:
     JBP_CONFIG_OPEN_JDK_JRE: '{jre: { version: 17.0.+ }}'
   services:
     - name: xsuaa-authn
+#    - name: xsuaa-broker
     - name: ias-authn
       parameters: { "credential-type": "X509_GENERATED" }
 

@@ -1,160 +1,205 @@
-# Description
-This sample is a Spring Boot application that utilizes the `spring-security` client library to authenticate JWT tokens issued by either the `xsuaa` service or the `identity` service. 
-The `xsuaa` service generates an access token, while the `identity` service produces an OIDC token. 
-The tokens differ in the details they provide through token claims. In both instances, 
-the validated token is accessible as a [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the Spring`org.springframework.security.core.context.SecurityContextHolder`.
+# SAP BTP Spring Security Client Library Hybrid sample application
+This Spring Boot sample application uses the `spring-security` module to validate JWT tokens issued by either the `xsuaa` or the `identity` service.
+The `xsuaa` service provides an OAuth access token, while the `identity` service provides an OIDC token.
+The tokens differ in the details they provide through token claims.
+In both instances, the validated token is accessible as a [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the Spring`org.springframework.security.core.context.SecurityContextHolder`.
 
-Additionally, this sample showcases the use of the `CorrelationIdFilter`, which appends a correlation_id to the MDC context. 
-This is then used to augment subsequent/outgoing requests with an `X-CorrelationID` header. 
-For more information about the logging filter library employed, please visit [this link](https://github.com/SAP/cf-java-logging-support/wiki/Instrumenting-Servlets).
+Additionally, this sample showcases the use of the `CorrelationIdFilter`, which appends a correlation_id to the MDC context.
+This is then used to augment subsequent/outgoing requests with an `X-CorrelationID` header.
+:link: More information can be found in the [logging filter library documentation](https://github.com/SAP/cf-java-logging-support/wiki/Instrumenting-Servlets).
 
-Follow the deployment steps for [Kyma/Kubernetes](#deployment-on-kymakubernetes) or [Cloud Foundry](#deployment-on-cloud-foundry).
-
-# Deployment on Kyma/Kubernetes
+## Build and Deploy
+### 1. Deploy the application on Cloud Foundry or Kyma/Kubernetes.
 <details>
-<summary>Expand this to follow the deployment steps</summary>
+<summary>Deployment on Cloud Foundry</summary>
 
-- Build docker image and push to repository
-- Configure the deployment.yml
-- Deploy the application
-- Admin: Assign Role Collection to your XSUAA user
-- Admin: Assign Group to your IAS user
-- Access the application
-
-## Build docker image and push to repository
-```shell script
-mvn spring-boot:build-image -Dspring-boot.build-image.imageName=<repositoryName>/<imageName>
-docker push <repositoryName>/<imageName>
-```
-> This makes use of `Dockerfile`.
-
-## Configure the deployment.yml
-In deployment.yml replace the image repository placeholder `<YOUR IMAGE REPOSITORY>` with the one created in the previous step.
-
-If you want to test the app with multiple Xsuaa bindings (application and broker plan) uncomment the following lines:
-- [Service Instance definition and the binding](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L39-L72)
-- [Volume mount for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L127-L129)
-- [Volume for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L138-L140)
-
-## Deploy the application
-Deploy the application using [kubectl cli](https://kubernetes.io/docs/reference/kubectl/)
-```shell script
-kubectl apply -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
-```
-
-## Cockpit administration task: Assign Xsuaa Role Collection to your User
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection `XSUAA-Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
-
-![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
-
-Further up-to-date information you can get on sap.help.com:
-- [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
-- [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
-
-## IAS User administration task: Assign Group to your User
-You need administrator permissions to create Groups "Read" in IAS and assign it to your user. <br>See also [SAP Help: "Creating a User Group"](https://help.sap.com/viewer/a339f23ec736441abb2e187b7a7b6afb/LATEST/en-US/64544f432cd24b8589707a5d8a2b3e2e.html).
-
-## Access the application
-1. Follow [HowToFetchToken](../../docs/HowToFetchToken.md) guide to fetch IAS and XSUAA tokens. 
-    1. Get an IAS oidc token via ``password`` grant token flow.
-       You can get the information to fill the placeholders from the service binding secret:
-       ```shell script
-       kubectl get secret "ias-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
-       ```
-    2. Get a XSUAA access token via ``client-certificate`` token flow.
-       You can get the information to fill the placeholders from the service binding secret: 
-       ```shell script
-       kubectl get secret "xsuaa-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}' -n <YOUR NAMESPACE>
-       ```
-2. In the Kyma Console, go to `<YOUR_NAMESPACE>` - `Discovery and Network` - `API Rules`. Copy the host entry of the `spring-security-hybrid-api` api rule.
- 
-3. Call the following endpoints with ```Authorization``` header = "Bearer <your IAS/XSUAA token>"
-   - `<HOST of spring-security-hybrid-api>/sayHello` - GET request that provides token details, but only if token provides expected read permission (scope/groups).
-   - `<HOST of spring-security-hybrid-api>/method` - GET request executes a method secured with Spring Global Method Security, user requires read permission (scope/groups).
-   
-   :bulb: If you call the same endpoint without `Authorization` header you should get a `401`.
-
-## Cleanup
-Finally, delete your application and your service instances using the following command:
-```shell script
- kubectl delete -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
-```
- </details>
-
-# Deployment on Cloud Foundry
-To deploy the application, the following steps are required:
-- Create an XSUAA service instance
-- Create an Identity service instance
-- Configure manifest.yml
-- Compile and deploy the application
-- Admin: Assign Role Collection to your XSUAA user
-- Admin: Assign Group to your IAS user
-- Access the application
-
-
-## Create the XSUAA Service Instance
-Use the [xs-security.json](./xs-security.json) to define the X.509 authentication method with Xsuaa managed certificate and create a service instance.
+#### Run maven to compile and package the sample application:
 ```shell
-cf create-service xsuaa broker xsuaa-broker -c xs-security.json #optional
-cf create-service xsuaa application xsuaa-authn -c xs-security.json
+mvn clean package
 ```
-:grey_exclamation:  Xsuaa broker instance is optional. Use it if you want to test the application with multiple Xsuaa Service instances.
-You would also need to update the [manifest.yml](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/manifest.yml#L19) with the broker instance information.
 
-## Create the IAS Service Instance
-Use the ias service broker and create an identity service instance
+#### Create the XSUAA service instance
+Use the cf CLI to create an XSUAA service instance based on the authentication settings in [xs-security.json](xs-security.json).
+```shell
+cf create-service xsuaa application xsuaa-authn -c xs-security.json
+cf create-service xsuaa broker xsuaa-broker -c xs-security-broker.json
+```
+:grey_exclamation: The `xsuaa-broker` instance is optional.
+Use it if you want to test the application with multiple XSUAA service instances.
+You would also need to update the [manifest.yml](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/manifest.yml#L20) with the broker instance information.
+
+#### Create the IAS Service Instance
+Use the cf CLI to create an Identity service instance
 ```shell
 cf create-service identity application ias-authn
 ```
 
-## Configure the manifest
-The [vars](../vars.yml) contains hosts and paths that you might need to adopt.
+#### Configure the manifest
+The [vars](../vars.yml) contain hosts and paths that need to be adopted.
 
-## Compile and deploy the application
-Deploy the application using cf push. It will expect 1 GB of free memory quota.
+#### Deploy the application
+Deploy the application using the cf CLI.
 
 ```shell
-mvn clean package
 cf push --vars-file ../vars.yml
 ```
-> Note: In case of this error message `An operation for service instance ias-authn is in progress.` wait a moment, as identity service instance gets created asynchronously.
+:warning: This will expect 1 GB of free memory quota.
+> Note: As service instance gets created asynchronously, you might get the error `There is an operation in progress for the service instance`.
+> In this case, wait a moment and try again. 
+</details>
 
-## Cockpit administration task: Assign Xsuaa Role Collection to your User
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `XSUAA-Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+<details>
+<summary>Deployment on Kubernetes</summary>
 
-![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
-
-Further up-to-date information you can get on sap.help.com:
-- [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
-- [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
-
-## IAS User administration task: Assign Group to your User
-You need administrator permissions to create a Groups "Read" in IAS and assign it to your user.
-
-## Access the application
-1. Follow [HowToFetchToken](../../docs/HowToFetchToken.md) guide to fetch IAS and XSUAA tokens. 
-    1. Get an IAS oidc token via ``password`` grant token flow.
-       You can get the information to fill the placeholders from your system environment `cf env spring-security-hybrid-usage` -> ``VCAP_SERVICES``.`identity`
-    2. Get a XSUAA access token via ``client-certificate`` token flow.
-       You can get the information to fill the placeholders from your system environment `cf env spring-security-hybrid-usage` -> ``VCAP_SERVICES``.`xsuaa`
-
-2. Call the following endpoints with ```Authorization``` header = "Bearer <your IAS/XSUAA token>"
-   - `https://spring-security-hybrid-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/sayHello` - GET request that provides token details, but only if token provides expected read permission (scope/groups).
-   - `https://spring-security-hybrid-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/method` - GET request executes a method secured with Spring Global Method Security, user requires read permission (scope/groups).
-
-   :bulb: If you call the same endpoint without `Authorization` header you should get a `401`.
-
-3. Have a look into the logs with:
-   ```shell
-   cf logs spring-security-hybrid-usage --recent
-   ```
-
-## Clean-Up
-
-Finally delete your application and your service instances using the following commands:
+#### Build and tag docker image and push to repository
+Execute the following commands to build and push the docker image to a repository.
+Replace `<repository>/<image>` with your repository and image name.
 ```shell
+mvn spring-boot:build-image -Dspring-boot.build-image.imageName=<repository>/<image>
+docker push <repository>/<image>
+```
+
+#### Configure the deployment.yml
+In deployment.yml replace the placeholder `<YOUR IMAGE TAG>` with the image tag created in the previous step.
+
+:warning: If you are [using a private repository](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/),
+you also need to provide the image pull secret in the deployment.yml.
+
+:bulb: If you want to test the app with multiple Xsuaa bindings (application and broker plan) uncomment the following lines:
+- [Service Instance definition and the binding](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L39-L71)
+- [Volume mount for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L127-L129)
+- [Volume for the service instance secret](https://github.com/SAP/cloud-security-services-integration-library/blob/main/samples/spring-security-hybrid-usage/k8s/deployment.yml#L138-L140)
+
+#### Deploy the application
+Deploy the application using [kubectl](https://kubernetes.io/docs/reference/kubectl/).
+```shell
+kubectl apply -f k8s/deployment.yml
+```
+</details>
+
+### 3. Give permission to user
+To get access to the sample application, you need a user with one of the following assigned:
+- the role collection `Sample Viewer (spring-security-hybrid-usage)' (via XSUAA)
+- the group `Read` (via IAS)
+:bulb: You can postpone this step if you first want to test the application without the required authorization.
+
+#### Assign Role Collection (XSUAA)
+This can be done in the SAP BTP Cockpit or using the btp CLI.
+
+<details>
+<summary>Assign role collection via cockpit</summary>
+In the cockpit navigate to your subaccount.
+To assign the role collection of the sample application to a user you have basically two options:
+
+1. Navigate to the user by clicking on `Security` -> `Users`,
+   select the user and click on `Assign Role Collection`
+   (more info at [help.sap.com](https://help.sap.com/docs/btp/sap-business-technology-platform/find-users-and-their-role-collection-assignments)).
+2. Navigate to the role collection by clicking on `Security` -> `Role Collections`,
+   select `Sample Viewer (spring-security-hybrid-usage)`,
+   click on `Edit` to add the user and finish by clicking on `Save`
+   (more info at [help.sap.com](https://help.sap.com/docs/btp/sap-business-technology-platform/assign-users-to-role-collections)).
+</details>
+
+<details>
+<summary>Assign role collection via command line</summary>
+
+To assign the role collection to a user via the [btp CLI](https://help.sap.com/docs/btp/sap-business-technology-platform/account-administration-using-sap-btp-command-line-interface-btp-cli),
+you need to [log in to your global account](https://help.sap.com/docs/btp/btp-cli-command-reference/btp-login) and execute the following command:
+
+```shell
+btp assign security/role-collection "Sample Viewer (spring-security-hybrid-usage)" --subaccount <subaccount id> --to-user <user email>
+```
+</details>
+
+#### Assign group (IAS)
+You need administrator permissions to create group `Read` in IAS and assign it to a user.
+:link: More information can be found at [SAP Help: "Creating a User Group"](https://help.sap.com/viewer/a339f23ec736441abb2e187b7a7b6afb/LATEST/en-US/64544f432cd24b8589707a5d8a2b3e2e.html).
+
+### 4. Access the application
+The sample application provides three HTTP endpoints:
+
+- `/sayHello` - authorized access only
+- `/comp/sayHello` - authorized access only
+- `/method` - authorized access only (executes a method secured with Spring Global Method Security)
+
+Before sending requests to the above endpoints we need to obtain a valid XSUAA access token or OIDC token for a user.
+To this we need to retrieve credentials for the bound XSUAA and IAS service instances from Cloud Foundry or Kubernetes.
+
+<details>
+<summary>Retrieve credentials from Cloud Foundry</summary>
+
+Either use the cockpit to navigate to your application (via subaccount and space) and click on 'Environment Variables' or use the cf CLI command
+```shell
+cf env spring-security-hybrid-usage
+```
+to retrieve the application environment.
+The environment variable `VCAP_SERVICES` contains `credentials` sections for the `xsuaa` and `ìdentity` service instances.
+</details>
+
+<details>
+<summary>Retrieve credentials from Kubernetes</summary>
+
+Use the following Kubernetes CLI commands to retrieve the `xsuaa` and `ìdentity` service instance credentials.
+```shell
+kubectl get secret "xsuaa-authn-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}'
+kubectl get secret "xsuaa-broker-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}'
+kubectl get secret "ias-service-binding" -o go-template='{{range $k,$v := .data}}{{"### "}}{{$k}}{{"\n"}}{{$v|base64decode}}{{"\n\n"}}{{end}}'
+```
+</details>
+
+Use the credentials to retrieve an XSUAA OAuth access token or OIDC id token for the sample application by following the [HowToFetchToken](../../docs/HowToFetchToken.md) guide.
+
+Now you can use the tokens to access the application via curl.
+
+<details>
+<summary>access Cloud Foundry deployment</summary>
+
+```
+curl -X GET \
+https://spring-security-hybrid-usage-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/sayHello \
+-H 'Authorization: Bearer <<access/id token>>'
+```
+
+:bulb: You can check the logs using the following cf CLI command:
+```shell
+cf logs spring-security-hybrid-usage --recent
+```
+</details>
+
+<details>
+<summary>access Kubernetes deployment</summary>
+
+In the Kyma Console, go to your namespace and navigate to `Discovery and Network` &rarr; `API Rules`.
+Copy the host entry of the `spring-security-hybrid-api` api rule.
+
+```shell
+curl -X GET \
+https://<<host of spring-security-hybrid-api>>/sayHello \
+-H 'Authorization: Bearer <<access/id token>>'
+```
+</details>
+
+:bulb: If you call the same endpoints without `Authorization` header you should get a `HTTP 401` response.
+
+### 5. Cleanup
+If you no longer need the sample application, you can free up resources using the cf CLI or the Kubernetes CLI.
+
+<details>
+<summary>Cleanup commands for Cloud Foundry</summary>
+
+```shell
+cf unbind-service spring-security-hybrid-usage ias-authn
 cf delete -f spring-security-hybrid-usage
 cf delete-service -f xsuaa-authn
-cf delete-service -f xsuaa-broker # optional
+cf delete-service -f xsuaa-broker
 cf delete-service -f ias-authn
 ```
+</details>
+
+<details>
+<summary>Cleanup command for Kubernetes</summary>
+
+```shell
+ kubectl delete -f k8s/deployment.yml
+```
+</details>
