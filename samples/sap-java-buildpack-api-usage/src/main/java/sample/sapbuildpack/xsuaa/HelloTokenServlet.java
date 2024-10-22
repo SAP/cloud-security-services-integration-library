@@ -17,14 +17,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Servlet implementation class HelloTokenServlet
+ * Servlet implementation configured to check against scope "$XSAPPNAME.Read"
  */
 @WebServlet("/hello-token")
-
-// configure servlet to check against scope "$XSAPPNAME.Display"
-@ServletSecurity(@HttpConstraint(rolesAllowed = { "Display" }))
+@ServletSecurity(@HttpConstraint(rolesAllowed = { "Read" }))
 public class HelloTokenServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,20 +31,18 @@ public class HelloTokenServlet extends HttpServlet {
 		response.setContentType("text/plain");
 		AccessToken accessToken = (AccessToken) request.getUserPrincipal();
 
-		response.getWriter().append("Client ID: ")
-				.append("" + accessToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID));
+		response.getWriter().append("Client ID: ").append(accessToken.getClaimAsString(TokenClaims.XSUAA.CLIENT_ID));
 		response.getWriter().append("\n");
-		response.getWriter().append("Email: ").append("" + accessToken.getClaimAsString(TokenClaims.EMAIL));
+		response.getWriter().append("Email: ").append(accessToken.getClaimAsString(TokenClaims.EMAIL));
 		response.getWriter().append("\n");
-		response.getWriter().append("Family Name: ").append("" + accessToken.getClaimAsString(TokenClaims.FAMILY_NAME));
+		response.getWriter().append("Family Name: ").append(accessToken.getClaimAsString(TokenClaims.FAMILY_NAME));
 		response.getWriter().append("\n");
-		response.getWriter().append("First Name: ").append("" + accessToken.getClaimAsString(TokenClaims.GIVEN_NAME));
+		response.getWriter().append("First Name: ").append(accessToken.getClaimAsString(TokenClaims.GIVEN_NAME));
 		response.getWriter().append("\n");
-		response.getWriter().append("OAuth Grant Type: ").append("" + accessToken.getGrantType());
+		response.getWriter().append("OAuth Grant Type: ").append(String.valueOf(accessToken.getGrantType()));
 		response.getWriter().append("\n");
-		response.getWriter().append("OAuth Token: ").append("" + accessToken.getTokenValue());
+		response.getWriter().append("OAuth Token: ").append(accessToken.getTokenValue());
 		response.getWriter().append("\n");
-
 	}
 
 }
