@@ -45,7 +45,7 @@ cf create-service xsuaa application xsuaa-buildpack -c xs-security.json
 ```
 
 #### Configure the manifest
-The [vars](../vars.yml) contain hosts and paths that need to be adopted.
+The [vars](../vars.yml) contain hosts and paths that need to be adapted.
 
 This sample uses the `AccessToken` interface to extract user data from the principal. For this to work the environment
 variable `ENABLE_SECURITY_JAVA_API_V2` is set to `true`. This can be done in the [`manifest.yml`](manifest.yml) file inside the

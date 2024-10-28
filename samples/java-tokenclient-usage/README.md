@@ -20,7 +20,7 @@ cf create-service xsuaa application xsuaa-token-client -c xs-security.json
 ```
 
 #### Configure the manifest
-The [vars](../vars.yml) contain hosts and paths that need to be adopted.
+The [vars](../vars.yml) contain hosts and paths that need to be adapted.
 
 #### Deploy the application
 Deploy the application using the cf CLI.
