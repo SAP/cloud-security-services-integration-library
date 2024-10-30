@@ -15,18 +15,18 @@ spec:
       credential-types:
         - x509
     scopes:
-      - name: "$XSAPPNAME.Display"
-        description: With this scope, information can be read
+      - name: "$XSAPPNAME.Read"
+        description: Scope for spring-security-basic-auth sample application
     role-templates:
-      - name: AccessRole
-        description: Role to call the spring-security-basic-auth service
+      - name: Viewer
+        description: Role for spring-security-basic-auth sample application
         scope-references:
-          - "$XSAPPNAME.Display"
+          - "$XSAPPNAME.Read"
     role-collections:
-      - name: BASIC_AUTH_API_Viewer
-        description: Viewer (read)
+      - name: "Sample Viewer (spring-security-basic-auth)"
+        description: Role collection for spring-security-basic-auth sample application
         role-template-references:
-          - "$XSAPPNAME.AccessRole"
+          - "$XSAPPNAME.Viewer"
 ---
 apiVersion: services.cloud.sap.com/v1
 kind: ServiceBinding
@@ -54,7 +54,7 @@ spec:
         kyma-grafana: enabled
     spec:
       containers:
-        - image: <YOUR IMAGE REPOSITORY>
+        - image: <YOUR IMAGE TAG>
           env:
             - name: SERVICE_BINDING_ROOT
               value: "/bindings"

@@ -16,15 +16,15 @@ spec:
         - x509
     scopes:
       - name: "$XSAPPNAME.Read"
-        description: Read Permissions.
+        description: Scope for spring-security-hybrid-usage sample application
     role-templates:
       - name: Viewer
-        description: View Data
+        description: Role for spring-security-hybrid-usage sample application
         scope-references:
           - "$XSAPPNAME.Read"
     role-collections:
-      - name: XSUAA-Viewer
-        description: Viewer (read)
+      - name: "Sample Viewer (spring-security-hybrid-usage)"
+        description: Role collection for spring-security-hybrid-usage sample application
         role-template-references:
           - "$XSAPPNAME.Viewer"
 ---
@@ -42,7 +42,7 @@ spec:
 #  name: xsuaa-broker
 #spec:
 #  serviceOfferingName: xsuaa
-#  servicePlanName: application
+#  servicePlanName: broker
 #  parameters:
 #    xsappname: spring-security-hybrid-usage
 #    tenant-mode: dedicated
@@ -51,15 +51,15 @@ spec:
 #        - x509
 #    scopes:
 #      - name: "$XSAPPNAME.Read"
-#        description: Read Permissions.
+#        description: Scope for spring-security-hybrid-usage sample application
 #    role-templates:
 #      - name: Viewer
-#        description: View Data
+#        description: Role for spring-security-hybrid-usage sample application
 #        scope-references:
 #          - "$XSAPPNAME.Read"
 #    role-collections:
-#      - name: XSUAA-Viewer
-#        description: Viewer (read)
+#      - name: "Sample Viewer via broker (spring-security-hybrid-usage)"
+#        description: Role collection for spring-security-hybrid-usage broker access
 #        role-template-references:
 #          - "$XSAPPNAME.Viewer"
 #---
@@ -111,7 +111,7 @@ spec:
         kyma-grafana: enabled
     spec:
       containers:
-        - image: <YOUR IMAGE REPOSITORY>
+        - image: <YOUR IMAGE TAG>
           env:
             - name: SERVICE_BINDING_ROOT
               value: "/bindings"

@@ -79,8 +79,8 @@ public class SecurityConfigurationTest {
 			tokens = Stream.of(
 					createScopedToken(context, User.MISSING_SCOPES),
 					createScopedToken(context, User.WRONG_SCOPE, "WrongScope"),
-					createScopedToken(context, User.VALID_SCOPE, "Display"),
-					createScopedToken(context, OTHER_ZONE_ID, User.VALID_SCOPE_ON_OTHER_ZONE, "Display")
+					createScopedToken(context, User.VALID_SCOPE, "Read"),
+					createScopedToken(context, OTHER_ZONE_ID, User.VALID_SCOPE_ON_OTHER_ZONE, "Read")
 			).collect(Collectors.toList());
 
 			for (Token t : tokens) {

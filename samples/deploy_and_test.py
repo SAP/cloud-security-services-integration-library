@@ -282,7 +282,7 @@ class TestJavaSecurity(SampleTest):
         resp = self.perform_get_request_with_token('/hello-java-security-authz')
         self.assertEqual(403, resp.status, EXPECT_403)
 
-        self.add_user_to_role('JAVA_SECURITY_SAMPLE_Viewer')
+        self.add_user_to_role('Sample Viewer (java-security-usage)')
         resp = self.perform_get_request_with_token('/hello-java-security-authz')
         self.assertEqual(200, resp.status, EXPECT_200)
 
@@ -301,7 +301,7 @@ class TestSpringSecurityHybrid(SampleTest):
         resp = self.perform_get_request_with_token('/sayHello')
         self.assertEqual(403, resp.status, EXPECT_403)
 
-        self.add_user_to_role('XSUAA-Viewer')
+        self.add_user_to_role('Sample Viewer (spring-security-hybrid-usage)')
         resp = self.perform_get_request_with_token('/sayHello')
         self.assertEqual(200, resp.status, EXPECT_200)
         clientid = self.get_deployed_app().get_credentials_property('clientid')
@@ -437,7 +437,7 @@ class TestJavaBuildpackApi(SampleTest):
         resp = self.perform_get_request_with_token('/hello-token')
         self.assertEqual(403, resp.status, EXPECT_403)
 
-        self.add_user_to_role('Buildpack_API_Viewer')
+        self.add_user_to_role('Sample Viewer (sap-java-buildpack-api-usage)')
         resp = self.perform_get_request_with_token('/hello-token')
         self.assertEqual(200, resp.status, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')
@@ -463,7 +463,7 @@ class SpringSecurityBasicAuth(SampleTest):
         # app restart needed because tokens are cached in application
         self.cf_app.restart()
         logging.info(RUN_TEST.format("SpringSecurityBasicAuthTest.test_fetch_token_status_ok"))
-        self.add_user_to_role('BASIC_AUTH_API_Viewer')
+        self.add_user_to_role('Sample Viewer (spring-security-basic-auth)')
         resp = self.perform_get_request('/fetchToken', username=self.credentials.username,
                                         password=self.credentials.password)
         self.assertEqual(200, resp.status, EXPECT_200)
@@ -487,7 +487,7 @@ class SpringWebfluxSecurityXsuaa(SampleTest):
         resp = self.perform_get_request_with_token('/v1/sayHello')
         self.assertEqual(403, resp.status, EXPECT_403)
 
-        self.add_user_to_role('Webflux_API_Viewer')
+        self.add_user_to_role('Sample Viewer (spring-webflux-security-hybrid-usage)')
         resp = self.perform_get_request_with_token('/v1/sayHello')
         self.assertEqual(200, resp.status, EXPECT_200)
         self.assertRegex(resp.body, self.credentials.username, 'Expected to find username in response')

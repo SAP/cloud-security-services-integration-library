@@ -64,13 +64,13 @@ prepare_image() {
 
 #prepare deployment file and deploy the app, first argument is sample name
 deploy_app() {
-  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
+  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE TAG>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl apply -f - -n "$NAMESPACE"
   sleep 30
 }
 
 #delete the deployed app, first argument is sample name
 delete_deployment() {
-  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE REPOSITORY>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl delete -f - -n "$NAMESPACE"
+  sed "s/.*containers.*/      imagePullSecrets:\n        - name: sap-image-registry\n&/; s/<YOUR IMAGE TAG>/${REPOSITORY}\/$1:$VERSION/" ./k8s/deployment.yml | kubectl delete -f - -n "$NAMESPACE"
   sleep 7
 }
 
@@ -197,7 +197,7 @@ for sample in "${SAMPLES[@]}"; do
     token=$(get_token "$(declare -p serviceConfig)")
     resultList[1]=$(execute_test "$host" "sayHello" 403 "Bearer $token")
 
-    add_user_to_role "$(declare -p serviceConfig)" XSUAA-Viewer
+    add_user_to_role "$(declare -p serviceConfig)" "Sample Viewer (spring-security-hybrid-usage)"
     token=$(get_token "$(declare -p serviceConfig)")
     resultList[2]=$(execute_test "$host" "sayHello" 200 "Bearer $token")
     ;;
@@ -209,7 +209,7 @@ for sample in "${SAMPLES[@]}"; do
     resultList[2]=$(execute_test "$host" "java-security-usage/hello-java-security" 200 "Bearer $token")
     resultList[3]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 403 "Bearer $token")
 
-    add_user_to_role "$(declare -p serviceConfig)" JAVA_SECURITY_SAMPLE_Viewer
+    add_user_to_role "$(declare -p serviceConfig)" "Sample Viewer (java-security-usage)"
     token=$(get_token "$(declare -p serviceConfig)")
     resultList[4]=$(execute_test "$host" "java-security-usage/hello-java-security-authz" 200 "Bearer $token")
     ;;
@@ -219,7 +219,7 @@ for sample in "${SAMPLES[@]}"; do
     credentials=$(echo -n "$USER:$PASSWORD" | base64)
     resultList[1]=$(execute_test "$host" "fetchToken" 403 "Basic $credentials")
 
-    add_user_to_role "$(declare -p serviceConfig)" BASIC_AUTH_API_Viewer
+    add_user_to_role "$(declare -p serviceConfig)" "Sample Viewer (spring-security-basic-auth)"
     resultList[2]=$(execute_test "$host" "fetchToken" 200 "Basic $credentials")
     ;;
   esac

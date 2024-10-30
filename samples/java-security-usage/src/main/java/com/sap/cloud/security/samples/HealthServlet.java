@@ -5,16 +5,21 @@
  */
 package com.sap.cloud.security.samples;
 
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+@WebServlet(HealthServlet.ENDPOINT)
 public class HealthServlet extends HttpServlet {
+
+	static final String ENDPOINT = "/health";
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.getWriter().write("OK");
 	}
+
 }

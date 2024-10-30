@@ -44,6 +44,11 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
         <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>resourceserver-security-spring-boot-starter</artifactId>
         </dependency>
