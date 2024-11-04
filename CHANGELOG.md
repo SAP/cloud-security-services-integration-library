@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 - Bump org.mockito:mockito-core from 5.12.0 to 5.14.2
 - Bump org.eclipse.jetty.version from 12.0.12 to 12.0.13
 - Bump log4j2.version from 2.23.1 to 2.24.1
-- Bump spring.security.version to 6.3.4
+- Bump spring.security.version from 6.3.3 to 6.3.4
 - Bump spring.core.version from 6.1.12 to 6.1.14
 - Bump spring.boot.version from 3.3.2 to 3.3.3
 
