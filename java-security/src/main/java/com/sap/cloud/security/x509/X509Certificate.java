@@ -46,7 +46,7 @@ public class X509Certificate implements Certificate {
 			try {
 				return new X509Certificate(X509Parser.parseCertificate(pem), pem);
 			} catch (CertificateException e) {
-				LOGGER.warn("Could not parse the certificate string", e);
+				LOGGER.debug("Could not parse the certificate string", e);
 			}
 		}
 		return null;

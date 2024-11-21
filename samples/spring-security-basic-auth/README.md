@@ -1,15 +1,20 @@
-# Spring Security with Basic Auth Sample
-This is a sample Spring Boot application secured via Basic Auth that showcases the use of [spring-security](../../spring-security) and [spring-security-starter](../../spring-security-starter).
-> :exclamation: Unless absolutely necessary, do not secure your application via Basic Auth as shown in this sample.\
+# SAP BTP Spring Security Client Library with Basic Auth sample application
+This Spring Boot sample application is secured via Basic Auth and showcases the use of the [spring-security](/spring-security) and [spring-security-starter](../../spring-security-starter) modules.
+> :warning: Unless absolutely necessary, do not secure your application via Basic Auth as shown in this sample.
+> 
 > This sample is only meant for legacy use cases in which the user client does not support OAuth protocols.
 
 For each incoming request, the application accepts user credentials via HTTP Basic Auth and then fetches an XSUAA OAuth2 access token via `Password` grant type.
-This is done by implementing Spring's [BearerTokenResolver](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/oauth2/server/resource/web/BearerTokenResolver.html) interface and configuring the SecurityConfiguration to use it before proceeding with a JWT-based security configuration.\
-As a result, the application has access to the user's scopes configured via XSUAA to perform authorization checks. The controller endpoints can be secured as if the request contained the access token directly.
+This is done by implementing Spring's [BearerTokenResolver](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/oauth2/server/resource/web/BearerTokenResolver.html) interface and configuring the SecurityConfiguration to use it before proceeding with a JWT-based security configuration.
+As a result, the application has access to the user's scopes configured via XSUAA to perform authorization checks.
+The controller endpoints can be secured as if the request contained the access token directly.
 
-:grey_exclamation: However, securing the application this way comes with several costs.\
-Firstly, using `Password` grant type is discouraged because it gives up many of the advantages for which OAuth2 is intended. For example, the user's credentials are available in clear-text to this application.\
-Secondly, it is important in an application like this, to cache the users' access tokens for subsequent requests to reduce HTTP traffic and latency. The [Caffeine](https://github.com/ben-manes/caffeine) cache shown in this example is a simple in-memory cache that might be too simple for production. Furthermore, due to caching, administrative changes of a user's privileges, e.g. roles and/or scopes, will not be respected by subsequent requests until the cache has timed out and a new token is fetched for that user. 
+:grey_exclamation: However, securing the application this way comes at several costs.
+Firstly, using `Password` grant type is discouraged because it gives up many of the advantages for which OAuth2 is intended.
+For example, the user's credentials are available in clear-text to this application.
+Secondly, it is important in an application like this, to cache the users' access tokens for subsequent requests to reduce HTTP traffic and latency.
+The [Caffeine](https://github.com/ben-manes/caffeine) cache shown in this example is a simple in-memory cache that might be too simple for production.
+Furthermore, due to caching, administrative changes of a user's privileges, e.g. roles and/or scopes, will not be respected by subsequent requests until the cache has timed out and a new token is fetched for that user. 
 
 ## Implementation Notes
 Spring's `BearerTokenResolver` interface is implemented in [TokenBrokerResolver](./src/main/java/sample/spring/xsuaa/TokenBrokerResolver.java) which uses the [token-client](../../token-client) module to fetch the access tokens.
@@ -21,116 +26,132 @@ To use this service, the TokenBrokerResolver bean is overridden in [TokenBrokerT
 In order to get the basic auth login popup, the response header `WWW-Authenticate` must be changed from `Bearer` to `Basic`.
 This is done by means of the class `BasicAuthenticationEntryPoint` in the SecurityConfiguration.
 
-## Deployment
-Follow the deployment steps for one of the following platforms of your choice.
- 
-### Kyma/Kubernetes
+## Build and Deploy
+### 1. The following steps deploy the application using either Cloud Foundry or Kyma/Kubernetes.
 <details>
-<summary>Expand this to see the deployment steps</summary>
-  
-- Build docker image and push to repository
-- Configure the deployment.yml
-- Deploy the application
-- Assign Role Collection to your user
-- Access the application
+<summary>Deployment on Cloud Foundry</summary>
 
-#### Build docker image and push to repository
-```shell script
-mvn spring-boot:build-image -Dspring-boot.build-image.imageName=<repositoryName>/<imageName>
-docker push <repositoryName>/<imageName>
-```
-
-#### Configure the deployment.yml
-In deployment.yml, replace the image repository placeholder `<YOUR IMAGE REPOSITORY>` with the one created in the previous step.
-
-#### Deploy the application
-Deploy the application using [kubectl cli](https://kubernetes.io/docs/reference/kubectl/)
-```shell script
-kubectl apply -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
-```
-
-#### Cockpit administration tasks: Assign Role Collection to your user
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection `BASIC_AUTH_API_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
-
-![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
-
-Further up-to-date information you can get on https://help.sap.com:
-- [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
-- [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
-
-#### Access the application
-After deployment, the spring service can be called with basic authentication.
-```shell
-curl -i --user "<SAP ID Service User>:<SAP ID Service Password>" https://spring-security-basic-auth-api.<K8s DOMAIN>/fetchToken
-```
-
-As response, you will get a description of the access token as JSON that was fetched with the provided user credentials. Note that the response format is not a JWT.
-
-#### Cleanup
-Finally, delete your application and your service instances using the following commands:
-```shell script
- kubectl delete -f ./k8s/deployment.yml -n <YOUR NAMESPACE>
-```
-</details>
-
-### Cloud Foundry
-<details>
-<summary>Expand this to see the deployment steps</summary>
-
-- Compile the Java application
-- Create an XSUAA service instance
-- Configure the manifest.yml
-- Deploy the application
-- Assign Role Collection to your user
-- Access the application
-
-## Compile the Java application
-Run maven to package the application
+#### Run maven to compile and package the sample application:
 ```shell
 mvn clean package
 ```
 
-## Create the XSUAA service instance
-:exclamation: If possible, XSUAA should now only be used with X.509 authentication method.
-
-- Use [xs-security.json](./xs-security.json) to create a service instance with X.509 authentication method
-- :grey_exclamation: (Deprecated) Use [xs-security-deprecated.json](xs-security-deprecated.json) to create a service instance with client secret authentication method
+#### Create the XSUAA service instance
+Use the cf CLI to create an XSUAA service instance based on the authentication settings in [xs-security.json](xs-security.json).
 ```shell
 cf create-service xsuaa application xsuaa-basic -c xs-security.json
 ```
 
-## Configure the manifest
-The [vars.yml](../vars.yml) contains hosts and paths that need to be specified.
+#### Configure the manifest
+The [vars](../vars.yml) contain hosts and paths that need to be adapted.
 
-## Deploy the application
-Deploy the application using cf push. It will expect 1 GB of free memory quota.
+#### Deploy the application
+Deploy the application using the cf CLI.
 
 ```shell
 cf push --vars-file ../vars.yml
 ```
+:warning: This will expect 1 GB of free memory quota.
+</details>
 
-## Cockpit administration tasks: Assign Role to your User
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection (`BASIC_AUTH_API_Viewer`) to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+<details>
+<summary>Deployment on Kubernetes</summary>
 
-![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
-
-Further up-to-date information you can get on https://help.sap.com:
-- [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
-- [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
-
-
-## Access the application
-After deployment, the spring service can be called with basic authentication.
+#### Build and tag docker image and push to repository
+Execute the following docker commands to build and push the docker image to a repository.
+Replace `<repository>/<image>` with your repository and image name.
 ```shell
-curl -i --user "<SAP ID Service User>:<SAP ID Service Password>" https://spring-security-basic-auth-<ID>.<LANDSCAPE_APPS_DOMAIN>/fetchToken
+mvn spring-boot:build-image -Dspring-boot.build-image.imageName=<repository>/<image>
+docker push <repository>/<image>
 ```
-As response, you will get a description of the access token as JSON that was fetched with the provided user credentials. Note that the response format is not a JWT.
 
-## Clean-Up
+#### Configure the deployment.yml
+In deployment.yml replace the placeholder `<YOUR IMAGE TAG>` with the image tag created in the previous step.
 
-Finally, delete your application and your service instances using the following commands:
+:warning: If you are [using a private repository](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/),
+you also need to provide the image pull secret in the deployment.yml.
+
+#### Deploy the application
+Deploy the application using [kubectl](https://kubernetes.io/docs/reference/kubectl/).
+```shell
+kubectl apply -f k8s/deployment.yml
 ```
+</details>
+
+### 3. Assign Role Collection to user
+:bulb: You can postpone this step if you first want to test the application without the required authorization.
+
+To get full access to the sample application, you need a user having the role collection `Sample Viewer (spring-security-basic-auth)` assigned.
+This can be done in the SAP BTP Cockpit or using the btp CLI.
+
+<details>
+<summary>Assign role collection via cockpit</summary>
+In the cockpit navigate to your subaccount.
+To assign the role collection of the sample application to a user you have basically two options:
+
+1. Navigate to the user by clicking on `Security` -> `Users`,
+   select the user and click on `Assign Role Collection`
+   (more info at [help.sap.com](https://help.sap.com/docs/btp/sap-business-technology-platform/find-users-and-their-role-collection-assignments)).
+2. Navigate to the role collection by clicking on `Security` -> `Role Collections`,
+   select `Sample Viewer (spring-security-basic-auth)`,
+   click on `Edit` to add the user and finish by clicking on `Save`
+   (more info at [help.sap.com](https://help.sap.com/docs/btp/sap-business-technology-platform/assign-users-to-role-collections)).
+</details>
+
+<details>
+<summary>Assign role collection via command line</summary>
+
+To assign the role collection to a user via the [btp CLI](https://help.sap.com/docs/btp/sap-business-technology-platform/account-administration-using-sap-btp-command-line-interface-btp-cli),
+you need to [log in to your global account](https://help.sap.com/docs/btp/btp-cli-command-reference/btp-login) and execute the following command:
+
+```shell
+btp assign security/role-collection "Sample Viewer (spring-security-basic-auth)" --subaccount <subaccount id> --to-user <user email>
+```
+</details>
+
+### 4. Access the application
+After deployment, the spring service can be called with basic authentication.
+If you have assigned the role-collection as described above, you can access the application via curl.
+
+<details>
+<summary>curl command to access Cloud Foundry deployment</summary>
+
+```
+curl -i --user "<username>:<password>" \
+-X GET https://spring-security-basic-auth-<ID>.<LANDSCAPE_APPS_DOMAIN>/fetchToken
+```
+</details>
+
+<details>
+<summary>curl command to access Kubernetes deployment</summary>
+
+```shell
+curl -i --user "<username>:<password>" \
+   -X GET https://spring-security-basic-auth-api.<K8s DOMAIN>/fetchToken
+```
+</details>
+
+:bulb: If you access the application via browser you should be prompted for basic authentication.
+
+As response, you will get a description of the access token as JSON that was fetched with the provided user credentials.
+Note that the response format is not a JWT.
+
+### 5. Cleanup
+If you no longer need the sample application, you can free up resources using the cf CLI or the Kubernetes CLI.
+
+<details>
+<summary>Cleanup commands for Cloud Foundry</summary>
+
+```shell
 cf delete -f spring-security-basic-auth
 cf delete-service -f xsuaa-basic
+```
+</details>
+
+<details>
+<summary>Cleanup command for Kubernetes</summary>
+
+```shell
+ kubectl delete -f k8s/deployment.yml
 ```
 </details>

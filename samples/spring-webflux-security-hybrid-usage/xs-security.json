@@ -1,16 +1,20 @@
 {
   "xsappname": "spring-webflux-security-hybrid-usage",
+  "description": "SAP BTP Spring Security Client Library Webflux sample application",
   "tenant-mode": "dedicated",
+  "oauth2-configuration": {
+    "credential-types": ["x509"]
+  },
   "scopes": [
     {
       "name": "$XSAPPNAME.Read",
-      "description": "With this scope, information can be read."
+      "description": "Scope for spring-webflux-security-hybrid-usage sample application"
     }
   ],
   "role-templates": [
     {
-      "name": "AccessRole",
-      "description": "Role to call the spring-webflux-security-hybrid-usage service",
+      "name": "Viewer",
+      "description": "Role for spring-webflux-security-hybrid-usage sample application",
       "scope-references": [
         "$XSAPPNAME.Read"
       ]
@@ -18,10 +22,10 @@
   ],
   "role-collections": [
     {
-      "name": "Webflux_API_Viewer",
-      "description": "Role Collection to call the spring-webflux-security-hybrid-usage service",
+      "name": "Sample Viewer (spring-webflux-security-hybrid-usage)",
+      "description": "Role collection for spring-webflux-security-hybrid-usage sample application",
       "role-template-references": [
-        "$XSAPPNAME.AccessRole"
+        "$XSAPPNAME.Viewer"
       ]
     }
   ]
