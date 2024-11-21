@@ -1,16 +1,17 @@
 {
   "xsappname": "java-security-usage",
+  "description": "SAP BTP Java Security Client Library with XSUAA sample application",
   "tenant-mode": "dedicated",
   "scopes": [
     {
       "name": "$XSAPPNAME.Read",
-      "description": "Read Permissions."
+      "description": "Scope for java-security-usage sample application"
     }
   ],
   "role-templates": [
     {
       "name": "Viewer",
-      "description": "View Data",
+      "description": "Role for java-security-usage sample application",
       "scope-references": [
         "$XSAPPNAME.Read"
       ]
@@ -18,8 +19,8 @@
   ],
   "role-collections": [
     {
-      "name": "JAVA_SECURITY_SAMPLE_Viewer",
-      "description": "Viewer (read)",
+      "name": "Sample Viewer (java-security-usage)",
+      "description": "Role collection for java-security-usage sample application",
       "role-template-references": [
         "$XSAPPNAME.Viewer"
       ]

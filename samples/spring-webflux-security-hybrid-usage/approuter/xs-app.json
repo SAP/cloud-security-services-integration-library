@@ -2,9 +2,16 @@
   "welcomeFile": "index.html",
   "routes": [
     {
-      "source": "^/v1",
+      "source": "^/xsuaa",
       "target": "/v1",
-      "destination": "token-destination"
+      "destination": "token-destination",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/ias",
+      "target": "/v1",
+      "destination": "token-destination",
+      "authenticationType": "ias"
     }
   ]
 }

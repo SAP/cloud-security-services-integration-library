@@ -4,7 +4,7 @@
 - [sap-java-buildpack-api-usage](./sap-java-buildpack-api-usage): Sample showcasing how to use SAP Java Buildpack to secure a Java J2EE web application.
 
 ## Java 17 using Tomcat 10 servlet
-- [java-security-usage](./java-security-usage): Sample demonstrating how to use the `java-security` library for authentication and authorization checks in a Java application when bound to an Xsuaa service. 
+- [java-security-usage](./java-security-usage): Sample demonstrating how to use the `java-security` library for authentication and authorization checks in a Java application when bound to an XSUAA service.
 Additionally, it explains how to implement JUnit Tests using the `java-security-test` library.
 </br>:heavy_check_mark: compatible with Kubernetes/Kyma environment<br/>
 

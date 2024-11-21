@@ -20,9 +20,8 @@ import java.io.Serial;
 
 @WebServlet(HelloJavaServlet.ENDPOINT)
 public class HelloJavaServlet extends HttpServlet {
+
 	static final String ENDPOINT = "/hello-java-security-ias";
-	@Serial
-	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(HelloJavaServlet.class);
 
 	/**

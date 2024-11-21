@@ -52,7 +52,9 @@ public class SSLContextFactory {
 				.replace("-----END RSA PRIVATE KEY-----", "")
 				.replace("-----END PRIVATE KEY-----", "")
 				.replace("\\n", "")
-				.replace("\n", "");
+				.replace("\n", "")
+				.replace("\\r", "")
+				.replace("\r", "");
 	}
 
 	/**
