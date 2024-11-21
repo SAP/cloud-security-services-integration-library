@@ -320,7 +320,7 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-pmd-plugin</artifactId>
-							<version>3.24.0</version>
+							<version>3.26.0</version>
 							<configuration>
 								<skip>${skipTests}</skip>
 							</configuration>
