@@ -6,12 +6,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sap.cloud.security.xssec.samples</groupId>
 	<artifactId>sap-java-buildpack-api-usage</artifactId>
-	<version>3.5.3</version>
+	<version>3.5.4</version>
 	<packaging>war</packaging>
 
 	<properties>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.release>17</maven.compiler.release>
 		<jakarta.servlet.api.version>6.1.0</jakarta.servlet.api.version>
 	</properties>
 
@@ -41,14 +41,17 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.3.2</version>
-				<configuration>
-					<warName>sap-java-buildpack-api-usage</warName>
-				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
 			</plugin>
 		</plugins>
 	</build>

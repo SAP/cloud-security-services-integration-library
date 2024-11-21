@@ -8,6 +8,7 @@ package com.sap.cloud.security.samples;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.TokenClaims;
+import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+@WebServlet(HelloJavaServlet.ENDPOINT)
 public class HelloJavaServlet extends HttpServlet {
+
 	static final String ENDPOINT = "/hello-java-security";
 	private static final Logger LOGGER = LoggerFactory.getLogger(HelloJavaServlet.class);
 
