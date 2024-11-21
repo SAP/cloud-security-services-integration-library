@@ -1,11 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.4
+
+- [java-security] Reduce log level to debug for errors during certificate parsing
+- [samples] Cleanup and rework most sample applications
+
+### Dependency upgrades
+
+- Bump org.mockito:mockito-core from 5.12.0 to 5.14.2
+- Bump org.eclipse.jetty.version from 12.0.12 to 12.0.13
+- Bump log4j2.version from 2.23.1 to 2.24.1
+- Bump spring.security.version from 6.3.3 to 6.3.4
+- Bump spring.core.version from 6.1.12 to 6.1.14
+- Bump spring.boot.version from 3.3.2 to 3.3.3
+
 ## 3.5.3
 
 - [java-security] Reenable sap-java-buildpack-api-usage sample using Tomcat 10
 
-#### Dependency upgrades
+### Dependency upgrades
 
 - Bump spring.security.version from 6.3.1 to 6.3.3
 - Bump io.projectreactor:reactor-core from 3.6.7 to 3.6.9
@@ -19,7 +33,7 @@ All notable changes to this project will be documented in this file.
 
 - [spring-xsuaa] Remove new X5tCertificateThumbprintValidator from spring-xsuaa validators
 
-#### Dependency upgrades
+### Dependency upgrades
 
 - Bump spring.boot.version from 3.3.0 to 3.3.1
 
@@ -32,7 +46,7 @@ All notable changes to this project will be documented in this file.
   - Improved JWK fetch error handling/logging. In case of unsuccessful response from JWK server the error will be mapped
     to 5XX status code
 
-#### Dependency upgrades
+### Dependency upgrades
 
 - Bump spring.core.version from 6.1.7 to 6.1.10
 - Bump spring.boot.version from 3.2.5 to 3.3.0
@@ -59,7 +73,7 @@ All notable changes to this project will be documented in this file.
     EnvironmentPostProcessor as in this scenario the servlet initialization is not happening and the code runs too late
     due to that.
 
-#### Dependency upgrades
+### Dependency upgrades
 
 - Bump io.projectreactor:reactor-core from 3.6.5 to 3.6.6
 - Bump com.nimbusds:nimbus-jose-jwt from 9.37.3 to 9.39.1
@@ -70,7 +84,7 @@ All notable changes to this project will be documented in this file.
 - [spring-security] improved custom SecurityContextStrategy registration for the `SecurityContextAutoConfiguration`
   class. It uses `ServletContextInitializer` to hook early into the initialization phase.
 
-#### Dependency upgrades
+### Dependency upgrades
 
 - Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from
   0.10.4 to 0.10.5.
@@ -88,7 +102,7 @@ All notable changes to this project will be documented in this file.
 - [spring-security] fixes a NPE bug introduced in the `IasJwtDecoder` when the incoming request does not
   contain `x-forwarded-client-cert` header
 
-#### Dependency upgrades
+### Dependency upgrades
 
 - Bumps `spring.boot.version` from 3.2.4 to 3.2.5.
 - Bumps `slf4j.api.version` from 2.0.12 to 2.0.13
@@ -109,7 +123,7 @@ All notable changes to this project will be documented in this file.
     In this case, a `x-client_cert` is sent in the request to `/oauth2/token_keys` which should trigger the `x-osb_plan` response header.
 - [spring-security] fixes a bug in `ReactiveHybridJwtDecoder` when parsing `iat` claim #1490
 
-#### Dependency upgrades
+### Dependency upgrades
 
 - Bump commons-io:commons-io from 2.15.1 to 2.16.1
 - Bump spring.boot.version from 3.2.2 to 3.2.4
@@ -133,7 +147,7 @@ All notable changes to this project will be documented in this file.
   - new sample [spring-weblux-security-hybrid-usage](./samples/spring-webflux-security-hybrid-usage) that showcases
     usage of Reactive Token validation
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump com.sap.cloud.environment.servicebinding from 0.10.2 to 0.10.3
 - Bump slf4j.api.version from 2.0.11 to 2.0.12
 - Bump org.json:json from 20231013 to 20240205
@@ -146,7 +160,7 @@ All notable changes to this project will be documented in this file.
 - [env] service plan property is no longer uppercased when building `OAuth2ServiceConfiguration` from service bindings of the environment
 - [spring-security] fixes a bug in which a second XSUAA configuration of plan "broker" was ignored in spring-security auto-configuration for versions 3.3.2 and 3.3.3
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump io.projectreactor:reactor-core from 3.6.1 to 3.6.2
 - Bump spring.core.version from 6.1.2 to 6.1.3
 - Bump slf4j.api.version from 2.0.10 to 2.0.11
@@ -161,7 +175,7 @@ All notable changes to this project will be documented in this file.
 - [token-client]
   - remove httpclient caching from DefaultHttpClientFactory (#1416)
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.boot.version from 3.2.0 to 3.2.1
 - Bump spring.core.version from 6.0.14 to 6.1.2
 - Bump log4j2.version from 2.22.0 to 2.22.1
@@ -181,7 +195,7 @@ All notable changes to this project will be documented in this file.
 - [java-security-test]
   - upgrade the Jetty servlet to jetty-ee9-servlet (fixes issues with the Spring Boot 3.2 upgrade) 
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.boot.version from 3.1.6 to 3.2.0
 - Bump spring.core.version from 6.0.14 to 6.1.2
 - Bump spring.security.version from 6.2.0 to 6.2.1
@@ -197,7 +211,7 @@ All notable changes to this project will be documented in this file.
 
 In version 3.3.1, when `java-security-test` is loaded (which should only occur during testing), credentials with `localhost` as the `uaadomain` (XSUAA) or trusted `domains` (IAS) can be used to validate tokens that include a port for `localhost` in their `jku` (XSUAA) or `issuer` (IAS). It's important to note that token validation is less strict in this case and may accept certain edge cases of malicious tokens that would not be accepted in a production environment.
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.boot.version from 3.1.5 to 3.1.6
 - Bump spring.core.version from 6.0.13 to 6.0.14
 - Bump spring.security.version from 6.1.5 to 6.2.0
@@ -219,7 +233,7 @@ The full wiremock URL including *http://* and *\<PORT\>* is available via Securi
 ## 3.2.1
 Hot fix for the CVE-2023-5072
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.boot.version from 3.1.4 to 3.1.5
 - Bump log4j2.version from 2.20.0 to 2.21.0
 - Bump spring.security.version from 6.1.4 to 6.1.5
@@ -231,7 +245,7 @@ Hot fix for the CVE-2023-5072
   - `OAuth2TokenKeyService` and `OAuth2TokenKeyServiceWithCache`
     - Refactor API to use generic Map instead of explicit IAS-specific parameters
     
-#### Dependency upgrades
+### Dependency upgrades
 - Bump io.projectreactor:reactor-core from 3.5.9 to 3.5.11
 - Bump spring.core.version from 6.0.11 to 6.0.13 
 - Bump spring.security.version from 6.1.3 to 6.1.4
@@ -254,7 +268,7 @@ Hot fix for the CVE-2023-5072
       - `OAuth2ServiceException` generated by unsuccessful JWKs fetch contains request headers as well
   - `OAuth2ServiceException` updated header message - contains now `Response Headers` instead of `Headers`
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.security.version from 6.1.2 to 6.1.3
 - Bump spring.boot.version from 3.1.2 to 3.1.3
 
@@ -270,11 +284,11 @@ Hot fix for the CVE-2023-5072
   This adjustment ensures that the logic is in line with the 2.x major version.
 - [token-client] reverted removal of ``OAuth2ServiceException.getHttpStatusCode()``  
  
-#### Dependency upgrades
+### Dependency upgrades
 - Bump [com.sap.cloud.environment.servicebinding:java-bom](https://github.com/SAP/btp-environment-variable-access) from 0.8.0 to 0.9.0
 
 ## 3.1.0
-#### :exclamation: IMPORTANT Update 
+### :exclamation: IMPORTANT Update 
 The `zone_uuid` claim in Identity service tokens has been deprecated and is now replaced by the `app_tid` claim. You should use the `app_tid` claim to identify the unique tenant id, which was previously referred to as the zone.
 
 - [java-api] 
@@ -289,7 +303,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
     - `SpringOAuth2TokenKeyService`
 - [java-security] `AbstractToken` is serializable fixes #1209 
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.core.version from 6.0.9 to 6.0.11
 - Bump spring.boot.version from 3.0.6 to 3.1.2
 - Bump spring.security.version from 6.0.3 to 6.1.2
@@ -301,7 +315,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 ## 3.0.1
 - [spring-xsuaa] fixes incompatible TLS version for `DefaultSpringHttpClientFactory`
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.core.version from 6.0.8 to 6.0.9
 - Bump reactor-core from 3.5.5 to 3.5.6
 - Bump btp-environment-variable-access from 0.5.2 to 0.6.0
@@ -316,10 +330,10 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 ### Breaking Changes
 * Identity service configurations need to provide domains via String array in JSON key 'identity.credentials.domains'. Providing String values under key 'identity.credentials.domain' is not supported anymore. IAS configurations from service bindings have been generated like this for a long time already. This should only affect old configuration files manually written for testing.
 
-#### Removed modules
+### Removed modules
 * `spring-xsuaa-mock` &rarr; use [java-security-test](./java-security-test) instead
 
-#### Removed deprecated classes and interfaces
+### Removed deprecated classes and interfaces
 * [api]
   * `XSPrincipal`, `XSUserInfoException` &rarr; not needed anymore with new [Token](./java-api/src/main/java/com/sap/cloud/security/token/Token.java) interface
 * [env]
@@ -338,7 +352,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 * [token-client]
   * `UserTokenFlow` &rarr; use instead `JwtBearerTokenFlow`
 
-#### Removed deprecated methods
+### Removed deprecated methods
 * [java-security]
   * `OAuth2TokenKeyServiceWithCache#withCacheTime`, `OAuth2TokenKeyServiceWithCache#withCacheSize` &rarr; use instead `OAuth2TokenKeyServiceWithCache#withCacheConfiguration`
   * `SAPOfflineTokenServicesCloud#SAPOfflineTokenServicesCloud(OAuth2ServiceConfiguration)` &rarr;
@@ -360,7 +374,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
   * `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(URI)`, `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(String)` &rarr; use instead `XsuaaDefaultEndpoints#XsuaaDefaultEndpoints(String, String)`
   * `OAuth2TokenResponse#getExpiredAtDate` &rarr; use instead `OAuth2TokenResponse#getExpiredAt`
   * `Base64JwtDecoder#Base64JwtDecoder`  &rarr; use instead `Base64JwtDecoder#getInstance`
-#### Removed deprecated fields
+### Removed deprecated fields
 * [java-api]
   * `GrantType#USER_TOKEN` &rarr; use instead `GrantType#JWT_BEARER`
 * [token-client]
@@ -373,7 +387,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 - [spring-xsuaa] improved logging for JwtAudienceValidator
 - [java-security] enables token validation without zones
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump httpclient from 4.5.13 to 4.5.14
 * Bump btp-environment-variable-access java-bom from 0.5.1 to 0.5.2
 * Bump spring.boot.version from 2.7.5 to 2.7.8
@@ -387,7 +401,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 - [java-security-test]
   - `scim_id` added as default attribute for identity token Jwt generator
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump spring.security.version from 5.7.3 to 5.7.5
 * Bump btp-environment-variable-access java-bom from 0.4.1 to 0.5.1
 * Bump spring.boot.version from 2.7.3 to 2.7.5
@@ -399,14 +413,14 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 - [spring-xsuaa-starter]
   - Patches [CVE 2022-25857](https://nvd.nist.gov/vuln/detail/CVE-2022-25857) vulnerability in spring boot starter transient dependency.
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump spring-boot-starter-parent from 2.7.1 to 2.7.3
 * Bump slf4j.api.version from 1.7.36 to 2.0.0
 
 ## 2.13.2
 - [java-security] Bug fix for regression in `XSUserInfoAdapter.getMultiValueAttributeFromExtObject()` when error was thrown accessing xs.user.attributes with empty array value. It throws an error only in case of non existing attribute as before 2.12.3
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump spring.security.version from 5.7.2 to 5.7.3
 * Bump java-bom(https://github.com/SAP/btp-environment-variable-access) from 0.4.0 to 0.4.1
 
@@ -419,7 +433,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 - [spring-xsuaa]
   - `XsuaaJwtDecoder` catches bases64 decoder `IllegalArgumentException` that can be caused by decoding malformed `verificationkey` from xsuaa service configuration to avoid `500 Internal server error` responses
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump `spring.boot.version` from 2.7.1 to 2.7.2.
 * Bump https://github.com/SAP/btp-environment-variable-access from 0.3.1 to 0.4.0.
 * Bump reactor-core from 3.4.21 to 3.4.22
@@ -432,7 +446,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 - [samples]
   - `java-security-usage`, `spring-security-basic-auth`, `spring-security-hybrid-usage`  adjusted for service-operator higher than v0.2.3 usage
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump log4j2.version from 2.17.2 to 2.18.0
 * Bump `spring.core.version` from 5.3.21 to 5.3.22.
 * Bump [reactor-core](https://github.com/reactor/reactor-core) from 3.4.19 to 3.4.21.
@@ -446,7 +460,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 - [java-api]
   - `Token.getAttributeFromClaimAsStringList` javadoc has been fixed, this method supposed to return empty `List` in case of missing attribute not `null`
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.security.version from 5.7.1 to 5.7.2
 - Bump spring.boot.version from 2.7.0 to 2.7.1
 - Bump spring.core.version from 5.3.20 to 5.3.21
@@ -457,14 +471,14 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
 - [spring-xsuaa][spring-security]
   - Fixes [CVE-2022-22978](https://tanzu.vmware.com/security/cve-2022-22978) vulnerability in spring security version
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.security.version from 5.6.3 to 5.7.1
 - Bump spring.boot.version from 2.6.7 to 2.7.0
 
 ## 2.12.1
 - [java-security] `JwtIssuerValidator` rules have been relaxed, it accepts issuers without `https` schema
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump jackson-databind from 2.13.2.2 to 2.13.3
 * Bump spring.core.version from 5.3.19 to 5.3.20
 * Bump reactor-core from 3.4.17 to 3.4.18
@@ -476,7 +490,7 @@ The `zone_uuid` claim in Identity service tokens has been deprecated and is now 
   - This improves the default Apache Http Client configuration, provided with `DefaultHttpClientFactory`, so that warning message described [here](https://github.com/SAP/cloud-security-xsuaa-integration/tree/main/token-client#new-warning-in-productive-environment-provide-well-configured-httpclientfactory-service) is no longer logged in case of certificate based setup, and stakeholders must not overwrite the default configuration.
   - In case there is no certificate given in `VCAP_SERVICES` a default http client gets created (`HttpClients.createDefault()`) and the message is still logged with severity `WARNING` .
 
-#### Details DefaultHttpClientFactory
+### Details DefaultHttpClientFactory
 It sets
 - connect timeout = 5 sec
 - connection request timeout = 5 sec
@@ -488,7 +502,7 @@ It introduces a `PoolingHttpClientConnectionManager` and limits
 - maximum connections per route to 4 (default is 2)
 - and the maximum connections to 20
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump spring-security-oauth2 from 2.5.1.RELEASE to 2.5.2.RELEASE
 * Bump spring-boot-starter version from 2.6.6 to 2.6.7
 
@@ -501,7 +515,7 @@ It introduces a `PoolingHttpClientConnectionManager` and limits
   Introduces with `spring-security-compatibility` a compatibility module that provides with ``XsuaaTokenComp`` class an option to decorate a token issued by xsuaa to ``com.sap.cloud.security.xsuaa.token.Token`` api, which was used in `spring-xsuaa`.
   - See also [Migration Guide](https://github.com/SAP/cloud-security-xsuaa-integration/blob/token-compatibility/spring-security/Migration_SpringXsuaaProjects.md) and PR #847
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump spring-boot-starter-parent version from 2.5.2 to 2.6.6 (only in samples)
 * Bump reactor-core from 3.4.16 to 3.4.17
 * Bump spring.security.version from 5.6.2 to 5.6.3
@@ -510,7 +524,7 @@ It introduces a `PoolingHttpClientConnectionManager` and limits
 [spring-xsuaa][spring-security]
 - Fixes [CVE-2022-22965](https://tanzu.vmware.com/security/cve-2022-22965) vulnerability in spring version
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump spring.core.version from 5.3.17 to 5.3.18
 * Bump spring.boot.version from 2.6.5 to 2.6.6
 
@@ -524,7 +538,7 @@ It introduces a `PoolingHttpClientConnectionManager` and limits
 - [java-security-test]
   * Bump jackson-databind.version from 2.12.1 to 2.13.2.2 (solves security vulnerability)
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump slf4j.api.version from 1.7.35 to 1.7.36
 * Bump spring.security.version from 5.6.1 to 5.6.2
 * Bump log4j2.version from 2.17.1 to 2.17.2
@@ -547,7 +561,7 @@ It introduces a `PoolingHttpClientConnectionManager` and limits
 ## 2.11.12
 - [java-security] `XsuaaTokenAuthenticator` should support validation of tokens issued by Cloud Foundry UAA (NGPBUG-175120)
 
-#### Dependency upgrades
+### Dependency upgrades
 * Bump reactor-core from 3.4.13 to 3.4.14
 * Bump spring.core.version from 5.3.14 to 5.3.15
 * Bump slf4j.api.version from 1.7.32 to 1.7.35
@@ -558,14 +572,14 @@ It introduces a `PoolingHttpClientConnectionManager` and limits
 - [spring-xsuaa-starter] ``xsuaaMtlsRestOperations`` and ``xsuaaRestOperations`` are only auto-configured if ``XsuaaServiceConfiguration`` bean is given
 - [java-security] Support oidc tokens from single tenant apps w/o zone_uuid claim (NGPBUG-170120)
 
-#### Dependency upgrades
+### Dependency upgrades
 - remove net.minidev:json-smart
 - Bump log4j2.version from 2.17.0 to 2.17.1
 
 ## 2.11.10
 [spring-xsuaa-starter] Patches CVE-2021-42550
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.boot.version from 2.6.1 to 2.6.2 contains logback 1.2.9 (CVE-2021-42550)
 - Bump dependency-check-maven from 6.5.0 to 6.5.1
 - Bump logcaptor from 2.7.4 to 2.7.7
@@ -587,7 +601,7 @@ It introduces a `PoolingHttpClientConnectionManager` and limits
 ```
 See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/samples/java-security-usage/pom.xml).
 
-#### Dependency upgrades
+### Dependency upgrades
 - Bump spring.security.version from 5.6.0 to 5.6.1
 - Bump spring.core.version from 5.3.13 to 5.3.14
 - Bump log4j-api to 2.17.0 (CVE-2021-45105)
@@ -599,11 +613,11 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 ## 2.11.5
 - [token-client] hotfix for token cache miss issue
 
-#### Dependency upgrades
+### Dependency upgrades
 - org.json.version 20210307 --> 20211205
 
 ## 2.11.4
-#### Dependency upgrades
+### Dependency upgrades
 - spring.boot.version 2.6.0 --> 2.6.1
 - caffeine 2.9.2 --> 2.9.3
 - com.github.tomakehurst:wiremock-jre8-standalone 2.31.0 --> 2.32.0
@@ -620,7 +634,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - :exclamation: Incompatible change `XsuaaCredentials`  `getPrivateKey()` `setPrivateKey()` has changed to `getKey()` `setKey()` to reflect the attribute name from configuration
 - [token-client] Adds ``X-CorrelationID`` header to outgoing requests. In case MDC provides "correlation_id" this one is taken (issue [691](https://github.com/SAP/cloud-security-xsuaa-integration/issues/691))
 
-#### Dependency upgrades
+### Dependency upgrades
 - io.projectreactor:reactor-test 3.4.11 --> 3.4.12
 - io.projectreactor:reactor-core 3.4.11 --> 3.4.12
 - dependency-check-maven-plugin 6.4.1 --> 6.5.0
@@ -637,7 +651,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [java-security][spring-security] supports custom domains of identity service. If `ias_iss` is given and not empty, `JwtIssuerValidator.java` checks whether its a valid url and checks whether this matches one of the valid domains of the identity service. The check whether `iss` matches to any given domains is skipped in that case.
 - Resolves regression in `XsuaaServiceConfigurationDefault` (fixes [#695](https://github.com/SAP/cloud-security-xsuaa-integration/issues/695))
 
-#### Dependency upgrades
+### Dependency upgrades
 - io.projectreactor:reactor-test 3.4.10 --> 3.4.11
 - io.projectreactor:reactor-core 3.4.10 --> 3.4.11
 - org.springframework:spring.core.version  5.3.10 --> 5.3.12
@@ -655,7 +669,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [spring-xsuaa] `LocalAuthoritiesExtractor` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
 - [spring-security] `XsuaaTokenAuthorizationConverter` supports also `appId`s that contains pipe (`|`) characters [#640](https://github.com/SAP/cloud-security-xsuaa-integration/pull/640).
 
-#### Dependency upgrades
+### Dependency upgrades
 - maven-javadoc-plugin 3.3.0 --> 3.3.1
 - maven-pmd-plugin 3.14.0 --> 3.15.0
 - dependency-check-maven 6.2.2 --> 6.3.1
@@ -672,7 +686,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - new method `SSLContextFactory.createKeyStore(ClientIdentity)`
   - `XsuaaTokenFlows` constructor accepts `com.sap.cloud.security.xsuaa.client.ClientCredentials` as argument.
 
-#### Dependency upgrades
+### Dependency upgrades
 - org.springframework.security:spring-security-oauth2-jose 5.5.1 --> 5.5.2
 - org.springframework.security:spring-security-oauth2-resource-server 5.5.1 --> 5.5.2
 - org.springframework.security:spring-security-oauth2-jose 5.5.1 --> 5.5.2
@@ -688,13 +702,13 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
     -`XsuaaServiceConfigurationDefault.getProperty("apiurl")` returns value from VCAP_SERVICES-xsuaa-credentials-apiurl or null, if attribute does not exist.
 - [spring-security]`HybridJwtDecoder` raises ``BadJwtException`` in case the token is invalid and can not be decoded properly.
 
-#### Dependency upgrades
+### Dependency upgrades
 - wiremock 2.29.1 --> 2.30.1
 - io.projectreactor:reactor-core 3.4.8 --> 3.4.9
 - io.projectreactor:reactor-test 3.4.8 --> 3.4.9
 
 ## 2.10.3
-#### Dependency upgrades
+### Dependency upgrades
 - org.springframework.boot:spring-boot 2.5.0 --> 2.5.2
 - slf4j-api 1.7.30 --> 1.7.32
 - caffeine 2.8.8 --> 2.9.2
@@ -713,7 +727,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [java-security-test] requires ``javax.servlet:javax.servlet-api`` dependency to be provided.
 
 ## 2.10.1 and 0.3.1 [BETA]
-#### Dependency upgrades
+### Dependency upgrades
 - org.springframework.boot:spring-boot 2.5.0 --> 2.5.2
 - org.springframework:spring-core 5.3.7 --> 5.3.8
 - org.springframework.security:spring-security-oauth2-jose 5.5.0 --> 5.5.1
@@ -754,7 +768,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [java-security] and [spring-security] validates IAS OIDC tokens from multiple IAS tenants and zones. <br>**Prerequisite:** identity service broker needs to provide list of `domains` via `VCAP_SERVICES`-`identity`-`credentials`.
 - [spring-security] Resource Server raises ``InvalidBearerTokenException`` in case token couldn't be successfully validated (as documented [here](https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2resourceserver-bearertoken-failure)). Adapt your configuation locally according to this [documentation](https://github.com/SAP/cloud-security-xsuaa-integration/tree/master/spring-security#minimal-configuration-required).
 
-#### Dependency upgrades
+### Dependency upgrades
 - commons-io:commons-io 2.8.0 --> 2.9.0
 - org.springframework.boot:spring-boot 2.4.5 --> 2.5.0
 - org.springframework:spring-core 5.3.6 --> 5.3.7
@@ -776,7 +790,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 ## 2.8.12 and 0.1.5 [BETA]
 - [token-client] ```OAuth2ServiceException``` provides ```getHttpStatusCode()```. This allows applications to retry e.g. in case of ```429``` - when the request was rate limited.
 
-#### Dependency upgrades
+### Dependency upgrades
 - spring.security.version 5.4.5 --> 5.4.6
 - spring.core.version 5.3.5 --> 5.3.6
 - spring.boot.version 2.4.4 --> 2.4.5
@@ -834,7 +848,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 - [java-security] Make HybridTokenFactory more failure tolerant
 - [spring-xsuaa-test] Prefills "ext_atr" "enhancer" with XSUAA
 
-#### Dependency upgrades
+### Dependency upgrades
 - [all]
   - commons-io 2.6 --> 2.8.0
   - org.apache.httpcomponents » httpclient 4.5.9 --> 4.5.13
@@ -867,7 +881,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
   - *Beta release* of ias2xsuaa token exchange. Further information can be found [here](/spring-xsuaa#ias-to-xsuaa-token-exchange).
   - Replaces dependencies to JSON Parser of ``net.minidev`` with `org.json` (fixes #414).
 
-#### Dependency upgrades
+### Dependency upgrades
 - spring.boot.version 2.3.5.RELEASE --> 2.4.1
 - spring.core.version 5.2.10.RELEASE --> 5.3.2
 - spring.security.version 5.3.5.RELEASE --> 5.4.2
@@ -942,7 +956,7 @@ See [sample](https://github.com/SAP/cloud-security-xsuaa-integration/blob/main/s
 ## 2.7.2
 - [java-security]
   - Audience Validation accepts tokens of grant type `user_token` that does not provide `aud` claim. In that case `JwtAudienceValidator` derives the audiences from the scopes.
-#### :exclamation: IMPORTANT Update
+### :exclamation: IMPORTANT Update
 - Use `getSubaccountId()` only to fetch the subaccount id, e.g. for calling the metering API for user-based pricing.
 - **In case you are interested in the customers tenant GUID make use of `getZoneId()` instead!**
 - In upcoming releases - especially for new subaccounts - subaccount id will no longer match the tenant GUID which is provided via the xsuaa access token as `zid` claim or via the ias oidc token as `zone_uuid` claim.
