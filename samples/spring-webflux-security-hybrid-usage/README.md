@@ -1,76 +1,112 @@
-# Description
-This sample is a Spring Boot application that uses `spring-webflux` as the web framework and 
-is protected by the `spring-security-oauth2-resource-server`, 
-which utilizes the [`spring-security`](/spring-security/) client library.
-
-# Deployment To Cloud Foundry
-To deploy the application, the following steps are required:
-- Configure the Application Router
-- Compile the Java application
-- Create an XSUAA service instance
-- Create an IAS service instance
-- Configure the manifest.yml
-- Deploy the application
-- Assign Role to your user
-- Access the application
+# SAP BTP Spring Security Client Library Webflux sample application
+This Spring Boot sample application is build with the `spring-webflux` framework and is protected by the
+`spring-security-oauth2-resource-server`.
+It uses the `spring-security` module to validate JWT tokens issued by either the `xsuaa` or the `identity` service.
+The `xsuaa` service provides an OAuth access token, while the `identity` service provides an OIDC token.
+The tokens differ in the details they provide through token claims.
+In both instances, the validated token is accessible as a [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the `ReactiveSecurityContext`.
 
 ## Configure the Application Router
+The [Application Router](approuter/package.json) is used to provide a single entry point to a business application that consists of several different apps (microservices).
+It dispatches requests to backend microservices and acts as a reverse proxy.
+The rules that determine which request should be forwarded to which _destinations_ are called _routes_.
+The application router can be configured to authenticate the users and propagate the user information.
+Finally, the application router can serve static content.
 
-The [Application Router](./approuter/package.json) is used to provide a single entry point to a business application that consists of several apps (microservices). 
-It dispatches requests to backend microservices and acts as a reverse proxy. The rules that determine which request should be forwarded to which _destinations_ are called _routes_. 
-The application router can be configured to authenticate the users and propagate the user information. Finally, the application router can serve static content.
-
-## Compile the Java Application
-Run maven to package the application
+## Build and Deploy
+### 1. Run maven to compile and package the sample application:
 ```shell
 mvn clean package
 ```
 
-## Create the XSUAA Service Instance
-Use the [xs-security.json](./xs-security.json) to define the authentication settings and create a service instance
+### 2. The following steps deploy the application using Cloud Foundry.
+#### Create the XSUAA service instance
+Use the cf CLI to create an XSUAA service instance based on the authentication settings in [xs-security.json](xs-security.json).
 ```shell
 cf create-service xsuaa application xsuaa-webflux -c xs-security.json
 ```
-
-## Create the IAS Service Instance
+#### Create the IAS service instance
 ```shell
-cf create-service identity application ias-webflux
+cf create-service identity application ias-webflux -c ias-security.json
 ```
+:bulb: You may need to adapt the hostname in the [ias config](ias-security.json).
 
-## Configure the manifest
-The [vars](../vars.yml) contains hosts and paths that you might need to adopt.
+#### Configure the manifest
+The [vars](../vars.yml) contain hosts and paths that need to be adapted.
 
-## Deploy the application
-Deploy the application using cf push. It will expect 1 GB of free memory quota.
+#### Deploy the application
+Deploy the application using the cf CLI.
 
 ```shell
 cf push --vars-file ../vars.yml
 ```
+:warning: This will expect 1 GB of free memory quota.
 
+### 3. Give permission to user
+To get access to the sample application, you need a user with one of the following assigned:
+- the role collection `Sample Viewer (spring-webflux-security-hybrid-usage)' (via XSUAA)
+- the group `Read` (via IAS)
 
-## Cockpit administration tasks: Assign Role to your User
-Finally, as part of your Identity Provider, e.g. SAP ID Service, assign the deployed Role Collection(s) such as `Webflux_API_Viewer` to your user as depicted in the screenshot below and as documented [here](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/9e1bf57130ef466e8017eab298b40e5e.html).
+#### Assign Role Collection (XSUAA)
+This can be done in the SAP BTP Cockpit or using the btp CLI.
 
-![](../images/SAP_CP_Cockpit_AssignRoleCollectionToUser.png)
+<details>
+<summary>Assign role collection via cockpit</summary>
+In the cockpit navigate to your subaccount.
+To assign the role collection of the sample application to a user you have basically two options:
 
-Further up-to-date information you can get on sap.help.com:
-- [Maintain Role Collections](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/d5f1612d8230448bb6c02a7d9c8ac0d1.html)
-- [Maintain Roles for Applications](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/7596a0bdab4649ac8a6f6721dc72db19.html).
+1. Navigate to the user by clicking on `Security` -> `Users`,
+   select the user and click on `Assign Role Collection`
+   (more info at [help.sap.com](https://help.sap.com/docs/btp/sap-business-technology-platform/find-users-and-their-role-collection-assignments)).
+2. Navigate to the role collection by clicking on `Security` -> `Role Collections`,
+   select `Sample Viewer (spring-webflux-security-hybrid-usage)`,
+   click on `Edit` to add the user and finish by clicking on `Save`
+   (more info at [help.sap.com](https://help.sap.com/docs/btp/sap-business-technology-platform/assign-users-to-role-collections)).
+</details>
 
+<details>
+<summary>Assign role collection via command line</summary>
 
-## Access the application
-After deployment, the AppRouter will trigger authentication automatically when you access one of the following URLs:
+To assign the role collection to a user via the [btp CLI](https://help.sap.com/docs/btp/sap-business-technology-platform/account-administration-using-sap-btp-command-line-interface-btp-cli),
+you need to [log in to your global account](https://help.sap.com/docs/btp/btp-cli-command-reference/btp-login) and execute the following command:
 
-* `https://spring-webflux-security-hybrid-usage-web-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces Http response with content-type `application/json; UTF-8` and the body containing the claims of the JWT or an error message
-
-Direct access to the microservice (without the AppRouter) will return an error:
-
-* `https://spring-webflux-security-hybrid-usage-<ID>.<LANDSCAPE_APPS_DOMAIN>/v1/sayHello` - produces an error with `401` (unauthenticated) status code, as it calls the service without `Authorization` header.
-
-## Clean-Up
-
-Finally, delete your application and your service instances using the following commands:
+```shell
+btp assign security/role-collection "Sample Viewer (spring-webflux-security-hybrid-usage)" --subaccount <subaccount id> --to-user <user email>
 ```
+</details>
+
+#### Assign group (IAS)
+You need administrator permissions to create group `Read` in IAS and assign it to a user.
+:link: More information can be found at [SAP Help: "Creating a User Group"](https://help.sap.com/viewer/a339f23ec736441abb2e187b7a7b6afb/LATEST/en-US/64544f432cd24b8589707a5d8a2b3e2e.html).
+
+### 3. Access the application
+The sample application provides a single HTTP endpoint:
+- `/v1/sayHello` - authorized access only
+
+After the deployment, the application router will trigger authentication and [route requests](approuter/xs-app.json) to the above endpoint.
+If you have assigned the role-collection as described above, you can access the application via XSUAA at:
+```
+https://spring-webflux-security-hybrid-usage-web-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/xsuaa/sayHello
+```
+If you have assigned the group as described above, you can access the application via IAS at:
+```
+https://spring-webflux-security-hybrid-usage-web-<<ID>>.<<LANDSCAPE_APPS_DOMAIN>>/ias/sayHello
+```
+:bulb: you can find the route of your approuter application using the cf CLI:
+```
+cf app approuter-spring-webflux-security-hybrid-usage
+```
+
+You should see the JSON payload of the received JWT token.
+:warning: In order to switch between XSUAA and IAS access, you need to remove any `Application Access Tokens` from your profile page in th ecorresponding IAS tenant.
+Furthermore, you want to delete any account related cookies in your browser or use a private browser window.
+
+### 4. Cleanup
+If you no longer need the sample application, you can free up resources using the cf CLI.
+
+```shell
+cf unbind-service spring-webflux-security-hybrid-usage ias-webflux
+cf unbind-service approuter-spring-webflux-security-hybrid-usage ias-webflux
 cf delete -f spring-webflux-security-hybrid-usage
 cf delete -f approuter-spring-webflux-security-hybrid-usage
 cf delete-service -f xsuaa-webflux

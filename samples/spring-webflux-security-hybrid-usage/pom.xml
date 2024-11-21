@@ -14,12 +14,12 @@
 
     <groupId>com.sap.cloud.security.samples</groupId>
     <artifactId>spring-webflux-security-hybrid-usage</artifactId>
-    <version>3.5.2</version>
+    <version>3.5.4</version>
     <name>spring-webflux-security-hybrid-usage</name>
 
     <properties>
         <java.version>17</java.version>
-        <sap.cloud.security.version>3.5.2</sap.cloud.security.version>
+        <sap.cloud.security.version>3.5.4</sap.cloud.security.version>
     </properties>
 
     <dependencyManagement>
@@ -42,6 +42,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
