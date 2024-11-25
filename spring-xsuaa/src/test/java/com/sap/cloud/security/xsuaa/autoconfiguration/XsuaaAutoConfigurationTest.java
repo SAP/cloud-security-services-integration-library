@@ -10,8 +10,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfiguration;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -47,7 +47,7 @@ public class XsuaaAutoConfigurationTest {
 	@Autowired
 	private ApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void setup() throws IOException {
 		cert = IOUtils.resourceToString("/certificate.txt", StandardCharsets.UTF_8);
 		key = IOUtils.resourceToString("/key.txt", StandardCharsets.UTF_8);

@@ -11,8 +11,8 @@ import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationCustom;
 import com.sap.cloud.security.xsuaa.XsuaaServiceConfigurationDefault;
 import com.sap.cloud.security.xsuaa.token.TokenClaims;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class XsuaaJwtDecoderTest {
 	private String ccToken;
 	private String jwks;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws IOException {
 		rsaToken = IOUtils.resourceToString("/accessTokenRSA256WithVerificationKey.txt", StandardCharsets.UTF_8);
 		ccToken = IOUtils.resourceToString("/token_cc.txt", StandardCharsets.UTF_8);

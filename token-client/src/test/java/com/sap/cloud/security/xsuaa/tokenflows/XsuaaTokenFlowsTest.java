@@ -8,11 +8,11 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +27,12 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.CLIENT_CREDENTIALS;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.XSUAA_BASE_URI;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class XsuaaTokenFlowsTest {
 
 	private static OAuth2ServiceConfiguration oAuth2ServiceConfiguration;
@@ -41,7 +41,7 @@ public class XsuaaTokenFlowsTest {
 	private OAuth2TokenService oAuth2TokenService;
 	private RestOperations restOperations;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		oAuth2ServiceConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		Mockito.when(oAuth2ServiceConfiguration.getUrl()).thenReturn(XSUAA_BASE_URI);
@@ -76,19 +76,19 @@ public class XsuaaTokenFlowsTest {
 	@Test
 	public void startRefreshTokenFlow() {
 		RefreshTokenFlow flow = cut.refreshTokenFlow();
-		assertNotNull("RefreshTokenFlow must not be null.", flow);
+		assertNotNull(flow, "RefreshTokenFlow must not be null.");
 	}
 
 	@Test
 	public void startClientCredentialsFlow() {
 		ClientCredentialsTokenFlow flow = cut.clientCredentialsTokenFlow();
-		assertNotNull("ClientCredentialsTokenFlow must not be null.", flow);
+		assertNotNull(flow, "ClientCredentialsTokenFlow must not be null.");
 	}
 
 	@Test
 	public void startPasswordTokenFlow() {
 		PasswordTokenFlow flow = cut.passwordTokenFlow();
-		assertNotNull("PasswordTokenFlow must not be null.", flow);
+		assertNotNull(flow, "PasswordTokenFlow must not be null.");
 	}
 
 	@Test

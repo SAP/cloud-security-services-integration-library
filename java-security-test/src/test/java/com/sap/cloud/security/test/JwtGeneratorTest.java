@@ -12,11 +12,10 @@ import com.sap.cloud.security.token.AbstractToken;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.TokenHeader;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -52,15 +51,15 @@ public class JwtGeneratorTest {
 
 	private static final Path RESOURCES_PATH = Paths.get(JwtGeneratorTest.class.getResource("/").getPath());
 
-	@ClassRule
-	public static TemporaryFolder temporaryFolder = new TemporaryFolder(RESOURCES_PATH.toFile());
+	@TempDir
+	public static File temporaryFolder;
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() throws Exception {
 		keys = RSAKeys.fromKeyFiles("/publicKey.txt", "/privateKey.txt");
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		cut = JwtGenerator.getInstance(XSUAA, DEFAULT_CLIENT_ID)
 				.withPrivateKey(keys.getPrivate());
@@ -293,7 +292,7 @@ public class JwtGeneratorTest {
 
 	@Test
 	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() throws IOException {
-		File emptyFile = temporaryFolder.newFile("empty");
+		File emptyFile = File.createTempFile("empty", null, temporaryFolder);
 		String temporaryFolderName = emptyFile.getParentFile().getName();
 		String resourcePath = "/" + temporaryFolderName + "/empty";
 

@@ -7,8 +7,8 @@ package com.sap.cloud.security.xsuaa;
 
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,28 +36,28 @@ public class CustomPropertySourceFactoryTest {
 
 	@Test
 	public void testXsuaaServiceConfiguration() {
-		Assert.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl()); // vcap.json
-		Assert.assertEquals("overwriteUaaDomain", serviceConfiguration.getUaaDomain()); // vcap.json
+		Assertions.assertEquals("https://auth.com", serviceConfiguration.getUaaUrl()); // vcap.json
+		Assertions.assertEquals("overwriteUaaDomain", serviceConfiguration.getUaaDomain()); // vcap.json
 	}
 
 	@Test
 	public void testOverwrittenXsuaaServiceConfiguration() {
-		Assert.assertEquals("customClientId", serviceConfiguration.getClientId());
-		Assert.assertEquals("customClientSecret", serviceConfiguration.getClientSecret());
-		Assert.assertEquals("customAppId!t2344", serviceConfiguration.getAppId());
+		Assertions.assertEquals("customClientId", serviceConfiguration.getClientId());
+		Assertions.assertEquals("customClientSecret", serviceConfiguration.getClientSecret());
+		Assertions.assertEquals("customAppId!t2344", serviceConfiguration.getAppId());
 	}
 
 	@Test
 	public void testInjectedPropertyValue() {
-		Assert.assertEquals("https://auth.com", customConfiguration.xsuaaUrl); // vcap.json
-		Assert.assertEquals("overwriteUaaDomain", customConfiguration.xsuaaDomain); // vcap.json
+		Assertions.assertEquals("https://auth.com", customConfiguration.xsuaaUrl); // vcap.json
+		Assertions.assertEquals("overwriteUaaDomain", customConfiguration.xsuaaDomain); // vcap.json
 	}
 
 	@Test
 	public void testOverwrittenInjectedPropertyValue() {
-		Assert.assertEquals("customClientId", customConfiguration.xsuaaClientId);
-		Assert.assertEquals("customClientSecret", customConfiguration.xsuaaClientSecret);
-		Assert.assertEquals("customAppId!t2344", customConfiguration.xsappId);
+		Assertions.assertEquals("customClientId", customConfiguration.xsuaaClientId);
+		Assertions.assertEquals("customClientSecret", customConfiguration.xsuaaClientSecret);
+		Assertions.assertEquals("customAppId!t2344", customConfiguration.xsappId);
 	}
 }
 

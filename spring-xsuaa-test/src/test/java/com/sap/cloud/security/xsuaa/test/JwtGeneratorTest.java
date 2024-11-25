@@ -9,8 +9,8 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenClaims;
 import com.sap.cloud.security.xsuaa.test.JwtGenerator.TokenHeaders;
 import org.json.JSONArray;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class JwtGeneratorTest {
 	private static final String MY_USER_NAME = "UserName";
 	private static final String MY_SUBDOMAIN = "my-subaccount-subdomain";
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		jwtGenerator = new JwtGenerator(MY_CLIENT_ID, MY_SUBDOMAIN);
 	}

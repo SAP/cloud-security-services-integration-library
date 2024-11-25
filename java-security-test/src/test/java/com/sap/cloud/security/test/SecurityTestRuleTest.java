@@ -24,7 +24,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.junit.ClassRule;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -152,7 +153,8 @@ public class SecurityTestRuleTest {
 		assertThat(cut.getContext()).isNotNull();
 	}
 
-	public static class SecurityTestRuleWithMockServlet {
+	@Nested
+	public class SecurityTestRuleWithMockServlet {
 
 		private HttpServlet mockServlet = Mockito.mock(HttpServlet.class);
 
@@ -172,7 +174,8 @@ public class SecurityTestRuleTest {
 
 	}
 
-	public static class SecurityTestRuleWithoutApplicationServer {
+	@Nested
+	public class SecurityTestRuleWithoutApplicationServer {
 
 		@Rule
 		public SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA);
@@ -184,7 +187,8 @@ public class SecurityTestRuleTest {
 		}
 	}
 
-	public static class SecurityTestRuleApplicationServer_IAS {
+	@Nested
+	public class SecurityTestRuleApplicationServer_IAS {
 
 		@Rule
 		public SecurityTestRule rule = SecurityTestRule.getInstance(IAS);
