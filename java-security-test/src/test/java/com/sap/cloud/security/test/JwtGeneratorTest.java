@@ -15,13 +15,8 @@ import com.sap.cloud.security.token.TokenHeader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
@@ -48,11 +43,6 @@ public class JwtGeneratorTest {
 
 	private static RSAKeys keys;
 	private JwtGenerator cut;
-
-	private static final Path RESOURCES_PATH = Paths.get(JwtGeneratorTest.class.getResource("/").getPath());
-
-	@TempDir
-	public static File temporaryFolder;
 
 	@BeforeAll
 	public static void setUpClass() throws Exception {
@@ -291,11 +281,8 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() throws IOException {
-		File emptyFile = File.createTempFile("empty", null, temporaryFolder);
-		String temporaryFolderName = emptyFile.getParentFile().getName();
-		String resourcePath = "/" + temporaryFolderName + "/empty";
-
+	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() {
+		String resourcePath = "/emptyFile.json";
 		assertThatThrownBy(() -> cut.withClaimsFromFile(resourcePath).createToken())
 				.isInstanceOf(JsonParsingException.class);
 	}
