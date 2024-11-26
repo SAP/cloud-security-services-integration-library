@@ -21,6 +21,7 @@ import java.util.Map;
 import static com.sap.cloud.security.xsuaa.test.TestConstants.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.text.IsEmptyString.isEmptyString;
 
 public class JwtGeneratorTest {
 	private JwtGenerator jwtGenerator;
@@ -39,7 +40,7 @@ public class JwtGeneratorTest {
 		assertThat(jwt.getClaimAsString("zid"), equalTo(JwtGenerator.DEFAULT_IDENTITY_ZONE_ID));
 		assertThat(jwt.getExpiresAt(), not(equals(nullValue())));
 		assertThat(jwt.getAudience(), is(nullValue()));
-		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), is(emptyString()));
+		assertThat(getExternalAttributeFromClaim(jwt, "zdn"), isEmptyString());
 		assertThat(getExternalAttributeFromClaim(jwt, "enhancer"), equalTo("XSUAA"));
 	}
 
