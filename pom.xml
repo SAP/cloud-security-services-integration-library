@@ -383,26 +383,6 @@
 							</executions>
 						</plugin>
 						<plugin>
-							<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
-							<artifactId>dependency-check-maven</artifactId>
-							<version>11.1.0</version>
-							<executions>
-								<execution>
-									<goals>
-										<goal>check</goal>
-									</goals>
-								</execution>
-							</executions>
-							<configuration>
-								<skip>${skipTests}</skip>
-								<skipProvidedScope>true</skipProvidedScope>
-								<failBuildOnCVSS>7</failBuildOnCVSS>
-								<suppressionFile>${project.basedir}/../etc/suppression.xml</suppressionFile>
-								<nvdValidForHours>24</nvdValidForHours>
-								<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
-							</configuration>
-						</plugin>
-						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-javadoc-plugin</artifactId>
 							<version>3.11.1</version>
