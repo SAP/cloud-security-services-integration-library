@@ -1,6 +1,33 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.5
+
+- [token-client] Support CRLF line-endings in PEM formatted service keys
+
+### Dependency upgrades
+
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.3.1 to 5.4.1
+- Bump io.projectreactor:reactor-test from 3.6.9 to 3.7.0
+- Update spring versions
+  - core to 6.2.0
+  - boot to 3.4.0
+  - security to 6.4.1
+- Bump org.wiremock:wiremock-standalone from 3.9.1 to 3.9.2
+- Bump uk.org.webcompere:system-stubs-jupiter from 2.1.6 to 2.1.7
+- Bump com.nimbusds:nimbus-jose-jwt from 9.40 to 9.47
+- Bump com.sap.cloud.environment.servicebinding:java-bom from 0.10.5 to 0.20.0
+- Bump log4j2.version from 2.24.1 to 2.24.2
+- Bump org.apache.maven.plugins:maven-pmd-plugin from 3.24.0 to 3.26.0
+- Bump org.apache.maven.plugins:maven-source-plugin from 3.2.1 to 3.3.1
+- Bump net.revelc.code:impsort-maven-plugin from 1.11.0 to 1.12.0
+- Bump org.owasp:dependency-check-maven from 10.0.3 to 11.1.0
+- Bump org.apache.maven.plugins:maven-gpg-plugin from 3.2.5 to 3.2.7
+- Bump org.apache.maven.plugins:maven-javadoc-plugin from 3.8.0 to 3.11.1
+- Bump org.apache.maven.plugins:maven-surefire-plugin from 3.4.0 to 3.5.2
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.8.6.2 to 4.8.6.6
+- Bump commons-io:commons-io from 2.16.1 to 2.18.0
+
 ## 3.5.4
 
 - [java-security] Reduce log level to debug for errors during certificate parsing
