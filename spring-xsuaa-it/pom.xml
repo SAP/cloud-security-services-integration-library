@@ -16,12 +16,6 @@
 	<name>spring-xsuaa-it</name>
 	<version>3.5.4</version>
 
-	<properties>
-		<mockwebserver.version>4.10.0</mockwebserver.version>
-		<java.version>17</java.version>
-		<sap.cloud.security.version>3.5.4</sap.cloud.security.version>
-	</properties>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -84,7 +78,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.1.2</version>
+				<version>${maven-surefire-plugin.version}</version>
 			</plugin>
 		</plugins>
 	</build>

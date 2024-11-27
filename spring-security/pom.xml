@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>9.47</version>
+			<version>${nimbus-jose-jwt.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -101,8 +101,6 @@
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-junit</artifactId>
-			<version>2.0.0.0</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

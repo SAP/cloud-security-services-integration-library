@@ -55,10 +55,10 @@
 			<artifactId>spotbugs-annotations</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!--scope provided as we want to get rid of JUnit4 by still allowing to use the existing SecurityTestRule-->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<!--scope provided as we want to get rid of JUnit4 by still allowing to use the existing SecurityTestRule-->
 			<scope>provided</scope>
 		</dependency>
 
@@ -81,8 +81,6 @@
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-junit</artifactId>
-			<version>2.0.0.0</version>
-			<scope>test</scope>
 		</dependency>
     </dependencies>
 

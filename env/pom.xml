@@ -71,8 +71,6 @@
         <dependency>
             <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-junit</artifactId>
-            <version>2.0.0.0</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -82,7 +80,7 @@
         <dependency>
             <groupId>io.github.hakky54</groupId>
             <artifactId>logcaptor</artifactId>
-            <version>2.9.3</version>
+            <version>${logcaptor.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
