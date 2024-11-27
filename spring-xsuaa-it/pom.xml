@@ -14,7 +14,11 @@
 
 	<artifactId>spring-xsuaa-it</artifactId>
 	<name>spring-xsuaa-it</name>
-	<version>3.5.4</version>
+	<version>3.5.5</version>
+
+	<properties>
+		<sap.cloud.security.version>3.5.5</sap.cloud.security.version>
+	</properties>
 
 	<dependencyManagement>
 		<dependencies>
