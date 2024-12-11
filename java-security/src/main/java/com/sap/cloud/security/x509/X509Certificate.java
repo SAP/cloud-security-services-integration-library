@@ -10,10 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.security.auth.x500.X500Principal;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,12 +39,28 @@ public class X509Certificate implements Certificate {
 	/**
 	 * Creates a new instance of X.509 certificate.
 	 *
+	 * @param pemOrXfcc
+	 * 		the certificate encoded in base64 or PEM format
+	 * @return instance of X509certificate
+	 */
+	@Nullable
+	public static X509Certificate newCertificate(String pemOrXfcc) {
+		X509Certificate result = newCertificateFromPEM(pemOrXfcc);
+		if (result == null) {
+			result = newCertificateFromXFCC(pemOrXfcc);
+		}
+		return result;
+	}
+
+	/**
+	 * Creates a new instance of X.509 certificate.
+	 *
 	 * @param pem
 	 * 		the certificate encoded in base64 or PEM format
 	 * @return instance of X509certificate
 	 */
 	@Nullable
-	public static X509Certificate newCertificate(String pem) {
+	public static X509Certificate newCertificateFromPEM(String pem) {
 		if (pem != null && !pem.isEmpty()) {
 			try {
 				return new X509Certificate(X509Parser.parseCertificate(pem), pem);
@@ -49,6 +68,43 @@ public class X509Certificate implements Certificate {
 				LOGGER.debug("Could not parse the certificate string", e);
 			}
 		}
+		return null;
+	}
+
+	/**
+	 * Creates a new instance of X.509 certificate.
+	 *
+	 * @param headerValue
+	 * 		the certificate encoded in base64 or PEM format
+	 * @return instance of X509certificate
+	 */
+	@Nullable
+	public static X509Certificate newCertificateFromXFCC(String headerValue) {
+		Optional<String> urlEncodedCert = Optional.empty();
+
+		if (headerValue != null) {
+			urlEncodedCert = Stream.of(headerValue.split(",")).flatMap(s -> Stream.of(s.split(";")))
+						.filter(s -> s.split("=")[0].equalsIgnoreCase("Cert"))
+						.map(s -> {
+							var a = s.split("=");
+							if (a.length != 2) {
+								return "";
+							}
+							s = a[1];
+							if (s.startsWith("\"") && s.endsWith("\"")) {
+								s = s.substring(1, s.length() - 1).replace("\\\"", "\"");
+							}
+							return s;
+						})
+						.reduce((first, second) -> second);
+		}
+
+		if (urlEncodedCert.isPresent()) {
+			String cert = URLDecoder.decode(urlEncodedCert.get(), StandardCharsets.UTF_8);
+			return X509Certificate.newCertificateFromPEM(cert);
+		}
+
+		LOGGER.debug("XFCC header does not contain a certificate. Certificate is set to null.");
 		return null;
 	}
 
