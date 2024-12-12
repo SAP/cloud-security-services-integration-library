@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.6
+
+- [java-security] Add support for Envoy XFCC header format
+
+### Dependency upgrades
+
+- Bump spring.core.version from 6.2.0 to 6.2.1
+- Bump io.projectreactor:reactor-core from 3.6.9 to 3.7.1
+- Bump io.projectreactor:reactor-test from 3.7.0 to 3.7.1
+
 ## 3.5.5
 
 - [token-client] Support CRLF line-endings in PEM formatted service keys
