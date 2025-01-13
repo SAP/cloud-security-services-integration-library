@@ -153,7 +153,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 
 		// using an array to remember OAuth exceptions in lambda because variable needs to be effectively final
 		OAuth2ServiceException[] oAuthException = new OAuth2ServiceException[1];
-		JsonWebKeySet jwks = cache.get(cacheKey.toString(), k -> {
+		JsonWebKeySet jwks = getCache().get(cacheKey.toString(), k -> {
 			try {
 				return retrieveTokenKeys(cacheKey, requestParameters);
 			} catch (OAuth2ServiceException e) {
