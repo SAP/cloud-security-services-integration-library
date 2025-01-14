@@ -221,7 +221,6 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		if (cache == null) {
 			Caffeine<Object, Object> cacheBuilder = Caffeine.newBuilder()
 					.ticker(cacheTicker)
-					.refreshAfterWrite(getCacheConfiguration().getCacheDuration().dividedBy(2))
 					.expireAfterWrite(getCacheConfiguration().getCacheDuration())
 					.maximumSize(getCacheConfiguration().getCacheSize());
 			if (getCacheConfiguration().isCacheStatisticsEnabled()) {
