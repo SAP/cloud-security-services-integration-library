@@ -40,7 +40,7 @@ It is pre-configured with a security filter that only accepts valid tokens. Furt
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
    <artifactId>java-security-test</artifactId>
-   <version>3.5.6</version>
+   <version>3.5.</version>
    <scope>test</scope>
 </dependency>
 ```

@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.5.6</version>
+		<version>3.5.7</version>
 	</parent>
 
 	<artifactId>spring-xsuaa</artifactId>

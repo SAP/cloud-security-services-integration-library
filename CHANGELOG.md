@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.7
+
+- [java-security] Fix parallel JWKS fetches
+
+### Dependency upgrades
+
+- Bump org.wiremock:wiremock-standalone from 3.9.2 to 3.10.0
+- Bump org.apache.maven.plugins:maven-javadoc-plugin from 3.11.1 to 3.11.2
+- Bump org.eclipse.jetty.version from 12.0.13 to 12.0.16
+- Bump log4j2.version from 2.24.2 to 2.24.3
+- Bump spring.security.version from 6.4.1 to 6.4.2
+- Bump spring.boot.version from 3.4.0 to 3.4.1
+- Bump ch.qos.logback:logback-core from 1.4.14 to 1.5.13 in /token-client
+- Bump com.nimbusds:nimbus-jose-jwt from 9.47 to 10.0.1
+- Bump org.assertj:assertj-core from 3.26.3 to 3.27.2
+- Bump org.json:json from 20240303 to 20250107
+- Bump io.github.hakky54:logcaptor from 2.9.3 to 2.10.1
+
 ## 3.5.6
 
 - [java-security] Add support for Envoy XFCC header format
