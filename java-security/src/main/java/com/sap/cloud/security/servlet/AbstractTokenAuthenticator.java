@@ -188,7 +188,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	String getClientCertificate(HttpServletRequest request) {
 		String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
 		if (clientCert == null) {
-			logger.info("There is no '{}' header provided", FWD_CLIENT_CERT_HEADER);
+			logger.debug("There is no '{}' header provided", FWD_CLIENT_CERT_HEADER);
 		}
 		return clientCert;
 	}
