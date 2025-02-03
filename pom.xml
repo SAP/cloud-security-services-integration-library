@@ -78,7 +78,7 @@
 		<maven-surefire-plugin>3.5.2</maven-surefire-plugin>
 		<hamcrest.version>1.3</hamcrest.version>
 		<mockito.version>5.15.2</mockito.version>
-		<assertj.version>3.27.2</assertj.version>
+		<assertj.version>3.27.3</assertj.version>
 		<wiremock.version>3.10.0</wiremock.version>
 		<reactor.test.version>3.7.1</reactor.test.version>
 		<javax.annotation.version>1.3.2</javax.annotation.version>
