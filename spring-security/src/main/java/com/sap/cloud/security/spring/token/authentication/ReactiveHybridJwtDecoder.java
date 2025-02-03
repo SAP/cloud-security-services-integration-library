@@ -35,29 +35,28 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
 				.map(Token::create)
 				.flatMap(token -> {
 					Mono<Jwt> jwt = parseJwt(token);
-					Mono<ValidationResult> validationResult;
+					ValidationResult validationResult;
 
 					switch (token.getService()) {
 					case IAS:
 						if (iasTokenValidators == null) {
 							return Mono.error(new BadJwtException("Tokens issued by IAS service aren't accepted"));
 						}
-						validationResult = Mono.just(iasTokenValidators.validate(token));
+						validationResult = iasTokenValidators.validate(token);
 						break;
 					case XSUAA:
-						validationResult = Mono.just(xsuaaTokenValidators.validate(token));
+						validationResult = xsuaaTokenValidators.validate(token);
 						break;
 					default:
 						return Mono.error(new BadJwtException(
 								"Tokens issued by " + token.getService() + " service aren´t supported."));
 					}
-					return validationResult
-							.filter(vr -> !vr.isErroneous())
-							.switchIfEmpty(Mono.error(new BadJwtException(
-									"The token is invalid: " + validationResult.block().getErrorDescription())))
-							.doOnNext(result -> logger.debug("Token issued by {} service was successfully validated.",
-									token.getService()))
-							.then(jwt);
+					if (validationResult.isErroneous()) {
+						return Mono.error(new BadJwtException(
+								"The token is invalid: " + validationResult.getErrorDescription()));
+					}
+					logger.debug("Token issued by {} service was successfully validated.", token.getService());
+					return jwt;
 				})
 				.onErrorMap(RuntimeException.class,
 						ex -> new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex));
