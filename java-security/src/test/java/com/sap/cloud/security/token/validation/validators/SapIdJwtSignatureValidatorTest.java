@@ -36,6 +36,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
@@ -45,6 +46,7 @@ public class SapIdJwtSignatureValidatorTest {
 	private Token iasToken;
 	private Token iasPaasToken;
 	private static final URI DUMMY_JKU_URI = URI.create("https://application.myauth.com/jwks_uri");
+	private static final URI FAILING_JKU_URI = URI.create("https://application.myauth.com/failing_jwks_uri");
 
 	private JwtSignatureValidator cut;
 	private OAuth2TokenKeyService tokenKeyServiceMock;
@@ -65,8 +67,11 @@ public class SapIdJwtSignatureValidatorTest {
 
 		tokenKeyServiceMock = Mockito.mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock
-				.retrieveTokenKeys(any(), argThat(new ParamsHasNoClientCertHeader())))
+				.retrieveTokenKeys(eq(DUMMY_JKU_URI), argThat(new ParamsHasNoClientCertHeader())))
 				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+		when(tokenKeyServiceMock
+				.retrieveTokenKeys(eq(FAILING_JKU_URI), argThat(new ParamsHasNoClientCertHeader())))
+				.thenThrow(new OAuth2ServiceException("JWKS could not be fetched"));
 
 		endpointsProviderMock = Mockito.mock(OAuth2ServiceEndpointsProvider.class);
 		when(endpointsProviderMock.getJwksUri()).thenReturn(DUMMY_JKU_URI);
@@ -126,6 +131,18 @@ public class SapIdJwtSignatureValidatorTest {
 		assertTrue(validationResult.isErroneous());
 		assertThat(validationResult.getErrorDescription(),
 				containsString("OIDC .well-known response did not contain JWKS URI."));
+		assertFalse(validationResult.isRetryable());
+	}
+
+	@Test
+	public void validate_throwsWhenKeysUrlIsInvalid() {
+		when(endpointsProviderMock.getJwksUri()).thenReturn(FAILING_JKU_URI);
+
+		ValidationResult validationResult = cut.validate(iasToken);
+		assertTrue(validationResult.isErroneous());
+		assertThat(validationResult.getErrorDescription(),
+				containsString("Token signature can not be validated because JWKS could not be fetched"));
+		assertTrue(validationResult.isRetryable());
 	}
 
 	@Test

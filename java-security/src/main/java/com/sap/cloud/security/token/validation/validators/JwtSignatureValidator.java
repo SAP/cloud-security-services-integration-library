@@ -18,6 +18,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
+import static com.sap.cloud.security.token.validation.ValidationResults.createRetryableError;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
 import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.ALG_PARAMETER_NAME;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -64,7 +65,7 @@ abstract class JwtSignatureValidator implements Validator<Token> {
 		try {
 			publicKey = getPublicKey(token, algorithm);
 		} catch (OAuth2ServiceException e) {
-			return createInvalid("Token signature can not be validated because JWKS could not be fetched: {}",
+			return createRetryableError("Token signature can not be validated because JWKS could not be fetched: {}",
 					e.getMessage());
 		} catch (IllegalArgumentException | InvalidKeySpecException | NoSuchAlgorithmException e) {
 			return createInvalid("Token signature can not be validated because: {}", e.getMessage());
