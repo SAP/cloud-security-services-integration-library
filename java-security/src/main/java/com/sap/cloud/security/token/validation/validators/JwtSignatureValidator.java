@@ -65,8 +65,12 @@ abstract class JwtSignatureValidator implements Validator<Token> {
 		try {
 			publicKey = getPublicKey(token, algorithm);
 		} catch (OAuth2ServiceException e) {
-			return createRetryableError("Token signature can not be validated because JWKS could not be fetched: {}",
-					e.getMessage());
+			String errorDescriptionTemplate = "Token signature can not be validated because JWKS could not be fetched: {}";
+			if (e.isRetryable()) {
+				return createRetryableError(errorDescriptionTemplate, e.getMessage());
+			} else {
+				return createInvalid(errorDescriptionTemplate, e.getMessage());
+			}
 		} catch (IllegalArgumentException | InvalidKeySpecException | NoSuchAlgorithmException e) {
 			return createInvalid("Token signature can not be validated because: {}", e.getMessage());
 		}
