@@ -63,7 +63,7 @@ public class OAuth2ServiceException extends IOException {
 	 * <p>
 	 * A request is considered retryable if the HTTP status code is one of the following:
 	 * <ul>
-	 *   <li>null, 0 - No response (or service wasn't called auccessfully, e.g. due to an IOException)</li>
+	 *   <li>null, 0 - No response (or service wasn't called successfully, e.g. due to an IOException)</li>
 	 *   <li>408 - Request Timeout</li>
 	 *   <li>429 - Too Many Requests</li>
 	 *   <li>5xx - Any server error status code (500-599)</li>
