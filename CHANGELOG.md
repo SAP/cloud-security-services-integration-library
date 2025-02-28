@@ -1,6 +1,21 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.8
+
+- [spring-security] Fix error handling for reactive token validation
+
+### Dependency upgrades
+
+- Downgrade org.wiremock:wiremock-standalone from 3.10.0 to 3.9.2
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.4.1 to 5.4.2
+- Bump io.projectreactor:reactor-test from 3.7.1 to 3.7.2
+- Bump org.assertj:assertj-core from 3.27.2 to 3.27.3
+- Bump spring.boot.version from 3.4.1 to 3.4.2
+- Bump spring.core.version from 6.2.1 to 6.2.2
+- Bump io.projectreactor:reactor-core from 3.7.1 to 3.7.2
+- Bump org.mockito:mockito-core from 5.14.2 to 5.15.2
+
 ## 3.5.7
 
 - [java-security] Fix parallel JWKS fetches
