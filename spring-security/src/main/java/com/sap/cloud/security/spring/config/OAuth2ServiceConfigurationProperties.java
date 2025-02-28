@@ -31,6 +31,7 @@ import java.util.Objects;
 public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfiguration {
 	final OAuth2ServiceConfigurationBuilder builder;
 	OAuth2ServiceConfiguration configuration;
+	boolean buildRequired = true;
 
 	/**
 	 * Creates a new instance to map configuration of a dedicated identity service.
@@ -55,6 +56,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setClientId(String clientId) {
 		builder.withClientId(clientId);
+		buildRequired = true;
 	}
 
 	/**
@@ -65,6 +67,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setCertificate(String certificate) {
 		builder.withCertificate(certificate);
+		buildRequired = true;
 	}
 
 	/**
@@ -75,6 +78,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setKey(String key) {
 		builder.withPrivateKey(key);
+		buildRequired = true;
 	}
 
 	@Override
@@ -90,6 +94,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setClientSecret(String clientSecret) {
 		builder.withClientSecret(clientSecret);
+		buildRequired = true;
 	}
 
 	@Override
@@ -111,6 +116,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	public void setCredentialType(String credentialType) {
 		builder.withCredentialType(
 				Objects.requireNonNull(CredentialType.from(credentialType), "Credential-type must not be null"));
+		buildRequired = true;
 	}
 
 	@Override
@@ -126,6 +132,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setCertUrl(String certUrl) {
 		builder.withCertUrl(certUrl);
+		buildRequired = true;
 	}
 
 	@Override
@@ -140,6 +147,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	public void setDomains(String... domains) {
 		builder.withDomains(domains);
+		buildRequired = true;
 	}
 
 	/**
@@ -151,6 +159,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setUrl(String url) {
 		builder.withUrl(url);
+		buildRequired = true;
 	}
 
 	/**
@@ -161,6 +170,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setUaaDomain(String uaaDomain) {
 		builder.withProperty(ServiceConstants.XSUAA.UAA_DOMAIN, uaaDomain);
+		buildRequired = true;
 	}
 
 	/**
@@ -171,6 +181,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setXsAppName(String xsAppName) {
 		builder.withProperty(ServiceConstants.XSUAA.APP_ID, xsAppName);
+		buildRequired = true;
 	}
 
 	/**
@@ -181,6 +192,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	 */
 	public void setVerificationKey(String verificationKey) {
 		builder.withProperty(ServiceConstants.XSUAA.VERIFICATION_KEY, verificationKey);
+		buildRequired = true;
 	}
 
 	@Override
@@ -205,6 +217,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	public void setName(String name) {
 		builder.withProperty(ServiceConstants.NAME, name);
+		buildRequired = true;
 	}
 
 	public String getName() {
@@ -213,6 +226,7 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 
 	public void setPlan(String plan) {
 		builder.withProperty(ServiceConstants.SERVICE_PLAN, plan);
+		buildRequired = true;
 	}
 
 	public String getPlan() {
@@ -225,8 +239,9 @@ public class OAuth2ServiceConfigurationProperties implements OAuth2ServiceConfig
 	}
 
 	protected OAuth2ServiceConfiguration getConfiguration() {
-		if (configuration == null) {
+		if (buildRequired) {
 			configuration = builder.build();
+			buildRequired = false;
 		}
 		return configuration;
 	}
