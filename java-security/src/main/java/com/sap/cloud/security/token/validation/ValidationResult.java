@@ -31,6 +31,15 @@ public interface ValidationResult {
 	}
 
 	/**
+	 * Returns true if there is a validation error which might be resolved by retrying the validation.
+	 *
+	 * @return true if there is a retryable validation error.
+	 */
+	default boolean isRetryable() {
+		return false;
+	}
+
+	/**
 	 * The validation error that have been found.
 	 *
 	 * @return the error description or null in case the validation was valid.
