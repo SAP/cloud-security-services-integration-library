@@ -62,6 +62,24 @@ public class JwtValidatorBuilderTest {
 	}
 
 	@Test
+	public void differentServiceConfiguration_getDifferentInstance() {
+		OAuth2ServiceConfiguration configuration1 = xsuaaConfigBuilder.build();
+		OAuth2ServiceConfiguration configuration2 = xsuaaConfigBuilder.withDomains("auth2.com").build();
+		OAuth2ServiceConfiguration configuration3 = xsuaaConfigBuilder.withProperty(
+				ServiceConstants.XSUAA.APP_ID, "test-app2!t456").build();
+		OAuth2ServiceConfiguration configuration4 = xsuaaConfigBuilder.withClientId("sb-test-app2!t456")
+				.build();
+		OAuth2ServiceConfiguration configuration5 = xsuaaConfigBuilder.runInLegacyMode(true).build();
+
+		JwtValidatorBuilder builder_1 = JwtValidatorBuilder.getInstance(configuration1);
+
+		assertThat(builder_1).isNotSameAs(JwtValidatorBuilder.getInstance(configuration2));
+		assertThat(builder_1).isNotSameAs(JwtValidatorBuilder.getInstance(configuration3));
+		assertThat(builder_1).isNotSameAs(JwtValidatorBuilder.getInstance(configuration4));
+		assertThat(builder_1).isNotSameAs(JwtValidatorBuilder.getInstance(configuration5));
+	}
+
+	@Test
 	public void withAudienceValidator_overridesXsuaaJwtAudienceValidator() {
 		TokenTestValidator validator = TokenTestValidator.createValid();
 		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(xsuaaConfigBuilder.build())
