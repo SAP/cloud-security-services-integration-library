@@ -272,12 +272,13 @@ public class OAuth2ServiceConfigurationBuilder {
 			OAuth2ServiceConfigurationImpl that = (OAuth2ServiceConfigurationImpl) o;
 			return runInLegacyMode == that.runInLegacyMode &&
 					properties.equals(that.properties) &&
-					service == that.service;
+					service == that.service &&
+					domains.equals(that.domains);
 		}
 
 		@Override
 		public int hashCode() {
-			return Objects.hash(properties, runInLegacyMode, service);
+			return Objects.hash(properties, runInLegacyMode, service, domains);
 		}
 
 		@Override
