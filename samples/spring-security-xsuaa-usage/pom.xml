@@ -95,21 +95,6 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.1.2</version>
 			</plugin>
-			<plugin>
-				<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
-				<artifactId>dependency-check-maven</artifactId>
-				<version>9.0.6</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<skipProvidedScope>true</skipProvidedScope>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 </project>
