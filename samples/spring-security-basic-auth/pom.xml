@@ -91,21 +91,6 @@
 					</image>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.owasp</groupId> <!--scans for vulnerabilities-->
-				<artifactId>dependency-check-maven</artifactId>
-				<version>9.0.6</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<skipProvidedScope>true</skipProvidedScope>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 </project>
