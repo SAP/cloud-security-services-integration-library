@@ -51,6 +51,9 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
 						return Mono.error(new BadJwtException(
 								"Tokens issued by " + token.getService() + " service aren´t supported."));
 					}
+					if (validationResult.isRetryable()) {
+						return Mono.error(new JwtException(validationResult.getErrorDescription()));
+					}
 					if (validationResult.isErroneous()) {
 						return Mono.error(new BadJwtException(
 								"The token is invalid: " + validationResult.getErrorDescription()));
