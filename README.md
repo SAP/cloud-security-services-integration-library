@@ -126,7 +126,7 @@ The SAP Cloud Security Services Integration is published to maven central: https
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-bom</artifactId>
-            <version>3.5.8</version>
+            <version>3.5.9</version>
             <scope>import</scope>
             <type>pom</type>
         </dependency>
