@@ -82,12 +82,11 @@ public class HybridJwtDecoder implements JwtDecoder {
 		case XSUAA -> validationResult = xsuaaTokenValidators.validate(token);
 		default -> throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
 		}
+		if (validationResult.isRetryable()) {
+			throw new JwtException(validationResult.getErrorDescription());
+		}
 		if (validationResult.isErroneous()) {
-			if (validationResult.getErrorDescription().contains("JWKS could not be fetched")) {
-				throw new JwtException(validationResult.getErrorDescription());
-			} else {
-				throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
-			}
+			throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
 		}
 		logger.debug("Token issued by {} service was successfully validated.", token.getService());
 		return jwt;

@@ -59,6 +59,32 @@ public class ValidationResults {
 	}
 
 	/**
+	 * Creates a retryable {@link ValidationResult} that contains an error description.
+	 *
+	 * @param errorDescription
+	 * 		the error description.
+	 * @return a retryable {@link ValidationResult} containing an error description.
+	 */
+	public static ValidationResult createRetryableError(String errorDescription) {
+		logger.warn(errorDescription);
+		return new ValidationResultImpl(errorDescription, true);
+	}
+
+	/**
+	 * Same as {@link #createInvalid(String, Object...)} but creates a retryable error.
+	 *
+	 * @param errorDescriptionTemplate
+	 * 		the description as template used to create the error description.
+	 * @param arguments
+	 * 		the arguments that are filled inside the description template.
+	 * @return a retryable {@link ValidationResult} containing one error description.
+	 */
+	public static ValidationResult createRetryableError(String errorDescriptionTemplate, Object... arguments) {
+		String format = MessageFormatter.arrayFormat(errorDescriptionTemplate, arguments).getMessage();
+		return createRetryableError(format);
+	}
+
+	/**
 	 * Creates a valid {@link ValidationResult}, which is a {@link ValidationResult} that contains no errors.
 	 *
 	 * @return a valid validation result.
@@ -70,9 +96,15 @@ public class ValidationResults {
 	static class ValidationResultImpl implements ValidationResult {
 
 		private final String validationError;
+		private final boolean retryableError;
+
+		public ValidationResultImpl(String validationError, boolean retryableError) {
+			this.validationError = validationError;
+			this.retryableError = retryableError;
+		}
 
 		public ValidationResultImpl(String validationError) {
-			this.validationError = validationError;
+			this(validationError, false);
 		}
 
 		public ValidationResultImpl() {
@@ -83,6 +115,11 @@ public class ValidationResults {
 		@Override
 		public String getErrorDescription() {
 			return validationError;
+		}
+
+		@Override
+		public boolean isRetryable() {
+			return retryableError;
 		}
 
 		@Override

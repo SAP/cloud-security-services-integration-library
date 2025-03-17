@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -58,6 +59,9 @@ public class IasJwtDecoder implements JwtDecoder {
 			Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
 			Token token = Token.create(encodedToken);
 			ValidationResult validationResult = tokenValidators.validate(token);
+			if (validationResult.isRetryable()) {
+				throw new JwtException(validationResult.getErrorDescription());
+			}
 			if (validationResult.isErroneous()) {
 				throw new InvalidBearerTokenException("The token is invalid.");
 			}
