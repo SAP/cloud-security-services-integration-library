@@ -8,4 +8,5 @@ updates:
       timezone: Etc/UCT
     reviewers:
       - "kuntzed"
+      - "NiklasHerrmann21"
     open-pull-requests-limit: 10
