@@ -1,6 +1,30 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.5.9
+
+- [env] add domains to equals/hashcode of OAuth2ServiceConfigurationImpl
+
+### Dependency upgrades
+
+- Bump org.wiremock:wiremock-standalone from 3.9.2 to 3.12.1
+- Bump com.github.spotbugs:spotbugs-annotations from 4.9.0 to 4.9.2
+- Bump org.mockito:mockito-core from 5.15.2 to 5.16.0
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.1.0 to 4.9.2.0
+- Bump io.projectreactor:reactor-core from 3.7.3 to 3.7.4
+- Bump io.projectreactor:reactor-test from 3.7.3 to 3.7.4
+- Bump org.eclipse.jetty.version from 12.0.16 to 12.0.17
+- Update spring dependencies:
+  - spring boot to 3.4.3
+  - spring core to 6.2.4
+  - spring security to 6.4.3
+- Bump com.github.spotbugs:spotbugs-annotations from 4.8.6 to 4.9.0
+- Bump io.projectreactor:reactor-test from 3.7.2 to 3.7.3
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.8.6.6 to 4.9.1.0
+- Bump io.projectreactor:reactor-core from 3.7.2 to 3.7.3
+- Bump com.nimbusds:nimbus-jose-jwt from 10.0.1 to 10.0.2
+- Bump slf4j.api.version from 2.0.16 to 2.0.17
+
 ## 3.5.8
 
 - [spring-security] Fix error handling for reactive token validation
