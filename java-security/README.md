@@ -20,7 +20,8 @@ To be able to validate tokens it performs the following tasks:
         src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java) -  checks if the JWT is signed with the public key of a trustworthy identity service. With that it also makes sure that the payload and the header of the JWT is unchanged.
 - Stores the decoded and validated token in thread-local cache [`SecurityContext`](/java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java).
 
-:bulb: This library is also integrated in the [SAP Java Buildpack](https://help.sap.com/docs/btp/sap-business-technology-platform/developing-java-in-cloud-foundry-environment), but as of now SAP Java Buildpack does **not** support Tomcat 10 runtime, which is required for the Jakarta API used by this library.
+:bulb: This library is also integrated in the [SAP Java Buildpack](https://help.sap.com/docs/btp/sap-business-technology-platform/developing-java-in-cloud-foundry-environment).
+Since it requires the Tomcat 10 runtime, it needs to be deployed using the [SAP Java Buildpack 2](https://help.sap.com/docs/btp/sap-business-technology-platform/sap-jakarta-buildpack) (sap_java_buildpack_jakarta).
 
 ![](images/TokenAuthenticator.png)
 
