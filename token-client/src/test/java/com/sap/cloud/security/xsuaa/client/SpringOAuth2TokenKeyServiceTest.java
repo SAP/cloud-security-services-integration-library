@@ -1,14 +1,10 @@
-/**
- * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
- * <p>
- * SPDX-License-Identifier: Apache-2.0
- */
 package com.sap.cloud.security.xsuaa.client;
 
+import com.sap.cloud.security.client.SpringTokenClientConfiguration;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.springframework.http.HttpEntity;
@@ -16,20 +12,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.GET;
@@ -40,6 +37,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	public static final String CLIENT_ID = "client-id";
 	public static final String AZP = "azp";
+	public static final String ERROR_MESSAGE = "useful error message";
 	private static final Map<String, String> PARAMS = Map.of(HttpHeaders.X_APP_TID, APP_TID, HttpHeaders.X_CLIENT_ID, CLIENT_ID, HttpHeaders.X_AZP, AZP);
 	private final String jsonWebKeysAsString;
 	private RestOperations restOperationsMock;
@@ -49,25 +47,72 @@ public class SpringOAuth2TokenKeyServiceTest {
 		jsonWebKeysAsString = IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8);
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
-		restOperationsMock = mock(RestOperations.class);
+		restOperationsMock = Mockito.mock(RestOperations.class);
 		cut = new SpringOAuth2TokenKeyService(restOperationsMock);
 	}
 
 	@Test
-	public void restOperations_isNull_throwsException() {
+	public void retrieveTokenKeys_responseNotOk_throwsException() {
+		mockResponse(ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR.value());
+
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS)).isInstanceOf(OAuth2ServiceException.class).hasMessageContaining(ERROR_MESSAGE).hasMessageContaining("Error retrieving token keys");
+	}
+
+	@Test
+	public void retrieveTokenKeys_httpStatusCodeExceptionOccurs_throwsServiceException() {
+		when(restOperationsMock.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class))).thenThrow(new HttpStatusCodeException(HttpStatus.BAD_REQUEST) {
+		});
+
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS)).isInstanceOf(OAuth2ServiceException.class).hasMessageContaining("Error retrieving token keys").hasMessageContaining("Http status code 400");
+	}
+
+	@Test
+	public void retrieveTokenKeys_errorOccurs_throwsServiceException() {
+		when(restOperationsMock.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class))).thenThrow(new RuntimeException("IO Exception"));
+
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS)).isInstanceOf(OAuth2ServiceException.class).hasMessageContaining("IO Exception");
+	}
+
+	@Test
+	public void retrieveTokenKeys_restOperationsIsNull_throwsException() {
 		assertThatThrownBy(() -> new SpringOAuth2TokenKeyService(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-	public void retrieveTokenKeys_endpointUriIsNull_throwsException() {
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, APP_TID)).isInstanceOf(IllegalArgumentException.class);
+	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, PARAMS)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
-	public void retrieveTokenKeys_usesGivenURI() throws OAuth2ServiceException {
-		mockResponse();
+	public void retrieveTokenKeys_badResponse_throwsException() {
+		mockResponse(ERROR_MESSAGE, HttpStatus.BAD_REQUEST.value());
+
+		final OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class, () -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS));
+
+		assertThat(e.getMessage()).contains(TOKEN_KEYS_ENDPOINT_URI.toString()).contains(String.valueOf(HttpStatus.BAD_REQUEST.value())).contains("Request headers [Accept: application/json, User-Agent: token-client/").contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c").contains("x-client_id: client-id").contains("x-azp: azp").contains("Response Headers ").contains(ERROR_MESSAGE);
+		assertThat(e.getHttpStatusCode()).isEqualTo(400);
+		assertThat(e.getHeaders()).hasSize(1);
+		assertThat(e.getHeaders()).contains("Content-Type: application/json");
+	}
+
+	@Test
+	public void retrieveTokenKeys_errorOccursDuringRetry_throwsServiceException() {
+		mockResponse(ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.BAD_REQUEST.value());
+		final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getConfig();
+		newConfig.setRetryEnabled(true);
+		newConfig.setMaxRetryAttempts(1);
+		newConfig.setRetryStatusCodes("500");
+		SpringTokenClientConfiguration.setConfig(newConfig);
+
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS)).isInstanceOf(OAuth2ServiceException.class).hasMessageContaining(ERROR_MESSAGE).hasMessageContaining("Request headers [Accept: application/json, User-Agent: token-client/").hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c").hasMessageContaining("x-client_id: client-id").hasMessageContaining("x-azp: azp").hasMessageContaining("Error retrieving token keys").hasMessageContaining("Response Headers ").hasMessageContaining("Http status code 400");
+		Mockito.verify(restOperationsMock, times(2)).exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
+	}
+
+	@Test
+	public void retrieveTokenKeys_executesCorrectHttpGetRequest() throws OAuth2ServiceException {
+		mockResponse(jsonWebKeysAsString, HttpStatus.OK.value());
 
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
@@ -75,24 +120,33 @@ public class SpringOAuth2TokenKeyServiceTest {
 	}
 
 	@Test
-	public void retrieveTokenKeys_badResponse_throwsException() {
-		String errorMessage = "useful error message";
-		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
+	public void retrieveTokenKeys_withEmptyParams_executesSuccessfully() throws OAuth2ServiceException {
+		mockResponse(jsonWebKeysAsString, HttpStatus.OK.value());
 
-		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class, () -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS));
+		final Map<String, String> emptyParams = Map.of();
+		final String result = cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, emptyParams);
 
-		assertThat(e.getMessage()).contains(TOKEN_KEYS_ENDPOINT_URI.toString()).contains(String.valueOf(HttpStatus.BAD_REQUEST.value())).contains("Request headers [Accept: application/json, User-Agent: token-client/").contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c").contains("x-client_id: client-id").contains("x-azp: azp").contains("Response Headers ").contains(errorMessage);
-		assertThat(e.getHttpStatusCode()).isEqualTo(400);
-		assertThat(e.getHeaders()).hasSize(1);
-		assertThat(e.getHeaders()).contains("Content-Type: application/json");
+		assertThat(result).isNotEmpty();
+		Mockito.verify(restOperationsMock, times(1)).exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class));
 	}
 
-	private void mockResponse() {
-		mockResponse(jsonWebKeysAsString, HttpStatus.OK);
+	@Test
+	public void retrieveTokenKeys_responseNotOk_retry_executesRetrySuccessfully() throws IOException {
+		mockResponse(ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.OK.value());
+		final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getConfig();
+		newConfig.setRetryEnabled(true);
+		newConfig.setMaxRetryAttempts(1);
+		newConfig.setRetryStatusCodes(Set.of(500));
+		SpringTokenClientConfiguration.setConfig(newConfig);
+
+		final String result = cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
+
+		Mockito.verify(restOperationsMock, times(2)).exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
+		assertThat(result).isNotEmpty();
 	}
 
-	private void mockResponse(String responseAsString, HttpStatus httpStatus) {
-		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+	private void mockResponse(final String responseAsString, final Integer... statusCodes) {
+		final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("Content-Type", "application/json");
 		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, headers, httpStatus);
 		when(restOperationsMock.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class))).thenReturn(stringResponseEntity);
@@ -100,11 +154,10 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	private ArgumentMatcher<HttpEntity> httpEntityContainsMandatoryHeaders() {
 		return (httpGet) -> {
-			boolean correctClientId = httpGet.getHeaders().get(HttpHeaders.X_CLIENT_ID).get(0).equals(CLIENT_ID);
-			boolean correctAppTid = httpGet.getHeaders().get(HttpHeaders.X_APP_TID).get(0).equals(APP_TID);
-			boolean correctAzp = httpGet.getHeaders().get(HttpHeaders.X_AZP).get(0).equals(AZP);
+			final boolean correctClientId = httpGet.getHeaders().get(HttpHeaders.X_CLIENT_ID).get(0).equals(CLIENT_ID);
+			final boolean correctAppTid = httpGet.getHeaders().get(HttpHeaders.X_APP_TID).get(0).equals(APP_TID);
+			final boolean correctAzp = httpGet.getHeaders().get(HttpHeaders.X_AZP).get(0).equals(AZP);
 			return correctAppTid && correctClientId && correctAzp;
 		};
 	}
-
 }
