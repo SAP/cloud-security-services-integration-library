@@ -37,34 +37,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
         Assertions.assertNotNull(restOperations, "restOperations must not be null!");
         this.restOperations = restOperations;
         config = SpringTokenClientConfiguration.getConfig();
-        final String statusCodes = config.getRetryStatusCodes();
-        this.retryableStatusCodes = Arrays.stream(statusCodes.split(","))
-                .map(String::trim)
-                .filter(StringUtils::isNotBlank)
-                .map(Integer::parseInt)
-                .toList();
-    }
-
-    private static HttpHeaders getHttpHeaders(final Map<String, String> params) {
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
-        for (final Map.Entry<String, String> p : params.entrySet()) {
-            headers.set(p.getKey(), p.getValue());
-        }
-        return headers;
-    }
-
-    private static void pauseBeforeNextAttempt(final long sleepTime) {
-        if (sleepTime > RETRY_MAX_DELAY_TIME) {
-            LOGGER.warn("Retry delay time of {} ms exceeded maximum threshold of {} ms", sleepTime, RETRY_MAX_DELAY_TIME);
-            pauseBeforeNextAttempt(RETRY_MAX_DELAY_TIME);
-        }
-        try {
-            Thread.sleep(sleepTime);
-        } catch (final InterruptedException e) {
-            LOGGER.warn("Thread.sleep has been interrupted. Retry starts now.");
-        }
+        retryableStatusCodes = parseRetryStatusCodes();
     }
 
     @Override
@@ -76,9 +49,6 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
     private String executeRequest(final URI tokenKeysEndpointUri, final Map<String, String> params, final int attemptsLeft)
             throws OAuth2ServiceException {
-        if (attemptsLeft < 0) {
-            throw new OAuth2ServiceException("Max retry attempts reached for token keys endpoint: " + tokenKeysEndpointUri);
-        }
         final HttpHeaders headers = getHttpHeaders(params);
         try {
             final ResponseEntity<String> response = restOperations.exchange(
@@ -125,5 +95,44 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
                         .build();
             }
         }
+    }
+
+    private HttpHeaders getHttpHeaders(final Map<String, String> params) {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
+        for (final Map.Entry<String, String> p : params.entrySet()) {
+            headers.set(p.getKey(), p.getValue());
+        }
+        return headers;
+    }
+
+    private void pauseBeforeNextAttempt(final long sleepTime) {
+        if (sleepTime > RETRY_MAX_DELAY_TIME) {
+            LOGGER.warn("Retry delay time of {} ms exceeded maximum threshold of {} ms", sleepTime, RETRY_MAX_DELAY_TIME);
+            pauseBeforeNextAttempt(RETRY_MAX_DELAY_TIME);
+        } else {
+            try {
+                LOGGER.info("Retry again in {} ms", sleepTime);
+                Thread.sleep(sleepTime);
+            } catch (final InterruptedException e) {
+                LOGGER.warn("Thread.sleep has been interrupted. Retry starts now.");
+            }
+        }
+    }
+
+    private List<Integer> parseRetryStatusCodes() {
+        return Arrays.stream(config.getRetryStatusCodes().split(","))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .map(s -> {
+                    try {
+                        return Integer.parseInt(s);
+                    } catch (final NumberFormatException e) {
+                        LOGGER.error("Invalid retry status code: {}", s, e);
+                        return null;
+                    }
+                })
+                .toList();
     }
 }

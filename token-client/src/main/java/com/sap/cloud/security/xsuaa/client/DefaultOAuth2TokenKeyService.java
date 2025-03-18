@@ -44,55 +44,14 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
     public DefaultOAuth2TokenKeyService() {
         httpClient = HttpClientFactory.create(null);
         config = DefaultTokenClientConfiguration.getConfig();
-        this.retryableStatusCodes = Arrays.stream(config.getRetryStatusCodes().split(","))
-                .map(String::trim)
-                .filter(StringUtils::isNotBlank)
-                .map(Integer::parseInt)
-                .toList();
+        retryableStatusCodes = parseRetryStatusCodes();
     }
 
     public DefaultOAuth2TokenKeyService(@Nonnull final CloseableHttpClient httpClient) {
         Assertions.assertNotNull(httpClient, "httpClient is required");
         this.httpClient = httpClient;
-        this.config = DefaultTokenClientConfiguration.getConfig();
-        this.retryableStatusCodes = Arrays.stream(config.getRetryStatusCodes().split(","))
-                .map(String::trim)
-                .filter(StringUtils::isNotBlank)
-                .map(Integer::parseInt)
-                .toList();
-    }
-
-    private static HttpUriRequest getHttpUriRequest(final URI tokenKeysEndpointUri, final Map<String, String> params) {
-        final HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
-        for (final Map.Entry<String, String> p : params.entrySet()) {
-            request.addHeader(p.getKey(), p.getValue());
-        }
-        request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
-        return request;
-    }
-
-    private static void pauseBeforeNextAttempt(final long sleepTime) {
-        if (sleepTime > RETRY_MAX_DELAY_TIME) {
-            LOGGER.warn("Retry delay time of {} ms exceeded maximum threshold of {} ms", sleepTime, RETRY_MAX_DELAY_TIME);
-            pauseBeforeNextAttempt(RETRY_MAX_DELAY_TIME);
-        }
-        try {
-            Thread.sleep(sleepTime);
-        } catch (final InterruptedException e) {
-            LOGGER.warn("Thread.sleep has been interrupted. Retry starts now.");
-        }
-    }
-
-    private static void handleServicePlanFromResponse(final HttpResponse response) {
-    /* This is required for Identity Service App2Service communication. When proof token validation is enabled,
-     the response can contain an Identity Service broker plan header whose content needs to be accessible
-     on the SecurityContext. */
-        if (response.containsHeader(X_OSB_PLAN)) {
-            final String xOsbPlan = response.getFirstHeader(X_OSB_PLAN).getValue();
-            if (xOsbPlan != null) {
-                SecurityContext.setServicePlans(xOsbPlan);
-            }
-        }
+        config = DefaultTokenClientConfiguration.getConfig();
+        retryableStatusCodes = parseRetryStatusCodes();
     }
 
     @Override
@@ -104,9 +63,6 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
     private String executeRequest(final URI tokenKeysEndpointUri, final Map<String, String> params, final int attemptsLeft)
             throws OAuth2ServiceException {
-        if (attemptsLeft < 0) {
-            throw new OAuth2ServiceException("Max retry attempts reached for token keys endpoint: " + tokenKeysEndpointUri);
-        }
         final HttpUriRequest request = getHttpUriRequest(tokenKeysEndpointUri, params);
         LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} and {} retries left",
                 tokenKeysEndpointUri, request.getAllHeaders(), attemptsLeft);
@@ -139,6 +95,56 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
                 throw oAuth2Exception;
             } else {
                 throw new OAuth2ServiceException("Error retrieving token keys: " + e.getMessage());
+            }
+        }
+    }
+
+    private List<Integer> parseRetryStatusCodes() {
+        return Arrays.stream(config.getRetryStatusCodes().split(","))
+                .map(String::trim)
+                .filter(StringUtils::isNotBlank)
+                .map(s -> {
+                    try {
+                        return Integer.parseInt(s);
+                    } catch (final NumberFormatException e) {
+                        LOGGER.error("Invalid retry status code: {}", s, e);
+                        return null;
+                    }
+                })
+                .toList();
+    }
+
+    private HttpUriRequest getHttpUriRequest(final URI tokenKeysEndpointUri, final Map<String, String> params) {
+        final HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
+        for (final Map.Entry<String, String> p : params.entrySet()) {
+            request.addHeader(p.getKey(), p.getValue());
+        }
+        request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
+        return request;
+    }
+
+    private void pauseBeforeNextAttempt(final long sleepTime) {
+        if (sleepTime > RETRY_MAX_DELAY_TIME) {
+            LOGGER.warn("Retry delay time of {} ms exceeded maximum threshold of {} ms", sleepTime, RETRY_MAX_DELAY_TIME);
+            pauseBeforeNextAttempt(RETRY_MAX_DELAY_TIME);
+        } else {
+            try {
+                LOGGER.info("Retry again in {} ms", sleepTime);
+                Thread.sleep(sleepTime);
+            } catch (final InterruptedException e) {
+                LOGGER.warn("Thread.sleep has been interrupted. Retry starts now.");
+            }
+        }
+    }
+
+    private void handleServicePlanFromResponse(final HttpResponse response) {
+    /* This is required for Identity Service App2Service communication. When proof token validation is enabled,
+     the response can contain an Identity Service broker plan header whose content needs to be accessible
+     on the SecurityContext. */
+        if (response.containsHeader(X_OSB_PLAN)) {
+            final String xOsbPlan = response.getFirstHeader(X_OSB_PLAN).getValue();
+            if (xOsbPlan != null) {
+                SecurityContext.setServicePlans(xOsbPlan);
             }
         }
     }
