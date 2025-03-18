@@ -7,7 +7,6 @@ package com.sap.cloud.security.client;
 
 public class DefaultTokenClientConfiguration implements TokenClientConfiguration {
 
-    private static DefaultTokenClientConfiguration instance;
     private static DefaultTokenClientConfiguration config = new DefaultTokenClientConfiguration();
     private boolean isRetryEnabled;
     private int maxRetryAttempts;

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 public class SpringTokenClientConfiguration implements TokenClientConfiguration {
 
+    private static SpringTokenClientConfiguration config = new SpringTokenClientConfiguration();
+
     @Value("${token.client.retry.enabled:false}")
     private boolean isRetryEnabled;
 
@@ -20,6 +22,14 @@ public class SpringTokenClientConfiguration implements TokenClientConfiguration 
 
     @Value("${token.client.retry.statusCodes:408,429,500,502,503,504}")
     private String retryStatusCodes;
+
+    public static SpringTokenClientConfiguration getConfig() {
+        return config;
+    }
+
+    public static void setConfig(final SpringTokenClientConfiguration newConfig) {
+        config = newConfig;
+    }
 
     @Override
     public boolean isRetryEnabled() {
