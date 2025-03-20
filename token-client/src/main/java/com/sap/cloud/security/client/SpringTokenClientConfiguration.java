@@ -1,6 +1,5 @@
 package com.sap.cloud.security.client;
 
-import io.micrometer.common.util.StringUtils;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public class SpringTokenClientConfiguration implements TokenClientConfiguration 
   private Set<Integer> parseRetryStatusCodes(final String retryStatusCodes) {
     return Arrays.stream(Optional.ofNullable(retryStatusCodes).orElse("").split(","))
         .map(String::trim)
-        .filter(StringUtils::isNotBlank)
+        .filter(s -> !s.isBlank())
         .map(
             s -> {
               try {
