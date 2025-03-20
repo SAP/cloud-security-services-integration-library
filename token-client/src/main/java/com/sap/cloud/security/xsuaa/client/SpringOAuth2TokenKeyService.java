@@ -77,7 +77,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
                   ? response.getHeaders().entrySet().stream()
                       .map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
                       .toArray(String[]::new)
-                  : null)
+                  : new String[0])
           .withStatusCode(response.getStatusCode().value())
           .withResponseBody(response.getBody())
           .build();
@@ -85,14 +85,16 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
       throw OAuth2ServiceException.builder(
               "Error retrieving token keys. Request headers ["
                   + headers.entrySet().stream()
-                      .map(h -> h.getKey() + ": " + String.join(",", h.getValue())))
+                      .map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
+                      .collect(Collectors.joining(", "))
+                  + "]")
           .withUri(tokenKeysEndpointUri)
           .withHeaders(
-              ex.getResponseHeaders() != null
+              ex.getResponseHeaders() != null && !ex.getResponseHeaders().isEmpty()
                   ? ex.getResponseHeaders().entrySet().stream()
                       .map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
                       .toArray(String[]::new)
-                  : null)
+                  : new String[0])
           .withStatusCode(ex.getStatusCode().value())
           .withResponseBody(ex.getResponseBodyAsString())
           .build();

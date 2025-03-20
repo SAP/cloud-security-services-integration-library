@@ -3,6 +3,7 @@ package com.sap.cloud.security.client;
 import io.micrometer.common.util.StringUtils;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
@@ -102,7 +103,7 @@ public class SpringTokenClientConfiguration implements TokenClientConfiguration 
   }
 
   private Set<Integer> parseRetryStatusCodes(final String retryStatusCodes) {
-    return Arrays.stream(retryStatusCodes.split(","))
+    return Arrays.stream(Optional.ofNullable(retryStatusCodes).orElse("").split(","))
         .map(String::trim)
         .filter(StringUtils::isNotBlank)
         .map(
