@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.util.ReflectionTestUtils;
 
 public class SpringTokenClientConfigurationTest {
 
@@ -14,10 +13,10 @@ public class SpringTokenClientConfigurationTest {
   @BeforeEach
   public void setUp() {
     config = new SpringTokenClientConfiguration();
-    ReflectionTestUtils.setField(config, "isRetryEnabled", false);
-    ReflectionTestUtils.setField(config, "maxRetryAttempts", 3);
-    ReflectionTestUtils.setField(config, "retryDelayTime", 1000L);
-    ReflectionTestUtils.setField(config, "retryStatusCodes", Set.of(408, 429, 500, 502, 503, 504));
+    config.setRetryEnabled(false);
+    config.setMaxRetryAttempts(3);
+    config.setRetryDelayTime(1000L);
+    config.setRetryStatusCodes(Set.of(408, 429, 500, 502, 503, 504));
   }
 
   @Test
