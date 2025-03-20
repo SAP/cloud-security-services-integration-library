@@ -18,7 +18,6 @@ public class OAuth2TokenServiceConstants {
     public static final String ASSERTION = "assertion";
     public static final String AUTHORITIES = "authorities";
     public static final String SCOPE = "scope";
-    public static final long RETRY_MAX_DELAY_TIME = 10000L;
     public static final String GRANT_TYPE = "grant_type";
     public static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
     public static final String GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
