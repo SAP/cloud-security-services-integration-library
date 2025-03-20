@@ -1,90 +1,121 @@
 package com.sap.cloud.security.client;
 
-/**
- * Default configuration class for the Token-Client.
- * Loads default properties defined in this class. Allows users to override them dynamically using setters.
- */
+import io.micrometer.common.util.StringUtils;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+/**
+ * Default configuration class for the Token-Client. Loads default properties defined in this class.
+ * It is recommended to use the static methods {@link #getConfig()} and {@link
+ * #setConfig(DefaultTokenClientConfiguration)} to access and modify the configuration.
+ *
+ * <p>DefaultTokenClientConfiguration is configured with the following default values: Is Retry
+ * Enabled - false Max Retry Attempts - 3 Retry Delay Time - 1000 ms Retry Status Codes - 408, 429,
+ * 500, 502, 503, 504
+ */
 public class DefaultTokenClientConfiguration implements TokenClientConfiguration {
 
-    private static DefaultTokenClientConfiguration config = new DefaultTokenClientConfiguration();
-    private boolean isRetryEnabled;
-    private int maxRetryAttempts;
-    private long retryDelayTime;
-    private String retryStatusCodes;
+  private static DefaultTokenClientConfiguration config = new DefaultTokenClientConfiguration();
+  private boolean isRetryEnabled;
+  private int maxRetryAttempts;
+  private long retryDelayTime;
+  private Set<Integer> retryStatusCodes;
 
-    /**
-     * Constructs a new DefaultTokenClientConfiguration instance with default values.
-     */
-    public DefaultTokenClientConfiguration() {
-        loadDefaults();
-    }
+  /** Constructs a new DefaultTokenClientConfiguration instance with default values. */
+  public DefaultTokenClientConfiguration() {
+    loadDefaults();
+  }
 
-    public static DefaultTokenClientConfiguration getConfig() {
-        return config;
-    }
+  public static DefaultTokenClientConfiguration getConfig() {
+    return config;
+  }
 
-    public static void setConfig(final DefaultTokenClientConfiguration newConfig) {
-        config = newConfig;
-    }
+  public static void setConfig(final DefaultTokenClientConfiguration newConfig) {
+    config = newConfig;
+  }
 
-    /**
-     * Loads default values for retry configuration.
-     */
-    private void loadDefaults() {
-        this.isRetryEnabled = false;
-        this.maxRetryAttempts = 3;
-        this.retryDelayTime = 1000L;
-        this.retryStatusCodes = "408,429,500,502,503,504";
-    }
+  private void loadDefaults() {
+    this.isRetryEnabled = false;
+    this.maxRetryAttempts = 3;
+    this.retryDelayTime = 1000L;
+    this.retryStatusCodes = parseRetryStatusCodes("408,429,500,502,503,504");
+  }
 
-    @Override
-    public boolean isRetryEnabled() {
-        return isRetryEnabled;
-    }
+  @Override
+  public boolean isRetryEnabled() {
+    return isRetryEnabled;
+  }
 
-    @Override
-    public void setRetryEnabled(final boolean retryEnabled) {
-        this.isRetryEnabled = retryEnabled;
-    }
+  @Override
+  public void setRetryEnabled(final boolean retryEnabled) {
+    this.isRetryEnabled = retryEnabled;
+  }
 
-    @Override
-    public int getMaxRetryAttempts() {
-        return maxRetryAttempts;
-    }
+  @Override
+  public int getMaxRetryAttempts() {
+    return maxRetryAttempts;
+  }
 
-    @Override
-    public void setMaxRetryAttempts(final int maxRetryAttempts) {
-        this.maxRetryAttempts = maxRetryAttempts;
-    }
+  @Override
+  public void setMaxRetryAttempts(final int maxRetryAttempts) {
+    this.maxRetryAttempts = maxRetryAttempts;
+  }
 
-    @Override
-    public long getRetryDelayTime() {
-        return retryDelayTime;
-    }
+  @Override
+  public long getRetryDelayTime() {
+    return retryDelayTime;
+  }
 
-    @Override
-    public void setRetryDelayTime(final long retryDelayTime) {
-        this.retryDelayTime = retryDelayTime;
-    }
+  @Override
+  public void setRetryDelayTime(final long retryDelayTime) {
+    this.retryDelayTime = retryDelayTime;
+  }
 
-    @Override
-    public String getRetryStatusCodes() {
-        return retryStatusCodes;
-    }
+  @Override
+  public Set<Integer> getRetryStatusCodes() {
+    return retryStatusCodes;
+  }
 
-    @Override
-    public void setRetryStatusCodes(final String retryStatusCodes) {
-        this.retryStatusCodes = retryStatusCodes;
-    }
+  @Override
+  public void setRetryStatusCodes(final String retryStatusCodes) {
+    this.retryStatusCodes = parseRetryStatusCodes(retryStatusCodes);
+  }
 
-    @Override
-    public String toString() {
-        return "DefaultTokenClientConfig{" +
-                "isRetryEnabled=" + isRetryEnabled +
-                ", maxRetryAttempts=" + maxRetryAttempts +
-                ", retryDelayTime=" + retryDelayTime +
-                ", retryStatusCodes='" + retryStatusCodes + '\'' +
-                '}';
-    }
+  @Override
+  public void setRetryStatusCodes(final Set<Integer> retryStatusCodes) {
+    this.retryStatusCodes = retryStatusCodes;
+  }
+
+  @Override
+  public String toString() {
+    return "DefaultTokenClientConfig{"
+        + "isRetryEnabled="
+        + isRetryEnabled
+        + ", maxRetryAttempts="
+        + maxRetryAttempts
+        + ", retryDelayTime="
+        + retryDelayTime
+        + ", retryStatusCodes='"
+        + retryStatusCodes
+        + '\''
+        + '}';
+  }
+
+  private Set<Integer> parseRetryStatusCodes(final String retryStatusCodes) {
+    return Arrays.stream(retryStatusCodes.split(","))
+        .map(String::trim)
+        .filter(StringUtils::isNotBlank)
+        .map(
+            s -> {
+              try {
+                return Integer.parseInt(s);
+              } catch (final NumberFormatException e) {
+                return null;
+              }
+            })
+        .filter(Objects::nonNull)
+        .collect(Collectors.toSet());
+  }
 }
