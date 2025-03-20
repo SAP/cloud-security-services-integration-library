@@ -4,8 +4,9 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-      time: "10:00"
-      timezone: Etc/UCT
+      time: "06:00"
+      timezone: Etc/UTC
     reviewers:
       - "kuntzed"
+      - "NiklasHerrmann21"
     open-pull-requests-limit: 10
