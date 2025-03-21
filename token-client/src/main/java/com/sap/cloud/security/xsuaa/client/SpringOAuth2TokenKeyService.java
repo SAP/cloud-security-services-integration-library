@@ -9,7 +9,11 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestOperations;
 
@@ -33,8 +37,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params)
-			throws OAuth2ServiceException {
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -45,42 +48,20 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		}
 
 		try {
-			ResponseEntity<String> response = restOperations.exchange(
-					tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);
+			ResponseEntity<String> response = restOperations.exchange(tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);
 			if (HttpStatus.OK.value() == response.getStatusCode().value()) {
 				LOGGER.debug("Successfully retrieved token keys from {} for params '{}'", tokenKeysEndpointUri, params);
 				return response.getBody();
 			} else {
-				throw OAuth2ServiceException.builder(
-								"Error retrieving token keys. Request headers [" + headers.entrySet().stream()
-										.map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
-										.collect(Collectors.joining(", ")) + "]")
-						.withUri(tokenKeysEndpointUri)
-						.withHeaders(response.getHeaders().size() != 0 ? response.getHeaders().entrySet().stream().map(
-										h -> h.getKey() + ": " + String.join(",", h.getValue()))
-								.toArray(String[]::new) : null)
-						.withStatusCode(response.getStatusCode().value())
-						.withResponseBody(response.getBody())
-						.build();
+				throw OAuth2ServiceException.builder("Error retrieving token keys. Request headers [" + headers.entrySet().stream().map(h -> h.getKey() + ": " + String.join(",", h.getValue())).collect(Collectors.joining(", ")) + "]").withUri(tokenKeysEndpointUri).withHeaders(response.getHeaders().size() != 0 ? response.getHeaders().entrySet().stream().map(h -> h.getKey() + ": " + String.join(",", h.getValue())).toArray(String[]::new) : null).withStatusCode(response.getStatusCode().value()).withResponseBody(response.getBody()).build();
 			}
 		} catch (HttpStatusCodeException ex) {
-			throw OAuth2ServiceException.builder(
-							"Error retrieving token keys. Request headers [" + headers.entrySet().stream()
-									.map(h -> h.getKey() + ": " + String.join(",", h.getValue())))
-					.withUri(tokenKeysEndpointUri)
-					.withHeaders(ex.getResponseHeaders() != null ? ex.getResponseHeaders().entrySet().stream().map(
-									h -> h.getKey() + ": " + String.join(",", h.getValue()))
-							.toArray(String[]::new) : null)
-					.withStatusCode(ex.getStatusCode().value())
-					.withResponseBody(ex.getResponseBodyAsString())
-					.build();
+			throw OAuth2ServiceException.builder("Error retrieving token keys. Request headers [" + headers.entrySet().stream().map(h -> h.getKey() + ": " + String.join(",", h.getValue()))).withUri(tokenKeysEndpointUri).withHeaders(ex.getResponseHeaders() != null ? ex.getResponseHeaders().entrySet().stream().map(h -> h.getKey() + ": " + String.join(",", h.getValue())).toArray(String[]::new) : null).withStatusCode(ex.getStatusCode().value()).withResponseBody(ex.getResponseBodyAsString()).build();
 		} catch (Exception e) {
 			if (e instanceof OAuth2ServiceException oAuth2ServiceException) {
 				throw oAuth2ServiceException;
 			} else {
-				throw OAuth2ServiceException.builder("Unexpected error retrieving token keys: " + e.getMessage())
-						.withUri(tokenKeysEndpointUri)
-						.build();
+				throw OAuth2ServiceException.builder("Unexpected error retrieving token keys: " + e.getMessage()).withUri(tokenKeysEndpointUri).build();
 			}
 		}
 	}

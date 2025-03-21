@@ -28,7 +28,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.GET;
 
 public class SpringOAuth2TokenKeyServiceTest {
@@ -37,15 +40,10 @@ public class SpringOAuth2TokenKeyServiceTest {
 	public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	public static final String CLIENT_ID = "client-id";
 	public static final String AZP = "azp";
-	private static final Map<String, String> PARAMS = Map.of(
-			HttpHeaders.X_APP_TID, APP_TID,
-			HttpHeaders.X_CLIENT_ID, CLIENT_ID,
-			HttpHeaders.X_AZP, AZP);
-
+	private static final Map<String, String> PARAMS = Map.of(HttpHeaders.X_APP_TID, APP_TID, HttpHeaders.X_CLIENT_ID, CLIENT_ID, HttpHeaders.X_AZP, AZP);
+	private final String jsonWebKeysAsString;
 	private RestOperations restOperationsMock;
 	private SpringOAuth2TokenKeyService cut;
-
-	private final String jsonWebKeysAsString;
 
 	public SpringOAuth2TokenKeyServiceTest() throws IOException {
 		jsonWebKeysAsString = IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8);
@@ -59,14 +57,12 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void restOperations_isNull_throwsException() {
-		assertThatThrownBy(() -> new SpringOAuth2TokenKeyService(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new SpringOAuth2TokenKeyService(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void retrieveTokenKeys_endpointUriIsNull_throwsException() {
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, APP_TID))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, APP_TID)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -75,9 +71,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
-		Mockito.verify(restOperationsMock, times(1))
-				.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), argThat(httpEntityContainsMandatoryHeaders()),
-						eq(String.class));
+		Mockito.verify(restOperationsMock, times(1)).exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), argThat(httpEntityContainsMandatoryHeaders()), eq(String.class));
 	}
 
 	@Test
@@ -85,18 +79,9 @@ public class SpringOAuth2TokenKeyServiceTest {
 		String errorMessage = "useful error message";
 		mockResponse(errorMessage, HttpStatus.BAD_REQUEST);
 
-		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class,
-				() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS));
+		OAuth2ServiceException e = assertThrows(OAuth2ServiceException.class, () -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS));
 
-		assertThat(e.getMessage())
-				.contains(TOKEN_KEYS_ENDPOINT_URI.toString())
-				.contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
-				.contains("Request headers [Accept: application/json, User-Agent: token-client/")
-				.contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
-				.contains("x-client_id: client-id")
-				.contains("x-azp: azp")
-				.contains("Response Headers ")
-				.contains(errorMessage);
+		assertThat(e.getMessage()).contains(TOKEN_KEYS_ENDPOINT_URI.toString()).contains(String.valueOf(HttpStatus.BAD_REQUEST.value())).contains("Request headers [Accept: application/json, User-Agent: token-client/").contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c").contains("x-client_id: client-id").contains("x-azp: azp").contains("Response Headers ").contains(errorMessage);
 		assertThat(e.getHttpStatusCode()).isEqualTo(400);
 		assertThat(e.getHeaders()).hasSize(1);
 		assertThat(e.getHeaders()).contains("Content-Type: application/json");
@@ -110,8 +95,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 		headers.add("Content-Type", "application/json");
 		ResponseEntity<String> stringResponseEntity = new ResponseEntity<>(responseAsString, headers, httpStatus);
-		when(restOperationsMock.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
-				.thenReturn(stringResponseEntity);
+		when(restOperationsMock.exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class))).thenReturn(stringResponseEntity);
 	}
 
 	private ArgumentMatcher<HttpEntity> httpEntityContainsMandatoryHeaders() {

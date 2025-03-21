@@ -43,10 +43,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 	public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
 	public static final String CLIENT_ID = "client-id";
 	public static final String AZP = "azp";
-	private static final Map<String, String> PARAMS = Map.of(
-			HttpHeaders.X_APP_TID, APP_TID,
-			HttpHeaders.X_CLIENT_ID, CLIENT_ID,
-			HttpHeaders.X_AZP, AZP);
+	private static final Map<String, String> PARAMS = Map.of(HttpHeaders.X_APP_TID, APP_TID, HttpHeaders.X_CLIENT_ID, CLIENT_ID, HttpHeaders.X_AZP, AZP);
 	private final String jsonWebKeysAsString;
 
 	private DefaultOAuth2TokenKeyService cut;
@@ -64,54 +61,36 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void httpClient_isNull_throwsException() {
-		assertThatThrownBy(() -> new DefaultOAuth2TokenKeyService(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> new DefaultOAuth2TokenKeyService(null)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	public void retrieveTokenKeysForZone_responseNotOk_throwsException() throws IOException {
 		String errorDescription = "Something went wrong";
-		CloseableHttpResponse response = HttpClientTestFactory
-				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
 			ResponseHandler responseHandler = invocation.getArgument(1);
 			return responseHandler.handleResponse(response);
 		});
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
-				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(errorDescription)
-				.hasMessageContaining("Request headers [")
-				.hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
-				.hasMessageContaining("x-client_id: client-id")
-				.hasMessageContaining("x-azp: azp")
-				.hasMessageContaining("'Something went wrong'")
-				.hasMessageContaining("Error retrieving token keys")
-				.hasMessageContaining("Response Headers [testHeader: testValue]")
-				.hasMessageContaining("Http status code 400");
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS)).isInstanceOf(OAuth2ServiceException.class).hasMessageContaining(errorDescription).hasMessageContaining("Request headers [").hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c").hasMessageContaining("x-client_id: client-id").hasMessageContaining("x-azp: azp").hasMessageContaining("'Something went wrong'").hasMessageContaining("Error retrieving token keys").hasMessageContaining("Response Headers [testHeader: testValue]").hasMessageContaining("Http status code 400");
 	}
 
 	@Test
 	public void retrieveTokenKeys_responseNotOk_throwsException() throws IOException {
 		String errorDescription = "Something went wrong";
-		CloseableHttpResponse response = HttpClientTestFactory
-				.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponse(errorDescription, HttpStatus.SC_BAD_REQUEST);
 		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
 			ResponseHandler responseHandler = invocation.getArgument(1);
 			return responseHandler.handleResponse(response);
 		});
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, Collections.emptyMap()))
-				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(errorDescription)
-				.hasMessageContaining("'Something went wrong'")
-				.hasMessageContaining("Error retrieving token keys");
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, Collections.emptyMap())).isInstanceOf(OAuth2ServiceException.class).hasMessageContaining(errorDescription).hasMessageContaining("'Something went wrong'").hasMessageContaining("Error retrieving token keys");
 	}
 
 	@Test
 	public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, PARAMS))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(null, PARAMS)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
@@ -119,15 +98,12 @@ public class DefaultOAuth2TokenKeyServiceTest {
 		String errorMessage = "useful error message";
 		when(httpClient.execute(any(), any(ResponseHandler.class))).thenThrow(new IOException(errorMessage));
 
-		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
-				.isInstanceOf(OAuth2ServiceException.class)
-				.hasMessageContaining(errorMessage);
+		assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS)).isInstanceOf(OAuth2ServiceException.class).hasMessageContaining(errorMessage);
 	}
 
 	@Test
 	public void retrieveTokenKeys_app2Service_proofToken() throws IOException {
-		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponseWithHeaders(jsonWebKeysAsString,
-				new BasicHeader[] { new BasicHeader(X_OSB_PLAN, "\"plan1\"") });
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponseWithHeaders(jsonWebKeysAsString, new BasicHeader[]{ new BasicHeader(X_OSB_PLAN, "\"plan1\"") });
 
 		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
 			ResponseHandler responseHandler = invocation.getArgument(1);
@@ -143,8 +119,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 	@Test
 	public void retrieveTokenKeys_app2service_proofToken_multiplePlans() throws IOException {
-		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponseWithHeaders(jsonWebKeysAsString,
-				new BasicHeader[] { new BasicHeader(X_OSB_PLAN, "\"plan1\" , \"plan \"two\"\",\"plan3\"") });
+		CloseableHttpResponse response = HttpClientTestFactory.createHttpResponseWithHeaders(jsonWebKeysAsString, new BasicHeader[]{ new BasicHeader(X_OSB_PLAN, "\"plan1\" , \"plan \"two\"\",\"plan3\"") });
 
 		when(httpClient.execute(any(), any(ResponseHandler.class))).thenAnswer(invocation -> {
 			ResponseHandler responseHandler = invocation.getArgument(1);
@@ -168,8 +143,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
 		cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
-		Mockito.verify(httpClient, times(1)).execute(argThat(isCorrectHttpGetRequest()),
-				any(ResponseHandler.class));
+		Mockito.verify(httpClient, times(1)).execute(argThat(isCorrectHttpGetRequest()), any(ResponseHandler.class));
 	}
 
 	private ArgumentMatcher<HttpUriRequest> isCorrectHttpGetRequest() {

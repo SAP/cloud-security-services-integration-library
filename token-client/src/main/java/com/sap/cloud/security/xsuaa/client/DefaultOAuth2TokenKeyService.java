@@ -44,8 +44,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 	}
 
 	@Override
-	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params)
-			throws OAuth2ServiceException {
+	public String retrieveTokenKeys(@Nonnull URI tokenKeysEndpointUri, Map<String, String> params) throws OAuth2ServiceException {
 		Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
 		HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
 
@@ -54,23 +53,14 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 		}
 		request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
 
-		LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} ", tokenKeysEndpointUri,
-				request.getAllHeaders());
+		LOGGER.debug("Executing token key retrieval GET request to {} with headers: {} ", tokenKeysEndpointUri, request.getAllHeaders());
 		try {
 			return httpClient.execute(request, response -> {
 				int statusCode = response.getStatusLine().getStatusCode();
 				LOGGER.debug("Received statusCode {}", statusCode);
 				String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 				if (statusCode != HttpStatus.SC_OK) {
-					throw OAuth2ServiceException
-							.builder("Error retrieving token keys. Request headers "
-									+ Arrays.stream(request.getAllHeaders()).toList())
-							.withUri(tokenKeysEndpointUri)
-							.withHeaders(response.getAllHeaders() != null ? Arrays.stream(response.getAllHeaders())
-									.map(Header::toString).toArray(String[]::new) : null)
-							.withStatusCode(statusCode)
-							.withResponseBody(body)
-							.build();
+					throw OAuth2ServiceException.builder("Error retrieving token keys. Request headers " + Arrays.stream(request.getAllHeaders()).toList()).withUri(tokenKeysEndpointUri).withHeaders(response.getAllHeaders() != null ? Arrays.stream(response.getAllHeaders()).map(Header::toString).toArray(String[]::new) : null).withStatusCode(statusCode).withResponseBody(body).build();
 				}
 
 				LOGGER.debug("Successfully retrieved token keys from {} with params {}.", tokenKeysEndpointUri, params);
