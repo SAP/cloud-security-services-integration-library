@@ -6,7 +6,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SpringTokenClientConfigurationTest {
+public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfigurationTest {
 
   private SpringTokenClientConfiguration config;
 
@@ -17,6 +17,11 @@ public class SpringTokenClientConfigurationTest {
     config.setMaxRetryAttempts(3);
     config.setRetryDelayTime(1000L);
     config.setRetryStatusCodes(Set.of(408, 429, 500, 502, 503, 504));
+  }
+
+  @Override
+  protected TokenClientConfiguration createConfig() {
+    return config;
   }
 
   @Test
@@ -53,57 +58,9 @@ public class SpringTokenClientConfigurationTest {
   }
 
   @Test
-  public void setRetryStatusCodes_withStringValue_updatesValue() {
-    config.setRetryStatusCodes("400,401");
-    assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(400, 401);
-  }
-
-  @Test
   public void setRetryStatusCodes_withIntegerSet_updatesValue() {
     config.setRetryStatusCodes(Set.of(300, 301));
     assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(300, 301);
-  }
-
-  @Test
-  public void setRetryStatusCodes_withEmptyString() {
-    config.setRetryStatusCodes("");
-    assertThat(config.getRetryStatusCodes()).isEmpty();
-  }
-
-  @Test
-  public void setRetryStatusCodes_withInvalidString() {
-    config.setRetryStatusCodes("abc,123");
-    assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(123);
-  }
-
-  @Test
-  public void setRetryStatusCodes_withNullString() {
-    config.setRetryStatusCodes((String) null);
-    assertThat(config.getRetryStatusCodes()).isEmpty();
-  }
-
-  @Test
-  public void setRetryStatusCodes_withSpacesOnly() {
-    config.setRetryStatusCodes("   ");
-    assertThat(config.getRetryStatusCodes()).isEmpty();
-  }
-
-  @Test
-  public void setRetryStatusCodes_withMixedValidAndInvalidCodes() {
-    config.setRetryStatusCodes("200,abc,404,xyz");
-    assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(200, 404);
-  }
-
-  @Test
-  public void setRetryStatusCodes_withDuplicateCodes() {
-    config.setRetryStatusCodes("500,500,502,502");
-    assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(500, 502);
-  }
-
-  @Test
-  public void setRetryStatusCodes_withLeadingAndTrailingCommas() {
-    config.setRetryStatusCodes(",400,401,");
-    assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(400, 401);
   }
 
   @Test

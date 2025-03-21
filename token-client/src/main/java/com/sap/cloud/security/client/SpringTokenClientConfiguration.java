@@ -1,10 +1,6 @@
 package com.sap.cloud.security.client;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
@@ -77,11 +73,6 @@ public class SpringTokenClientConfiguration implements TokenClientConfiguration 
   }
 
   @Override
-  public void setRetryStatusCodes(final String retryStatusCodes) {
-    this.retryStatusCodes = parseRetryStatusCodes(retryStatusCodes);
-  }
-
-  @Override
   public void setRetryStatusCodes(final Set<Integer> retryStatusCodes) {
         this.retryStatusCodes = retryStatusCodes;
   }
@@ -99,21 +90,5 @@ public class SpringTokenClientConfiguration implements TokenClientConfiguration 
         + retryStatusCodes
         + '\''
         + '}';
-  }
-
-  private Set<Integer> parseRetryStatusCodes(final String retryStatusCodes) {
-    return Arrays.stream(Optional.ofNullable(retryStatusCodes).orElse("").split(","))
-        .map(String::trim)
-        .filter(s -> !s.isBlank())
-        .map(
-            s -> {
-              try {
-                return Integer.parseInt(s);
-              } catch (final NumberFormatException e) {
-                return null;
-              }
-            })
-        .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
   }
 }

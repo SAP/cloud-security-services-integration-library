@@ -1,6 +1,9 @@
 package com.sap.cloud.security.client;
 
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Configuration interface for the Token Client. Defines methods for configuring retry behavior and
@@ -60,14 +63,24 @@ public interface TokenClientConfiguration {
   /**
    * Sets the retry status codes.
    *
-   * @param retryStatusCodes A comma-separated string of HTTP status codes to retry on.
+   * @param retryStatusCodes A Set of Integer values representing http status codes.
    */
-  void setRetryStatusCodes(String retryStatusCodes);
+  void setRetryStatusCodes(Set<Integer> retryStatusCodes);
 
   /**
    * Sets the retry status codes.
    *
-   * @param retryStatusCodes A Set of Integer values representing http status codes.
+   * @param retryStatusCodes A comma-separated string of HTTP status codes to retry on.
    */
-  void setRetryStatusCodes(Set<Integer> retryStatusCodes);
+  default void setRetryStatusCodes(final String retryStatusCodes) {
+    setRetryStatusCodes(parseRetryStatusCodes(retryStatusCodes));
+  }
+
+  private Set<Integer> parseRetryStatusCodes(final String retryStatusCodes) {
+    return Arrays.stream(Optional.ofNullable(retryStatusCodes).orElse("").split(","))
+        .map(String::trim)
+        .filter(s -> !s.isBlank())
+        .map(Integer::parseInt)
+        .collect(Collectors.toSet());
+  }
 }

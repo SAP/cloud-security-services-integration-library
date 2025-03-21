@@ -10,6 +10,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpMethod.GET;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.sap.cloud.security.client.SpringTokenClientConfiguration;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import java.io.IOException;
@@ -25,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -59,11 +64,14 @@ public class SpringOAuth2TokenKeyServiceTest {
   public void setUp() {
     restOperationsMock = Mockito.mock(RestOperations.class);
     cut = new SpringOAuth2TokenKeyService(restOperationsMock);
+    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getConfig();
+    config.setRetryEnabled(false);
+    SpringTokenClientConfiguration.setConfig(config);
   }
 
   @Test
   public void retrieveTokenKeys_responseNotOk_throwsException() {
-    mockResponse(ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR.value());
+    mockResponse(ERROR_MESSAGE, 500);
 
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
@@ -108,7 +116,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 
   @Test
   public void retrieveTokenKeys_badResponse_throwsException() {
-    mockResponse(ERROR_MESSAGE, HttpStatus.BAD_REQUEST.value());
+    mockResponse(ERROR_MESSAGE, 400);
 
     final OAuth2ServiceException e =
         assertThrows(
@@ -131,13 +139,8 @@ public class SpringOAuth2TokenKeyServiceTest {
 
   @Test
   public void retrieveTokenKeys_errorOccursDuringRetry_throwsServiceException() {
-    mockResponse(
-        ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.BAD_REQUEST.value());
-    final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getConfig();
-    newConfig.setRetryEnabled(true);
-    newConfig.setMaxRetryAttempts(1);
-    newConfig.setRetryStatusCodes("500");
-    SpringTokenClientConfiguration.setConfig(newConfig);
+    mockResponse(ERROR_MESSAGE, 500, 400);
+    setConfigurationValues(10, Set.of(500));
 
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
@@ -156,7 +159,7 @@ public class SpringOAuth2TokenKeyServiceTest {
 
   @Test
   public void retrieveTokenKeys_executesCorrectHttpGetRequest() throws OAuth2ServiceException {
-    mockResponse(jsonWebKeysAsString, HttpStatus.OK.value());
+    mockResponse(jsonWebKeysAsString, 200);
 
     cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
@@ -171,7 +174,7 @@ public class SpringOAuth2TokenKeyServiceTest {
   @Test
   public void retrieveTokenKeys_withEmptyParams_executesSuccessfully()
       throws OAuth2ServiceException {
-    mockResponse(jsonWebKeysAsString, HttpStatus.OK.value());
+    mockResponse(jsonWebKeysAsString, 200);
 
     final Map<String, String> emptyParams = Map.of();
     final String result = cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, emptyParams);
@@ -183,18 +186,93 @@ public class SpringOAuth2TokenKeyServiceTest {
 
   @Test
   public void retrieveTokenKeys_responseNotOk_retry_executesRetrySuccessfully() throws IOException {
-    mockResponse(ERROR_MESSAGE, HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.OK.value());
-    final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getConfig();
-    newConfig.setRetryEnabled(true);
-    newConfig.setMaxRetryAttempts(1);
-    newConfig.setRetryStatusCodes(Set.of(500));
-    SpringTokenClientConfiguration.setConfig(newConfig);
+    mockResponse(ERROR_MESSAGE, 500, 200);
+    setConfigurationValues(1, Set.of(500));
 
     final String result = cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
     Mockito.verify(restOperationsMock, times(2))
         .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
     assertThat(result).isNotEmpty();
+  }
+
+  @Test
+  public void retrieveTokenKeys_allRetryableStatusCodes_executesRetrySuccessfullyWithBadResponse() {
+    mockResponse(ERROR_MESSAGE, 408, 429, 500, 502, 503, 504, 400);
+    setConfigurationValues(10, Set.of(408, 429, 500, 502, 503, 504));
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(
+            "Request headers [Accept: application/json, User-Agent: token-client/")
+        .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
+        .hasMessageContaining("x-client_id: client-id")
+        .hasMessageContaining("x-azp: azp")
+        .hasMessageContaining("Error retrieving token keys")
+        .hasMessageContaining("Response Headers ")
+        .hasMessageContaining("Http status code 400");
+    Mockito.verify(restOperationsMock, times(7))
+        .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_noRetryableStatusCodesSet_executesNoRetry() {
+    mockResponse(ERROR_MESSAGE, 500);
+    setConfigurationValues(10, Set.of());
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(
+            "Request headers [Accept: application/json, User-Agent: token-client/")
+        .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
+        .hasMessageContaining("x-client_id: client-id")
+        .hasMessageContaining("x-azp: azp")
+        .hasMessageContaining("Error retrieving token keys")
+        .hasMessageContaining("Response Headers ")
+        .hasMessageContaining("Http status code 500");
+    Mockito.verify(restOperationsMock, times(1))
+        .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_retryLogic_maxAttemptsReached_throwsException() {
+    mockResponse(ERROR_MESSAGE, 500, 500, 500, 500);
+    setConfigurationValues(2, Set.of(500));
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Error retrieving token keys");
+    Mockito.verify(restOperationsMock, times(3))
+        .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_interruptedExceptionDuringRetry_logsWarning()
+      throws OAuth2ServiceException {
+    mockResponse(ERROR_MESSAGE, 500, 200);
+    setConfigurationValues(1, Set.of(500));
+
+    // Set up log capturing
+    final Logger logger = (Logger) LoggerFactory.getLogger(SpringOAuth2TokenKeyService.class);
+    final ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+    listAppender.start();
+    logger.addAppender(listAppender);
+
+    Thread.currentThread().interrupt(); // Simulate InterruptedException
+
+    cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
+
+    final List<ILoggingEvent> logsList = listAppender.list;
+    assertThat(logsList).extracting(ILoggingEvent::getLevel).contains(Level.WARN);
+    assertThat(logsList)
+        .extracting(ILoggingEvent::getFormattedMessage)
+        .contains("Thread.sleep has been interrupted. Retry starts now.");
+    logger.detachAppender(listAppender);
+    Mockito.verify(restOperationsMock, times(2))
+        .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
   }
 
   private void mockResponse(final String responseAsString, final Integer... statusCodes) {
@@ -212,6 +290,16 @@ public class SpringOAuth2TokenKeyServiceTest {
               final int currentIndex = index.getAndIncrement();
               return responses.get(currentIndex);
             });
+  }
+
+  private static void setConfigurationValues(
+      final int maxRetryAttempts, final Set<Integer> retryStatusCodes) {
+    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getConfig();
+    config.setRetryEnabled(true);
+    config.setMaxRetryAttempts(maxRetryAttempts);
+    config.setRetryStatusCodes(retryStatusCodes);
+    config.setRetryDelayTime(0L);
+    SpringTokenClientConfiguration.setConfig(config);
   }
 
   private ArgumentMatcher<HttpEntity> httpEntityContainsMandatoryHeaders() {

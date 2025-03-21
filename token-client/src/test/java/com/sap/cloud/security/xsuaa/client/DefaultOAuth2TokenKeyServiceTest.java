@@ -7,6 +7,10 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
@@ -16,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -27,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 
 public class DefaultOAuth2TokenKeyServiceTest {
@@ -110,9 +116,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
   @Test
   public void retrieveTokenKeys_errorOccursDuringRetry_throwsServiceException() throws IOException {
     mockResponse(ERROR_MESSAGE, 500, 400);
-    final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getConfig();
-    config.setRetryEnabled(true);
-    config.setMaxRetryAttempts(1);
+    setConfigurationValues(1, Set.of(500));
 
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
@@ -151,17 +155,93 @@ public class DefaultOAuth2TokenKeyServiceTest {
   }
 
   @Test
-  public void retrieveTokenKeys_responseNotOk_retry_executesRetrySuccessfully() throws IOException {
+  public void retrieveTokenKeys_firstResponseNotOk_executesRetrySuccessfullyWithOKResponse()
+      throws IOException {
     mockResponse(ERROR_MESSAGE, 500, 200);
-    final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getConfig();
-    config.setRetryEnabled(true);
-    config.setMaxRetryAttempts(1);
+    setConfigurationValues(1, Set.of(500));
 
     final String result = cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
     Mockito.verify(httpClient, times(2))
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
     assertThat(result).isNotEmpty();
+  }
+
+  @Test
+  public void retrieveTokenKeys_allRetryableStatusCodes_executesRetrySuccessfullyWithBadResponse()
+      throws IOException {
+    mockResponse(ERROR_MESSAGE, 408, 429, 500, 502, 503, 504, 400);
+    setConfigurationValues(10, Set.of(408, 429, 500, 502, 503, 504));
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Request headers [")
+        .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
+        .hasMessageContaining("x-client_id: client-id")
+        .hasMessageContaining("x-azp: azp")
+        .hasMessageContaining("Error retrieving token keys")
+        .hasMessageContaining("Response Headers [testHeader: testValue]")
+        .hasMessageContaining("Http status code 400");
+    Mockito.verify(httpClient, times(7))
+        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_noRetryableStatusCodesSet_executesNoRetry() throws IOException {
+    mockResponse(ERROR_MESSAGE, 500);
+    setConfigurationValues(10, Set.of());
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Request headers [")
+        .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
+        .hasMessageContaining("x-client_id: client-id")
+        .hasMessageContaining("x-azp: azp")
+        .hasMessageContaining("Error retrieving token keys")
+        .hasMessageContaining("Response Headers [testHeader: testValue]")
+        .hasMessageContaining("Http status code 500");
+    Mockito.verify(httpClient, times(1))
+        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_retryLogic_maxAttemptsReached_throwsException() throws IOException {
+    mockResponse(ERROR_MESSAGE, 500, 500, 500, 500);
+    setConfigurationValues(2, Set.of(500));
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Error retrieving token keys");
+    Mockito.verify(httpClient, times(3))
+        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_interruptedExceptionDuringRetry_logsWarning() throws IOException {
+    mockResponse(ERROR_MESSAGE, 500, 200);
+    setConfigurationValues(1, Set.of(500));
+
+    // Set up log capturing
+    final Logger logger = (Logger) LoggerFactory.getLogger(DefaultOAuth2TokenKeyService.class);
+    final ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+    listAppender.start();
+    logger.addAppender(listAppender);
+
+    Thread.currentThread().interrupt(); // Simulate InterruptedException
+
+    cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
+
+    final List<ILoggingEvent> logsList = listAppender.list;
+    assertThat(logsList).extracting(ILoggingEvent::getLevel).contains(Level.WARN);
+    assertThat(logsList)
+        .extracting(ILoggingEvent::getFormattedMessage)
+        .contains("Thread.sleep has been interrupted. Retry starts now.");
+    logger.detachAppender(listAppender);
+    Mockito.verify(httpClient, times(2))
+        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
   }
 
   private void mockResponse(final String responseAsString, final Integer... statusCodes) {
@@ -183,6 +263,16 @@ public class DefaultOAuth2TokenKeyServiceTest {
               });
     } catch (final IOException ignored) {
     }
+  }
+
+  private static void setConfigurationValues(
+      final int maxRetryAttempts, final Set<Integer> retryStatusCodes) {
+    final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getConfig();
+    config.setRetryEnabled(true);
+    config.setMaxRetryAttempts(maxRetryAttempts);
+    config.setRetryStatusCodes(retryStatusCodes);
+    config.setRetryDelayTime(0L);
+    DefaultTokenClientConfiguration.setConfig(config);
   }
 
   private ArgumentMatcher<HttpUriRequest> isCorrectHttpGetRequest() {
