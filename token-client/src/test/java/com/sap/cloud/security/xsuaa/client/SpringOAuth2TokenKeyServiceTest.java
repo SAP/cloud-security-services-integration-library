@@ -64,14 +64,12 @@ public class SpringOAuth2TokenKeyServiceTest {
   public void setUp() {
     restOperationsMock = Mockito.mock(RestOperations.class);
     cut = new SpringOAuth2TokenKeyService(restOperationsMock);
-    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getConfig();
-    config.setRetryEnabled(false);
-    SpringTokenClientConfiguration.setConfig(config);
   }
 
   @Test
   public void retrieveTokenKeys_responseNotOk_throwsException() {
     mockResponse(ERROR_MESSAGE, 500);
+    setConfigurationValues(0, Set.of());
 
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)

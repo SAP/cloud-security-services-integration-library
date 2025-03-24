@@ -27,7 +27,7 @@ public abstract class AbstractTokenClientConfigurationTest {
   public void setRetryStatusCodes_withInvalidString() {
     final TokenClientConfiguration config = createConfig();
     assertThatThrownBy(() -> config.setRetryStatusCodes("abc,123"))
-        .isInstanceOf(NumberFormatException.class);
+        .isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -48,7 +48,7 @@ public abstract class AbstractTokenClientConfigurationTest {
   public void setRetryStatusCodes_withMixedValidAndInvalidCodes() {
     final TokenClientConfiguration config = createConfig();
     assertThatThrownBy(() -> config.setRetryStatusCodes("200,abc,404,xyz"))
-        .isInstanceOf(NumberFormatException.class);
+        .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

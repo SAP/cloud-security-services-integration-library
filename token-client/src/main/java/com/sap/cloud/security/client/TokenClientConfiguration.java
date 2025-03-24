@@ -4,12 +4,16 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Configuration interface for the Token Client. Defines methods for configuring retry behavior and
  * other settings related to token retrieval.
  */
 public interface TokenClientConfiguration {
+
+  Logger logger = LoggerFactory.getLogger(TokenClientConfiguration.class);
 
   /**
    * Checks if the retry mechanism is enabled.
@@ -73,7 +77,12 @@ public interface TokenClientConfiguration {
    * @param retryStatusCodes A comma-separated string of HTTP status codes to retry on.
    */
   default void setRetryStatusCodes(final String retryStatusCodes) {
-    setRetryStatusCodes(parseRetryStatusCodes(retryStatusCodes));
+    try {
+      setRetryStatusCodes(parseRetryStatusCodes(retryStatusCodes));
+    } catch (final NumberFormatException e) {
+      logger.error("Failed to parse retry status codes: {}", retryStatusCodes, e);
+      throw new IllegalStateException("Failed to parse retry status codes: " + retryStatusCodes, e);
+    }
   }
 
   private Set<Integer> parseRetryStatusCodes(final String retryStatusCodes) {
