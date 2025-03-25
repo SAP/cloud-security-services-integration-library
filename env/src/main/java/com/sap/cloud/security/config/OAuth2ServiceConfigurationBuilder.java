@@ -195,7 +195,7 @@ public class OAuth2ServiceConfigurationBuilder {
 	 * @return the oauth2 service configuration.
 	 */
 	public OAuth2ServiceConfiguration build() {
-		return new OAuth2ServiceConfigurationImpl(Map.copyOf(properties), service, List.copyOf(domains), runInLegacyMode);
+		return new OAuth2ServiceConfigurationImpl(new HashMap<>(properties), service, new ArrayList<>(domains), runInLegacyMode);
 	}
 
 	private static class OAuth2ServiceConfigurationImpl implements OAuth2ServiceConfiguration {

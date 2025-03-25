@@ -132,6 +132,26 @@ public class OAuth2ServiceConfigurationBuilderTest {
 	}
 
 	@Test
+	public void withPropertyKeyIsNull() {
+		String propertyName = null;
+		String propertyValue = "value";
+
+		OAuth2ServiceConfiguration configuration = cut.withProperty(propertyName, propertyValue).build();
+
+		assertThat(configuration.getProperty(propertyName)).isEqualTo(propertyValue);
+	}
+
+	@Test
+	public void withPropertyValueIsNull() {
+		String propertyName = "propertyName";
+		String propertyValue = null;
+
+		OAuth2ServiceConfiguration configuration = cut.withProperty(propertyName, propertyValue).build();
+
+		assertThat(configuration.getProperty(propertyName)).isEqualTo(propertyValue);
+	}
+
+	@Test
 	public void withUrl_setViaProperty() {
 		String url = "http://theUrl.org";
 
