@@ -10,7 +10,6 @@ import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
