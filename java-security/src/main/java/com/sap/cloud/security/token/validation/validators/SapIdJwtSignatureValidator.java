@@ -10,6 +10,7 @@ import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.net.URI;
@@ -122,6 +123,9 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 	@Nonnull
 	private URI getOidcJwksUri(String domain) throws OAuth2ServiceException {
 		URI discoveryUri = DefaultOidcConfigurationService.getDiscoveryEndpointUri(domain);
+		if (discoveryUri == null) {
+			throw new IllegalArgumentException("OIDC .well-known discovery URI could not be constructed.");
+		}
 
 		OAuth2ServiceEndpointsProvider endpointsProvider = oidcConfigurationService
 				.getOrRetrieveEndpoints(discoveryUri);
