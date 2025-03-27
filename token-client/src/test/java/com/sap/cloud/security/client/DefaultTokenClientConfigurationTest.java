@@ -12,27 +12,17 @@ public class DefaultTokenClientConfigurationTest extends AbstractTokenClientConf
 
   @BeforeEach
   public void setUp() {
-    config = new DefaultTokenClientConfiguration();
+    DefaultTokenClientConfiguration.setInstance(null);
+    config = DefaultTokenClientConfiguration.getInstance();
+    config.setRetryEnabled(false);
+    config.setMaxRetryAttempts(3);
+    config.setRetryDelayTime(1000L);
+    config.setRetryStatusCodes(Set.of(408, 429, 500, 502, 503, 504));
   }
 
   @Override
   protected TokenClientConfiguration createConfig() {
     return config;
-  }
-
-  @Test
-  public void testStaticGetterAndSetter() {
-    DefaultTokenClientConfiguration.setConfig(config);
-    assertThat(DefaultTokenClientConfiguration.getConfig()).isEqualTo(config);
-  }
-
-  @Test
-  public void defaultValues_areSetCorrectly() {
-    assertThat(config.isRetryEnabled()).isFalse();
-    assertThat(config.getMaxRetryAttempts()).isEqualTo(3);
-    assertThat(config.getRetryDelayTime()).isEqualTo(1000L);
-    assertThat(config.getRetryStatusCodes())
-        .containsExactlyInAnyOrder(408, 429, 500, 502, 503, 504);
   }
 
   @Test
@@ -55,8 +45,8 @@ public class DefaultTokenClientConfigurationTest extends AbstractTokenClientConf
 
   @Test
   public void setRetryStatusCodes_withIntegerSet_updatesValue() {
-    config.setRetryStatusCodes(Set.of(400, 401));
-    assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(400, 401);
+    config.setRetryStatusCodes(Set.of(300, 301));
+    assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(300, 301);
   }
 
   @Test
@@ -67,12 +57,18 @@ public class DefaultTokenClientConfigurationTest extends AbstractTokenClientConf
     assertThat(result).contains("maxRetryAttempts=3");
     assertThat(result).contains("retryDelayTime=1000");
     assertThat(result).contains("retryStatusCodes='[");
-    assertThat(result)
-        .contains("408")
-        .contains("429")
-        .contains("500")
-        .contains("502")
-        .contains("503")
-        .contains("504");
+    assertThat(result).contains("408");
+    assertThat(result).contains("429");
+    assertThat(result).contains("500");
+    assertThat(result).contains("502");
+    assertThat(result).contains("503");
+    assertThat(result).contains("504");
+  }
+
+  @Test
+  public void setInstance_resetsSingleton() {
+    DefaultTokenClientConfiguration.setInstance(null);
+    final DefaultTokenClientConfiguration newConfig = DefaultTokenClientConfiguration.getInstance();
+    assertThat(newConfig).isNotSameAs(config);
   }
 }

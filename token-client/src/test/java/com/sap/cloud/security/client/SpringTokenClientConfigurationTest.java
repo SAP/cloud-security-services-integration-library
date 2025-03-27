@@ -12,7 +12,8 @@ public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfi
 
   @BeforeEach
   public void setUp() {
-    config = new SpringTokenClientConfiguration();
+    SpringTokenClientConfiguration.setInstance(null);
+    config = SpringTokenClientConfiguration.getInstance();
     config.setRetryEnabled(false);
     config.setMaxRetryAttempts(3);
     config.setRetryDelayTime(1000L);
@@ -22,21 +23,6 @@ public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfi
   @Override
   protected TokenClientConfiguration createConfig() {
     return config;
-  }
-
-  @Test
-  public void testStaticGetterAndSetter() {
-    SpringTokenClientConfiguration.setConfig(config);
-    assertThat(SpringTokenClientConfiguration.getConfig()).isEqualTo(config);
-  }
-
-  @Test
-  public void defaultValues_areSetCorrectly() {
-    assertThat(config.isRetryEnabled()).isFalse();
-    assertThat(config.getMaxRetryAttempts()).isEqualTo(3);
-    assertThat(config.getRetryDelayTime()).isEqualTo(1000L);
-    assertThat(config.getRetryStatusCodes())
-        .containsExactlyInAnyOrder(408, 429, 500, 502, 503, 504);
   }
 
   @Test
@@ -77,5 +63,12 @@ public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfi
     assertThat(result).contains("502");
     assertThat(result).contains("503");
     assertThat(result).contains("504");
+  }
+
+  @Test
+  public void setInstance_resetsSingleton() {
+    SpringTokenClientConfiguration.setInstance(null);
+    final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getInstance();
+    assertThat(newConfig).isNotSameAs(config);
   }
 }

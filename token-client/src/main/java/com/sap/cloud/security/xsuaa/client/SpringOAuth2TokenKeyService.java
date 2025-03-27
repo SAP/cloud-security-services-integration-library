@@ -35,7 +35,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
   public SpringOAuth2TokenKeyService(@Nonnull final RestOperations restOperations) {
     Assertions.assertNotNull(restOperations, "restOperations must not be null!");
     this.restOperations = restOperations;
-    config = SpringTokenClientConfiguration.getConfig();
+    config = SpringTokenClientConfiguration.getInstance();
   }
 
   @Override

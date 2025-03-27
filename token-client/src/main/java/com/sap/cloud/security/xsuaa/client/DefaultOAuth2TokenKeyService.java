@@ -40,13 +40,13 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
   public DefaultOAuth2TokenKeyService() {
     httpClient = HttpClientFactory.create(null);
-    config = DefaultTokenClientConfiguration.getConfig();
+    config = DefaultTokenClientConfiguration.getInstance();
   }
 
   public DefaultOAuth2TokenKeyService(@Nonnull final CloseableHttpClient httpClient) {
     Assertions.assertNotNull(httpClient, "httpClient is required");
     this.httpClient = httpClient;
-    config = DefaultTokenClientConfiguration.getConfig();
+    config = DefaultTokenClientConfiguration.getInstance();
   }
 
   @Override

@@ -267,12 +267,11 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
   private static void setConfigurationValues(
       final int maxRetryAttempts, final Set<Integer> retryStatusCodes) {
-    final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getConfig();
+    final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getInstance();
     config.setRetryEnabled(true);
     config.setMaxRetryAttempts(maxRetryAttempts);
     config.setRetryStatusCodes(retryStatusCodes);
     config.setRetryDelayTime(0L);
-    DefaultTokenClientConfiguration.setConfig(config);
   }
 
   private ArgumentMatcher<HttpUriRequest> isCorrectHttpGetRequest() {
