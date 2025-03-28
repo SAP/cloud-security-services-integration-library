@@ -292,12 +292,11 @@ public class SpringOAuth2TokenKeyServiceTest {
 
   private static void setConfigurationValues(
       final int maxRetryAttempts, final Set<Integer> retryStatusCodes) {
-    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getConfig();
+    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getInstance();
     config.setRetryEnabled(true);
     config.setMaxRetryAttempts(maxRetryAttempts);
     config.setRetryStatusCodes(retryStatusCodes);
     config.setRetryDelayTime(0L);
-    SpringTokenClientConfiguration.setConfig(config);
   }
 
   private ArgumentMatcher<HttpEntity> httpEntityContainsMandatoryHeaders() {
