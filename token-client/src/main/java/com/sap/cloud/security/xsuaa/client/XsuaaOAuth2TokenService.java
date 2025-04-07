@@ -86,13 +86,13 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
       final int statusCode = responseEntity.getStatusCode().value();
       LOGGER.debug("Received statusCode {}", statusCode);
       @SuppressWarnings("unchecked")
-      final Map<String, String> responseBody = responseEntity.getBody();
-      if (HttpStatus.OK.value() == statusCode && responseBody != null) {
+      final Map<String, String> accessTokenMap = responseEntity.getBody();
+      if (HttpStatus.OK.value() == statusCode && accessTokenMap != null) {
         LOGGER.debug(
             "Successfully retrieved access token from url='{}'with params {}.",
             requestUri,
             parameters);
-        return processResponseBody(responseBody);
+        return processResponseBody(accessTokenMap);
       } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
         LOGGER.warn("Request failed with status {} but is retryable. Retrying...", statusCode);
         pauseBeforeNextAttempt(config.getRetryDelayTime());
@@ -102,7 +102,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
           .withUri(requestUri)
           .withHeaders(getHeadersAsStringArray(springHeaders))
           .withStatusCode(statusCode)
-          .withResponseBody(responseBody != null ? responseBody.toString() : null)
+          .withResponseBody(accessTokenMap != null ? accessTokenMap.toString() : null)
           .build();
     } catch (final HttpClientErrorException clientEx) {
       throw OAuth2ServiceException.builder(
@@ -150,11 +150,11 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
     return formData;
   }
 
-  private OAuth2TokenResponse processResponseBody(final Map<String, String> responseBody) {
-    final String accessToken = responseBody.get(ACCESS_TOKEN);
-    final long expiresIn = Long.parseLong(String.valueOf(responseBody.get(EXPIRES_IN)));
-    final String refreshToken = responseBody.get(REFRESH_TOKEN);
-    final String tokenType = responseBody.get(TOKEN_TYPE);
+  private OAuth2TokenResponse processResponseBody(final Map<String, String> accessTokenMap) {
+    final String accessToken = accessTokenMap.get(ACCESS_TOKEN);
+    final long expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
+    final String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
+    final String tokenType = accessTokenMap.get(TOKEN_TYPE);
     return new OAuth2TokenResponse(accessToken, expiresIn, refreshToken, tokenType);
   }
 

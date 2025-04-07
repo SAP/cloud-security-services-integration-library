@@ -12,7 +12,6 @@ import com.sap.cloud.security.client.SpringTokenClientConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -73,18 +72,14 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
         pauseBeforeNextAttempt(config.getRetryDelayTime());
         return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
       }
-      throw OAuth2ServiceException.builder(
-              "Error retrieving token keys. Request headers "
-                  + Arrays.toString(getHeadersAsStringArray(headers)))
+      throw OAuth2ServiceException.builder("Error retrieving token keys.")
           .withUri(tokenKeysEndpointUri)
           .withHeaders(getHeadersAsStringArray(headers))
           .withStatusCode(responseEntity.getStatusCode().value())
           .withResponseBody(responseEntity.getBody())
           .build();
     } catch (final HttpStatusCodeException ex) {
-      throw OAuth2ServiceException.builder(
-              "Error retrieving token keys. Request headers "
-                  + Arrays.toString(getHeadersAsStringArray(headers)))
+      throw OAuth2ServiceException.builder("Error retrieving token keys.")
           .withUri(tokenKeysEndpointUri)
           .withHeaders(getHeadersAsStringArray(ex.getResponseHeaders()))
           .withStatusCode(ex.getStatusCode().value())
