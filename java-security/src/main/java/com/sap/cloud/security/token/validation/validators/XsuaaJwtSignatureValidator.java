@@ -59,27 +59,24 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
 			key = fetchPublicKey(token, algorithm);
 		} catch (OAuth2ServiceException | InvalidKeySpecException | NoSuchAlgorithmException
 				| IllegalArgumentException e) {
-			LOGGER.error("Error fetching public key from XSUAA service: {}", e.getMessage());
 			if (!configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
+				LOGGER.error("Error fetching public key from XSUAA service: {}", e.getMessage());
 				throw e;
 			}
 
-			if (configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
-				String fallbackKey = configuration.getProperty(ServiceConstants.XSUAA.VERIFICATION_KEY);
-				try {
-					key = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256,
-							fallbackKey);
-				} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-					IllegalArgumentException illegalArgEx = new IllegalArgumentException(
-							"Fallback validation key supplied via " + ServiceConstants.XSUAA.VERIFICATION_KEY
-									+ " property in service credentials could not be used: " + ex.getMessage());
-					if (e instanceof OAuth2ServiceException) {
-						e.addSuppressed(illegalArgEx);
-						throw e;
-					}
-					throw illegalArgEx;
-
+			String fallbackKey = configuration.getProperty(ServiceConstants.XSUAA.VERIFICATION_KEY);
+			try {
+				key = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256,
+						fallbackKey);
+			} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+				IllegalArgumentException illegalArgEx = new IllegalArgumentException(
+						"Fallback validation key supplied via " + ServiceConstants.XSUAA.VERIFICATION_KEY
+								+ " property in service credentials could not be used: " + ex.getMessage());
+				if (e instanceof OAuth2ServiceException) {
+					e.addSuppressed(illegalArgEx);
+					throw e;
 				}
+				throw illegalArgEx;
 			}
 		}
 
