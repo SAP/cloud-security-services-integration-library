@@ -98,6 +98,7 @@ class XsuaaOAuth2TokenServiceTest {
   @Test
   public void retrieveTokenKeys_responseNotOk_throwsException() {
     mockResponse(500);
+    setConfigurationValues(0, Set.of());
 
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)

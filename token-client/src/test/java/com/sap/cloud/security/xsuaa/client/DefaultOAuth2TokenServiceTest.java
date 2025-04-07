@@ -43,14 +43,11 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DefaultOAuth2TokenServiceTest {
 
   private static final String ACCESS_TOKEN = "abc123";
@@ -93,7 +90,7 @@ public class DefaultOAuth2TokenServiceTest {
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
-        .hasMessageContaining("Error retrieving access token");
+        .hasMessageContaining("Error requesting access token!");
   }
 
   @Test

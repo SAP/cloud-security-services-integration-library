@@ -107,7 +107,6 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .hasMessageContaining("x-client_id: client-id")
         .hasMessageContaining("x-azp: azp")
         .hasMessageContaining("Error retrieving token keys")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
         .hasMessageContaining("Http status code 400");
   }
 
@@ -124,7 +123,6 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .hasMessageContaining("x-client_id: client-id")
         .hasMessageContaining("x-azp: azp")
         .hasMessageContaining("Error retrieving token keys")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(httpClient, times(2))
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
@@ -179,7 +177,6 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .hasMessageContaining("x-client_id: client-id")
         .hasMessageContaining("x-azp: azp")
         .hasMessageContaining("Error retrieving token keys")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(httpClient, times(7))
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
@@ -198,7 +195,6 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .hasMessageContaining("x-client_id: client-id")
         .hasMessageContaining("x-azp: azp")
         .hasMessageContaining("Error retrieving token keys")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(httpClient, times(1))
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));

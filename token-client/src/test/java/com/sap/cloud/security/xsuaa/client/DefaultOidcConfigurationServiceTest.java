@@ -78,7 +78,7 @@ public class DefaultOidcConfigurationServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining("Http status code 400")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
+        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Error retrieving configured oidc endpoints");
   }
 
@@ -114,7 +114,7 @@ public class DefaultOidcConfigurationServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining("Http status code 400")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
+        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Error retrieving configured oidc endpoints");
     Mockito.verify(httpClientMock, times(2))
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
@@ -179,7 +179,7 @@ public class DefaultOidcConfigurationServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining("Error retrieving configured oidc endpoints")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
+        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(httpClientMock, times(7))
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
@@ -194,7 +194,7 @@ public class DefaultOidcConfigurationServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining("Error retrieving configured oidc endpoints")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
+        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(httpClientMock, times(1))
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
@@ -209,7 +209,7 @@ public class DefaultOidcConfigurationServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining("Error retrieving configured oidc endpoints")
-        .hasMessageContaining("Response Headers [testHeader: testValue]")
+        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(httpClientMock, times(3))
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));

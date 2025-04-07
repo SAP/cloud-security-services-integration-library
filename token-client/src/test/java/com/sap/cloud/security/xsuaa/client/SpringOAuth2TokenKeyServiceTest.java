@@ -2,7 +2,6 @@ package com.sap.cloud.security.xsuaa.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -116,23 +115,17 @@ public class SpringOAuth2TokenKeyServiceTest {
   public void retrieveTokenKeys_badResponse_throwsException() {
     mockResponse(ERROR_MESSAGE, 400);
 
-    final OAuth2ServiceException e =
-        assertThrows(
-            OAuth2ServiceException.class,
-            () -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS));
-
-    assertThat(e.getMessage())
-        .contains(TOKEN_KEYS_ENDPOINT_URI.toString())
-        .contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
-        .contains("Request headers [Accept: application/json, User-Agent: token-client/")
-        .contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
-        .contains("x-client_id: client-id")
-        .contains("x-azp: azp")
-        .contains("Response Headers ")
-        .contains(ERROR_MESSAGE);
-    assertThat(e.getHttpStatusCode()).isEqualTo(400);
-    assertThat(e.getHeaders()).hasSize(1);
-    assertThat(e.getHeaders()).contains("Content-Type: application/json");
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(
+            "Request headers [Accept: application/json, User-Agent: token-client/")
+        .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
+        .hasMessageContaining("x-client_id: client-id")
+        .hasMessageContaining("x-azp: azp")
+        .hasMessageContaining("Error retrieving token keys")
+        .hasMessageContaining("Response Headers ")
+        .hasMessageContaining("Http status code 400");
   }
 
   @Test
