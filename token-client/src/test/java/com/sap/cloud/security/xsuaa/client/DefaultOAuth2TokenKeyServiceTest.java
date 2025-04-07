@@ -1,9 +1,11 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +14,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import java.io.IOException;
@@ -23,14 +26,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -78,23 +83,16 @@ public class DefaultOAuth2TokenKeyServiceTest {
   }
 
   @Test
-  public void retrieveTokenKeys_responseNotOk_throwsException() {
-    mockResponse(ERROR_MESSAGE, HttpStatus.SC_BAD_REQUEST);
+  public void retrieveTokenKeys_errorOccurs_throwsServiceException() throws IOException {
+    when(httpClient.execute(any(), any(ResponseHandler.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE));
 
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
-        .hasMessageContaining("Error retrieving token keys");
-  }
-
-  @Test
-  public void retrieveTokenKeys_errorOccurs_throwsServiceException() throws IOException {
-    when(httpClient.execute(any(), any(ResponseHandler.class)))
-        .thenThrow(new IOException("IO Exception"));
-
-    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
-        .isInstanceOf(OAuth2ServiceException.class)
-        .hasMessageContaining("IO Exception");
+        .extracting(OAuth2ServiceException.class::cast)
+        .extracting(OAuth2ServiceException::getHttpStatusCode)
+        .isEqualTo(0);
   }
 
   @Test
@@ -244,6 +242,28 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
   }
 
+  @Test
+  public void retrieveTokenKeys_successfulResponse_setsServicePlan() throws IOException {
+    final HttpResponse response =
+        HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString, 200);
+    when(response.containsHeader(X_OSB_PLAN)).thenReturn(true);
+    when(response.getFirstHeader(X_OSB_PLAN)).thenReturn(new BasicHeader(X_OSB_PLAN, "test-plan"));
+
+    try (final MockedStatic<SecurityContext> mockedSecurityContext =
+        mockStatic(SecurityContext.class)) {
+      when(httpClient.execute(any(HttpUriRequest.class), any(ResponseHandler.class)))
+          .thenAnswer(
+              invocation -> {
+                final ResponseHandler responseHandler = invocation.getArgument(1);
+                return responseHandler.handleResponse(response);
+              });
+
+      cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
+
+      mockedSecurityContext.verify(() -> SecurityContext.setServicePlans("test-plan"), times(1));
+    }
+  }
+
   private void mockResponse(final String responseAsString, final Integer... statusCodes) {
     final List<CloseableHttpResponse> responses =
         Arrays.stream(statusCodes)
@@ -265,7 +285,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
     }
   }
 
-  private static void setConfigurationValues(
+  private void setConfigurationValues(
       final int maxRetryAttempts, final Set<Integer> retryStatusCodes) {
     final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getInstance();
     config.setRetryEnabled(true);
