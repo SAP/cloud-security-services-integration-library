@@ -74,19 +74,17 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
         return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
       }
       throw OAuth2ServiceException.builder(
-              "Error retrieving token keys. Request headers ["
-                  + Arrays.toString(getHeadersAsStringArray(headers))
-                  + "]")
+              "Error retrieving token keys. Request headers "
+                  + Arrays.toString(getHeadersAsStringArray(headers)))
           .withUri(tokenKeysEndpointUri)
-          .withHeaders(getHeadersAsStringArray(responseEntity.getHeaders()))
+          .withHeaders(getHeadersAsStringArray(headers))
           .withStatusCode(responseEntity.getStatusCode().value())
           .withResponseBody(responseEntity.getBody())
           .build();
     } catch (final HttpStatusCodeException ex) {
       throw OAuth2ServiceException.builder(
-              "Error retrieving token keys. Request headers ["
-                  + Arrays.toString(getHeadersAsStringArray(headers))
-                  + "]")
+              "Error retrieving token keys. Request headers "
+                  + Arrays.toString(getHeadersAsStringArray(headers)))
           .withUri(tokenKeysEndpointUri)
           .withHeaders(getHeadersAsStringArray(ex.getResponseHeaders()))
           .withStatusCode(ex.getStatusCode().value())

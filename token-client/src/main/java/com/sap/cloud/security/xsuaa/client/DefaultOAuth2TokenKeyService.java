@@ -88,7 +88,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
                     "Error retrieving token keys. Request headers "
                         + Arrays.stream(httpUriRequest.getAllHeaders()).toList())
                 .withUri(tokenKeysEndpointUri)
-                .withHeaders(getHeadersAsStringArray(response.getAllHeaders()))
+                .withHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
                 .withStatusCode(statusCode)
                 .withResponseBody(body)
                 .build();

@@ -96,7 +96,7 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
             throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
                 .withStatusCode(statusCode)
                 .withUri(discoveryEndpointUri)
-                .withHeaders(getHeadersAsStringArray(response.getAllHeaders()))
+                .withHeaders(getHeadersAsStringArray(httpGet.getAllHeaders()))
                 .withResponseBody(body)
                 .build();
           });

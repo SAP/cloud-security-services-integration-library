@@ -6,7 +6,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import com.sap.cloud.security.client.SpringTokenClientConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import java.net.URI;
@@ -21,12 +21,12 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
   private final RestOperations restOperations;
   private static final Logger LOGGER =
       LoggerFactory.getLogger(SpringOidcConfigurationService.class);
-  private final DefaultTokenClientConfiguration config;
+  private final SpringTokenClientConfiguration config;
 
   public SpringOidcConfigurationService(@Nonnull final RestOperations restOperations) {
     Assertions.assertNotNull(restOperations, "restOperations must not be null!");
     this.restOperations = restOperations;
-    this.config = DefaultTokenClientConfiguration.getInstance();
+    this.config = SpringTokenClientConfiguration.getInstance();
   }
 
   @Override
@@ -63,7 +63,7 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
       }
       throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
           .withUri(discoveryEndpointUri)
-          .withHeaders(getHeadersAsStringArray(responseEntity.getHeaders()))
+          .withHeaders(getHeadersAsStringArray(headers))
           .withStatusCode(statusCode)
           .withResponseBody(responseEntity.getBody())
           .build();
@@ -72,6 +72,7 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
           .withUri(discoveryEndpointUri)
           .withHeaders(getHeadersAsStringArray(ex.getResponseHeaders()))
           .withResponseBody(ex.getResponseBodyAsString())
+          .withStatusCode(ex.getStatusCode().value())
           .build();
     }
   }

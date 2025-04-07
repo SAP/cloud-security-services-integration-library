@@ -67,6 +67,18 @@ public class SpringOAuth2TokenKeyServiceTest {
   }
 
   @Test
+  public void retrieveTokenKeys_restOperationsIsNull_throwsException() {
+    assertThatThrownBy(() -> new SpringOAuth2TokenKeyService(null))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(null, PARAMS))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
   public void retrieveTokenKeys_responseNotOk_throwsException() {
     mockResponse(ERROR_MESSAGE, 500);
     setConfigurationValues(0, Set.of());
@@ -98,18 +110,6 @@ public class SpringOAuth2TokenKeyServiceTest {
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining("IO Exception");
-  }
-
-  @Test
-  public void retrieveTokenKeys_restOperationsIsNull_throwsException() {
-    assertThatThrownBy(() -> new SpringOAuth2TokenKeyService(null))
-        .isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
-  public void retrieveTokenKeys_tokenEndpointUriIsNull_throwsException() {
-    assertThatThrownBy(() -> cut.retrieveTokenKeys(null, PARAMS))
-        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

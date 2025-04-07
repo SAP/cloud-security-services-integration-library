@@ -42,7 +42,6 @@ import org.springframework.http.HttpMethod;
 public class DefaultOidcConfigurationServiceTest {
   public static final URI CONFIG_ENDPOINT_URI =
       URI.create("https://sub.myauth.com" + DISCOVERY_ENDPOINT_DEFAULT);
-
   private final String jsonOidcConfiguration;
   private static final String ERROR_MESSAGE = "Error message";
   private CloseableHttpClient httpClientMock;
@@ -94,7 +93,7 @@ public class DefaultOidcConfigurationServiceTest {
   }
 
   @Test
-  public void retrieveEndpoints_errorOccurs_throwsServiceException() throws IOException {
+  public void retrieveEndpoints_IOExceptionOccurs_throwsServiceException() throws IOException {
     when(httpClientMock.execute(any(), any(ResponseHandler.class)))
         .thenThrow(new IOException(ERROR_MESSAGE));
 
