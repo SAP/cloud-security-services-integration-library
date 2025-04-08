@@ -150,14 +150,17 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
     return formData;
   }
 
-  private OAuth2TokenResponse processResponseBody(final Map<String, String> accessTokenMap) {
+  private OAuth2TokenResponse processResponseBody(final Map<String, String> accessTokenMap)
+      throws OAuth2ServiceException {
     final String accessToken = accessTokenMap.get(ACCESS_TOKEN);
-    long expiresIn;
+    final long expiresIn;
     try {
       expiresIn = Long.parseLong(String.valueOf(accessTokenMap.get(EXPIRES_IN)));
-    } catch (NumberFormatException e) {
+    } catch (final NumberFormatException e) {
       LOGGER.error("Invalid expires_in value: {}", accessTokenMap.get(EXPIRES_IN), e);
-      throw new OAuth2ServiceException("Invalid expires_in value", e);
+      throw OAuth2ServiceException.builder("Invalid expires_in value")
+          .withResponseBody(e.getLocalizedMessage())
+          .build();
     }
     final String refreshToken = accessTokenMap.get(REFRESH_TOKEN);
     final String tokenType = accessTokenMap.get(TOKEN_TYPE);

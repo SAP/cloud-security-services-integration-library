@@ -97,7 +97,7 @@ class XsuaaOAuth2TokenServiceTest {
 
   @Test
   public void retrieveTokenKeys_responseNotOk_throwsException() {
-    mockResponse(500);
+    mockResponse(responseBody, 500);
     setConfigurationValues(0, Set.of());
 
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
@@ -148,7 +148,7 @@ class XsuaaOAuth2TokenServiceTest {
 
   @Test
   public void retrieveTokenKeys_errorOccursDuringRetry_throwsServiceException() {
-    mockResponse(500, 400);
+    mockResponse(responseBody, 500, 400);
     setConfigurationValues(10, Set.of(500));
 
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
@@ -167,7 +167,7 @@ class XsuaaOAuth2TokenServiceTest {
 
   @Test
   public void retrieveTokenKeys_executesCorrectHttpGetRequest() throws OAuth2ServiceException {
-    mockResponse(200);
+    mockResponse(responseBody, 200);
 
     cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS);
 
@@ -181,7 +181,7 @@ class XsuaaOAuth2TokenServiceTest {
   @Test
   public void retrieveTokenKeys_withEmptyParams_executesSuccessfully()
       throws OAuth2ServiceException {
-    mockResponse(200);
+    mockResponse(responseBody, 200);
 
     final Map<String, String> emptyParams = Map.of();
     final OAuth2TokenResponse result =
@@ -194,7 +194,7 @@ class XsuaaOAuth2TokenServiceTest {
 
   @Test
   void requestAccessToken_successfulResponse_returnsTokenResponse() throws OAuth2ServiceException {
-    mockResponse(200);
+    mockResponse(responseBody, 200);
 
     final OAuth2TokenResponse result =
         cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS);
@@ -207,8 +207,19 @@ class XsuaaOAuth2TokenServiceTest {
   }
 
   @Test
+  public void
+      retrieveTokenKeys_numberFormatExceptionWhileParsingExpiresIn_throwsServiceException() {
+    mockResponse(Map.of(ACCESS_TOKEN, TEST_ACCESS_TOKEN, EXPIRES_IN, "STRING"), 200);
+
+    assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining("Invalid expires_in value")
+        .hasMessageContaining(" Response body 'For input string: \"STRING\"'");
+  }
+
+  @Test
   void retrieveTokenKeys_responseNotOk_retry_executesRetrySuccessfully() throws IOException {
-    mockResponse(500, 200);
+    mockResponse(responseBody, 500, 200);
     setConfigurationValues(1, Set.of(500));
 
     final OAuth2TokenResponse result =
@@ -221,7 +232,7 @@ class XsuaaOAuth2TokenServiceTest {
 
   @Test
   void retrieveTokenKeys_allRetryableStatusCodes_executesRetrySuccessfullyWithBadResponse() {
-    mockResponse(408, 429, 500, 502, 503, 504, 400);
+    mockResponse(responseBody, 408, 429, 500, 502, 503, 504, 400);
     setConfigurationValues(10, Set.of(408, 429, 500, 502, 503, 504));
 
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
@@ -239,7 +250,7 @@ class XsuaaOAuth2TokenServiceTest {
 
   @Test
   public void retrieveTokenKeys_noRetryableStatusCodesSet_executesNoRetry() {
-    mockResponse(500);
+    mockResponse(responseBody, 500);
     setConfigurationValues(10, Set.of());
 
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
@@ -257,7 +268,7 @@ class XsuaaOAuth2TokenServiceTest {
 
   @Test
   public void retrieveTokenKeys_retryLogic_maxAttemptsReached_throwsException() {
-    mockResponse(500, 500, 500, 500);
+    mockResponse(responseBody, 500, 500, 500, 500);
     setConfigurationValues(2, Set.of(500));
 
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
@@ -276,7 +287,7 @@ class XsuaaOAuth2TokenServiceTest {
   @Test
   public void retrieveTokenKeys_interruptedExceptionDuringRetry_logsWarning()
       throws OAuth2ServiceException {
-    mockResponse(500, 200);
+    mockResponse(responseBody, 500, 200);
     setConfigurationValues(1, Set.of(500));
 
     // Set up log capturing
@@ -299,14 +310,14 @@ class XsuaaOAuth2TokenServiceTest {
         .postForEntity(eq(TOKEN_KEYS_ENDPOINT_URI), any(), eq(Map.class));
   }
 
-  private void mockResponse(final Integer... statusCodes) {
+  private void mockResponse(final Map<String, String> responseMap, final Integer... statusCodes) {
     final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
     headers.add("Content-Type", "application/json");
     final List<ResponseEntity<Map<String, String>>> responses =
         Arrays.stream(statusCodes)
             .map(
                 statusCode ->
-                    new ResponseEntity<>(responseBody, headers, HttpStatus.valueOf(statusCode)))
+                    new ResponseEntity<>(responseMap, headers, HttpStatus.valueOf(statusCode)))
             .toList();
     final AtomicInteger index = new AtomicInteger(0);
     when(restOperationsMock.postForEntity(
