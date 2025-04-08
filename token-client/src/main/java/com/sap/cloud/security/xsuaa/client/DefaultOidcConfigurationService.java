@@ -38,12 +38,18 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 		this.httpClient = httpClient;
 	}
 
-	public static URI getDiscoveryEndpointUri(@Nonnull String issuerUri) {
-		// to support existing IAS applications
-		URI uri = URI.create(issuerUri.startsWith("http://localhost") || issuerUri.startsWith("https://") ? issuerUri
-				: "https://" + issuerUri);
-		return UriUtil.expandPath(uri, DISCOVERY_ENDPOINT_DEFAULT);
+public static URI getDiscoveryEndpointUri(@Nonnull String issuerUri) {
+	URI uri;
+	if (issuerUri.startsWith("http://localhost") || issuerUri.startsWith("https://")) {
+		uri = URI.create(issuerUri);
+	} else if (issuerUri.startsWith("http://")) {
+		// non-localhost http discovery endpoints are not supported
+		return null;
+	} else {
+		uri = URI.create("https://" + issuerUri);
 	}
+	return UriUtil.expandPath(uri, DISCOVERY_ENDPOINT_DEFAULT);
+}
 
 	@Override
 	public OAuth2ServiceEndpointsProvider retrieveEndpoints(@Nonnull URI discoveryEndpointUri)

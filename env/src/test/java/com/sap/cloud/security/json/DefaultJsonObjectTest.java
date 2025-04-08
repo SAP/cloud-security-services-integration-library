@@ -27,7 +27,7 @@ public class DefaultJsonObjectTest {
 	private static final String STRING_TEXT = "string text";
 	private static final String STRING_VALUE = "\"" + STRING_TEXT + "\"";
 
-	private static final String STRING_LIST_VALUE = "[\"a\", \"b\", \"c\"]";
+	private static final String STRING_LIST_VALUE = "[\"a\",\"b\",\"c\"]";
 
 	private DefaultJsonObject cut;
 
@@ -72,6 +72,18 @@ public class DefaultJsonObjectTest {
 		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
 
 		assertThatThrownBy(() -> cut.getAsString(KEY_2)).isInstanceOf(JsonParsingException.class);
+	}
+
+	@Test
+	public void getAsOptString_keyDoesNotExists_returnsNull() {
+		assertThat(cut.getAsOptString("keyDoesNotExist")).isNull();
+	}
+
+	@Test
+	public void getAsOptString_keyDoesExistButTypeIsWrong_triggersConversion() {
+		cut = createJsonParser(KEY_2, STRING_LIST_VALUE);
+
+		assertThat(cut.getAsOptString(KEY_2)).isEqualTo(STRING_LIST_VALUE);
 	}
 
 	@Test
