@@ -1,0 +1,10 @@
+version = 1
+SPDX-PackageName = "Cloud Security Client Java"
+SPDX-PackageSupplier = "SAP SE <cas@sap.com, nena.raab@sap.com>"
+SPDX-PackageDownloadLocation = "https://github.com/SAP/cloud-security-services-integration-library"
+
+[[annotations]]
+path = ["README.md", "CHANGELOG.md", "CONTRIBUTING.md", "CONTRIBUTING_USING_GENAI.md", "**/**.md", "docs/**", ".gitignore", ".git-blame-ignore-revs", "**/.gitignore", "**/src/**", "**/**.png", "**/**.puml", "**/**.svg", "samples/**/index.html", "samples/**/sap-developer-license.txt", "samples/**/**.json", "samples/**/Dockerfile", "samples/**/deployment.yml", "etc/**", ".github/**"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "2020-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors"
+SPDX-License-Identifier = "Apache-2.0"
