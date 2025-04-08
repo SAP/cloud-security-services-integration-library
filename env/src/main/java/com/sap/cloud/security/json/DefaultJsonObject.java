@@ -81,6 +81,15 @@ public class DefaultJsonObject implements JsonObject {
 		return null;
 	}
 
+	@Nullable
+	public String getAsOptString(String name) {
+		try {
+			return Optional.ofNullable(getJsonObject().opt(name)).map(Object::toString).orElse(null);
+		} catch (JSONException e) {
+			throw new JsonParsingException(e.getMessage());
+		}
+	}
+
 	@Override
 	@Nullable
 	public Instant getAsInstant(String name) {
