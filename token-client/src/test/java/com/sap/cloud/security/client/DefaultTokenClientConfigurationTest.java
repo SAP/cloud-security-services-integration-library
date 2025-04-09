@@ -14,10 +14,6 @@ public class DefaultTokenClientConfigurationTest extends AbstractTokenClientConf
   public void setUp() {
     DefaultTokenClientConfiguration.setInstance(null);
     config = DefaultTokenClientConfiguration.getInstance();
-    config.setRetryEnabled(false);
-    config.setMaxRetryAttempts(3);
-    config.setRetryDelayTime(1000L);
-    config.setRetryStatusCodes(Set.of(408, 429, 500, 502, 503, 504));
   }
 
   @Override
@@ -63,6 +59,24 @@ public class DefaultTokenClientConfigurationTest extends AbstractTokenClientConf
     assertThat(result).contains("502");
     assertThat(result).contains("503");
     assertThat(result).contains("504");
+  }
+
+  @Test
+  public void testStaticGetterAndSetter() {
+    DefaultTokenClientConfiguration.setInstance(null);
+    final DefaultTokenClientConfiguration newConfig = DefaultTokenClientConfiguration.getInstance();
+    assertThat(newConfig).isNotSameAs(config);
+    DefaultTokenClientConfiguration.setInstance(config);
+    assertThat(DefaultTokenClientConfiguration.getInstance()).isEqualTo(config);
+  }
+
+  @Test
+  public void defaultValues_areSetCorrectly() {
+    assertThat(config.isRetryEnabled()).isFalse();
+    assertThat(config.getMaxRetryAttempts()).isEqualTo(3);
+    assertThat(config.getRetryDelayTime()).isEqualTo(1000L);
+    assertThat(config.getRetryStatusCodes())
+        .containsExactlyInAnyOrder(408, 429, 500, 502, 503, 504);
   }
 
   @Test

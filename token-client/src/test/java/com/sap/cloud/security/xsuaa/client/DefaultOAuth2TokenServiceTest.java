@@ -90,6 +90,7 @@ public class DefaultOAuth2TokenServiceTest {
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(TOKEN_URI.toString())
         .hasMessageContaining("Error requesting access token!");
   }
 
@@ -101,6 +102,7 @@ public class DefaultOAuth2TokenServiceTest {
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(TOKEN_URI.toString())
         .extracting(OAuth2ServiceException.class::cast)
         .extracting(OAuth2ServiceException::getHttpStatusCode)
         .isEqualTo(0);
@@ -220,24 +222,26 @@ public class DefaultOAuth2TokenServiceTest {
   @Test
   public void requestAccessToken_allRetryableStatusCodes_executesRetrySuccessfullyWithBadResponse()
       throws IOException {
-    mockResponse("Error", 408, 429, 500, 502, 503, 504, 400);
+    mockResponse(ERROR_MESSAGE, 408, 429, 500, 502, 503, 504, 400);
     setConfigurationValues(10, Set.of(408, 429, 500, 502, 503, 504));
 
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, emptyMap()))
         .isInstanceOf(OAuth2ServiceException.class)
-        .hasMessageContaining("Error")
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(TOKEN_URI.toString())
         .hasMessageContaining("Http status code 400");
     verify(mockHttpClient, times(7)).execute(any(HttpPost.class), any(ResponseHandler.class));
   }
 
   @Test
   public void requestAccessToken_noRetryableStatusCodesSet_executesNoRetry() throws IOException {
-    mockResponse("Error", 500);
+    mockResponse(ERROR_MESSAGE, 500);
     setConfigurationValues(10, Set.of());
 
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, emptyMap()))
         .isInstanceOf(OAuth2ServiceException.class)
-        .hasMessageContaining("Error")
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(TOKEN_URI.toString())
         .hasMessageContaining("Http status code 500");
     verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
   }
@@ -245,12 +249,13 @@ public class DefaultOAuth2TokenServiceTest {
   @Test
   public void requestAccessToken_retryLogic_maxAttemptsReached_throwsException()
       throws IOException {
-    mockResponse("Error", 500, 500, 500, 500);
+    mockResponse(ERROR_MESSAGE, 500, 500, 500, 500);
     setConfigurationValues(2, Set.of(500));
 
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, emptyMap()))
         .isInstanceOf(OAuth2ServiceException.class)
-        .hasMessageContaining("Error");
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(TOKEN_URI.toString());
     verify(mockHttpClient, times(3)).execute(any(HttpPost.class), any(ResponseHandler.class));
   }
 

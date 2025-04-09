@@ -75,6 +75,7 @@ public class SpringOidcConfigurationServiceTest {
     assertThatThrownBy(this::retrieveEndpoints)
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Http status code 400")
         .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Error retrieving configured oidc endpoints");
@@ -112,6 +113,7 @@ public class SpringOidcConfigurationServiceTest {
     assertThatThrownBy(this::retrieveEndpoints)
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Http status code 400")
         .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Error retrieving configured oidc endpoints");
@@ -151,6 +153,7 @@ public class SpringOidcConfigurationServiceTest {
     assertThatThrownBy(this::retrieveEndpoints)
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Error retrieving configured oidc endpoints")
         .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Http status code 400");
@@ -166,6 +169,7 @@ public class SpringOidcConfigurationServiceTest {
     assertThatThrownBy(this::retrieveEndpoints)
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Error retrieving configured oidc endpoints")
         .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Http status code 500");
@@ -181,6 +185,7 @@ public class SpringOidcConfigurationServiceTest {
     assertThatThrownBy(this::retrieveEndpoints)
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Error retrieving configured oidc endpoints")
         .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
         .hasMessageContaining("Http status code 500");

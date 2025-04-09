@@ -73,6 +73,15 @@ public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfi
   }
 
   @Test
+  public void testStaticGetterAndSetter() {
+    SpringTokenClientConfiguration.setInstance(null);
+    final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getInstance();
+    assertThat(newConfig).isNotSameAs(config);
+    SpringTokenClientConfiguration.setInstance(config);
+    assertThat(SpringTokenClientConfiguration.getInstance()).isEqualTo(config);
+  }
+
+  @Test
   public void setInstance_resetsSingleton() {
     SpringTokenClientConfiguration.setInstance(null);
     final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getInstance();
