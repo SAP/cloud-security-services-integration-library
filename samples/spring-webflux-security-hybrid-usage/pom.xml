@@ -14,7 +14,7 @@
 
     <groupId>com.sap.cloud.security.samples</groupId>
     <artifactId>spring-webflux-security-hybrid-usage</artifactId>
-    <version>3.5.9</version>
+    <version>3.5.10</version>
     <name>spring-webflux-security-hybrid-usage</name>
 
     <properties>
