@@ -14,7 +14,6 @@ import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +34,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
   public SpringOAuth2TokenKeyService(@Nonnull final RestOperations restOperations) {
     Assertions.assertNotNull(restOperations, "restOperations must not be null!");
     this.restOperations = restOperations;
-    config = SpringTokenClientConfiguration.getConfig();
+    this.config = SpringTokenClientConfiguration.getInstance();
   }
 
   @Override
@@ -51,54 +50,39 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
       final URI tokenKeysEndpointUri, final Map<String, String> params, final int attemptsLeft)
       throws OAuth2ServiceException {
     final HttpHeaders headers = getHttpHeaders(params);
+    LOGGER.debug(
+        "Requesting access token from url='{}' with headers={} and {} retries left",
+        tokenKeysEndpointUri,
+        headers,
+        attemptsLeft);
     try {
-      final ResponseEntity<String> response =
+      final ResponseEntity<String> responseEntity =
           restOperations.exchange(
               tokenKeysEndpointUri, GET, new HttpEntity<>(headers), String.class);
-      final int statusCode = response.getStatusCode().value();
+      final int statusCode = responseEntity.getStatusCode().value();
       LOGGER.debug("Received statusCode {}", statusCode);
-
       if (HttpStatus.OK.value() == statusCode) {
         LOGGER.debug(
             "Successfully retrieved token keys from {} for params '{}'",
             tokenKeysEndpointUri,
             params);
-        return response.getBody();
+        return responseEntity.getBody();
       } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
         LOGGER.warn("Request failed with status {} but is retryable. Retrying...", statusCode);
         pauseBeforeNextAttempt(config.getRetryDelayTime());
         return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
       }
-      throw OAuth2ServiceException.builder(
-              "Error retrieving token keys. Request headers ["
-                  + headers.entrySet().stream()
-                      .map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
-                      .collect(Collectors.joining(", "))
-                  + "]")
+      throw OAuth2ServiceException.builder("Error retrieving token keys.")
           .withUri(tokenKeysEndpointUri)
-          .withHeaders(
-              !response.getHeaders().isEmpty()
-                  ? response.getHeaders().entrySet().stream()
-                      .map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
-                      .toArray(String[]::new)
-                  : new String[0])
-          .withStatusCode(response.getStatusCode().value())
-          .withResponseBody(response.getBody())
+          .withRequestHeaders(getHeadersAsStringArray(headers))
+          .withResponseHeaders(getHeadersAsStringArray(responseEntity.getHeaders()))
+          .withStatusCode(responseEntity.getStatusCode().value())
+          .withResponseBody(responseEntity.getBody())
           .build();
     } catch (final HttpStatusCodeException ex) {
-      throw OAuth2ServiceException.builder(
-              "Error retrieving token keys. Request headers ["
-                  + headers.entrySet().stream()
-                      .map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
-                      .collect(Collectors.joining(", "))
-                  + "]")
+      throw OAuth2ServiceException.builder("Error retrieving token keys.")
           .withUri(tokenKeysEndpointUri)
-          .withHeaders(
-              ex.getResponseHeaders() != null && !ex.getResponseHeaders().isEmpty()
-                  ? ex.getResponseHeaders().entrySet().stream()
-                      .map(h -> h.getKey() + ": " + String.join(",", h.getValue()))
-                      .toArray(String[]::new)
-                  : new String[0])
+          .withRequestHeaders(getHeadersAsStringArray(headers))
           .withStatusCode(ex.getStatusCode().value())
           .withResponseBody(ex.getResponseBodyAsString())
           .build();
@@ -106,12 +90,22 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
       if (e instanceof final OAuth2ServiceException oAuth2ServiceException) {
         throw oAuth2ServiceException;
       } else {
-        throw OAuth2ServiceException.builder(
-                "Unexpected error retrieving token keys: " + e.getMessage())
+        throw OAuth2ServiceException.builder("Unexpected error retrieving token keys!")
             .withUri(tokenKeysEndpointUri)
+            .withRequestHeaders(getHeadersAsStringArray(headers))
+            .withResponseBody(e.getMessage())
             .build();
       }
     }
+  }
+
+  private static String[] getHeadersAsStringArray(
+      final org.springframework.http.HttpHeaders headers) {
+    return headers != null
+        ? headers.entrySet().stream()
+            .map(e -> e.getKey() + ": " + String.join(",", e.getValue()))
+            .toArray(String[]::new)
+        : new String[0];
   }
 
   private HttpHeaders getHttpHeaders(final Map<String, String> params) {

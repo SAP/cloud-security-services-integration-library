@@ -4,18 +4,22 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- * Spring-based configuration class for the Token-Client. This class retrieves properties from the
- * Spring environment or application properties. It is recommended to use the static methods {@link
- * #getConfig()} and {@link #setConfig(SpringTokenClientConfiguration)} to access and modify the
- * configuration.
+ * Spring configuration class for the Token-Client. Loads properties from Spring's environment. This
+ * class is implemented as a singleton class. The default values can be overridden by accessing the
+ * current instance of the class.
  *
- * <p>SpringTokenClientConfiguration is configured with the following default values: Is Retry
- * Enabled - false Max Retry Attempts - 3 Retry Delay Time - 1000 ms Retry Status Codes - 408, 429,
- * 500, 502, 503, 504
+ * <p>SpringTokenClientConfiguration is configured with the following default values:
+ *
+ * <ul>
+ *   <li>Is Retry Enabled - false
+ *   <li>Max Retry Attempts - 3
+ *   <li>Retry Delay Time - 1000 ms
+ *   <li>Retry Status Codes - 408, 429, 500, 502, 503, 504
+ * </ul>
  */
 public class SpringTokenClientConfiguration implements TokenClientConfiguration {
 
-  private static SpringTokenClientConfiguration config = new SpringTokenClientConfiguration();
+  private static volatile SpringTokenClientConfiguration instance;
 
   @Value("${token.client.retry.enabled:false}")
   private boolean isRetryEnabled;
@@ -26,15 +30,37 @@ public class SpringTokenClientConfiguration implements TokenClientConfiguration 
   @Value("${token.client.retry.delayTime:1000}")
   private long retryDelayTime;
 
-  @Value("#{'${token.client.retry.statusCodes:408,429,500,502,503,504}'.split(',')}")
+  @Value("${token.client.retry.statusCodes:408,429,500,502,503,504}")
   private Set<Integer> retryStatusCodes;
 
-  public static SpringTokenClientConfiguration getConfig() {
-        return config;
+  /** Private constructor to prevent instantiation. */
+  private SpringTokenClientConfiguration() {}
+
+  /**
+   * Returns the singleton instance of SpringTokenClientConfiguration.
+   *
+   * @return the singleton instance
+   */
+  public static SpringTokenClientConfiguration getInstance() {
+    if (instance == null) {
+      synchronized (SpringTokenClientConfiguration.class) {
+        if (instance == null) {
+          instance = new SpringTokenClientConfiguration();
+        }
+      }
+    }
+    return instance;
   }
 
-  public static void setConfig(final SpringTokenClientConfiguration newConfig) {
-    config = newConfig;
+  /**
+   * Sets a new instance of SpringTokenClientConfiguration. Set {@code null} to reset the instance.
+   *
+   * @param newInstance the new instance to set
+   */
+  public static void setInstance(final SpringTokenClientConfiguration newInstance) {
+    synchronized (SpringTokenClientConfiguration.class) {
+      instance = newInstance;
+    }
   }
 
   @Override
@@ -74,7 +100,7 @@ public class SpringTokenClientConfiguration implements TokenClientConfiguration 
 
   @Override
   public void setRetryStatusCodes(final Set<Integer> retryStatusCodes) {
-        this.retryStatusCodes = retryStatusCodes;
+    this.retryStatusCodes = retryStatusCodes;
   }
 
   @Override
