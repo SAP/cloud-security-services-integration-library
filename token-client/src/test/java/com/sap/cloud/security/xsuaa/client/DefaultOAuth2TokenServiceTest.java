@@ -10,7 +10,6 @@ import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -90,6 +89,8 @@ public class DefaultOAuth2TokenServiceTest {
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining(TOKEN_URI.toString())
         .hasMessageContaining("Error requesting access token!");
   }
@@ -103,6 +104,8 @@ public class DefaultOAuth2TokenServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining(TOKEN_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageNotContaining("Response Headers [")
         .extracting(OAuth2ServiceException.class::cast)
         .extracting(OAuth2ServiceException::getHttpStatusCode)
         .isEqualTo(0);
@@ -188,12 +191,16 @@ public class DefaultOAuth2TokenServiceTest {
   public void
       requestAccessToken_httpResponseWithErrorStatusCode_throwsExceptionContainingMessage() {
     mockResponse("Unauthorized!", 401);
-    final OAuth2ServiceException e =
-        assertThrows(OAuth2ServiceException.class, () -> requestAccessToken(TOKEN_URI, emptyMap()));
 
-    assertThat(e.getHeaders().get(0)).isEqualTo("testHeader: testValue");
-    assertThat(e.getHttpStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED);
-    assertThat(e.getMessage()).contains("Unauthorized!").contains(TOKEN_URI.toString());
+    assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, emptyMap()))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining("Unauthorized!")
+        .hasMessageContaining(TOKEN_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
+        .extracting(OAuth2ServiceException.class::cast)
+        .extracting(OAuth2ServiceException::getHttpStatusCode)
+        .isEqualTo(HttpStatus.SC_UNAUTHORIZED);
   }
 
   @Test
@@ -229,6 +236,8 @@ public class DefaultOAuth2TokenServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining(TOKEN_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 400");
     verify(mockHttpClient, times(7)).execute(any(HttpPost.class), any(ResponseHandler.class));
   }
@@ -242,6 +251,8 @@ public class DefaultOAuth2TokenServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining(TOKEN_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 500");
     verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
   }
@@ -255,6 +266,8 @@ public class DefaultOAuth2TokenServiceTest {
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, emptyMap()))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining(TOKEN_URI.toString());
     verify(mockHttpClient, times(3)).execute(any(HttpPost.class), any(ResponseHandler.class));
   }

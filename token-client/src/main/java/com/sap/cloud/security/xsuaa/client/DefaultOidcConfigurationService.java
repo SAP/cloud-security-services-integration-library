@@ -48,8 +48,8 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
     this.config = DefaultTokenClientConfiguration.getInstance();
   }
 
-public static URI getDiscoveryEndpointUri(@Nonnull String issuerUri) {
-	URI uri;
+  public static URI getDiscoveryEndpointUri(@Nonnull final String issuerUri) {
+    final URI uri;
 	if (issuerUri.startsWith("http://localhost") || issuerUri.startsWith("https://")) {
 		uri = URI.create(issuerUri);
 	} else if (issuerUri.startsWith("http://")) {
@@ -99,7 +99,8 @@ public static URI getDiscoveryEndpointUri(@Nonnull String issuerUri) {
             throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
                 .withStatusCode(statusCode)
                 .withUri(discoveryEndpointUri)
-                .withHeaders(getHeadersAsStringArray(httpGet.getAllHeaders()))
+                .withRequestHeaders(getHeadersAsStringArray(httpGet.getAllHeaders()))
+                .withResponseHeaders(getHeadersAsStringArray(response.getAllHeaders()))
                 .withResponseBody(body)
                 .build();
           });
@@ -110,7 +111,7 @@ public static URI getDiscoveryEndpointUri(@Nonnull String issuerUri) {
         throw OAuth2ServiceException.builder(
                 "Error retrieving configured oidc endpoints: " + e.getMessage())
             .withUri(discoveryEndpointUri)
-            .withHeaders(getHeadersAsStringArray(httpGet.getAllHeaders()))
+            .withRequestHeaders(getHeadersAsStringArray(httpGet.getAllHeaders()))
             .withResponseBody(e.getMessage())
             .build();
       }

@@ -63,14 +63,15 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
       }
       throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
           .withUri(discoveryEndpointUri)
-          .withHeaders(getHeadersAsStringArray(headers))
+          .withRequestHeaders(getHeadersAsStringArray(headers))
+          .withResponseHeaders(getHeadersAsStringArray(responseEntity.getHeaders()))
           .withStatusCode(statusCode)
           .withResponseBody(responseEntity.getBody())
           .build();
     } catch (final HttpClientErrorException ex) {
       throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
           .withUri(discoveryEndpointUri)
-          .withHeaders(getHeadersAsStringArray(ex.getResponseHeaders()))
+          .withRequestHeaders(getHeadersAsStringArray(headers))
           .withResponseBody(ex.getResponseBodyAsString())
           .withStatusCode(ex.getStatusCode().value())
           .build();

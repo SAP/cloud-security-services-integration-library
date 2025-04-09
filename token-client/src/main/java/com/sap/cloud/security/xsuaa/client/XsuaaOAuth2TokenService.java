@@ -100,7 +100,8 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
       }
       throw OAuth2ServiceException.builder("Server error while obtaining access token from XSUAA!")
           .withUri(requestUri)
-          .withHeaders(getHeadersAsStringArray(springHeaders))
+          .withRequestHeaders(getHeadersAsStringArray(springHeaders))
+          .withResponseHeaders(getHeadersAsStringArray(requestEntity.getHeaders()))
           .withStatusCode(statusCode)
           .withResponseBody(accessTokenMap != null ? accessTokenMap.toString() : null)
           .build();
@@ -108,14 +109,14 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
       throw OAuth2ServiceException.builder(
               "Client error retrieving JWT token. Call to XSUAA was not successful!")
           .withUri(requestUri)
-          .withHeaders(getHeadersAsStringArray(clientEx.getResponseHeaders()))
+          .withRequestHeaders(getHeadersAsStringArray(springHeaders))
           .withStatusCode(clientEx.getStatusCode().value())
           .withResponseBody(clientEx.getResponseBodyAsString())
           .build();
     } catch (final HttpServerErrorException serverEx) {
       throw OAuth2ServiceException.builder("Server error while obtaining access token from XSUAA!")
           .withUri(requestUri)
-          .withHeaders(getHeadersAsStringArray(serverEx.getResponseHeaders()))
+          .withRequestHeaders(getHeadersAsStringArray(springHeaders))
           .withStatusCode(serverEx.getStatusCode().value())
           .withResponseBody(serverEx.getResponseBodyAsString())
           .build();
@@ -123,6 +124,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
       throw OAuth2ServiceException.builder(
               "RestClient isn't configured properly - Error while obtaining access token from XSUAA!")
           .withUri(requestUri)
+          .withRequestHeaders(getHeadersAsStringArray(springHeaders))
           .withResponseBody(resourceEx.getLocalizedMessage())
           .build();
     }

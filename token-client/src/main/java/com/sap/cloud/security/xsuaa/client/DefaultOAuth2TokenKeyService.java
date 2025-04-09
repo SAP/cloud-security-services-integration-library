@@ -84,11 +84,10 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
               pauseBeforeNextAttempt(config.getRetryDelayTime());
               return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
             }
-            throw OAuth2ServiceException.builder(
-                    "Error retrieving token keys. Request headers "
-                        + Arrays.stream(httpUriRequest.getAllHeaders()).toList())
+            throw OAuth2ServiceException.builder("Error retrieving token keys.")
                 .withUri(tokenKeysEndpointUri)
-                .withHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
+                .withResponseHeaders(getHeadersAsStringArray(response.getAllHeaders()))
+                .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
                 .withStatusCode(statusCode)
                 .withResponseBody(body)
                 .build();
@@ -99,7 +98,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
       } else {
         throw OAuth2ServiceException.builder("Error retrieving token keys: " + e.getMessage())
             .withUri(tokenKeysEndpointUri)
-            .withHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
+            .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
             .withResponseBody(e.getMessage())
             .build();
       }

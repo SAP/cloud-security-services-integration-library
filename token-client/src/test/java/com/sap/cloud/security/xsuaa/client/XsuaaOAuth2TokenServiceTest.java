@@ -103,7 +103,8 @@ class XsuaaOAuth2TokenServiceTest {
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
-        .hasMessageContaining("Response Headers [X-CorrelationID: ")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("User-Agent: token-client/3.5.9]")
         .hasMessageContaining("expires_in=1000")
         .hasMessageContaining("access_token=Valid Access token")
@@ -122,6 +123,8 @@ class XsuaaOAuth2TokenServiceTest {
         .hasMessageContaining(
             "Client error retrieving JWT token. Call to XSUAA was not successful!")
         .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageNotContaining("Response Headers [")
         .hasMessageContaining("Http status code 400");
   }
 
@@ -134,6 +137,8 @@ class XsuaaOAuth2TokenServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining("Server error while obtaining access token from XSUAA!")
         .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageNotContaining("Response Headers [")
         .hasMessageContaining("Http status code 400");
   }
 
@@ -146,6 +151,8 @@ class XsuaaOAuth2TokenServiceTest {
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining("Error accessing resource!")
         .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageNotContaining("Response Headers [")
         .hasMessageContaining(
             "RestClient isn't configured properly - Error while obtaining access token from XSUAA!");
   }
@@ -158,7 +165,8 @@ class XsuaaOAuth2TokenServiceTest {
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
-        .hasMessageContaining("Response Headers [X-CorrelationID: ")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("User-Agent: token-client/3.5.9]")
         .hasMessageContaining("expires_in=1000")
         .hasMessageContaining("access_token=Valid Access token")
@@ -219,6 +227,8 @@ class XsuaaOAuth2TokenServiceTest {
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining("Invalid expires_in value")
+        .hasMessageNotContaining("Request Headers [")
+        .hasMessageNotContaining("Response Headers [")
         .hasMessageContaining("Response body 'For input string: \"STRING\"'");
   }
 
@@ -243,7 +253,8 @@ class XsuaaOAuth2TokenServiceTest {
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
-        .hasMessageContaining("Response Headers [X-CorrelationID: ")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("User-Agent: token-client/3.5.9]")
         .hasMessageContaining("expires_in=1000")
         .hasMessageContaining("access_token=Valid Access token")
@@ -262,7 +273,8 @@ class XsuaaOAuth2TokenServiceTest {
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
-        .hasMessageContaining("Response Headers [X-CorrelationID: ")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("User-Agent: token-client/3.5.9]")
         .hasMessageContaining("expires_in=1000")
         .hasMessageContaining("access_token=Valid Access token")
@@ -281,7 +293,8 @@ class XsuaaOAuth2TokenServiceTest {
     assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
-        .hasMessageContaining("Response Headers [X-CorrelationID: ")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("User-Agent: token-client/3.5.9]")
         .hasMessageContaining("expires_in=1000")
         .hasMessageContaining("access_token=Valid Access token")

@@ -77,7 +77,8 @@ public class SpringOidcConfigurationServiceTest {
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Http status code 400")
-        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Error retrieving configured oidc endpoints");
   }
 
@@ -100,6 +101,8 @@ public class SpringOidcConfigurationServiceTest {
 
     assertThatThrownBy(this::retrieveEndpoints)
         .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining("Request Headers [")
+        .hasMessageNotContaining("Response Headers [")
         .extracting(OAuth2ServiceException.class::cast)
         .extracting(OAuth2ServiceException::getHttpStatusCode)
         .isEqualTo(500);
@@ -115,7 +118,8 @@ public class SpringOidcConfigurationServiceTest {
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Http status code 400")
-        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Error retrieving configured oidc endpoints");
     Mockito.verify(restOperationsMock, times(2))
         .exchange(eq(CONFIG_ENDPOINT_URI), eq(HttpMethod.GET), any(), eq(String.class));
@@ -155,7 +159,8 @@ public class SpringOidcConfigurationServiceTest {
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Error retrieving configured oidc endpoints")
-        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(restOperationsMock, times(7))
         .exchange(eq(CONFIG_ENDPOINT_URI), eq(HttpMethod.GET), any(), eq(String.class));
@@ -171,7 +176,8 @@ public class SpringOidcConfigurationServiceTest {
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Error retrieving configured oidc endpoints")
-        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(restOperationsMock, times(1))
         .exchange(eq(CONFIG_ENDPOINT_URI), eq(HttpMethod.GET), any(), eq(String.class));
@@ -187,7 +193,8 @@ public class SpringOidcConfigurationServiceTest {
         .hasMessageContaining(ERROR_MESSAGE)
         .hasMessageContaining(CONFIG_ENDPOINT_URI.toString())
         .hasMessageContaining("Error retrieving configured oidc endpoints")
-        .hasMessageContaining("Response Headers [User-Agent: token-client/3.5.9]")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(restOperationsMock, times(3))
         .exchange(eq(CONFIG_ENDPOINT_URI), eq(HttpMethod.GET), any(), eq(String.class));

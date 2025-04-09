@@ -101,7 +101,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
             throw OAuth2ServiceException.builder("Error requesting access token!")
                 .withStatusCode(statusCode)
                 .withUri(tokenUri)
-                .withHeaders(getHeadersAsStringArray(response.getAllHeaders()))
+                .withRequestHeaders(getHeadersAsStringArray(httpPost.getAllHeaders()))
+                .withResponseHeaders(getHeadersAsStringArray(response.getAllHeaders()))
                 .withResponseBody(body)
                 .build();
           });
@@ -111,7 +112,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
       } else {
         throw OAuth2ServiceException.builder("Error requesting access token!")
             .withUri(tokenUri)
-            .withHeaders(getHeadersAsStringArray(httpPost.getAllHeaders()))
+            .withRequestHeaders(getHeadersAsStringArray(httpPost.getAllHeaders()))
             .withResponseBody(e.getMessage())
             .build();
       }
