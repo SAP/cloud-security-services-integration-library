@@ -49,7 +49,7 @@ In context of a Spring Boot application you can leverage autoconfiguration provi
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.5.9</version>
+    <version>3.6.0</version>
 </dependency>
 ```
 In context of Spring Applications you will need the following dependencies:
@@ -57,7 +57,7 @@ In context of Spring Applications you will need the following dependencies:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.5.9</version>
+    <version>3.6.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -124,7 +124,7 @@ See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [H
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.5.9</version>
+    <version>3.6.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -325,6 +325,44 @@ OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
                                     .execute();
 ```
 
+## Retry mechanism
+
+The retry feature (supported since version 3.6.0) uses two Configuration classes to handle its properties and overall activation.
+
+`DefaultTokenClientConfiguration` is used for Java EE applications and `SpringTokenClientConfiguration` is used for Spring Boot applications.
+
+Both disabled by default for all TokenFlow classes and TokenService classes and use a singleton pattern to ensure that the same instance is used throughout the application.
+
+Depending on the type of application you are using, you will need to configure the retry feature differently.
+### Java EE applications
+For Java EE applications you will need to overwrite the values of the `DefaultTokenClientConfiguration` class as this is used for Java EE based services.
+```java
+final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getInstance();
+config.setRetryEnabled(<isEnabled>);
+config.setMaxRetryAttempts(<maxAttempts>);
+config.setRetryStatusCodes(<list of status codes>);
+config.setRetryDelayTime(<delay time in ms>);
+```
+
+### Spring Boot applications
+For Spring Boot applications you can set the properties in the `application.properties` file:
+
+```properties
+token.client.retry.enabled=enables/disables the feature overall, default FALSE, BOOLEAN
+token.client.retry.maxAttempts=max retry attempts to try, default 3, INTEGER
+token.client.retry.delayTime=time in ms the system should wait until it tries again, default 1000ms, LONG
+token.client.retry.statusCodes=http status codes for which a retry should be performed, default 408,429,500,502,503,504, INTEGERS
+```
+
+or access the instance of the configuration class and overwrite the values directly in code:
+
+```java
+final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getInstance();
+config.setRetryEnabled(<isEnabled>);
+config.setMaxRetryAttempts(<maxAttempts>);
+config.setRetryStatusCodes(<list of status codes>);
+config.setRetryDelayTime(<delay time in ms>);
+```
 
 ## Troubleshooting
 

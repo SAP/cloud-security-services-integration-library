@@ -1,6 +1,30 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.0
+
+- Retry support in JAVA Library
+- Reuse Version update from dep to toml
+- Auto-convert token claims to string
+- Fix error logging during token key retrieval
+- Fix null value (and key) support in configuration builder
+
+### Dependency upgrades
+
+- Remove no longer needed dependency overrides
+- Bump io.github.hakky54:logcaptor from 2.10.1 to 2.10.2
+- Bump uk.org.webcompere:system-stubs-jupiter from 2.1.7 to 2.1.8
+- Bump com.github.spotbugs:spotbugs-annotations from 4.9.2 to 4.9.3
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.2.0 to 4.9.3.0
+- Bump org.eclipse.jetty.version from 12.0.17 to 12.0.18
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.4.2 to 5.4.3
+- Bump org.jacoco:jacoco-maven-plugin from 0.8.12 to 0.8.13
+- Bump org.mockito:mockito-core from 5.16.0 to 5.17.0
+- Bump org.apache.maven.plugins:maven-surefire-plugin from 3.5.2 to 3.5.3
+- Bump spring.boot.version from 3.4.3 to 3.4.4
+- Bump spring.core.version from 6.2.4 to 6.2.5
+- Bump spring.security.version from 6.4.3 to 6.4.4
+
 ## 3.5.9
 
 - [env] add domains to equals/hashcode of OAuth2ServiceConfigurationImpl
