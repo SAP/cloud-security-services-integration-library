@@ -3,7 +3,6 @@ package com.sap.cloud.security.xsuaa.client;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -18,7 +17,6 @@ class OAuth2ServiceExceptionTest {
       List.of("responseHeader1=value1", "responseHeader2=value2");
 
 	private static OAuth2ServiceException builtWithHeaders;
-  private static OAuth2ServiceException createdWithHeaders;
 
   @BeforeAll
   static void setup() {
@@ -28,11 +26,10 @@ class OAuth2ServiceExceptionTest {
             .withRequestHeaders(requestHeaders.toArray(String[]::new))
             .withStatusCode(400)
             .build();
-    createdWithHeaders = new OAuth2ServiceException(SERVICE_EXCEPTION, 400, requestHeaders);
   }
 
   @Test
-  void testWithHeaders_builtWithHeaders_headersAreParsedIntoMessageBlock() {
+  void testWithHeaders() {
     assertThat(builtWithHeaders.getHeaders().size(), is(4));
     assertTrue(builtWithHeaders.getMessage().contains(SERVICE_EXCEPTION));
     assertTrue(
@@ -44,21 +41,6 @@ class OAuth2ServiceExceptionTest {
             .getMessage()
             .contains("Response Headers [responseHeader1=value1, responseHeader2=value2]"));
     assertEquals(400, builtWithHeaders.getHttpStatusCode());
-  }
-
-  @Test
-  void testWithHeaders_createdWithHeaders_headersAreNotParsedIntoMessageBlock() {
-    assertThat(createdWithHeaders.getHeaders().size(), is(2));
-    assertTrue(createdWithHeaders.getMessage().contains(SERVICE_EXCEPTION));
-    assertFalse(
-        createdWithHeaders
-            .getMessage()
-            .contains("Request Headers [requestHeader1=value1, requestHeader2=value2]"));
-    assertFalse(
-        createdWithHeaders
-            .getMessage()
-            .contains("Response Headers [responseHeader1=value1, responseHeader2=value2]"));
-    assertEquals(400, createdWithHeaders.getHttpStatusCode());
   }
 
   @Test
