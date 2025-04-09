@@ -4,39 +4,55 @@ import java.util.Set;
 
 /**
  * Default configuration class for the Token-Client. Loads default properties defined in this class.
- * It is recommended to use the static methods {@link #getConfig()} and {@link
- * #setConfig(DefaultTokenClientConfiguration)} to access and modify the configuration.
+ * This class is implemented as a singleton class. The default values can be overridden by accessing
+ * the current instance of the class.
  *
- * <p>DefaultTokenClientConfiguration is configured with the following default values: Is Retry
- * Enabled - false Max Retry Attempts - 3 Retry Delay Time - 1000 ms Retry Status Codes - 408, 429,
- * 500, 502, 503, 504
+ * <p>DefaultTokenClientConfiguration is configured with the following default values:
+ *
+ * <ul>
+ *   <li>Is Retry Enabled - false
+ *   <li>Max Retry Attempts - 3
+ *   <li>Retry Delay Time - 1000 ms
+ *   <li>Retry Status Codes - 408, 429, 500, 502, 503, 504
+ * </ul>
  */
 public class DefaultTokenClientConfiguration implements TokenClientConfiguration {
 
-  private static DefaultTokenClientConfiguration config = new DefaultTokenClientConfiguration();
-  private boolean isRetryEnabled;
-  private int maxRetryAttempts;
-  private long retryDelayTime;
-  private Set<Integer> retryStatusCodes;
+  private static volatile DefaultTokenClientConfiguration instance;
+  private boolean isRetryEnabled = false;
+  private int maxRetryAttempts = 3;
+  private long retryDelayTime = 1000L;
+  private Set<Integer> retryStatusCodes = Set.of(408, 429, 500, 502, 503, 504);
 
-  /** Constructs a new DefaultTokenClientConfiguration instance with default values. */
-  public DefaultTokenClientConfiguration() {
-    loadDefaults();
+  /** Private constructor to prevent instantiation. */
+  private DefaultTokenClientConfiguration() {}
+
+  /**
+   * Returns the singleton instance of DefaultTokenClientConfiguration.
+   *
+   * @return the singleton instance
+   */
+  public static DefaultTokenClientConfiguration getInstance() {
+    if (instance == null) {
+      synchronized (DefaultTokenClientConfiguration.class) {
+        if (instance == null) {
+          instance = new DefaultTokenClientConfiguration();
+        }
+      }
+    }
+    return instance;
   }
 
-  public static DefaultTokenClientConfiguration getConfig() {
-    return config;
-  }
-
-  public static void setConfig(final DefaultTokenClientConfiguration newConfig) {
-    config = newConfig;
-  }
-
-  private void loadDefaults() {
-    this.isRetryEnabled = false;
-    this.maxRetryAttempts = 3;
-    this.retryDelayTime = 1000L;
-    this.retryStatusCodes = Set.of(408, 429, 500, 502, 503, 504);
+  /**
+   * * Sets a new instance of DefaultTokenClientConfiguration. Set {@code null} to reset the
+   * instance.
+   *
+   * @param newInstance the new instance to set
+   */
+  public static void setInstance(final DefaultTokenClientConfiguration newInstance) {
+    synchronized (DefaultTokenClientConfiguration.class) {
+      instance = newInstance;
+    }
   }
 
   @Override
