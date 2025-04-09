@@ -3,6 +3,13 @@ package com.sap.cloud.security.client;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +19,8 @@ public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfi
 
   @BeforeEach
   public void setUp() {
-    config = new SpringTokenClientConfiguration();
+    SpringTokenClientConfiguration.setInstance(null);
+    config = SpringTokenClientConfiguration.getInstance();
     config.setRetryEnabled(false);
     config.setMaxRetryAttempts(3);
     config.setRetryDelayTime(1000L);
@@ -22,21 +30,6 @@ public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfi
   @Override
   protected TokenClientConfiguration createConfig() {
     return config;
-  }
-
-  @Test
-  public void testStaticGetterAndSetter() {
-    SpringTokenClientConfiguration.setConfig(config);
-    assertThat(SpringTokenClientConfiguration.getConfig()).isEqualTo(config);
-  }
-
-  @Test
-  public void defaultValues_areSetCorrectly() {
-    assertThat(config.isRetryEnabled()).isFalse();
-    assertThat(config.getMaxRetryAttempts()).isEqualTo(3);
-    assertThat(config.getRetryDelayTime()).isEqualTo(1000L);
-    assertThat(config.getRetryStatusCodes())
-        .containsExactlyInAnyOrder(408, 429, 500, 502, 503, 504);
   }
 
   @Test
@@ -77,5 +70,61 @@ public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfi
     assertThat(result).contains("502");
     assertThat(result).contains("503");
     assertThat(result).contains("504");
+  }
+
+  @Test
+  public void testStaticGetterAndSetter() {
+    SpringTokenClientConfiguration.setInstance(null);
+    final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getInstance();
+    assertThat(newConfig).isNotSameAs(config);
+    SpringTokenClientConfiguration.setInstance(config);
+    assertThat(SpringTokenClientConfiguration.getInstance()).isEqualTo(config);
+  }
+
+  @Test
+  public void setInstance_resetsSingleton() {
+    SpringTokenClientConfiguration.setInstance(null);
+    final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getInstance();
+    assertThat(newConfig).isNotSameAs(config);
+  }
+
+  @Test
+  public void testSingletonInstanceIsSameAcrossThreads()
+      throws InterruptedException, ExecutionException, TimeoutException {
+    final Callable<SpringTokenClientConfiguration> task =
+        SpringTokenClientConfiguration::getInstance;
+    final ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+    final Future<SpringTokenClientConfiguration> future1 = executorService.submit(task);
+    final Future<SpringTokenClientConfiguration> future2 = executorService.submit(task);
+
+    final SpringTokenClientConfiguration instance1 = future1.get(1, TimeUnit.SECONDS);
+    final SpringTokenClientConfiguration instance2 = future2.get(1, TimeUnit.SECONDS);
+
+    assertThat(instance1).isSameAs(instance2);
+
+    executorService.shutdown();
+  }
+
+  @Test
+  public void testSingletonPropertiesAreConsistentAcrossThreads()
+      throws InterruptedException, ExecutionException, TimeoutException {
+    final SpringTokenClientConfiguration instance = SpringTokenClientConfiguration.getInstance();
+    instance.setRetryEnabled(true);
+
+    final Callable<Boolean> task =
+        () -> SpringTokenClientConfiguration.getInstance().isRetryEnabled();
+    final ExecutorService executorService = Executors.newFixedThreadPool(2);
+
+    final Future<Boolean> future1 = executorService.submit(task);
+    final Future<Boolean> future2 = executorService.submit(task);
+
+    final Boolean value1 = future1.get(1, TimeUnit.SECONDS);
+    final Boolean value2 = future2.get(1, TimeUnit.SECONDS);
+
+    assertThat(value1).isTrue();
+    assertThat(value2).isTrue();
+
+    executorService.shutdown();
   }
 }

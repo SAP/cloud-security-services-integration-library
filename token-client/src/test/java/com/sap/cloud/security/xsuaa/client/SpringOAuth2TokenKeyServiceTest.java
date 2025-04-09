@@ -2,7 +2,6 @@ package com.sap.cloud.security.xsuaa.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -67,40 +66,6 @@ public class SpringOAuth2TokenKeyServiceTest {
   }
 
   @Test
-  public void retrieveTokenKeys_responseNotOk_throwsException() {
-    mockResponse(ERROR_MESSAGE, 500);
-    setConfigurationValues(0, Set.of());
-
-    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
-        .isInstanceOf(OAuth2ServiceException.class)
-        .hasMessageContaining(ERROR_MESSAGE)
-        .hasMessageContaining("Error retrieving token keys");
-  }
-
-  @Test
-  public void retrieveTokenKeys_httpStatusCodeExceptionOccurs_throwsServiceException() {
-    when(restOperationsMock.exchange(
-            eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
-        .thenThrow(new HttpStatusCodeException(HttpStatus.BAD_REQUEST) {});
-
-    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
-        .isInstanceOf(OAuth2ServiceException.class)
-        .hasMessageContaining("Error retrieving token keys")
-        .hasMessageContaining("Http status code 400");
-  }
-
-  @Test
-  public void retrieveTokenKeys_errorOccurs_throwsServiceException() {
-    when(restOperationsMock.exchange(
-            eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
-        .thenThrow(new RuntimeException("IO Exception"));
-
-    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
-        .isInstanceOf(OAuth2ServiceException.class)
-        .hasMessageContaining("IO Exception");
-  }
-
-  @Test
   public void retrieveTokenKeys_restOperationsIsNull_throwsException() {
     assertThatThrownBy(() -> new SpringOAuth2TokenKeyService(null))
         .isInstanceOf(IllegalArgumentException.class);
@@ -113,26 +78,63 @@ public class SpringOAuth2TokenKeyServiceTest {
   }
 
   @Test
+  public void retrieveTokenKeys_responseNotOk_throwsException() {
+    mockResponse(ERROR_MESSAGE, 500);
+    setConfigurationValues(0, Set.of());
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
+        .hasMessageContaining("Error retrieving token keys");
+  }
+
+  @Test
+  public void retrieveTokenKeys_httpStatusCodeExceptionOccurs_throwsServiceException() {
+    when(restOperationsMock.exchange(
+            eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
+        .thenThrow(new HttpStatusCodeException(HttpStatus.BAD_REQUEST) {});
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining("Error retrieving token keys")
+        .hasMessageContaining("Request Headers [")
+        .hasMessageNotContaining("Response Headers [")
+        .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Http status code 400");
+  }
+
+  @Test
+  public void retrieveTokenKeys_errorOccurs_throwsServiceException() {
+    when(restOperationsMock.exchange(
+            eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
+        .thenThrow(new RuntimeException("IO Exception"));
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageNotContaining("Response Headers [")
+        .hasMessageContaining("IO Exception");
+  }
+
+  @Test
   public void retrieveTokenKeys_badResponse_throwsException() {
     mockResponse(ERROR_MESSAGE, 400);
 
-    final OAuth2ServiceException e =
-        assertThrows(
-            OAuth2ServiceException.class,
-            () -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS));
-
-    assertThat(e.getMessage())
-        .contains(TOKEN_KEYS_ENDPOINT_URI.toString())
-        .contains(String.valueOf(HttpStatus.BAD_REQUEST.value()))
-        .contains("Request headers [Accept: application/json, User-Agent: token-client/")
-        .contains("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
-        .contains("x-client_id: client-id")
-        .contains("x-azp: azp")
-        .contains("Response Headers ")
-        .contains(ERROR_MESSAGE);
-    assertThat(e.getHttpStatusCode()).isEqualTo(400);
-    assertThat(e.getHeaders()).hasSize(1);
-    assertThat(e.getHeaders()).contains("Content-Type: application/json");
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
+        .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
+        .hasMessageContaining("x-client_id: client-id")
+        .hasMessageContaining("x-azp: azp")
+        .hasMessageContaining("Error retrieving token keys")
+        .hasMessageContaining("Http status code 400");
   }
 
   @Test
@@ -143,13 +145,13 @@ public class SpringOAuth2TokenKeyServiceTest {
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
-        .hasMessageContaining(
-            "Request headers [Accept: application/json, User-Agent: token-client/")
+        .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
         .hasMessageContaining("x-client_id: client-id")
         .hasMessageContaining("x-azp: azp")
         .hasMessageContaining("Error retrieving token keys")
-        .hasMessageContaining("Response Headers ")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(restOperationsMock, times(2))
         .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
@@ -202,13 +204,13 @@ public class SpringOAuth2TokenKeyServiceTest {
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
-        .hasMessageContaining(
-            "Request headers [Accept: application/json, User-Agent: token-client/")
+        .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
         .hasMessageContaining("x-client_id: client-id")
         .hasMessageContaining("x-azp: azp")
         .hasMessageContaining("Error retrieving token keys")
-        .hasMessageContaining("Response Headers ")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(restOperationsMock, times(7))
         .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
@@ -222,13 +224,13 @@ public class SpringOAuth2TokenKeyServiceTest {
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
-        .hasMessageContaining(
-            "Request headers [Accept: application/json, User-Agent: token-client/")
+        .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("x-app_tid: 92768714-4c2e-4b79-bc1b-009a4127ee3c")
         .hasMessageContaining("x-client_id: client-id")
         .hasMessageContaining("x-azp: azp")
         .hasMessageContaining("Error retrieving token keys")
-        .hasMessageContaining("Response Headers ")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(restOperationsMock, times(1))
         .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
@@ -242,6 +244,9 @@ public class SpringOAuth2TokenKeyServiceTest {
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
         .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining(TOKEN_KEYS_ENDPOINT_URI.toString())
+        .hasMessageContaining("Request Headers [")
+        .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Error retrieving token keys");
     Mockito.verify(restOperationsMock, times(3))
         .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
@@ -292,12 +297,11 @@ public class SpringOAuth2TokenKeyServiceTest {
 
   private static void setConfigurationValues(
       final int maxRetryAttempts, final Set<Integer> retryStatusCodes) {
-    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getConfig();
+    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getInstance();
     config.setRetryEnabled(true);
     config.setMaxRetryAttempts(maxRetryAttempts);
     config.setRetryStatusCodes(retryStatusCodes);
     config.setRetryDelayTime(0L);
-    SpringTokenClientConfiguration.setConfig(config);
   }
 
   private ArgumentMatcher<HttpEntity> httpEntityContainsMandatoryHeaders() {

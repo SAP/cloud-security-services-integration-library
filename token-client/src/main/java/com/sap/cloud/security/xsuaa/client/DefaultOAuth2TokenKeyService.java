@@ -40,13 +40,13 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
   public DefaultOAuth2TokenKeyService() {
     httpClient = HttpClientFactory.create(null);
-    config = DefaultTokenClientConfiguration.getConfig();
+    config = DefaultTokenClientConfiguration.getInstance();
   }
 
   public DefaultOAuth2TokenKeyService(@Nonnull final CloseableHttpClient httpClient) {
     Assertions.assertNotNull(httpClient, "httpClient is required");
     this.httpClient = httpClient;
-    config = DefaultTokenClientConfiguration.getConfig();
+    config = DefaultTokenClientConfiguration.getInstance();
   }
 
   @Override
@@ -61,20 +61,19 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
   private String executeRequest(
       final URI tokenKeysEndpointUri, final Map<String, String> params, final int attemptsLeft)
       throws OAuth2ServiceException {
-    final HttpUriRequest request = getHttpUriRequest(tokenKeysEndpointUri, params);
+    final HttpUriRequest httpUriRequest = getHttpUriRequest(tokenKeysEndpointUri, params);
     LOGGER.debug(
         "Executing token key retrieval GET request to {} with headers: {} and {} retries left",
         tokenKeysEndpointUri,
-        request.getAllHeaders(),
+        httpUriRequest.getAllHeaders(),
         attemptsLeft);
     try {
       return httpClient.execute(
-          request,
+          httpUriRequest,
           response -> {
             final int statusCode = response.getStatusLine().getStatusCode();
             final String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             LOGGER.debug("Received statusCode {} from {}", statusCode, tokenKeysEndpointUri);
-
             if (HttpStatus.SC_OK == statusCode) {
               LOGGER.debug(SUCCESS_MESSAGE, tokenKeysEndpointUri, params);
               handleServicePlanFromResponse(response);
@@ -85,16 +84,10 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
               pauseBeforeNextAttempt(config.getRetryDelayTime());
               return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
             }
-            throw OAuth2ServiceException.builder(
-                    "Error retrieving token keys. Request headers "
-                        + Arrays.stream(request.getAllHeaders()).toList())
+            throw OAuth2ServiceException.builder("Error retrieving token keys.")
                 .withUri(tokenKeysEndpointUri)
-                .withHeaders(
-                    response.getAllHeaders() != null
-                        ? Arrays.stream(response.getAllHeaders())
-                            .map(Header::toString)
-                            .toArray(String[]::new)
-                        : null)
+                .withResponseHeaders(getHeadersAsStringArray(response.getAllHeaders()))
+                .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
                 .withStatusCode(statusCode)
                 .withResponseBody(body)
                 .build();
@@ -103,7 +96,11 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
       if (e instanceof final OAuth2ServiceException oAuth2Exception) {
         throw oAuth2Exception;
       } else {
-        throw new OAuth2ServiceException("Error retrieving token keys: " + e.getMessage());
+        throw OAuth2ServiceException.builder("Error retrieving token keys: " + e.getMessage())
+            .withUri(tokenKeysEndpointUri)
+            .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
+            .withResponseBody(e.getMessage())
+            .build();
       }
     }
   }
@@ -137,5 +134,11 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
         SecurityContext.setServicePlans(xOsbPlan);
       }
     }
+  }
+
+  private static String[] getHeadersAsStringArray(final org.apache.http.Header[] headers) {
+    return headers != null
+        ? Arrays.stream(headers).map(Header::toString).toArray(String[]::new)
+        : new String[0];
   }
 }
