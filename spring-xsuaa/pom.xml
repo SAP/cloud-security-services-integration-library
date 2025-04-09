@@ -17,12 +17,6 @@
 	<packaging>jar</packaging>
 
 	<dependencies>
-		<!--		TODO remove once spring-security-oauth2-jose has a newer version with updated nimbus dependency-->
-		<dependency>
-			<groupId>com.nimbusds</groupId>
-			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>10.0.2</version>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
