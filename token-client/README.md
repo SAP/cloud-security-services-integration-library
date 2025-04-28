@@ -331,7 +331,7 @@ The retry feature (supported since version 3.6.0) uses two Configuration classes
 
 `DefaultTokenClientConfiguration` is used for Java EE applications and `SpringTokenClientConfiguration` is used for Spring Boot applications.
 
-Both disabled by default for all TokenFlow classes and TokenService classes and use a singleton pattern to ensure that the same instance is used throughout the application.
+Both are disabled by default for all TokenFlow classes and TokenService classes and use a singleton pattern to ensure that the same instance is used throughout the application.
 
 Depending on the type of application you are using, you will need to configure the retry feature differently.
 ### Java EE applications
