@@ -29,8 +29,11 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
    - [2.2. Client Credentials Token Flow](#client-credentials-token-flow)
    - [2.3. Refresh Token Flow](#refresh-token-flow)
    - [2.4. Password Token Flow](#password-token-flow)
-3. [Troubleshooting](#troubleshooting)
-4. [Samples](#samples)
+3. [Retry mechanism](#retry-mechanism)
+   - [3.1. Java EE applications](#java-ee-applications)
+   - [3.2. Spring Boot applications](#spring-boot-applications)
+4. [Troubleshooting](#troubleshooting)
+5. [Samples](#samples)
 
 ## Setup 
 For Spring Boot applications `TokenFlows` come autoconfigured with our `spring-security` or `spring-xsuaa` libraries and can be easily consumed by autowiring the `XsuaaTokenFlows` Bean. For more details see [1.1. Configuration for Spring Applications](#11-configuration-for-spring-applications) section.
@@ -329,7 +332,7 @@ OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
 
 The retry feature (supported since version 3.6.0) uses two Configuration classes to handle its properties and overall activation.
 
-`DefaultTokenClientConfiguration` is used for Java EE applications and `SpringTokenClientConfiguration` is used for Spring Boot applications.
+[DefaultTokenClientConfiguration](./src/main/java/com/sap/cloud/security/client/DefaultTokenClientConfiguration.java) is used for Java EE applications and [SpringTokenClientConfiguration](./src/main/java/com/sap/cloud/security/client/SpringTokenClientConfiguration.java) is used for Spring Boot applications.
 
 Both are disabled by default for all TokenFlow classes and TokenService classes and use a singleton pattern to ensure that the same instance is used throughout the application.
 
