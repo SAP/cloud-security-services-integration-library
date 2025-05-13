@@ -10,6 +10,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import static org.apache.http.HttpHeaders.USER_AGENT;
 
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import com.sap.cloud.security.client.TokenClientConfiguration;
 import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -39,19 +40,26 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultOAuth2TokenService.class);
   private final CloseableHttpClient httpClient;
-  private final DefaultTokenClientConfiguration config;
+  private final TokenClientConfiguration config;
 
   public DefaultOAuth2TokenService(@Nonnull final CloseableHttpClient httpClient) {
     this(httpClient, TokenCacheConfiguration.defaultConfiguration());
   }
 
   public DefaultOAuth2TokenService(
-      @Nonnull final CloseableHttpClient httpClient,
-      @Nonnull final TokenCacheConfiguration tokenCacheConfiguration) {
+          @Nonnull final CloseableHttpClient httpClient,
+          @Nonnull final TokenCacheConfiguration tokenCacheConfiguration) {
+    this(httpClient, tokenCacheConfiguration, DefaultTokenClientConfiguration.getInstance());
+  }
+
+  public DefaultOAuth2TokenService(
+          @Nonnull final CloseableHttpClient httpClient,
+          @Nonnull final TokenCacheConfiguration tokenCacheConfiguration,
+          @Nonnull final TokenClientConfiguration tokenClientConfiguration) {
     super(tokenCacheConfiguration);
     Assertions.assertNotNull(httpClient, "http client is required");
     this.httpClient = httpClient;
-    this.config = DefaultTokenClientConfiguration.getInstance();
+    this.config = tokenClientConfiguration;
   }
 
   @Override
