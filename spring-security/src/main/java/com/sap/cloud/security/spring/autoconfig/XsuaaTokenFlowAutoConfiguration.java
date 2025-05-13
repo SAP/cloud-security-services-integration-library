@@ -6,6 +6,7 @@
 package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.client.SpringTokenClientConfiguration;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
@@ -13,6 +14,7 @@ import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
@@ -61,7 +63,9 @@ public class XsuaaTokenFlowAutoConfiguration {
 				xsuaaConfig.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
 		ClientIdentity clientIdentity = xsuaaConfig.getClientIdentity();
-		OAuth2TokenService oAuth2TokenService = new DefaultOAuth2TokenService(httpClient);
+		OAuth2TokenService oAuth2TokenService = new DefaultOAuth2TokenService(httpClient,
+				TokenCacheConfiguration.defaultConfiguration(),
+				SpringTokenClientConfiguration.getInstance());
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
