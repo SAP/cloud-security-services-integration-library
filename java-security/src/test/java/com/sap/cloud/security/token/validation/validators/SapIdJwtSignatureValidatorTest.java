@@ -194,7 +194,11 @@ public class SapIdJwtSignatureValidatorTest {
 				OidcConfigurationServiceWithCache.getInstance()
 						.withOidcConfigurationService(oidcConfigServiceMock));
 		cut.enableProofTokenValidationCheck();
-		assertTrue(cut.validate(iasToken).isErroneous());
+		ValidationResult validationResult = cut.validate(iasToken);
+		assertTrue(validationResult.isErroneous());
+		assertThat(validationResult.getErrorDescription(),
+				containsString(
+						"Token signature can not be validated because JWKS could not be fetched: Client certificate for proof token validation could not be read from 'x-forwarded-client-cert' header."));
 	}
 
 	@Test
