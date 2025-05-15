@@ -75,7 +75,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 			X509Certificate cert = (X509Certificate) SecurityContext.getClientCertificate();
 
 			if (cert == null) {
-				throw new OAuth2ServiceException("Proof token was not found");
+				throw new OAuth2ServiceException("Client certificate for proof token validation could not be read from 'x-forwarded-client-cert' header.");
 			} else {
 				Map<String, String> cacheKeyParams = new HashMap<>(requestParams);
 
