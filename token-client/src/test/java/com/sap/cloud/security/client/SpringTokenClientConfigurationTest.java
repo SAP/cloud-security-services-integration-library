@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
 
-class SpringTokenClientConfigurationTest {
+public class SpringTokenClientConfigurationTest {
 
   private SpringTokenClientConfiguration cut;
 
