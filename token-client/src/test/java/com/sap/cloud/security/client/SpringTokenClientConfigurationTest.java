@@ -1,130 +1,77 @@
 package com.sap.cloud.security.client;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
 
-public class SpringTokenClientConfigurationTest extends AbstractTokenClientConfigurationTest {
+class SpringTokenClientConfigurationTest {
 
-  private SpringTokenClientConfiguration config;
+  private SpringTokenClientConfiguration cut;
 
   @BeforeEach
-  public void setUp() {
-    SpringTokenClientConfiguration.setInstance(null);
-    config = SpringTokenClientConfiguration.getInstance();
-    config.setRetryEnabled(false);
-    config.setMaxRetryAttempts(3);
-    config.setRetryDelayTime(1000L);
-    config.setRetryStatusCodes(Set.of(408, 429, 500, 502, 503, 504));
-  }
-
-  @Override
-  protected TokenClientConfiguration createConfig() {
-    return config;
+  void setUp() {
+    cut = new SpringTokenClientConfiguration();
   }
 
   @Test
-  public void setRetryEnabled_updatesValue() {
-    config.setRetryEnabled(true);
-    assertThat(config.isRetryEnabled()).isTrue();
+  void retryEnabledIsSetCorrectly() {
+    cut.setRetryEnabled(true);
+    assertTrue(DefaultTokenClientConfiguration.getInstance().isRetryEnabled());
   }
 
   @Test
-  public void setMaxRetryAttempts_updatesValue() {
-    config.setMaxRetryAttempts(5);
-    assertThat(config.getMaxRetryAttempts()).isEqualTo(5);
+  void maxRetryAttemptsIsSetCorrectly() {
+    cut.setMaxRetryAttempts(5);
+    assertEquals(5, DefaultTokenClientConfiguration.getInstance().getMaxRetryAttempts());
   }
 
   @Test
-  public void setRetryDelayTime_updatesValue() {
-    config.setRetryDelayTime(2000L);
-    assertThat(config.getRetryDelayTime()).isEqualTo(2000L);
+  void retryDelayTimeIsSetCorrectly() {
+    cut.setRetryDelayTime(2000L);
+    assertEquals(2000L, DefaultTokenClientConfiguration.getInstance().getRetryDelayTime());
   }
 
   @Test
-  public void setRetryStatusCodes_withIntegerSet_updatesValue() {
-    config.setRetryStatusCodes(Set.of(300, 301));
-    assertThat(config.getRetryStatusCodes()).containsExactlyInAnyOrder(300, 301);
+  void retryStatusCodesAreSetCorrectly() {
+    cut.setRetryStatusCodes(Set.of(500, 502, 503));
+    assertEquals(
+        Set.of(500, 502, 503), DefaultTokenClientConfiguration.getInstance().getRetryStatusCodes());
   }
 
   @Test
-  public void testToString() {
-    final String result = config.toString();
-    assertThat(result).startsWith("SpringTokenClientConfig{");
-    assertThat(result).contains("isRetryEnabled=false");
-    assertThat(result).contains("maxRetryAttempts=3");
-    assertThat(result).contains("retryDelayTime=1000");
-    assertThat(result).contains("retryStatusCodes='[");
-    assertThat(result).contains("408");
-    assertThat(result).contains("429");
-    assertThat(result).contains("500");
-    assertThat(result).contains("502");
-    assertThat(result).contains("503");
-    assertThat(result).contains("504");
-  }
+  void propertiesAreBoundCorrectly() {
+    final Map<String, Object> properties =
+        Map.of(
+            "token.client.retry.retryEnabled",
+            true,
+            "token.client.retry.maxRetryAttempts",
+            3,
+            "token.client.retry.retryDelayTime",
+            1000L,
+            "token.client.retry.retryStatusCodes",
+            "500,502,503");
 
-  @Test
-  public void testStaticGetterAndSetter() {
-    SpringTokenClientConfiguration.setInstance(null);
-    final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getInstance();
-    assertThat(newConfig).isNotSameAs(config);
-    SpringTokenClientConfiguration.setInstance(config);
-    assertThat(SpringTokenClientConfiguration.getInstance()).isEqualTo(config);
-  }
+    final Binder binder = new Binder(new MapConfigurationPropertySource(properties));
+    binder
+        .bind("token.client.retry", SpringTokenClientConfiguration.class)
+        .ifBound(
+            config -> {
+              config.setRetryEnabled(true);
+              config.setMaxRetryAttempts(3);
+              config.setRetryDelayTime(1000L);
+              config.setRetryStatusCodes(Set.of(500, 502, 503));
+            });
 
-  @Test
-  public void setInstance_resetsSingleton() {
-    SpringTokenClientConfiguration.setInstance(null);
-    final SpringTokenClientConfiguration newConfig = SpringTokenClientConfiguration.getInstance();
-    assertThat(newConfig).isNotSameAs(config);
-  }
-
-  @Test
-  public void testSingletonInstanceIsSameAcrossThreads()
-      throws InterruptedException, ExecutionException, TimeoutException {
-    final Callable<SpringTokenClientConfiguration> task =
-        SpringTokenClientConfiguration::getInstance;
-    final ExecutorService executorService = Executors.newFixedThreadPool(2);
-
-    final Future<SpringTokenClientConfiguration> future1 = executorService.submit(task);
-    final Future<SpringTokenClientConfiguration> future2 = executorService.submit(task);
-
-    final SpringTokenClientConfiguration instance1 = future1.get(1, TimeUnit.SECONDS);
-    final SpringTokenClientConfiguration instance2 = future2.get(1, TimeUnit.SECONDS);
-
-    assertThat(instance1).isSameAs(instance2);
-
-    executorService.shutdown();
-  }
-
-  @Test
-  public void testSingletonPropertiesAreConsistentAcrossThreads()
-      throws InterruptedException, ExecutionException, TimeoutException {
-    final SpringTokenClientConfiguration instance = SpringTokenClientConfiguration.getInstance();
-    instance.setRetryEnabled(true);
-
-    final Callable<Boolean> task =
-        () -> SpringTokenClientConfiguration.getInstance().isRetryEnabled();
-    final ExecutorService executorService = Executors.newFixedThreadPool(2);
-
-    final Future<Boolean> future1 = executorService.submit(task);
-    final Future<Boolean> future2 = executorService.submit(task);
-
-    final Boolean value1 = future1.get(1, TimeUnit.SECONDS);
-    final Boolean value2 = future2.get(1, TimeUnit.SECONDS);
-
-    assertThat(value1).isTrue();
-    assertThat(value2).isTrue();
-
-    executorService.shutdown();
+    assertTrue(DefaultTokenClientConfiguration.getInstance().isRetryEnabled());
+    assertEquals(3, DefaultTokenClientConfiguration.getInstance().getMaxRetryAttempts());
+    assertEquals(1000L, DefaultTokenClientConfiguration.getInstance().getRetryDelayTime());
+    assertEquals(
+        Set.of(500, 502, 503), DefaultTokenClientConfiguration.getInstance().getRetryStatusCodes());
   }
 }

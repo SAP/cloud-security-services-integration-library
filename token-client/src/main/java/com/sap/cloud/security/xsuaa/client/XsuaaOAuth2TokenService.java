@@ -9,7 +9,7 @@ package com.sap.cloud.security.xsuaa.client;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
-import com.sap.cloud.security.client.SpringTokenClientConfiguration;
+import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
@@ -35,7 +35,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaOAuth2TokenService.class);
   private final RestOperations restOperations;
-  private final SpringTokenClientConfiguration config;
+  private final DefaultTokenClientConfiguration config;
 
   public XsuaaOAuth2TokenService(@Nonnull final RestOperations restOperations) {
     this(restOperations, TokenCacheConfiguration.defaultConfiguration());
@@ -47,7 +47,7 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
     super(tokenCacheConfiguration);
     assertNotNull(restOperations, "restOperations is required");
     this.restOperations = restOperations;
-    this.config = SpringTokenClientConfiguration.getInstance();
+    this.config = DefaultTokenClientConfiguration.getInstance();
   }
 
   @Override

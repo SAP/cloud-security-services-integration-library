@@ -1,120 +1,56 @@
 package com.sap.cloud.security.client;
 
 import java.util.Set;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * Spring configuration class for the Token-Client. Loads properties from Spring's environment. This
- * class is implemented as a singleton class. The default values can be overridden by accessing the
- * current instance of the class.
+ * Spring configuration class for the Token Client.
  *
- * <p>SpringTokenClientConfiguration is configured with the following default values:
+ * <p>This class is implemented as a configuration properties class, allowing for easy configuration
+ * of the Token Client's retry behavior by setting the configured values to the
+ * DefaultTokenClientConfiguration instance.
  *
- * <ul>
- *   <li>Is Retry Enabled - false
- *   <li>Max Retry Attempts - 3
- *   <li>Retry Delay Time - 1000 ms
- *   <li>Retry Status Codes - 408, 429, 500, 502, 503, 504
- * </ul>
+ * <p>The properties are mapped from the `token.client.retry` prefix in the application's
+ * configuration (e.g., `application.yml` or `application.properties`).
  */
-public class SpringTokenClientConfiguration implements TokenClientConfiguration {
-
-  private static volatile SpringTokenClientConfiguration instance;
-
-  @Value("${token.client.retry.enabled:false}")
-  private boolean isRetryEnabled;
-
-  @Value("${token.client.retry.maxAttempts:3}")
-  private int maxRetryAttempts;
-
-  @Value("${token.client.retry.delayTime:1000}")
-  private long retryDelayTime;
-
-  @Value("${token.client.retry.statusCodes:408,429,500,502,503,504}")
-  private Set<Integer> retryStatusCodes;
-
-  /** Private constructor to prevent instantiation. */
-  private SpringTokenClientConfiguration() {}
+@Configuration
+@ConfigurationProperties("token.client.retry")
+public class SpringTokenClientConfiguration {
 
   /**
-   * Returns the singleton instance of SpringTokenClientConfiguration.
+   * Sets whether retry is enabled for the Token Client.
    *
-   * @return the singleton instance
+   * @param retryEnabled a boolean indicating if retry is enabled
    */
-  public static SpringTokenClientConfiguration getInstance() {
-    if (instance == null) {
-      synchronized (SpringTokenClientConfiguration.class) {
-        if (instance == null) {
-          instance = new SpringTokenClientConfiguration();
-        }
-      }
-    }
-    return instance;
-  }
-
-  /**
-   * Sets a new instance of SpringTokenClientConfiguration. Set {@code null} to reset the instance.
-   *
-   * @param newInstance the new instance to set
-   */
-  public static void setInstance(final SpringTokenClientConfiguration newInstance) {
-    synchronized (SpringTokenClientConfiguration.class) {
-      instance = newInstance;
-    }
-  }
-
-  @Override
-  public boolean isRetryEnabled() {
-    return isRetryEnabled;
-  }
-
-  @Override
   public void setRetryEnabled(final boolean retryEnabled) {
-    this.isRetryEnabled = retryEnabled;
+    DefaultTokenClientConfiguration.getInstance().setRetryEnabled(retryEnabled);
   }
 
-  @Override
-  public int getMaxRetryAttempts() {
-    return maxRetryAttempts;
-  }
-
-  @Override
+  /**
+   * Sets the maximum number of retry attempts for the Token Client.
+   *
+   * @param maxRetryAttempts an integer specifying the maximum retry attempts
+   */
   public void setMaxRetryAttempts(final int maxRetryAttempts) {
-    this.maxRetryAttempts = maxRetryAttempts;
+    DefaultTokenClientConfiguration.getInstance().setMaxRetryAttempts(maxRetryAttempts);
   }
 
-  @Override
-  public long getRetryDelayTime() {
-    return retryDelayTime;
-  }
-
-  @Override
+  /**
+   * Sets the delay time between retry attempts for the Token Client.
+   *
+   * @param retryDelayTime a long value specifying the delay time in milliseconds
+   */
   public void setRetryDelayTime(final long retryDelayTime) {
-    this.retryDelayTime = retryDelayTime;
+    DefaultTokenClientConfiguration.getInstance().setRetryDelayTime(retryDelayTime);
   }
 
-  @Override
-  public Set<Integer> getRetryStatusCodes() {
-    return retryStatusCodes;
-  }
-
-  @Override
+  /**
+   * Sets the HTTP status codes that should trigger a retry for the Token Client.
+   *
+   * @param retryStatusCodes a set of integers representing HTTP status codes
+   */
   public void setRetryStatusCodes(final Set<Integer> retryStatusCodes) {
-    this.retryStatusCodes = retryStatusCodes;
-  }
-
-  @Override
-  public String toString() {
-    return "SpringTokenClientConfig{"
-        + "isRetryEnabled="
-        + isRetryEnabled
-        + ", maxRetryAttempts="
-        + maxRetryAttempts
-        + ", retryDelayTime="
-        + retryDelayTime
-        + ", retryStatusCodes='"
-        + retryStatusCodes
-        + '\''
-        + '}';
+    DefaultTokenClientConfiguration.getInstance().setRetryStatusCodes(retryStatusCodes);
   }
 }

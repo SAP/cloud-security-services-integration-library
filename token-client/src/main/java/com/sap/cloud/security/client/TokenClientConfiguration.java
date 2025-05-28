@@ -1,9 +1,6 @@
 package com.sap.cloud.security.client;
 
-import java.util.Arrays;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,20 +73,5 @@ public interface TokenClientConfiguration {
    *
    * @param retryStatusCodes A comma-separated string of HTTP status codes to retry on.
    */
-  default void setRetryStatusCodes(final String retryStatusCodes) {
-    try {
-      setRetryStatusCodes(parseRetryStatusCodes(retryStatusCodes));
-    } catch (final NumberFormatException e) {
-      logger.error("Failed to parse retry status codes: {}", retryStatusCodes, e);
-      throw new IllegalStateException("Failed to parse retry status codes: " + retryStatusCodes, e);
-    }
-  }
-
-  private Set<Integer> parseRetryStatusCodes(final String retryStatusCodes) {
-    return Arrays.stream(Optional.ofNullable(retryStatusCodes).orElse("").split(","))
-        .map(String::trim)
-        .filter(s -> !s.isBlank())
-        .map(Integer::parseInt)
-        .collect(Collectors.toSet());
-  }
+  void setRetryStatusCodes(String retryStatusCodes);
 }

@@ -1,6 +1,9 @@
 package com.sap.cloud.security.client;
 
+import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Default configuration class for the Token-Client. Loads default properties defined in this class.
@@ -93,6 +96,24 @@ public class DefaultTokenClientConfiguration implements TokenClientConfiguration
   @Override
   public void setRetryStatusCodes(final Set<Integer> retryStatusCodes) {
     this.retryStatusCodes = retryStatusCodes;
+  }
+
+  @Override
+  public void setRetryStatusCodes(final String retryStatusCodes) {
+    try {
+      setRetryStatusCodes(parseRetryStatusCodes(retryStatusCodes));
+    } catch (final NumberFormatException e) {
+      logger.error("Failed to parse retry status codes: {}", retryStatusCodes, e);
+      throw new IllegalStateException("Failed to parse retry status codes: " + retryStatusCodes, e);
+    }
+  }
+
+  private Set<Integer> parseRetryStatusCodes(final String retryStatusCodes) {
+    return Arrays.stream(Optional.ofNullable(retryStatusCodes).orElse("").split(","))
+        .map(String::trim)
+        .filter(s -> !s.isBlank())
+        .map(Integer::parseInt)
+        .collect(Collectors.toSet());
   }
 
   @Override
