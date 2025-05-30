@@ -158,6 +158,7 @@ public class DefaultOAuth2TokenServiceTest {
 
     final ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
     final Logger logger = (Logger) LoggerFactory.getLogger(MDCHelper.class);
+    logger.setLevel(Level.DEBUG);
     listAppender.start();
     logger.addAppender(listAppender);
 

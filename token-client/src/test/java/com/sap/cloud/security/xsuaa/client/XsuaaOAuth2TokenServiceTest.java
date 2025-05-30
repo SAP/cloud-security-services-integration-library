@@ -22,7 +22,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.sap.cloud.security.client.SpringTokenClientConfiguration;
+import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
@@ -50,7 +50,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestOperations;
 
 class XsuaaOAuth2TokenServiceTest {
-
+    
   public static final URI TOKEN_KEYS_ENDPOINT_URI =
       URI.create("https://token.endpoint.io/token_keys");
   public static final String APP_TID = "92768714-4c2e-4b79-bc1b-009a4127ee3c";
@@ -352,7 +352,7 @@ class XsuaaOAuth2TokenServiceTest {
 
   private static void setConfigurationValues(
       final int maxRetryAttempts, final Set<Integer> retryStatusCodes) {
-    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getInstance();
+    final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getInstance();
     config.setRetryEnabled(true);
     config.setMaxRetryAttempts(maxRetryAttempts);
     config.setRetryStatusCodes(retryStatusCodes);
