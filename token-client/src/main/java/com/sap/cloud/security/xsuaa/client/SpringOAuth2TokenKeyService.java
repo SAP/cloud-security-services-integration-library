@@ -8,7 +8,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import static org.springframework.http.HttpMethod.GET;
 
-import com.sap.cloud.security.client.SpringTokenClientConfiguration;
+import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import java.net.URI;
@@ -28,13 +28,13 @@ import org.springframework.web.client.RestOperations;
 public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SpringOAuth2TokenKeyService.class);
-  private final SpringTokenClientConfiguration config;
+  private final DefaultTokenClientConfiguration config;
   private final RestOperations restOperations;
 
   public SpringOAuth2TokenKeyService(@Nonnull final RestOperations restOperations) {
     Assertions.assertNotNull(restOperations, "restOperations must not be null!");
     this.restOperations = restOperations;
-    this.config = SpringTokenClientConfiguration.getInstance();
+    this.config = DefaultTokenClientConfiguration.getInstance();
   }
 
   @Override

@@ -17,7 +17,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.sap.cloud.security.client.SpringTokenClientConfiguration;
+import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -248,7 +248,7 @@ public class SpringOidcConfigurationServiceTest {
 
   private void setConfigurationValues(
       final int maxRetryAttempts, final Set<Integer> retryStatusCodes) {
-    final SpringTokenClientConfiguration config = SpringTokenClientConfiguration.getInstance();
+    final DefaultTokenClientConfiguration config = DefaultTokenClientConfiguration.getInstance();
     config.setRetryEnabled(true);
     config.setMaxRetryAttempts(maxRetryAttempts);
     config.setRetryStatusCodes(retryStatusCodes);
