@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.xssec.samples.tokenflow.usage;
 
+import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.Environments;
@@ -18,7 +19,6 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 
 @WebServlet("/hello-token-client")
@@ -28,7 +28,8 @@ public class HelloTokenClientServlet extends HttpServlet {
 
 	@Override
 	public void init() throws ServletException {
-		OAuth2ServiceConfiguration configuration = Environments.getCurrent().getXsuaaConfiguration();
+    final OAuth2ServiceConfiguration configuration =
+        Environments.getCurrent().getXsuaaConfiguration();
 		DefaultTokenClientConfiguration.getInstance().setRetryEnabled(true);
 
 		/*
@@ -44,19 +45,20 @@ public class HelloTokenClientServlet extends HttpServlet {
 			tokenFlows = new XsuaaTokenFlows(
 					new DefaultOAuth2TokenService(HttpClientFactory.create(configuration.getClientIdentity())),
 					new XsuaaDefaultEndpoints(configuration), configuration.getClientIdentity());
-		} catch (HttpClientException e) {
+    } catch (final HttpClientException e) {
 			throw new ServletException("Couldn't setup XsuaaTokenFlows");
 		}
 	}
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
-	 */
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  /**
+   * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+   */
+  @Override
+  protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
+      throws IOException {
 		response.setContentType("text/plain");
 
-		OAuth2TokenResponse tokenResponse = tokenFlows.clientCredentialsTokenFlow().execute();
+    final OAuth2TokenResponse tokenResponse = tokenFlows.clientCredentialsTokenFlow().execute();
 
 		writeLine(response, "Access-Token: " + tokenResponse.getAccessToken());
 		writeLine(response, "Access-Token-Payload: " + tokenResponse.getDecodedAccessToken().getPayload());
@@ -64,7 +66,8 @@ public class HelloTokenClientServlet extends HttpServlet {
 
 	}
 
-	private void writeLine(HttpServletResponse response, String string) throws IOException {
+  private void writeLine(final HttpServletResponse response, final String string)
+      throws IOException {
 		response.getWriter().append(string);
 		response.getWriter().append("\n");
 	}
