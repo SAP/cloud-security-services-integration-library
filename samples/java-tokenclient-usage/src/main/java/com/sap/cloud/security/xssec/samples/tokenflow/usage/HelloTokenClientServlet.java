@@ -32,16 +32,18 @@ public class HelloTokenClientServlet extends HttpServlet {
         Environments.getCurrent().getXsuaaConfiguration();
 		DefaultTokenClientConfiguration.getInstance().setRetryEnabled(true);
 
-		/*
-		 * To change the default retry behavior, you can use the following code:
-		 * DefaultTokenClientConfiguration configuration = DefaultTokenClientConfiguration.getInstance();
-		 * configuration.setRetryEnabled(true);
-		 * configuration.setMaxRetryAttempts(5);
-		 * configuration.setRetryInterval(10000);
-		 * configuration.setRetryStatusCodes(Arrays.asList(HttpStatus.INTERNAL_SERVER_ERROR));
-		 */
+    /*
+     * To change the default retry behavior, you can use the following code snippet:
+     * DefaultTokenClientConfiguration configuration = DefaultTokenClientConfiguration.getInstance();
+     * configuration.setRetryEnabled(true);
+     * configuration.setMaxRetryAttempts(5);
+     * configuration.setRetryDelayTime(2000); // in milliseconds
+     * configuration.setRetryStatusCodes(500, 502, 503, 504);
+     * OR as an alternative String representation:
+     * configuration.setRetryStatusCodes("500,502,503,504");
+     */
 
-		try {
+    try {
 			tokenFlows = new XsuaaTokenFlows(
 					new DefaultOAuth2TokenService(HttpClientFactory.create(configuration.getClientIdentity())),
 					new XsuaaDefaultEndpoints(configuration), configuration.getClientIdentity());
