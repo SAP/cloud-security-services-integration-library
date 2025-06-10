@@ -1,16 +1,18 @@
-package com.sap.cloud.security.client;
+package com.sap.cloud.security.spring.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.boot.context.properties.source.MapConfigurationPropertySource;
 
-class SpringTokenClientConfigurationTest {
+public class SpringTokenClientConfigurationTest {
 
   private SpringTokenClientConfiguration cut;
 
@@ -22,7 +24,7 @@ class SpringTokenClientConfigurationTest {
   @Test
   void retryEnabledIsSetCorrectly() {
     cut.setRetryEnabled(true);
-    assertTrue(DefaultTokenClientConfiguration.getInstance().isRetryEnabled());
+    Assertions.assertTrue(DefaultTokenClientConfiguration.getInstance().isRetryEnabled());
   }
 
   @Test
