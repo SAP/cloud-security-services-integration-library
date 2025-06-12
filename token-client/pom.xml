@@ -116,7 +116,7 @@
             <artifactId>wiremock-standalone</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+	</dependencies>
 
 	<build>
 		<resources>

@@ -6,7 +6,6 @@
 package com.sap.cloud.security.spring.autoconfig;
 
 import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.client.SpringTokenClientConfiguration;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
@@ -49,35 +48,36 @@ public class XsuaaTokenFlowAutoConfiguration {
 
 	XsuaaServiceConfiguration xsuaaConfig;
 
-	public XsuaaTokenFlowAutoConfiguration(XsuaaServiceConfigurations xsuaaConfigs,
-			XsuaaServiceConfiguration xsuaaConfig) {
+  public XsuaaTokenFlowAutoConfiguration(
+      final XsuaaServiceConfigurations xsuaaConfigs, final XsuaaServiceConfiguration xsuaaConfig) {
 		logger.debug("prepares XsuaaTokenFlowAutoConfiguration.");
 		this.xsuaaConfig = xsuaaConfigs.getConfigurations().isEmpty() ? xsuaaConfig
 				: xsuaaConfigs.getConfigurations().get(0);
 	}
 
-	@Bean
-	@Conditional(PropertyConditions.class)
-	public XsuaaTokenFlows xsuaaTokenFlows(@Qualifier("tokenFlowHttpClient") CloseableHttpClient httpClient) {
-		logger.debug("auto-configures XsuaaTokenFlows using {} based restOperations",
-				xsuaaConfig.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
-		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
-		ClientIdentity clientIdentity = xsuaaConfig.getClientIdentity();
-		OAuth2TokenService oAuth2TokenService = new DefaultOAuth2TokenService(httpClient,
-				TokenCacheConfiguration.defaultConfiguration(),
-				SpringTokenClientConfiguration.getInstance());
+  @Bean
+  @Conditional(PropertyConditions.class)
+  public XsuaaTokenFlows xsuaaTokenFlows(
+      @Qualifier("tokenFlowHttpClient") final CloseableHttpClient httpClient) {
+    logger.debug(
+        "auto-configuring XsuaaTokenFlows using {} based restOperations",
+        xsuaaConfig.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
+    final OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
+    final ClientIdentity clientIdentity = xsuaaConfig.getClientIdentity();
+    final OAuth2TokenService oAuth2TokenService =
+        new DefaultOAuth2TokenService(httpClient, TokenCacheConfiguration.defaultConfiguration());
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
-	/**
-	 * Creates a {@link CloseableHttpClient} instance configured with the ClientIdentity provided. Conditional on
-	 * missing CloseableHttpClient Bean.
-	 *
-	 * @return the {@link CloseableHttpClient} instance.
-	 */
-	@Bean
-	@Conditional(PropertyConditions.class)
-	public CloseableHttpClient tokenFlowHttpClient(XsuaaServiceConfiguration xsuaaConfig) {
+  /**
+   * Creates a {@link CloseableHttpClient} instance configured with the ClientIdentity provided.
+   * Conditional on missing CloseableHttpClient Bean.
+   *
+   * @return the {@link CloseableHttpClient} instance.
+   */
+  @Bean
+  @Conditional(PropertyConditions.class)
+  public CloseableHttpClient tokenFlowHttpClient(final XsuaaServiceConfiguration xsuaaConfig) {
 		logger.debug(
 				"If the performance for the token validation is degrading provide your own well configured HttpClientFactory implementation");
 		return HttpClientFactory.create(xsuaaConfig.getClientIdentity());

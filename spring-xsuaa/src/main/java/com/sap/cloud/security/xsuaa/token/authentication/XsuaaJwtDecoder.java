@@ -130,13 +130,8 @@ public class XsuaaJwtDecoder implements JwtDecoder {
 
 			return verifyToken(jwt.getParsedString(), kid, uaaDomain, getZid(jwt));
 		} catch (JwtException e) {
-			if (e.getMessage().contains("Couldn't retrieve remote JWK set")
-					|| e.getMessage().contains("Cannot verify with online token key, uaadomain is")) {
-				logger.error(e.getMessage());
-				return tryToVerifyWithVerificationKey(jwt.getParsedString(), e);
-			} else {
-				throw e;
-			}
+			logger.error(e.getMessage());
+			return tryToVerifyWithVerificationKey(jwt.getParsedString(), e);
 		}
 	}
 
