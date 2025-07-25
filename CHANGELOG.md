@@ -3,7 +3,28 @@ All notable changes to this project will be documented in this file.
 
 ## 3.6.1
 
--
+- Fix spring retry configuration for token service
+- added documentation of retry feature to README
+- Improve error message when client certificate for proof token validation is missing
+
+### Dependency upgrades
+
+Bump org.eclipse.jetty.version from 12.0.21 to 12.0.22
+bump caffeine version to 3.2.0
+Bump org.mockito:mockito-core from 5.17.0 to 5.18.0
+Bump org.apache.httpcomponents.client5:httpclient5 from 5.4.4 to 5.5
+Bump com.sap.cloud.environment.servicebinding:java-bom
+Bump org.json:json from 20250107 to 20250517
+Bump commons-io:commons-io from 2.18.0 to 2.19.0
+Bump spring.core.version from 6.2.5 to 6.2.7
+Bump io.github.hakky54:logcaptor from 2.10.2 to 2.11.0
+Bump spring.security.version from 6.4.4 to 6.4.5
+Bump org.apache.httpcomponents.client5:httpclient5 from 5.4.3 to 5.4.4
+Bump spring.boot.version from 3.4.4 to 3.4.5
+Bump org.wiremock:wiremock-standalone from 3.12.1 to 3.13.0
+Bump org.eclipse.jetty.version from 12.0.19 to 12.0.21
+Bump io.projectreactor:reactor-test from 3.7.4 to 3.7.6
+Bump io.projectreactor:reactor-core from 3.7.4 to 3.7.6
 
 ## 3.6.0
 
