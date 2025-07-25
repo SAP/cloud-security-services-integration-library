@@ -57,14 +57,14 @@
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.source.plugin.version>3.3.1</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
-		<spring.boot.version>3.4.5</spring.boot.version>
-		<spring.core.version>6.2.7</spring.core.version>
-		<spring.security.version>6.4.5</spring.security.version>
+		<spring.boot.version>3.5.3</spring.boot.version>
+		<spring.core.version>6.2.8</spring.core.version>
+		<spring.security.version>6.5.1</spring.security.version>
 		<spring.security.oauth2.version>2.5.2.RELEASE</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<org.eclipse.jetty.version>12.0.22</org.eclipse.jetty.version>
-		<reactor.version>3.7.6</reactor.version>
-		<log4j2.version>2.24.3</log4j2.version>
+		<reactor.version>3.7.7</reactor.version>
+		<log4j2.version>2.25.0</log4j2.version>
 		<slf4j.api.version>2.0.17</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20250517</org.json.version>
 		<sap.cloud.env.servicebinding.version>0.21.0</sap.cloud.env.servicebinding.version>
@@ -74,16 +74,16 @@
 		<commons.io.version>2.19.0</commons.io.version>
 		<jakarta.servlet.api.version>6.1.0</jakarta.servlet.api.version>
 		<junit.version>4.13.2</junit.version>
-		<junit-jupiter.version>5.9.2</junit-jupiter.version>
+		<junit-jupiter.version>5.12.2</junit-jupiter.version>
 		<maven-surefire-plugin>3.5.3</maven-surefire-plugin>
 		<hamcrest.version>1.3</hamcrest.version>
 		<mockito.version>5.18.0</mockito.version>
 		<assertj.version>3.27.3</assertj.version>
-		<reactor.test.version>3.7.6</reactor.test.version>
-		<wiremock.version>3.13.0</wiremock.version>
+		<reactor.test.version>3.7.7</reactor.test.version>
+		<wiremock.version>3.13.1</wiremock.version>
 		<javax.annotation.version>1.3.2</javax.annotation.version>
 		<spotbugs.annotations.version>4.9.3</spotbugs.annotations.version>
-		<spotbugs.version>4.9.3.0</spotbugs.version>
+		<spotbugs.version>4.9.3.1</spotbugs.version>
 		<skipTests>false</skipTests>
 		<jacoco.skip>${skipTests}</jacoco.skip>
 	</properties>
@@ -320,7 +320,7 @@
 						<plugin>
 							<groupId>org.apache.maven.plugins</groupId>
 							<artifactId>maven-pmd-plugin</artifactId>
-							<version>3.26.0</version>
+							<version>3.27.0</version>
 							<configuration>
 								<skip>${skipTests}</skip>
 							</configuration>
