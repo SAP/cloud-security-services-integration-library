@@ -19,6 +19,36 @@
 	<version>3.6.1</version>
 	<name>spring-security-xsuaa-usage</name>
 
+	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	<description>Java Spring security XSUAA usage sample</description>
+
+	<organization>
+		<name>SAP SE</name>
+		<url>https://www.sap.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>SAP DEVELOPER LICENSE AGREEMENT</name>
+			<url>https://tools.hana.ondemand.com/developer-license-3_2.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Identity Service Development</name>
+			<email>xsuaa-development@sap.com</email>
+			<organization>SAP SE</organization>
+			<organizationUrl>https://www.sap.com</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/SAP/cloud-security-xsuaa-integration.git</connection>
+		<developerConnection>scm:git:ssh//github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
+		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	</scm>
 	<properties>
 		<!-- 
 			Fix to trick Eclipse into not complaining with an "Unknown" issue 
@@ -31,6 +61,7 @@
 		<java.version>17</java.version>
 		<sap.cloud.security.version>3.6.1</sap.cloud.security.version>
 		<http.client5>5.2.1</http.client5>
+		<spring.boot.version>3.5.3</spring.boot.version>
 	</properties>
 
 	<dependencyManagement>
@@ -49,10 +80,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+			<version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sap.cloud.security.xsuaa</groupId>
             <artifactId>xsuaa-spring-boot-starter</artifactId>
+			<version>${sap.cloud.security.version}</version>
         </dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>
@@ -65,21 +98,25 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+			<version>${spring.boot.version}</version>
         </dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security-test</artifactId>
 			<scope>test</scope>
+			<version>${sap.cloud.security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
 			<scope>test</scope>
+			<version>${junit.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<scope>test</scope>
+			<version>${junit.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -89,6 +126,7 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.boot.version}</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
