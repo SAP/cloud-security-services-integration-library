@@ -15,6 +15,36 @@
 	<artifactId>spring-xsuaa-it</artifactId>
 	<name>spring-xsuaa-it</name>
 	<version>3.6.0</version>
+	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	<description>Java Spring XSUAA IT library</description>
+
+	<organization>
+		<name>SAP SE</name>
+		<url>https://www.sap.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>SAP DEVELOPER LICENSE AGREEMENT</name>
+			<url>https://tools.hana.ondemand.com/developer-license-3_2.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Identity Service Development</name>
+			<email>xsuaa-development@sap.com</email>
+			<organization>SAP SE</organization>
+			<organizationUrl>https://www.sap.com</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/SAP/cloud-security-xsuaa-integration.git</connection>
+		<developerConnection>scm:git:ssh//github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
+		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	</scm>
 
 	<properties>
 		<mockwebserver.version>4.10.0</mockwebserver.version>
@@ -38,14 +68,17 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<version>${spring.boot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>xsuaa-spring-boot-starter</artifactId>
+			<version>${sap.cloud.security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
 			<artifactId>spring-xsuaa-test</artifactId>
+			<version>${sap.cloud.security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
@@ -61,10 +94,12 @@
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-core</artifactId>
+			<version>${hamcrest.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit-jupiter.version}</version>
 		</dependency>
 
 		<!-- test utilities -->
@@ -72,6 +107,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<version>${spring.boot.version}</version>
 		</dependency>
     </dependencies>
 

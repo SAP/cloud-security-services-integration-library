@@ -9,6 +9,37 @@
 	<version>3.6.0</version>
 	<packaging>war</packaging>
 
+	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	<description>Java buildpack api usage sample</description>
+
+	<organization>
+		<name>SAP SE</name>
+		<url>https://www.sap.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>SAP DEVELOPER LICENSE AGREEMENT</name>
+			<url>https://tools.hana.ondemand.com/developer-license-3_2.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Identity Service Development</name>
+			<email>xsuaa-development@sap.com</email>
+			<organization>SAP SE</organization>
+			<organizationUrl>https://www.sap.com</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/SAP/cloud-security-xsuaa-integration.git</connection>
+		<developerConnection>scm:git:ssh//github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
+		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	</scm>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.release>17</maven.compiler.release>
@@ -20,6 +51,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-api</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.servlet</groupId>
