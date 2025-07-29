@@ -23,6 +23,7 @@
 	<description>SAP Starter for integrating application with XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<packaging>jar</packaging>
+	<name>xsuaa-spring-boot-starter</name>
 
 	<organization>
 		<name>SAP SE</name>
