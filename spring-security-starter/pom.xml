@@ -24,6 +24,7 @@
 	<description>SAP Starter for integrating application with IAS and/or XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<packaging>jar</packaging>
+	<name>resourceserver-security-spring-boot-starter</name>
 
 	<organization>
 		<name>SAP SE</name>
