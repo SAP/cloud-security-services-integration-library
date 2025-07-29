@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.6</version>
+		<version>3.5.4</version>
 		<relativePath/>
 	</parent>
 
@@ -50,6 +50,7 @@
 		<mockwebserver.version>4.10.0</mockwebserver.version>
 		<java.version>17</java.version>
 		<sap.cloud.security.version>3.6.1</sap.cloud.security.version>
+		<spring.boot.version>3.5.3</spring.boot.version>
 	</properties>
 
 	<dependencyManagement>
