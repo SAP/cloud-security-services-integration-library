@@ -15,30 +15,6 @@
 	<artifactId>spring-xsuaa</artifactId>
 	<name>spring-xsuaa</name>
 	<packaging>jar</packaging>
-	<url>https://github.com/SAP/cloud-security-services-integration-library/tree/main/java-security-test</url>
-	<description>Test utilities for the SAP Cloud Security Client Java library</description>
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-		</license>
-	</licenses>
-
-	<developers>
-		<developer>
-			<name>Identity Service Development</name>
-			<email>xsuaa-development@sap.com</email>
-			<organization>SAP SE</organization>
-			<organizationUrl>https://www.sap.com</organizationUrl>
-		</developer>
-	</developers>
-
-	<scm>
-		<connection>scm:git:git://github.com/SAP/cloud-security-xsuaa-integration.git</connection>
-		<developerConnection>scm:git:ssh//github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
-		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
-	</scm>
-
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<description>Java Spring XSUAA library</description>
 
@@ -69,7 +45,6 @@
 		<developerConnection>scm:git:ssh//github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
 		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	</scm>
-
 
 	<dependencies>
 		<dependency>
