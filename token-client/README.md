@@ -388,7 +388,7 @@ You need to tell the Spring Boot application to use the `SpringTokenClientConfig
 annotation to your main class:
 
 ```java
-@ConfigurationPropertiesScan(SpringTokenClientConfiguration.class)
+@EnableConfigurationProperties(SpringTokenClientConfiguration.class)
 ```
 
 ## Troubleshooting
