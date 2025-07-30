@@ -358,7 +358,7 @@ config.setRetryDelayTime(<delay time in ms>);
 
 For Spring Boot applications you can set the properties in the `application.properties` or `application.yml` file.
 They will be automatically injected into
-the [SpringTokenClientConfiguration](./src/main/java/com/sap/cloud/security/client/SpringTokenClientConfiguration.java)
+the [SpringTokenClientConfiguration](../spring-security/src/main/java/com/sap/cloud/security/spring/config/SpringTokenClientConfiguration.java)
 class which calls the setters of the
 DefaultTokenClientConfiguration class.
 The properties are prefixed with `token.client.retry` and can be set as follows:
