@@ -60,7 +60,7 @@
 		<apache.httpclient5.version>5.5</apache.httpclient5.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.2.0</caffeine.version>
-		<commons.io.version>2.19.0</commons.io.version>
+		<commons.io.version>2.20.0</commons.io.version>
 		<jakarta.servlet.api.version>6.1.0</jakarta.servlet.api.version>
 		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>5.12.2</junit-jupiter.version>
