@@ -358,17 +358,17 @@ config.setRetryDelayTime(<delay time in ms>);
 
 For Spring Boot applications you can set the properties in the `application.properties` or `application.yml` file.
 They will be automatically injected into
-the [SpringTokenClientConfiguration](./src/main/java/com/sap/cloud/security/client/SpringTokenClientConfiguration.java)
+the [SpringTokenClientConfiguration](../spring-security/src/main/java/com/sap/cloud/security/spring/config/SpringTokenClientConfiguration.java)
 class which calls the setters of the
 DefaultTokenClientConfiguration class.
 The properties are prefixed with `token.client.retry` and can be set as follows:
 
 `application.properties`:
 ```properties
-token.client.retry.enabled=true # enables/disables the feature overall, default FALSE, BOOLEAN
-token.client.retry.maxAttempts=5 # max retry attempts to try, default 3, INTEGER
-token.client.retry.delayTime=2000 # time in ms the system should wait until it tries again, default 1000ms, LONG
-token.client.retry.statusCodes=500,502,503 # http status codes for which a retry should be performed, default 408,429,500,502,503,504, Set<INTEGER>
+token.client.retry.retryEnabled=true # enables/disables the feature overall, default FALSE, BOOLEAN
+token.client.retry.maxRetryAttempts=5 # max retry attempts to try, default 3, INTEGER
+token.client.retry.retryDelayTime=2000 # time in ms the system should wait until it tries again, default 1000ms, LONG
+token.client.retry.retryStatusCodes=500,502,503 # http status codes for which a retry should be performed, default 408,429,500,502,503,504, Set<INTEGER>
 ```
 
 `application.yml`:
@@ -388,7 +388,7 @@ You need to tell the Spring Boot application to use the `SpringTokenClientConfig
 annotation to your main class:
 
 ```java
-œConfigurationPropertiesScan(SpringTokenClientConfiguration .class)
+@EnableConfigurationProperties(SpringTokenClientConfiguration.class)
 ```
 
 ## Troubleshooting

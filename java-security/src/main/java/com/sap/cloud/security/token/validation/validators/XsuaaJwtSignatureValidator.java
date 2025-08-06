@@ -59,8 +59,10 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
 			key = fetchPublicKey(token, algorithm);
 		} catch (OAuth2ServiceException | InvalidKeySpecException | NoSuchAlgorithmException
 				| IllegalArgumentException e) {
-			if (!configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
+			if (!configuration.isLegacyMode()) {
 				LOGGER.error("Error fetching public key from XSUAA service: {}", e.getMessage());
+			}
+			if (!configuration.hasProperty(ServiceConstants.XSUAA.VERIFICATION_KEY)) {
 				throw e;
 			}
 
