@@ -46,21 +46,21 @@
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.source.plugin.version>3.3.1</maven.source.plugin.version>
 		<!-- make sure that spring core and spring boot versions are compatible-->
-		<spring.boot.version>3.5.3</spring.boot.version>
-		<spring.core.version>6.2.8</spring.core.version>
-		<spring.security.version>6.5.1</spring.security.version>
+		<spring.boot.version>3.5.4</spring.boot.version>
+		<spring.core.version>6.2.9</spring.core.version>
+		<spring.security.version>6.5.2</spring.security.version>
 		<spring.security.oauth2.version>6.5.2</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<org.eclipse.jetty.version>12.0.22</org.eclipse.jetty.version>
-		<reactor.version>3.7.7</reactor.version>
-		<log4j2.version>2.25.0</log4j2.version>
+		<reactor.version>3.7.8</reactor.version>
+		<log4j2.version>2.25.1</log4j2.version>
 		<slf4j.api.version>2.0.17</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20250517</org.json.version>
 		<sap.cloud.env.servicebinding.version>0.21.0</sap.cloud.env.servicebinding.version>
 		<apache.httpclient5.version>5.5</apache.httpclient5.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.2.0</caffeine.version>
-		<commons.io.version>2.19.0</commons.io.version>
+		<commons.io.version>2.20.0</commons.io.version>
 		<jakarta.servlet.api.version>6.1.0</jakarta.servlet.api.version>
 		<junit.version>4.13.2</junit.version>
 		<junit-jupiter.version>5.12.2</junit-jupiter.version>
