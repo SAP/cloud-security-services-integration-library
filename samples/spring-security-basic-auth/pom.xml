@@ -26,9 +26,8 @@
 
 	<licenses>
 		<license>
-			<name>SAP DEVELOPER LICENSE AGREEMENT</name>
-			<url>https://tools.hana.ondemand.com/developer-license-3_2.txt</url>
-			<distribution>repo</distribution>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
 
