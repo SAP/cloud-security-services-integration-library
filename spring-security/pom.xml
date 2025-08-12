@@ -9,14 +9,14 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.6.2</version>
+		<version>3.6.3</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
 	<artifactId>spring-security</artifactId>
 	<name>spring-security</name>
 	<packaging>jar</packaging>
-	<version>3.6.2</version>
+	<version>3.6.3</version>
 
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<description>Java Spring security library</description>

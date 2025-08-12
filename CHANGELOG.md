@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.3
+
+- Updated license informations in POM files back to original value
+
+### Dependency upgrades
+
+- Bump com.github.spotbugs:spotbugs-annotations from 4.9.3 to 4.9.4
+- Bump org.assertj:assertj-core from 3.27.3 to 3.27.4
+
 ## 3.6.2
 
 - Improve logging before token key retrieval fallback
