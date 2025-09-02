@@ -13,7 +13,7 @@
 	</parent>
 
 	<artifactId>spring-security-basic-auth</artifactId>
-	<version>3.6.2</version>
+	<version>3.6.3</version>
 	<name>spring-security-basic-auth</name>
 
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
@@ -26,9 +26,8 @@
 
 	<licenses>
 		<license>
-			<name>SAP DEVELOPER LICENSE AGREEMENT</name>
-			<url>https://tools.hana.ondemand.com/developer-license-3_2.txt</url>
-			<distribution>repo</distribution>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
 
@@ -51,7 +50,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.6.2</sap.cloud.security.version>
+		<sap.cloud.security.version>3.6.3</sap.cloud.security.version>
 		<spring.boot.version>3.5.3</spring.boot.version>
 	</properties>
 
@@ -109,7 +108,7 @@
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security-test</artifactId>
-			<version>3.6.2</version>
+			<version>3.6.3</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
