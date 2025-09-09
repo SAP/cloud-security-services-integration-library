@@ -46,6 +46,12 @@
 	</scm>
 
 	<dependencies>
+		<!--		TODO remove this mitigation of a vulnerability in v9.37.3 once spring-security-oauth2-jose v7.0.0 is out -->
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>nimbus-jose-jwt</artifactId>
+			<version>10.5</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
