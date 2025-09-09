@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.4
+
+### Dependency upgrades
+
+- Override nimbus dependency (#1845)
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.4.1 to 4.9.4.2 (#1844)
+- Bump io.projectreactor:reactor-test from 3.7.7 to 3.7.9 (#1843)
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.3.2 to 4.9.4.1 (#1842)
+- Bump spring.boot.version from 3.5.4 to 3.5.5 (#1840)
+- Bump spring.security.oauth2.version from 6.5.2 to 6.5.3 (#1839)
+- Bump spring.security.version from 6.5.2 to 6.5.3 (#1837)
+- Bump org.mockito:mockito-core from 5.18.0 to 5.19.0 (#1836)
+- Bump org.apache.maven.plugins:maven-javadoc-plugin from 3.11.2 to 3.11.3 (#1835)
+- Bump spring.core.version from 6.2.9 to 6.2.10 (#1834)
+- Bump reactor.version from 3.7.8 to 3.7.9 (#1832)
+
 ## 3.6.3
 
 - Updated license informations in POM files back to original value
