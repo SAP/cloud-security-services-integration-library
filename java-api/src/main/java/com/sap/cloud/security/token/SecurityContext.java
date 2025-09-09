@@ -184,13 +184,14 @@ public class SecurityContext {
     attachments.remove();
   }
 
-	/**
-	 * Clears the current token, certificate and Identity service broker plans from thread wide storage.
-	 */
-	public static void clear() {
-		clearCertificate();
-		clearToken();
-		clearServicePlans();
+  /**
+   * Clears the current token, certificate and Identity service broker plans from thread wide
+   * storage.
+   */
+  public static void clear() {
+    clearCertificate();
+    clearToken();
+    clearServicePlans();
     clearAttachments();
 	}
 
