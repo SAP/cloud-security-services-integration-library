@@ -9,14 +9,14 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.6.3</version>
+		<version>3.6.4</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
 	<artifactId>spring-security</artifactId>
 	<name>spring-security</name>
 	<packaging>jar</packaging>
-	<version>3.6.3</version>
+	<version>3.6.4</version>
 
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<description>Java Spring security library</description>
@@ -49,6 +49,12 @@
 	</scm>
 
 	<dependencies>
+<!--		TODO remove this mitigation of a vulnerability in v9.37.3 once spring-security-oauth2-jose v7.0.0 is out -->
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>nimbus-jose-jwt</artifactId>
+			<version>10.5</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-oauth2-jose</artifactId>
