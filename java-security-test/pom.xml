@@ -70,11 +70,6 @@
 			<version>${jakarta.servlet.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-server</artifactId>
-			<version>${org.eclipse.jetty.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.jetty.ee10</groupId>
 			<artifactId>jetty-ee10-servlet</artifactId>
 			<version>${org.eclipse.jetty.version}</version>
