@@ -16,7 +16,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-xsuaa-usage</artifactId>
-	<version>3.6.4</version>
+	<version>3.6.5</version>
 	<name>spring-security-xsuaa-usage</name>
 
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
@@ -58,7 +58,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.6.4</sap.cloud.security.version>
+		<sap.cloud.security.version>3.6.5</sap.cloud.security.version>
 		<http.client5>5.2.1</http.client5>
 		<spring.boot.version>3.5.3</spring.boot.version>
 	</properties>
