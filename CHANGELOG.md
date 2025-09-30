@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 
 ### Dependency upgrades
 
+- Bump org.sonatype.central:central-publishing-maven-plugin (#1867)
+- Bump io.projectreactor:reactor-test from 3.7.9 to 3.7.11 (#1868)
 - Remove version pinning for nimbus-jose-jwt
 - Update jetty dependency to 12.0.27 (#1865)
 - Bump reactor.version from 3.7.9 to 3.7.11 (#1849)
