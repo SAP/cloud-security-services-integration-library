@@ -14,38 +14,39 @@ import com.sap.cloud.security.x509.X509Certificate;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-
 import javax.annotation.Nullable;
 
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 
-	@Override
-	public Token extractFromHeader(String authorizationHeader) {
-		return new SapIdToken(authorizationHeader);
-	}
+  @Override
+  public Token extractFromHeader(final String authorizationHeader) {
+    return new SapIdToken(authorizationHeader);
+  }
 
-	@Override
-	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
-		HttpServletRequest httpRequest = (HttpServletRequest) request;
-		SecurityContext.setClientCertificate(X509Certificate
-				.newCertificate(getClientCertificate(httpRequest)));
-		return super.validateRequest(request, response);
-	}
+  @Override
+  public TokenAuthenticationResult validateRequest(
+      final ServletRequest request, final ServletResponse response) {
+    final HttpServletRequest httpRequest = (HttpServletRequest) request;
+    SecurityContext.setClientCertificate(
+        X509Certificate.newCertificate(getClientCertificate(httpRequest)));
+    return super.validateRequest(request, response);
+  }
 
-	@Override
-	protected OAuth2ServiceConfiguration getServiceConfiguration() {
-		OAuth2ServiceConfiguration config = serviceConfiguration != null ? serviceConfiguration
-				: Environments.getCurrent().getIasConfiguration();
-		if (config == null) {
-			throw new IllegalStateException("There must be a service configuration.");
-		}
-		return config;
-	}
+  @Override
+  protected OAuth2ServiceConfiguration getServiceConfiguration() {
+    final OAuth2ServiceConfiguration config =
+        serviceConfiguration != null
+            ? serviceConfiguration
+            : Environments.getCurrent().getIasConfiguration();
+    if (config == null) {
+      throw new IllegalStateException("There must be a service configuration.");
+    }
+    return config;
+  }
 
-	@Nullable
-	@Override
-	protected OAuth2ServiceConfiguration getOtherServiceConfiguration() {
-		return null;
-	}
-
+  @Nullable
+  @Override
+  protected OAuth2ServiceConfiguration getOtherServiceConfiguration() {
+    return null;
+  }
 }
