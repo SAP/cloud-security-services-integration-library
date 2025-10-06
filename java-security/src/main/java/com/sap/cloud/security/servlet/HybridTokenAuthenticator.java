@@ -1,85 +1,77 @@
-package com.sap.cloud.security.token.extension;
+package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.context.ContextExtension;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.net.URI;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Exchanges IAS weak -> IAS strong, and optionally IAS strong -> XSUAA. Stores results as context
- * attachments and (optionally) switches primary token.
- */
-public class IasToXsuaaExtension implements ContextExtension {
+public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
 
-  public enum Mode {
-    NONE,
-    TO_IAS, // weak IAS -> strong IAS
-    TO_XSUAA // weak IAS -> strong IAS -> XSUAA
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(HybridTokenAuthenticator.class);
 
   private final OAuth2ServiceConfiguration iasConfig;
   private final OAuth2ServiceConfiguration xsuaaConfig;
-  private final Mode mode;
   private final OAuth2TokenService tokenService;
 
-  /**
-   * Creates a new IAS to XSUAA extension.
-   *
-   * @param iasConfig the IAS service configuration (client id/secret or certificate)
-   * @param mode the mode of operation, NONE, TO_IAS or TO_XSUAA
-   * @param httpClient the HTTP client to use
-   * @param xsuaaConfig the XSUAA service configuration (client id/secret or certificate), required
-   *     if mode is TO_XSUAA
-   */
-  public IasToXsuaaExtension(
+  IasTokenAuthenticator iasTokenAuthenticator = new IasTokenAuthenticator();
+  XsuaaTokenAuthenticator xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
+
+  public HybridTokenAuthenticator(
       final OAuth2ServiceConfiguration iasConfig,
-      final Mode mode,
       final CloseableHttpClient httpClient,
       final OAuth2ServiceConfiguration xsuaaConfig) {
     this.iasConfig = Objects.requireNonNull(iasConfig, "iasConfig must not be null");
-    this.mode = Objects.requireNonNull(mode, "mode must not be null");
     this.tokenService = new DefaultOAuth2TokenService(httpClient);
     this.xsuaaConfig = xsuaaConfig;
   }
 
-  /** Creates a new IAS to XSUAA extension. */
   @Override
-  public void extend() throws Exception {
-    final Token incoming = SecurityContext.getToken();
-    if (mode == Mode.NONE) {
-      return;
-    }
-
-    final boolean isWeak = isWeakToken(incoming);
-    Token strongIas = incoming;
-
-    if (isWeak) {
-      strongIas = exchangeToStrongIas(incoming);
-      SecurityContext.attach(SecurityContext.ATTACH_ORIGINAL, incoming);
-      SecurityContext.attach(SecurityContext.ATTACH_IAS_STRONG, strongIas);
-    }
-
-    if (mode == Mode.TO_IAS) {
-      SecurityContext.setToken(strongIas);
-      return;
-    }
-
-    if (mode == Mode.TO_XSUAA) {
-      final Token xsuaa = exchangeToXsuaa(strongIas);
-      SecurityContext.attach(SecurityContext.ATTACH_XSUAA, xsuaa);
-      SecurityContext.setToken(xsuaa);
+  public TokenAuthenticationResult validateRequest(
+      final ServletRequest request, final ServletResponse response) {
+    final TokenAuthenticationResult iasAthenticationResult =
+        iasTokenAuthenticator.validateRequest(request, response);
+    if (iasAthenticationResult.isAuthenticated()) {
+      try {
+        final Token incoming = SecurityContext.getToken();
+        final boolean isWeak = isWeakToken(incoming);
+        Token strongIas = incoming;
+        if (isWeak) {
+          LOG.info("Detected weak IAS token. Exchanging to strong IAS …");
+          strongIas = exchangeToStrongIas(incoming);
+          SecurityContext.setToken(strongIas);
+          LOG.debug("Weak IAS → Strong IAS exchange successful.");
+        }
+        final Token xsuaa = exchangeToXsuaa(strongIas);
+        final TokenAuthenticationResult xsuaaResult = xsuaaTokenAuthenticator.authenticated(xsuaa);
+        SecurityContext.setToken(xsuaa);
+        return xsuaaResult;
+      } catch (final OAuth2ServiceException e) {
+        return iasAthenticationResult;
+      }
+    } else {
+      return iasAthenticationResult;
     }
   }
 
@@ -90,7 +82,7 @@ public class IasToXsuaaExtension implements ContextExtension {
    * @return the exchanged strong IAS token
    * @throws Exception in case of errors
    */
-  private Token exchangeToStrongIas(final Token weakIas) throws Exception {
+  private Token exchangeToStrongIas(final Token weakIas) throws OAuth2ServiceException {
     final String issuer = weakIas.getIssuer();
     final String certPem = iasConfig.getProperty("certificate");
     final String keyPem = iasConfig.getProperty("key");
@@ -122,7 +114,7 @@ public class IasToXsuaaExtension implements ContextExtension {
    * @return the exchanged XSUAA token
    * @throws Exception in case of errors
    */
-  private Token exchangeToXsuaa(final Token iasStrong) throws Exception {
+  private Token exchangeToXsuaa(final Token iasStrong) throws OAuth2ServiceException {
     final String zid =
         Optional.ofNullable(iasStrong.getClaimAsString("app_tid"))
             .orElseThrow(() -> new IllegalStateException("IAS token missing 'app_tid'"));
@@ -187,5 +179,28 @@ public class IasToXsuaaExtension implements ContextExtension {
     } catch (final Exception ignore) {
       return false;
     }
+  }
+
+  @Override
+  protected OAuth2ServiceConfiguration getServiceConfiguration() {
+    final OAuth2ServiceConfiguration config =
+        serviceConfiguration != null
+            ? serviceConfiguration
+            : Environments.getCurrent().getXsuaaConfiguration();
+    if (config == null) {
+      throw new IllegalStateException("There must be a service configuration.");
+    }
+    return config;
+  }
+
+  @Nullable
+  @Override
+  protected OAuth2ServiceConfiguration getOtherServiceConfiguration() {
+    return null;
+  }
+
+  @Override
+  protected Token extractFromHeader(final String authorizationHeader) {
+    return new SapIdToken(authorizationHeader);
   }
 }

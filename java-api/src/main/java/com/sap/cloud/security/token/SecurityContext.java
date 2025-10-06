@@ -8,7 +8,6 @@ package com.sap.cloud.security.token;
 import com.sap.cloud.security.x509.Certificate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -26,12 +25,6 @@ public class SecurityContext {
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
 	private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<List<String>>();
 	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
-  private static final ThreadLocal<Map<String, Object>> attachments =
-      ThreadLocal.withInitial(java.util.HashMap::new);
-
-  public static final String ATTACH_ORIGINAL = "original";
-  public static final String ATTACH_IAS_STRONG = "iasStrong";
-  public static final String ATTACH_XSUAA = "xsuaa";
 
 	/**
 	 * Returns the certificate that is saved in thread wide storage.
@@ -155,34 +148,7 @@ public class SecurityContext {
 		}
 	}
 
-  /**
-   * Attaches an arbitrary object to the current thread context. Can be used by extensions to store
-   * additional information.
-   *
-   * @param key key to identify the attachment
-   * @param value object to attach
-   */
-  public static void attach(final String key, final Object value) {
-    if (key == null) {
-      throw new IllegalArgumentException("key must not be null");
-    }
-    attachments.get().put(key, value);
-  }
 
-  /**
-   * Retrieves an attachment from the current thread context.
-   *
-   * @param key key to identify the attachment
-   * @return the attachment or null if no attachment is found for the given key
-   */
-  public static Object getAttachment(final String key) {
-    return attachments.get().get(key);
-  }
-
-  /** Clears all attachments from the current thread context. */
-  public static void clearAttachments() {
-    attachments.remove();
-  }
 
   /**
    * Clears the current token, certificate and Identity service broker plans from thread wide
@@ -192,7 +158,6 @@ public class SecurityContext {
     clearCertificate();
     clearToken();
     clearServicePlans();
-    clearAttachments();
 	}
 
 }
