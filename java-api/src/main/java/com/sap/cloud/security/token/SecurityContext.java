@@ -6,13 +6,12 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.x509.Certificate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 /**
  * Thread wide {@link Token} storage.
@@ -24,6 +23,7 @@ public class SecurityContext {
 	}
 
 	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
+  private static SecurityContextExtension extension;
 	private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<List<String>>();
 	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
 
@@ -93,10 +93,66 @@ public class SecurityContext {
 		return tokenStorage.get() instanceof AccessToken ? (AccessToken) tokenStorage.get() : null;
 	}
 
-	/**
-	 * Clears the current Token from thread wide storage.
-	 */
-	public static void clearToken() {
+  /**
+   * Registers a custom {@link SecurityContextExtension} to enhance the {@link SecurityContext} with
+   * additional functionality.
+   *
+   * <p>The provided extension will be used by {@link #getIdToken()} and other context-aware methods
+   * that rely on extended token handling logic.
+   *
+   * <p>Typical usage:
+   *
+   * <pre>
+   * IdTokenExtension idTokenExt = new IdTokenExtension(tokenService, iasConfig);
+   * SecurityContext.withContextExtension(idTokenExt);
+   * </pre>
+   *
+   * @param ext the {@link SecurityContextExtension} implementation to register, may be {@code null}
+   */
+  public static void withContextExtension(SecurityContextExtension ext) {
+    extension = ext;
+  }
+
+  /**
+   * Returns the currently registered {@link SecurityContextExtension}, if any.
+   *
+   * <p>This allows consumers to inspect or reuse the configured extension instance. If no extension
+   * has been set using {@link #withContextExtension(SecurityContextExtension)}, this method returns
+   * {@code null}.
+   *
+   * @return the registered {@link SecurityContextExtension}, or {@code null} if none is set
+   */
+  @Nullable
+  public static SecurityContextExtension getContextExtension() {
+    return extension;
+  }
+
+  /**
+   * Resolves an OpenID Connect ID token for the current user, if a {@link SecurityContextExtension}
+   * has been registered.
+   *
+   * <p>If an extension is present, {@link SecurityContextExtension#resolveIdToken()} will be
+   * invoked. If no extension is registered, {@code null} is returned.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>
+   * SecurityContext.withContextExtension(new IdTokenExtension(tokenService, iasConfig));
+   * String idToken = SecurityContext.getIdToken();
+   * </pre>
+   *
+   * @return the raw JWT ID token string, or {@code null} if no extension is available
+   */
+  @Nullable
+  public static String getIdToken() {
+    if (extension != null) {
+      return extension.resolveIdToken();
+    }
+    return null;
+  }
+
+  /** Clears the current Token from thread wide storage. */
+  public static void clearToken() {
 		final Token token = tokenStorage.get();
 		if (token != null) {
 			LOGGER.debug("Token of service {} removed from SecurityContext (thread-locally).", token.getService());
