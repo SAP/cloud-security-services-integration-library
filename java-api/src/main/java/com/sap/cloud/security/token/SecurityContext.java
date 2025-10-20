@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -137,8 +138,9 @@ public class SecurityContext {
   public static String getIdToken() {
     final Token idToken = idTokenStorage.get();
     if (idToken != null) {
-      if (idToken.getExpiration().plus(5, ChronoUnit.MINUTES).isAfter(Instant.now())) {
-        return idTokenStorage.get().getTokenValue();
+      if (Objects.nonNull(idToken.getExpiration())
+          && idToken.getExpiration().plus(5, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+        return idToken.getTokenValue();
       } else {
         idTokenStorage.remove();
       }
