@@ -19,13 +19,14 @@ import org.slf4j.LoggerFactory;
 public class SecurityContext {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityContext.class);
 
-	private SecurityContext() {
-	}
+  private SecurityContext() {}
 
-	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
-  private static SecurityContextExtension extension;
-	private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<List<String>>();
-	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
+  private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
+  private static final ThreadLocal<Token> idTokenStorage = new ThreadLocal<>();
+  private static final ThreadLocal<List<String>> servicePlanStorage =
+      new ThreadLocal<List<String>>();
+  private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
+  private static IdTokenExtension idTokenExtension;
 
 	/**
 	 * Returns the certificate that is saved in thread wide storage.
@@ -60,17 +61,18 @@ public class SecurityContext {
 		}
 	}
 
-	/**
-	 * Saves the validated (!) token thread wide.
-	 *
-	 * @param token
-	 * 		token to be saved.
-	 */
-	public static void setToken(Token token) {
-		LOGGER.debug("Sets token of service {} to SecurityContext (thread-locally).",
-				token != null ? token.getService() : "null");
-		tokenStorage.set(token);
-	}
+  /**
+   * Saves the validated (!) token thread wide.
+   *
+   * @param token token to be saved.
+   */
+  public static void setToken(Token token) {
+    LOGGER.debug(
+        "Sets token of service {} to SecurityContext (thread-locally).",
+        token != null ? token.getService() : "null");
+    tokenStorage.set(token);
+    idTokenStorage.remove();
+  }
 
 	/**
 	 * Returns the token that is saved in thread wide storage.
@@ -94,7 +96,7 @@ public class SecurityContext {
 	}
 
   /**
-   * Registers a custom {@link SecurityContextExtension} to enhance the {@link SecurityContext} with
+   * Registers a custom {@link IdTokenExtension} to enhance the {@link SecurityContext} with
    * additional functionality.
    *
    * <p>The provided extension will be used by {@link #getIdToken()} and other context-aware methods
@@ -104,40 +106,26 @@ public class SecurityContext {
    *
    * <pre>
    * IdTokenExtension idTokenExt = new IdTokenExtension(tokenService, iasConfig);
-   * SecurityContext.withContextExtension(idTokenExt);
+   * SecurityContext.registerIdTokenExtension(idTokenExt);
    * </pre>
    *
-   * @param ext the {@link SecurityContextExtension} implementation to register, may be {@code null}
+   * @param ext the {@link IdTokenExtension} implementation to register, may be {@code null}
    */
-  public static void withContextExtension(SecurityContextExtension ext) {
-    extension = ext;
+  public static void registerIdTokenExtension(IdTokenExtension ext) {
+    idTokenExtension = ext;
   }
 
   /**
-   * Returns the currently registered {@link SecurityContextExtension}, if any.
+   * Resolves an OpenID Connect ID token for the current user, if a {@link IdTokenExtension} has
+   * been registered.
    *
-   * <p>This allows consumers to inspect or reuse the configured extension instance. If no extension
-   * has been set using {@link #withContextExtension(SecurityContextExtension)}, this method returns
-   * {@code null}.
-   *
-   * @return the registered {@link SecurityContextExtension}, or {@code null} if none is set
-   */
-  @Nullable
-  public static SecurityContextExtension getContextExtension() {
-    return extension;
-  }
-
-  /**
-   * Resolves an OpenID Connect ID token for the current user, if a {@link SecurityContextExtension}
-   * has been registered.
-   *
-   * <p>If an extension is present, {@link SecurityContextExtension#resolveIdToken()} will be
-   * invoked. If no extension is registered, {@code null} is returned.
+   * <p>If an extension is present, {@link IdTokenExtension#resolveIdToken()} will be invoked. If no
+   * extension is registered, {@code null} is returned.
    *
    * <p><b>Example:</b>
    *
    * <pre>
-   * SecurityContext.withContextExtension(new IdTokenExtension(tokenService, iasConfig));
+   * SecurityContext.registerIdTokenExtension(new IdTokenExtension(tokenService, iasConfig));
    * String idToken = SecurityContext.getIdToken();
    * </pre>
    *
@@ -145,20 +133,24 @@ public class SecurityContext {
    */
   @Nullable
   public static String getIdToken() {
-    if (extension != null) {
-      return extension.resolveIdToken();
+    if (idTokenStorage.get() != null) {
+      return idTokenStorage.get().getTokenValue();
+    } else if (idTokenExtension != null) {
+      return idTokenExtension.resolveIdToken();
     }
     return null;
   }
 
   /** Clears the current Token from thread wide storage. */
   public static void clearToken() {
-		final Token token = tokenStorage.get();
-		if (token != null) {
-			LOGGER.debug("Token of service {} removed from SecurityContext (thread-locally).", token.getService());
-			tokenStorage.remove();
-		}
-	}
+    final Token token = tokenStorage.get();
+    if (token != null) {
+      LOGGER.debug(
+          "Token of service {} removed from SecurityContext (thread-locally).", token.getService());
+      tokenStorage.remove();
+      idTokenStorage.remove();
+    }
+  }
 
 	/**
 	 * Returns the Identity service broker plans that are stored in the thread local storage

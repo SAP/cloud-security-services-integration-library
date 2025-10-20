@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * {@code IdTokenExtension} provides support for resolving an ID token for the current user based on
- * the token available in the {@link SecurityContext}.
+ * {@code DefaultIdTokenExtension} provides support for resolving an ID token for the current user
+ * based on the token available in the {@link SecurityContext}.
  *
  * <p>This implementation converts an access token into an ID token by invoking the IAS token
  * endpoint using the JWT bearer token grant flow.
@@ -35,21 +35,21 @@ import org.slf4j.LoggerFactory;
  * <p>The resolved ID token can be used for authentication or downstream service calls that
  * explicitly require an ID token instead of an access token.
  */
-public class IdTokenExtension implements SecurityContextExtension {
+public class DefaultIdTokenExtension implements IdTokenExtension {
 
-  private static final Logger LOG = LoggerFactory.getLogger(IdTokenExtension.class);
-
+  private static final Logger LOG = LoggerFactory.getLogger(DefaultIdTokenExtension.class);
   private final OAuth2TokenService tokenService;
   private final OAuth2ServiceConfiguration iasConfig;
 
   /**
-   * Creates a new {@code IdTokenExtension} for exchanging access tokens into ID tokens.
+   * Creates a new {@code DefaultIdTokenExtension} for exchanging access tokens into ID tokens.
    *
    * @param tokenService the OAuth 2.0 token service used to perform the exchange
    * @param iasConfig the IAS service configuration containing client credentials
    * @throws NullPointerException if any of the parameters is {@code null}
    */
-  public IdTokenExtension(OAuth2TokenService tokenService, OAuth2ServiceConfiguration iasConfig) {
+  public DefaultIdTokenExtension(
+      OAuth2TokenService tokenService, OAuth2ServiceConfiguration iasConfig) {
     this.tokenService = Objects.requireNonNull(tokenService);
     this.iasConfig = Objects.requireNonNull(iasConfig);
   }
@@ -74,24 +74,24 @@ public class IdTokenExtension implements SecurityContextExtension {
     final Token token = SecurityContext.getToken();
 
     if (token == null) {
-      LOG.warn("No token found. Skipping ID-token resolution.");
+      LOG.warn("No token found. Skipping ID-Token resolution.");
       throw new IllegalArgumentException("Cannot resolve ID token with no access token present");
     }
 
     if (isTechnicalUser(token)) {
-      LOG.debug("Resolving idtoken using technical user");
+      LOG.debug("Resolving ID-Token using technical user");
       throw new IllegalArgumentException("Cannot get ID token for technical user.");
     }
 
     if (!isAccessToken(token)) {
-      LOG.debug("Resolving ID token using ID token");
+      LOG.debug("Resolving ID-Token using ID token");
       return token.getTokenValue();
     }
 
     try {
       return exchangeToStrongIas(token).getAccessToken();
     } catch (OAuth2ServiceException e) {
-      LOG.warn("Failed to extract ID token from OAuth2Service", e);
+      LOG.warn("Failed to extract ID-Token from OAuth2Service", e);
       return null;
     }
   }
