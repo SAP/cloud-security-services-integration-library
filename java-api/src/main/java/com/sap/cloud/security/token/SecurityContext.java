@@ -136,7 +136,7 @@ public class SecurityContext {
    */
   @Nullable
   public static String getIdToken() {
-    final Token idToken = idTokenStorage.get();
+    Token idToken = idTokenStorage.get();
     if (idToken != null) {
       if (Objects.nonNull(idToken.getExpiration())
           && idToken.getExpiration().plus(5, ChronoUnit.MINUTES).isAfter(Instant.now())) {
@@ -145,7 +145,9 @@ public class SecurityContext {
         idTokenStorage.remove();
       }
     } else if (idTokenExtension != null) {
-      return idTokenExtension.resolveIdToken();
+      idToken = Token.create(idTokenExtension.resolveIdToken());
+      idTokenStorage.set(idToken);
+      return idToken.getTokenValue();
     }
     return null;
   }
