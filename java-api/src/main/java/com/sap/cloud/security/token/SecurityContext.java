@@ -6,6 +6,8 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.x509.Certificate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -133,8 +135,13 @@ public class SecurityContext {
    */
   @Nullable
   public static String getIdToken() {
-    if (idTokenStorage.get() != null) {
-      return idTokenStorage.get().getTokenValue();
+    final Token idToken = idTokenStorage.get();
+    if (idToken != null) {
+      if (idToken.getExpiration().plus(5, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+        return idTokenStorage.get().getTokenValue();
+      } else {
+        idTokenStorage.remove();
+      }
     } else if (idTokenExtension != null) {
       return idTokenExtension.resolveIdToken();
     }
