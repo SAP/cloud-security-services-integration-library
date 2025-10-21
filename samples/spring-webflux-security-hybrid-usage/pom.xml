@@ -14,7 +14,7 @@
 
     <groupId>com.sap.cloud.security.samples</groupId>
     <artifactId>spring-webflux-security-hybrid-usage</artifactId>
-    <version>3.6.4</version>
+    <version>3.6.5</version>
     <name>spring-webflux-security-hybrid-usage</name>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
@@ -49,7 +49,7 @@
     </scm>
     <properties>
         <java.version>17</java.version>
-        <sap.cloud.security.version>3.6.4</sap.cloud.security.version>
+        <sap.cloud.security.version>3.6.5</sap.cloud.security.version>
         <spring.boot.version>3.5.3</spring.boot.version>
         <junit.version>4.13.2</junit.version>
     </properties>

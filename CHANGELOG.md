@@ -1,6 +1,29 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.5
+
+### Dependency upgrades
+
+- Bump org.sonatype.central:central-publishing-maven-plugin (#1867)
+- Bump io.projectreactor:reactor-test from 3.7.9 to 3.7.11 (#1868)
+- Remove version pinning for nimbus-jose-jwt
+- Update jetty dependency to 12.0.27 (#1865)
+- Bump reactor.version from 3.7.9 to 3.7.11 (#1849)
+- Bump org.mockito:mockito-core from 5.19.0 to 5.20.0 (#1860)
+- Bump log4j2.version from 2.25.1 to 2.25.2 (#1861)
+- Bump org.apache.maven.plugins:maven-javadoc-plugin from 3.11.3 to 3.12.0 (#1862)
+- Bump org.assertj:assertj-core from 3.27.4 to 3.27.6 (#1864)
+- Bump spring.boot.version from 3.5.5 to 3.5.6 (#1863)
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.5 to 5.5.1 (#1859)
+- Bump org.apache.maven.plugins:maven-surefire-plugin from 3.5.3 to 3.5.4 (#1852)
+- Bump io.github.hakky54:logcaptor from 2.12.0 to 2.12.1 (#1853)
+- Bump spring.core.version from 6.2.10 to 6.2.11 (#1850)
+- Bump spring.security.version from 6.5.3 to 6.5.5 (#1855)
+- Bump spring.security.oauth2.version from 6.5.3 to 6.5.5 (#1856)
+- Bump com.github.spotbugs:spotbugs-annotations from 4.9.4 to 4.9.6 (#1857)
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.4.2 to 4.9.6.0 (#1858)
+
 ## 3.6.4
 
 ### Dependency upgrades
