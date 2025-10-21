@@ -2,7 +2,6 @@ package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
-import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -70,28 +69,26 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
    * @throws IllegalArgumentException if the token belongs to a technical user
    */
   @Override
-  public String resolveIdToken() {
+  public Token resolveIdToken() {
     final Token token = SecurityContext.getToken();
 
     if (token == null) {
-      LOG.warn("No token found. Skipping ID-Token resolution.");
       throw new IllegalArgumentException("Cannot resolve ID token with no access token present");
     }
 
     if (isTechnicalUser(token)) {
-      LOG.debug("Resolving ID-Token using technical user");
       throw new IllegalArgumentException("Cannot get ID token for technical user.");
     }
 
     if (!isAccessToken(token)) {
-      LOG.debug("Resolving ID-Token using ID token");
-      return token.getTokenValue();
+      LOG.debug("Incoming Token is already an ID Token. Returning incoming Token");
+      return token;
     }
 
     try {
-      return exchangeToStrongIas(token).getAccessToken();
+      return Token.create(exchangeAccessToIDToken(token).getAccessToken());
     } catch (OAuth2ServiceException e) {
-      LOG.warn("Failed to extract ID-Token from OAuth2Service", e);
+      LOG.warn("Failed to retrieve ID-Token", e);
       return null;
     }
   }
@@ -120,9 +117,6 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
    * @return {@code true} if the token belongs to a technical user
    */
   private boolean isTechnicalUser(Token token) {
-    if (token == null) {
-      return false;
-    }
     String subject = token.getClaimAsString("sub");
     String azp = token.getClientId();
     if (subject == null || azp == null || subject.isBlank() || azp.isBlank()) {
@@ -132,58 +126,44 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
   }
 
   /**
-   * Exchanges a weak IAS access token for a strong IAS ID token using the JWT bearer token grant
-   * flow.
+   * Exchanges a IAS access token for a strong IAS ID token using the JWT bearer token grant flow.
    *
-   * @param weak the weak IAS token to exchange
+   * @param accessToken the access IAS token to exchange
    * @return the {@link OAuth2TokenResponse} containing the new ID token
    * @throws OAuth2ServiceException if the exchange fails
    */
-  private OAuth2TokenResponse exchangeToStrongIas(Token weak) throws OAuth2ServiceException {
-    final String issuer = weak.getIssuer();
+  private OAuth2TokenResponse exchangeAccessToIDToken(Token accessToken)
+      throws OAuth2ServiceException {
+
     final String certPem = iasConfig.getProperty("certificate");
     final String keyPem = iasConfig.getProperty("key");
-
-    final ClientIdentity identity =
-        (certPem != null && keyPem != null)
-            ? new ClientCertificate(iasConfig.getClientId(), certPem, keyPem)
-            : new ClientCredentials(iasConfig.getClientId(), iasConfig.getClientSecret());
-
-    final URI tokenEndpoint = deriveIasTokenEndpoint(issuer);
+    final String clientId = iasConfig.getProperty("clientId");
 
     final Map<String, String> params = new HashMap<>();
     params.put("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
-    params.put("assertion", weak.getTokenValue());
+    params.put("assertion", accessToken.getTokenValue());
     params.put("token_format", "jwt");
     params.put("refresh_expiry", "0");
-    params.put("client_id", iasConfig.getClientId());
+    params.put("client_id", clientId);
 
-    return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-        tokenEndpoint, identity, weak.getTokenValue(), null, params, false);
-  }
-
-  /**
-   * Derives the IAS token endpoint from the issuer URL.
-   *
-   * <p>This method normalizes the issuer URL to construct the correct token endpoint:
-   *
-   * <ul>
-   *   <li>{@code https://<domain>/oauth2/token → https://<domain>/oauth2/token}
-   *   <li>{@code https://<domain>/oauth2 → https://<domain>/oauth2/token}
-   *   <li>{@code https://<domain> → https://<domain>/oauth2/token}
-   * </ul>
-   *
-   * @param issuer the issuer URL from the IAS token
-   * @return the resolved IAS token endpoint URI
-   */
-  private static URI deriveIasTokenEndpoint(String issuer) {
-    String base = issuer.endsWith("/") ? issuer.substring(0, issuer.length() - 1) : issuer;
-    if (base.endsWith("/oauth2/token")) {
-      return URI.create(base);
+    if (certPem != null && keyPem != null) {
+      final URI certUrlEndpoint = URI.create(iasConfig.getCertUrl().toString() + "/oauth2/token");
+      return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+          certUrlEndpoint,
+          new ClientCertificate(clientId, certPem, keyPem),
+          accessToken.getTokenValue(),
+          null,
+          params,
+          false);
+    } else {
+      final URI tokenUrlEndpoint = URI.create(iasConfig.getUrl().toString() + "/oauth2/token");
+      return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+          tokenUrlEndpoint,
+          new ClientCredentials(clientId, iasConfig.getClientSecret()),
+          accessToken.getTokenValue(),
+          null,
+          params,
+          false);
     }
-    if (base.endsWith("/oauth2")) {
-      return URI.create(base + "/token");
-    }
-    return URI.create(base + "/oauth2/token");
   }
 }

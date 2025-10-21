@@ -11,5 +11,5 @@ public interface IdTokenExtension {
    *
    * @return the ID token or null if not available.
    */
-  String resolveIdToken();
+  Token resolveIdToken();
 }

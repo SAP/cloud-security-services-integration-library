@@ -26,8 +26,7 @@ public class SecurityContext {
 
   private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
   private static final ThreadLocal<Token> idTokenStorage = new ThreadLocal<>();
-  private static final ThreadLocal<List<String>> servicePlanStorage =
-      new ThreadLocal<List<String>>();
+  private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<>();
   private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
   private static IdTokenExtension idTokenExtension;
 
@@ -119,8 +118,11 @@ public class SecurityContext {
   }
 
   /**
-   * Resolves an OpenID Connect ID token for the current user, if a {@link IdTokenExtension} has
-   * been registered.
+   * Resolves an OpenID Connect ID token for the current user.
+   *
+   * <p>Checks if a token is already present in the thread local storage and if it is still valid
+   * (not expired or about to expire within 5 minutes). If a valid token is found, it is returned.
+   * If no valid token is found, it checks if an IdTokenExtension is registered.
    *
    * <p>If an extension is present, {@link IdTokenExtension#resolveIdToken()} will be invoked. If no
    * extension is registered, {@code null} is returned.
@@ -132,22 +134,24 @@ public class SecurityContext {
    * String idToken = SecurityContext.getIdToken();
    * </pre>
    *
-   * @return the raw JWT ID token string, or {@code null} if no extension is available
+   * @return the ID token or {@code null} if no valid token is present and no extension is
+   *     registered.
    */
   @Nullable
-  public static String getIdToken() {
+  public static Token getIdToken() {
     Token idToken = idTokenStorage.get();
     if (idToken != null) {
       if (Objects.nonNull(idToken.getExpiration())
-          && idToken.getExpiration().plus(5, ChronoUnit.MINUTES).isAfter(Instant.now())) {
-        return idToken.getTokenValue();
+          && idToken.getExpiration().minus(5, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+        return idToken;
       } else {
         idTokenStorage.remove();
       }
-    } else if (idTokenExtension != null) {
-      idToken = Token.create(idTokenExtension.resolveIdToken());
+    }
+    if (idTokenExtension != null) {
+      idToken = idTokenExtension.resolveIdToken();
       idTokenStorage.set(idToken);
-      return idToken.getTokenValue();
+      return idToken;
     }
     return null;
   }
@@ -159,6 +163,16 @@ public class SecurityContext {
       LOGGER.debug(
           "Token of service {} removed from SecurityContext (thread-locally).", token.getService());
       tokenStorage.remove();
+    }
+  }
+
+  /** Clears the current ID Token from thread wide storage. */
+  public static void clearIdToken() {
+    final Token idToken = idTokenStorage.get();
+    if (idToken != null) {
+      LOGGER.debug(
+          "Token of service {} removed from SecurityContext (thread-locally).",
+          idToken.getService());
       idTokenStorage.remove();
     }
   }
@@ -201,7 +215,7 @@ public class SecurityContext {
 	 */
 	public static void clearServicePlans() {
 		final List<String> plans = servicePlanStorage.get();
-		if (plans != null && plans.size() != 0) {
+    if (plans != null && !plans.isEmpty()) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Service plans {} removed from SecurityContext (thread-locally).", plans);
 			}
@@ -215,6 +229,7 @@ public class SecurityContext {
 	public static void clear() {
 		clearCertificate();
 		clearToken();
+    clearIdToken();
 		clearServicePlans();
 	}
 
