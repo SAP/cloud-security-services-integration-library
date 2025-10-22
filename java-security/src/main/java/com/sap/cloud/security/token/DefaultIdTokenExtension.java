@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * <p>This implementation converts an access token into an ID token by invoking the IAS token
  * endpoint using the JWT bearer token grant flow.
  *
- * <h3>Resolution behavior:</h3>
+ * <p>Resolution behavior:
  *
  * <ul>
  *   <li>If the current token is already an ID token, it is returned as-is.
