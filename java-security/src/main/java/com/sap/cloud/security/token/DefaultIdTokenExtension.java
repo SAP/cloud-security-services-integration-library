@@ -1,5 +1,7 @@
 package com.sap.cloud.security.token;
 
+import static java.util.Objects.nonNull;
+
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -137,7 +139,7 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
 
     final String certPem = iasConfig.getProperty("certificate");
     final String keyPem = iasConfig.getProperty("key");
-    final String clientId = iasConfig.getProperty("clientId");
+    final String clientId = iasConfig.getClientId();
 
     final Map<String, String> params = new HashMap<>();
     params.put("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
@@ -146,7 +148,7 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
     params.put("refresh_expiry", "0");
     params.put("client_id", clientId);
 
-    if (certPem != null && keyPem != null) {
+    if (certPem != null && keyPem != null && nonNull(iasConfig.getCertUrl())) {
       final URI certUrlEndpoint = URI.create(iasConfig.getCertUrl().toString() + "/oauth2/token");
       return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
           certUrlEndpoint,
