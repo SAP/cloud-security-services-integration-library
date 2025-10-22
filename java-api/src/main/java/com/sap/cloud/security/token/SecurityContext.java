@@ -27,6 +27,7 @@ public class SecurityContext {
 
   private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
   private static final ThreadLocal<Token> idTokenStorage = new ThreadLocal<>();
+  private static final ThreadLocal<Token> initialTokenStorage = new ThreadLocal<>();
   private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<>();
   private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
   private static IdTokenExtension idTokenExtension;
@@ -73,6 +74,7 @@ public class SecurityContext {
         "Sets token of service {} to SecurityContext (thread-locally).",
         token != null ? token.getService() : "null");
     tokenStorage.set(token);
+    initialTokenStorage.set(token);
     idTokenStorage.remove();
   }
 
@@ -85,6 +87,11 @@ public class SecurityContext {
 	public static Token getToken() {
 		return tokenStorage.get();
 	}
+
+  @Nullable
+  public static Token getInitialToken() {
+    return initialTokenStorage.get();
+  }
 
 	/**
 	 * Returns the token that is saved in thread wide storage.
@@ -156,25 +163,28 @@ public class SecurityContext {
     return null;
   }
 
-  /** Clears the current Token from thread wide storage. */
-  public static void clearToken() {
-    final Token token = tokenStorage.get();
+  private static void clear(ThreadLocal<Token> storage) {
+    final Token token = storage.get();
     if (token != null) {
       LOGGER.debug(
           "Token of service {} removed from SecurityContext (thread-locally).", token.getService());
-      tokenStorage.remove();
+      storage.remove();
     }
+  }
+
+  /** Clears the current Token from thread wide storage. */
+  public static void clearToken() {
+    clear(tokenStorage);
   }
 
   /** Clears the current ID Token from thread wide storage. */
   public static void clearIdToken() {
-    final Token idToken = idTokenStorage.get();
-    if (idToken != null) {
-      LOGGER.debug(
-          "Token of service {} removed from SecurityContext (thread-locally).",
-          idToken.getService());
-      idTokenStorage.remove();
-    }
+    clear(idTokenStorage);
+  }
+
+  /** Clears the current ID Token from thread wide storage. */
+  public static void clearInitialToken() {
+    clear(initialTokenStorage);
   }
 
 	/**
@@ -234,7 +244,7 @@ public class SecurityContext {
     clearCertificate();
     clearToken();
     clearIdToken();
-		clearServicePlans();
-	}
-
+    clearInitialToken();
+    clearServicePlans();
+  }
 }

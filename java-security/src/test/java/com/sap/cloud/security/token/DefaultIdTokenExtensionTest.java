@@ -55,7 +55,6 @@ public class DefaultIdTokenExtensionTest {
     when(serviceConfiguration.getProperty("certificate")).thenReturn(certPem);
     String keyPem = "keyPem";
     when(serviceConfiguration.getProperty("key")).thenReturn(keyPem);
-    when(serviceConfiguration.getProperty("clientId")).thenReturn(clientId);
     String audience = "audience";
     when(idToken.getClaimAsStringList("aud")).thenReturn(List.of(audience, clientId));
     when(idToken.getClientId()).thenReturn(clientId);
