@@ -56,8 +56,8 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
   /**
    * Resolves an ID token for the current user.
    *
-   * <p>The current token is obtained from {@link SecurityContext#getToken()} and processed as
-   * follows:
+   * <p>The current token is obtained from {@link SecurityContext#getInitialToken()} and processed
+   * as follows:
    *
    * <ul>
    *   <li>If the token represents a technical user, an {@link IllegalArgumentException} is thrown.
@@ -70,7 +70,7 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
    */
   @Override
   public Token resolveIdToken() {
-    final Token token = SecurityContext.getToken();
+    final Token token = SecurityContext.getInitialToken();
 
     if (token == null) {
       throw new IllegalArgumentException("Cannot resolve ID token with no access token present");

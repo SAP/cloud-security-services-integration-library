@@ -46,17 +46,25 @@ public class SecurityContextTest {
 		assertThat(SecurityContext.getToken()).isNull();
 	}
 
-	@Test
-	public void getInitialToken_isNull() {
+  @Test
+  public void getToken_isNull() {
 		Token token = SecurityContext.getToken();
 
 		assertThat(token).isNull();
+  }
+
+  @Test
+  public void getInitialToken_isNull() {
+    Token token = SecurityContext.getInitialToken();
+
+    assertThat(token).isNull();
 	}
 
 	@Test
 	public void setTokenAndGet() {
 		SecurityContext.setToken(TOKEN);
 		assertThat(SecurityContext.getToken()).isEqualTo(TOKEN);
+    assertThat(SecurityContext.getInitialToken()).isEqualTo(TOKEN);
 	}
 
 	@Test
@@ -65,6 +73,7 @@ public class SecurityContextTest {
 		SecurityContext.clear();
 
 		assertThat(SecurityContext.getToken()).isNull();
+    assertThat(SecurityContext.getInitialToken()).isNull();
 	}
 
 	@Test
