@@ -6,13 +6,15 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.x509.Certificate;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 /**
  * Thread wide {@link Token} storage.
@@ -20,12 +22,14 @@ import java.util.Arrays;
 public class SecurityContext {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SecurityContext.class);
 
-	private SecurityContext() {
-	}
+  private SecurityContext() {}
 
-	private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
-	private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<List<String>>();
-	private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
+  private static final ThreadLocal<Token> tokenStorage = new ThreadLocal<>();
+  private static final ThreadLocal<Token> idTokenStorage = new ThreadLocal<>();
+  private static final ThreadLocal<Token> initialTokenStorage = new ThreadLocal<>();
+  private static final ThreadLocal<List<String>> servicePlanStorage = new ThreadLocal<>();
+  private static final ThreadLocal<Certificate> certificateStorage = new ThreadLocal<>();
+  private static IdTokenExtension idTokenExtension;
 
 	/**
 	 * Returns the certificate that is saved in thread wide storage.
@@ -60,17 +64,19 @@ public class SecurityContext {
 		}
 	}
 
-	/**
-	 * Saves the validated (!) token thread wide.
-	 *
-	 * @param token
-	 * 		token to be saved.
-	 */
-	public static void setToken(Token token) {
-		LOGGER.debug("Sets token of service {} to SecurityContext (thread-locally).",
-				token != null ? token.getService() : "null");
-		tokenStorage.set(token);
-	}
+  /**
+   * Saves the validated (!) token thread wide.
+   *
+   * @param token token to be saved.
+   */
+  public static void setToken(Token token) {
+    LOGGER.debug(
+        "Sets token of service {} to SecurityContext (thread-locally).",
+        token != null ? token.getService() : "null");
+    tokenStorage.set(token);
+    initialTokenStorage.set(token);
+    idTokenStorage.remove();
+  }
 
 	/**
 	 * Returns the token that is saved in thread wide storage.
@@ -81,6 +87,11 @@ public class SecurityContext {
 	public static Token getToken() {
 		return tokenStorage.get();
 	}
+
+  @Nullable
+  public static Token getInitialToken() {
+    return initialTokenStorage.get();
+  }
 
 	/**
 	 * Returns the token that is saved in thread wide storage.
@@ -93,16 +104,88 @@ public class SecurityContext {
 		return tokenStorage.get() instanceof AccessToken ? (AccessToken) tokenStorage.get() : null;
 	}
 
-	/**
-	 * Clears the current Token from thread wide storage.
-	 */
-	public static void clearToken() {
-		final Token token = tokenStorage.get();
-		if (token != null) {
-			LOGGER.debug("Token of service {} removed from SecurityContext (thread-locally).", token.getService());
-			tokenStorage.remove();
-		}
-	}
+  /**
+   * Registers a custom {@link IdTokenExtension} to enhance the {@link SecurityContext} with
+   * additional functionality.
+   *
+   * <p>The provided extension will be used by {@link #getIdToken()} and other context-aware methods
+   * that rely on extended token handling logic.
+   *
+   * <p>Typical usage:
+   *
+   * <pre>
+   * IdTokenExtension idTokenExt = new IdTokenExtension(tokenService, iasConfig);
+   * SecurityContext.registerIdTokenExtension(idTokenExt);
+   * </pre>
+   *
+   * @param ext the {@link IdTokenExtension} implementation to register, may be {@code null}
+   */
+  public static void registerIdTokenExtension(IdTokenExtension ext) {
+    idTokenExtension = ext;
+  }
+
+  /**
+   * Resolves an OpenID Connect ID token for the current user.
+   *
+   * <p>Checks if a token is already present in the thread local storage and if it is still valid
+   * (not expired or about to expire within 5 minutes). If a valid token is found, it is returned.
+   * If no valid token is found, it checks if an IdTokenExtension is registered.
+   *
+   * <p>If an extension is present, {@link IdTokenExtension#resolveIdToken()} will be invoked. If no
+   * extension is registered, {@code null} is returned.
+   *
+   * <p><b>Example:</b>
+   *
+   * <pre>
+   * SecurityContext.registerIdTokenExtension(new IdTokenExtension(tokenService, iasConfig));
+   * String idToken = SecurityContext.getIdToken();
+   * </pre>
+   *
+   * @return the ID token or {@code null} if no valid token is present and no extension is
+   *     registered.
+   */
+  @Nullable
+  public static Token getIdToken() {
+    Token idToken = idTokenStorage.get();
+    if (idToken != null) {
+      if (Objects.nonNull(idToken.getExpiration())
+          && idToken.getExpiration().minus(5, ChronoUnit.MINUTES).isAfter(Instant.now())) {
+        return idToken;
+      } else {
+        idTokenStorage.remove();
+      }
+    }
+    if (idTokenExtension != null) {
+      idToken = idTokenExtension.resolveIdToken();
+      idTokenStorage.set(idToken);
+      return idToken;
+    }
+    return null;
+  }
+
+  private static void clear(ThreadLocal<Token> storage) {
+    final Token token = storage.get();
+    if (token != null) {
+      LOGGER.debug(
+          "Token of service {} removed from SecurityContext (thread-locally).", token.getService());
+      storage.remove();
+    }
+  }
+
+  /** Clears the current Token from thread wide storage. */
+  public static void clearToken() {
+    clear(tokenStorage);
+  }
+
+  /** Clears the current ID Token from thread wide storage. */
+  public static void clearIdToken() {
+    clear(idTokenStorage);
+  }
+
+  /** Clears the current ID Token from thread wide storage. */
+  public static void clearInitialToken() {
+    clear(initialTokenStorage);
+  }
 
 	/**
 	 * Returns the Identity service broker plans that are stored in the thread local storage
@@ -142,7 +225,7 @@ public class SecurityContext {
 	 */
 	public static void clearServicePlans() {
 		final List<String> plans = servicePlanStorage.get();
-		if (plans != null && plans.size() != 0) {
+    if (plans != null && !plans.isEmpty()) {
 			if (LOGGER.isDebugEnabled()) {
 				LOGGER.debug("Service plans {} removed from SecurityContext (thread-locally).", plans);
 			}
@@ -150,13 +233,15 @@ public class SecurityContext {
 		}
 	}
 
-	/**
-	 * Clears the current token, certificate and Identity service broker plans from thread wide storage.
-	 */
-	public static void clear() {
-		clearCertificate();
-		clearToken();
-		clearServicePlans();
-	}
-
+  /**
+   * Clears the current token, certificate and Identity service broker plans from thread wide
+   * storage.
+   */
+  public static void clear() {
+    clearCertificate();
+    clearToken();
+    clearIdToken();
+    clearInitialToken();
+    clearServicePlans();
+  }
 }
