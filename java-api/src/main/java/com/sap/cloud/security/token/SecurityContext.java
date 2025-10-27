@@ -6,7 +6,6 @@
 package com.sap.cloud.security.token;
 
 import com.sap.cloud.security.x509.Certificate;
-import java.util.Arrays;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -14,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,6 +76,19 @@ public class SecurityContext {
     tokenStorage.set(token);
     initialTokenStorage.set(token);
     idTokenStorage.remove();
+  }
+
+  /**
+   * Saves the token thread wide.
+   *
+   * @param token token to be saved.
+   */
+  @ApiStatus.Internal
+  public static void overwriteToken(final Token token) {
+    LOGGER.debug(
+        "Sets token of service {} to SecurityContext (thread-locally).",
+        token != null ? token.getService() : "null");
+    tokenStorage.set(token);
   }
 
 	/**
