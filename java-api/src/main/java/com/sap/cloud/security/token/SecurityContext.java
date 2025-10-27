@@ -89,6 +89,8 @@ public class SecurityContext {
         "Sets token of service {} to SecurityContext (thread-locally).",
         token != null ? token.getService() : "null");
     tokenStorage.set(token);
+  initialTokenStorage.set(token);
+    idTokenStorage.remove();
   }
 
 	/**
@@ -246,8 +248,6 @@ public class SecurityContext {
 			servicePlanStorage.remove();
 		}
 	}
-
-
 
   /**
    * Clears the current token, certificate and Identity service broker plans from thread wide
