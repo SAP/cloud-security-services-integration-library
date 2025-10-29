@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,18 +78,15 @@ public class SecurityContext {
   }
 
   /**
-   * Saves the token thread wide.
+   * Saves the token thread wide. only used in special cases where the token for internal usage.
    *
    * @param token token to be saved.
    */
-  @ApiStatus.Internal
   public static void overwriteToken(final Token token) {
     LOGGER.debug(
         "Sets token of service {} to SecurityContext (thread-locally).",
         token != null ? token.getService() : "null");
     tokenStorage.set(token);
-  initialTokenStorage.set(token);
-    idTokenStorage.remove();
   }
 
 	/**

@@ -1,22 +1,26 @@
 package com.sap.cloud.security.servlet;
 
+import static com.sap.cloud.security.servlet.HybridTokenFactory.isXsuaaToken;
+import static com.sap.cloud.security.servlet.HybridTokenFactory.removeBearer;
 
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.DefaultIdTokenExtension;
-import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,30 +50,42 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
   @Override
   public TokenAuthenticationResult validateRequest(
       final ServletRequest request, final ServletResponse response) {
-    final TokenAuthenticationResult authenticationResult =
-        iasTokenAuthenticator.validateRequest(request, response);
-    if (authenticationResult.isAuthenticated()) {
-      if (SecurityContext.getToken() instanceof XsuaaToken) {
-        return authenticationResult;
+    if (request instanceof HttpServletRequest httpRequest
+        && response instanceof HttpServletResponse) {
+      String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
+      if (headerIsAvailable(authorizationHeader)) {
+        DecodedJwt decodedJwt =
+            Base64JwtDecoder.getInstance().decode(removeBearer(authorizationHeader));
+        if (isXsuaaToken(decodedJwt)) {
+          return xsuaaTokenAuthenticator.validateRequest(httpRequest, response);
+        }
+      } else {
+        return unauthenticated("Authorization header is missing.");
       }
-      try {
-        SecurityContext.registerIdTokenExtension(
-            new DefaultIdTokenExtension(tokenService, iasConfig));
-        final Token idToken = SecurityContext.getIdToken();
-        if (idToken == null) {
+
+      final TokenAuthenticationResult authenticationResult =
+          iasTokenAuthenticator.validateRequest(request, response);
+      if (authenticationResult.isAuthenticated()) {
+        try {
+          SecurityContext.registerIdTokenExtension(
+              new DefaultIdTokenExtension(tokenService, iasConfig));
+          final Token idToken = SecurityContext.getIdToken();
+          if (idToken == null) {
+            throw new IllegalStateException("Can not retrieve XSUAA Token. No ID Token present!");
+          }
+          final Token xsuaaToken = exchangeToXsuaa(idToken);
+          final TokenAuthenticationResult xsuaaAuthenticationResult =
+              xsuaaTokenAuthenticator.authenticated(xsuaaToken);
+          SecurityContext.overwriteToken(xsuaaToken);
+          return xsuaaAuthenticationResult;
+        } catch (final OAuth2ServiceException e) {
           return authenticationResult;
         }
-        final Token xsuaaToken = exchangeToXsuaa(idToken);
-        final TokenAuthenticationResult xsuaaAuthenticationResult =
-            xsuaaTokenAuthenticator.authenticated(xsuaaToken);
-        SecurityContext.overwriteToken(xsuaaToken);
-        return xsuaaAuthenticationResult;
-      } catch (final OAuth2ServiceException e) {
+      } else {
         return authenticationResult;
       }
-    } else {
-      return authenticationResult;
     }
+    return TokenAuthenticatorResult.createUnauthenticated("Could not process request " + request);
   }
 
   /**
@@ -106,24 +122,17 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
 
   @Override
   protected OAuth2ServiceConfiguration getServiceConfiguration() {
-    final OAuth2ServiceConfiguration config =
-        serviceConfiguration != null
-            ? serviceConfiguration
-            : Environments.getCurrent().getXsuaaConfiguration();
-    if (config == null) {
-      throw new IllegalStateException("There must be a service configuration.");
-    }
-    return config;
+    return xsuaaTokenAuthenticator.getServiceConfiguration();
   }
 
   @Nullable
   @Override
   protected OAuth2ServiceConfiguration getOtherServiceConfiguration() {
-    return null;
+    return xsuaaTokenAuthenticator.getOtherServiceConfiguration();
   }
 
   @Override
   protected Token extractFromHeader(final String authorizationHeader) {
-    return new SapIdToken(authorizationHeader);
+    return xsuaaTokenAuthenticator.extractFromHeader(authorizationHeader);
   }
 }
