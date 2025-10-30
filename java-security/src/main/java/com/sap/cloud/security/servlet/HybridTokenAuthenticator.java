@@ -105,7 +105,7 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       final Token xsuaaToken = exchangeToXsuaa(idToken);
       SecurityContext.overwriteToken(xsuaaToken);
       return xsuaaTokenAuthenticator.authenticated(xsuaaToken);
-    } catch (final OAuth2ServiceException e) {
+    } catch (OAuth2ServiceException e) {
       return unauthenticated("Unexpected error occurred: " + e.getMessage());
     } catch (IllegalStateException e) {
       return unauthenticated("Token exchange failed: " + e.getMessage());
