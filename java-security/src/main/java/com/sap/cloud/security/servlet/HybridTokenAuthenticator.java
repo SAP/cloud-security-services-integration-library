@@ -22,70 +22,94 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.http.impl.client.CloseableHttpClient;
 
+/**
+ * Authenticates HTTP requests carrying either an IAS Access Token, ID token or an XSUAA access
+ * token in the {@code Authorization} header.
+ *
+ * <p>If the token is already an XSUAA token, validation is delegated to {@link
+ * XsuaaTokenAuthenticator}. Otherwise, the IAS token is validated via {@link
+ * IasTokenAuthenticator}, and on success, exchanged for an XSUAA access token using the OAuth 2.0
+ * JWT Bearer Token grant ({@code jwt_bearer}). The exchanged XSUAA token is then stored in the
+ * {@link com.sap.cloud.security.token.SecurityContext} and used for subsequent authorization.
+ *
+ * <p>Requirements:
+ *
+ * <ul>
+ *   <li>XSUAA instance must support the {@code jwt_bearer} grant type.
+ *   <li>The IAS ID token must contain the {@code app_tid} (tenant) claim.
+ *   <li>Either client secret or certificate credentials must be configured for XSUAA.
+ * </ul>
+ *
+ * <p>This authenticator is stateless and thread-safe. It should be invoked once per request,
+ * typically from a servlet filter. Ensure the {@link com.sap.cloud.security.token.SecurityContext}
+ * is cleared after each request to prevent token leakage between threads.
+ */
 public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
 
-  private final OAuth2ServiceConfiguration iasConfig;
+  private static final String CLAIM_APP_TID = "app_tid";
+  private static final String CERTIFICATE = "certificate";
+  private static final String KEY = "key";
+
   private final OAuth2ServiceConfiguration xsuaaConfig;
   private final OAuth2TokenService tokenService;
 
-  IasTokenAuthenticator iasTokenAuthenticator = new IasTokenAuthenticator();
-  XsuaaTokenAuthenticator xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
+  private final IasTokenAuthenticator iasTokenAuthenticator = new IasTokenAuthenticator();
+  private final XsuaaTokenAuthenticator xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
 
   public HybridTokenAuthenticator(
       @Nonnull final OAuth2ServiceConfiguration iasConfig,
       @Nonnull final CloseableHttpClient httpClient,
       @Nonnull final OAuth2ServiceConfiguration xsuaaConfig) {
-    this.iasConfig = iasConfig;
     this.tokenService = new DefaultOAuth2TokenService(httpClient);
     this.xsuaaConfig = xsuaaConfig;
+    SecurityContext.registerIdTokenExtension(new DefaultIdTokenExtension(tokenService, iasConfig));
   }
 
   @Override
   public TokenAuthenticationResult validateRequest(
       final ServletRequest request, final ServletResponse response) {
-    if (request instanceof HttpServletRequest httpRequest
-        && response instanceof HttpServletResponse) {
-      String authorizationHeader = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
-      if (headerIsAvailable(authorizationHeader)) {
-        DecodedJwt decodedJwt =
-            Base64JwtDecoder.getInstance().decode(removeBearer(authorizationHeader));
-        if (isXsuaaToken(decodedJwt)) {
-          return xsuaaTokenAuthenticator.validateRequest(httpRequest, response);
-        }
-      } else {
-        return unauthenticated("Authorization header is missing.");
-      }
 
-      final TokenAuthenticationResult authenticationResult =
-          iasTokenAuthenticator.validateRequest(request, response);
-      if (authenticationResult.isAuthenticated()) {
-        try {
-          SecurityContext.registerIdTokenExtension(
-              new DefaultIdTokenExtension(tokenService, iasConfig));
-          final Token idToken = SecurityContext.getIdToken();
-          if (idToken == null) {
-            throw new IllegalStateException("Can not retrieve XSUAA Token. No ID Token present!");
-          }
-          final Token xsuaaToken = exchangeToXsuaa(idToken);
-          final TokenAuthenticationResult xsuaaAuthenticationResult =
-              xsuaaTokenAuthenticator.authenticated(xsuaaToken);
-          SecurityContext.overwriteToken(xsuaaToken);
-          return xsuaaAuthenticationResult;
-        } catch (final OAuth2ServiceException e) {
-          return authenticationResult;
-        }
-      } else {
-        return authenticationResult;
-      }
+    if (!(request instanceof HttpServletRequest httpRequest
+        && response instanceof HttpServletResponse)) {
+      return unauthenticated("Could not process request " + request);
     }
-    return TokenAuthenticatorResult.createUnauthenticated("Could not process request " + request);
+    final String authz = httpRequest.getHeader(HttpHeaders.AUTHORIZATION);
+    if (!headerIsAvailable(authz)) {
+      return unauthenticated("Authorization header is missing.");
+    }
+    DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(authz));
+
+    // If token is already an XSUAA token, delegate to XSUAA authenticator
+    if (isXsuaaToken(decodedJwt)) {
+      return xsuaaTokenAuthenticator.validateRequest(httpRequest, response);
+    }
+
+    // Otherwise, treat it as an IAS token
+    final TokenAuthenticationResult iasResult =
+        iasTokenAuthenticator.validateRequest(httpRequest, response);
+    if (!iasResult.isAuthenticated()) {
+      return unauthenticated(
+          "IAS Token authentication failed: " + iasResult.getUnauthenticatedReason());
+    }
+    try {
+      final Token idToken = SecurityContext.getIdToken();
+      if (idToken == null) {
+        return unauthenticated("Missing IAS ID Token. Cannot exchange for XSUAA Token.");
+      }
+      final Token xsuaaToken = exchangeToXsuaa(idToken);
+      SecurityContext.overwriteToken(xsuaaToken);
+      return xsuaaTokenAuthenticator.authenticated(xsuaaToken);
+    } catch (final OAuth2ServiceException e) {
+      return unauthenticated("Unexpected error occurred: " + e.getMessage());
+    } catch (IllegalStateException e) {
+      return unauthenticated("Token exchange failed: " + e.getMessage());
+    }
   }
 
   /**
@@ -98,13 +122,12 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
   private Token exchangeToXsuaa(final Token idToken) throws OAuth2ServiceException {
     final ClientIdentity identity;
     final String zid =
-        Optional.ofNullable(idToken.getClaimAsString("app_tid"))
+        Optional.ofNullable(idToken.getClaimAsString(CLAIM_APP_TID))
             .orElseThrow(() -> new IllegalStateException("IAS token missing 'app_tid'"));
-    final String certPem = xsuaaConfig.getProperty("certificate");
-    final String keyPem = xsuaaConfig.getProperty("key");
+    final String certPem = xsuaaConfig.getProperty(CERTIFICATE);
+    final String keyPem = xsuaaConfig.getProperty(KEY);
     final String clientId = xsuaaConfig.getClientId();
-    final Map<String, String> params = new HashMap<>();
-    params.put("token_format", "jwt");
+    final Map<String, String> params = Map.of("token_format", "jwt");
     final XsuaaDefaultEndpoints endpoints = new XsuaaDefaultEndpoints(xsuaaConfig);
     final URI tokenEndpoint = endpoints.getTokenEndpoint();
 
@@ -118,7 +141,6 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
             + tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
                 tokenEndpoint, identity, idToken.getTokenValue(), params, false, zid));
   }
-
 
   @Override
   protected OAuth2ServiceConfiguration getServiceConfiguration() {

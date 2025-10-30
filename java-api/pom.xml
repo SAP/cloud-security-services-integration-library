@@ -116,11 +116,6 @@
 			<scope>test</scope>
 			<version>${slf4j.api.version}</version>
 		</dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>26.0.2</version>
-        </dependency>
     </dependencies>
 
 	<build>

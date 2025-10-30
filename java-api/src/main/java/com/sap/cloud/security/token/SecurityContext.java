@@ -78,7 +78,8 @@ public class SecurityContext {
   }
 
   /**
-   * Saves the token thread wide. only used in special cases where the token for internal usage.
+   * Saves the token thread wide. Only used in special cases to overwrite only the token for
+   * internal usage.
    *
    * @param token token to be saved.
    */
