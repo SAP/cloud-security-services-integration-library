@@ -58,7 +58,6 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
 
   private final OAuth2ServiceConfiguration xsuaaConfig;
   private final OAuth2TokenService tokenService;
-
   private final IasTokenAuthenticator iasTokenAuthenticator = new IasTokenAuthenticator();
   private final XsuaaTokenAuthenticator xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
 
@@ -94,8 +93,7 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
     final TokenAuthenticationResult iasResult =
         iasTokenAuthenticator.validateRequest(httpRequest, response);
     if (!iasResult.isAuthenticated()) {
-      return unauthenticated(
-          "IAS Token authentication failed: " + iasResult.getUnauthenticatedReason());
+      return iasResult;
     }
     try {
       final Token idToken = SecurityContext.getIdToken();
@@ -105,10 +103,9 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       final Token xsuaaToken = exchangeToXsuaa(idToken);
       SecurityContext.overwriteToken(xsuaaToken);
       return xsuaaTokenAuthenticator.authenticated(xsuaaToken);
-    } catch (OAuth2ServiceException e) {
-      return unauthenticated("Unexpected error occurred: " + e.getMessage());
-    } catch (IllegalStateException e) {
-      return unauthenticated("Token exchange failed: " + e.getMessage());
+    } catch (Exception e) {
+      return unauthenticated(
+          "Unexpected error during exchange from ID token to XSUAA token:" + e.getMessage());
     }
   }
 
