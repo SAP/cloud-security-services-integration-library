@@ -137,7 +137,7 @@ public class SecurityContext {
   }
 
   /**
-   * Resolves an OpenID Connect ID token for the current user.
+   * Experimental Resolves an OpenID Connect ID token for the current user.
    *
    * <p>Checks if a token is already present in the thread local storage and if it is still valid
    * (not expired or about to expire within 5 minutes). If a valid token is found, it is returned.
