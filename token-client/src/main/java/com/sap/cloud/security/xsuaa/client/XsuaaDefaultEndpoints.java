@@ -5,21 +5,21 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.config.CredentialType;
-import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.net.URI;
-
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.util.UriUtil.expandPath;
+
+import com.sap.cloud.security.config.CredentialType;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import java.net.URI;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
 	private final URI certUri;
+  private Boolean certificateBased = false;
 	private static final String TOKEN_ENDPOINT = "/oauth/token";
 	private static final String AUTHORIZE_ENDPOINT = "/oauth/authorize";
 	private static final String KEYSET_ENDPOINT = "/token_keys";
@@ -53,11 +53,19 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		this.baseUri = config.getUrl();
 		final CredentialType credentialType = config.getCredentialType() != null ? config.getCredentialType() : CredentialType.BINDING_SECRET;
-		this.certUri = switch (credentialType) {
-			case X509, X509_GENERATED, X509_PROVIDED, X509_ATTESTED -> config.getCertUrl();
-			case BINDING_SECRET, INSTANCE_SECRET -> null;
-		};
+    this.certUri =
+        switch (credentialType) {
+          case X509, X509_GENERATED, X509_PROVIDED, X509_ATTESTED -> {
+            certificateBased = true;
+            yield config.getCertUrl();
+          }
+          case BINDING_SECRET, INSTANCE_SECRET -> null;
+        };
 	}
+
+  public boolean isCertificateCredentialType() {
+    return certificateBased;
+  }
 
 	@Override
 	public URI getTokenEndpoint() {
