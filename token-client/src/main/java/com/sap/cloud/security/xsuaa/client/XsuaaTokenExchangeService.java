@@ -55,8 +55,9 @@ public class XsuaaTokenExchangeService {
       identity = new ClientCredentials(clientId, xsuaaConfig.getClientSecret());
     }
     return Token.create(
-        "Bearer "
-            + tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-                tokenEndpoint, identity, idToken.getTokenValue(), params, false, zid));
+        tokenService
+            .retrieveAccessTokenViaJwtBearerTokenGrant(
+                tokenEndpoint, identity, idToken.getTokenValue(), params, false, zid)
+            .getAccessToken());
   }
 }
