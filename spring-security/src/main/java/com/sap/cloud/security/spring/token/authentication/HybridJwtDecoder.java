@@ -5,12 +5,25 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.config.Environments;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.x509.X509Certificate;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.XsuaaTokenExchangeService;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Optional;
+import javax.annotation.Nullable;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.BadJwtException;
@@ -21,56 +34,101 @@ import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.annotation.Nullable;
-
-import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
-
 /**
- * Internal class that decodes and validates the provided encoded token using {@code java-security} client library.<br>
+ * Internal class that decodes and validates the provided encoded token using {@code java-security}
+ * client library.<br>
  * In case of successful validation, the token gets parsed and returned as {@link Jwt}.
- * <p>
- * Supports tokens issued by ias or xsuaa identity service.
+ *
+ * <p>Supports tokens issued by ias or xsuaa identity service.
  */
 public class HybridJwtDecoder implements JwtDecoder {
 	final CombiningValidator<Token> xsuaaTokenValidators;
 	final CombiningValidator<Token> iasTokenValidators;
+  boolean exchangeToken;
+
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	/**
-	 * Creates instance with a set of validators for validating the access / oidc token issued by the dedicated identity
-	 * service.
-	 *
-	 * @param xsuaaValidator
-	 * 		set of validators that should be used to validate a xsuaa access token.
-	 * @param iasValidator
-	 * 		set of validators that should be used to validate an ias oidc token.
-	 */
-	public HybridJwtDecoder(CombiningValidator<Token> xsuaaValidator,
-			@Nullable CombiningValidator<Token> iasValidator) {
+  /**
+   * Creates instance with a set of validators for validating the access / oidc token issued by the
+   * dedicated identity service.
+   *
+   * @param xsuaaValidator set of validators that should be used to validate a xsuaa access token.
+   * @param iasValidator set of validators that should be used to validate an ias oidc token.
+   */
+  public HybridJwtDecoder(
+      CombiningValidator<Token> xsuaaValidator,
+      @Nullable CombiningValidator<Token> iasValidator,
+      boolean enableTokenExchange) {
 		xsuaaTokenValidators = xsuaaValidator;
 		iasTokenValidators = iasValidator;
-	}
+    exchangeToken = enableTokenExchange;
+  }
 
 	@Override
 	public Jwt decode(String encodedToken) {
-		ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
-		if (servletRequestAttributes != null) {
-			HttpServletRequest request = servletRequestAttributes.getRequest();
-			String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
-			if (clientCert != null) {
-				SecurityContext.setClientCertificate(X509Certificate.newCertificate(clientCert));
-			}
-		}
-		Token token;
-		Jwt jwt;
-		try {
-			Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
-			token = Token.create(encodedToken);
-			jwt = parseJwt(token);
+    setClientCertificateFromRequest();
+    try {
+      Assert.hasText(encodedToken, "encodedToken must neither be null nor empty String.");
+      Token token = Token.create(encodedToken);
+      validateToken(token);
+      logger.debug("Token issued by {} service was successfully validated.", token.getService());
+      if (exchangeToken) {
+        logger.debug("Token exchange is enabled. Exchanging token...");
+        token = exchangeToken(token);
+      }
+      return parseJwt(token);
+    } catch (OAuth2ServiceException ex) {
+      throw new JwtException("Token exchange failed: " + ex.getMessage(), ex);
 		} catch (RuntimeException ex) {
 			throw new BadJwtException("Error initializing JWT decoder: " + ex.getMessage(), ex);
 		}
+  }
+
+  private static void setClientCertificateFromRequest() {
+    ServletRequestAttributes attrs =
+        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    if (attrs != null) {
+      HttpServletRequest request = attrs.getRequest();
+      String clientCert = request.getHeader(FWD_CLIENT_CERT_HEADER);
+      if (clientCert != null) {
+        SecurityContext.setClientCertificate(X509Certificate.newCertificate(clientCert));
+      }
+    }
+  }
+
+  private Token exchangeToken(Token token) throws OAuth2ServiceException {
+    if (token.getService() == XSUAA) {
+      return token;
+    }
+    SecurityContext.setToken(token);
+    OAuth2ServiceConfiguration xsuaaConfig = getXsuaaConfiguration();
+    Token idToken = getIdTokenFromSecurityContext();
+    OAuth2TokenService tokenService = createTokenService(xsuaaConfig);
+    return new XsuaaTokenExchangeService().exchangeToXsuaa(idToken, xsuaaConfig, tokenService);
+  }
+
+  private static Token getIdTokenFromSecurityContext() throws OAuth2ServiceException {
+    return Optional.ofNullable(SecurityContext.getIdToken())
+        .orElseThrow(
+            () ->
+                new OAuth2ServiceException(
+                    "No ID token found in SecurityContext for token exchange."));
+  }
+
+  private static OAuth2ServiceConfiguration getXsuaaConfiguration() throws OAuth2ServiceException {
+    return Optional.ofNullable(Environments.getCurrent().getXsuaaConfiguration())
+        .orElseThrow(
+            () ->
+                new OAuth2ServiceException(
+                    "No XSUAA service configuration found for token exchange."));
+  }
+
+  private static OAuth2TokenService createTokenService(OAuth2ServiceConfiguration xsuaaConfig) {
+    CloseableHttpClient httpClient = HttpClientFactory.create(xsuaaConfig.getClientIdentity());
+    return new DefaultOAuth2TokenService(httpClient);
+  }
+
+  private void validateToken(Token token) {
 		ValidationResult validationResult;
 		switch (token.getService()) {
 		case IAS -> {
@@ -89,8 +147,6 @@ public class HybridJwtDecoder implements JwtDecoder {
 				throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
 			}
 		}
-		logger.debug("Token issued by {} service was successfully validated.", token.getService());
-		return jwt;
 	}
 
 	/**
