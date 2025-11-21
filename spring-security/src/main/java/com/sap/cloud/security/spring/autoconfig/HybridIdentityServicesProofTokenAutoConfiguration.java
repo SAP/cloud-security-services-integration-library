@@ -95,7 +95,6 @@ public class HybridIdentityServicesProofTokenAutoConfiguration {
 				IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug(
 					"auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances and proof token check is enabled.");
-      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
 
 			/*
 			 * Use only primary XSUAA config and up to 1 more config of type BROKER to stay
@@ -109,7 +108,7 @@ public class HybridIdentityServicesProofTokenAutoConfiguration {
 					.equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
 				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
 			}
-
+      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
 					.enableProofTokenCheck()

@@ -94,7 +94,6 @@ public class HybridIdentityServicesAutoConfiguration {
 		@ConditionalOnProperty(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN)
 		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
-      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
 			/*
 			 * Use only primary XSUAA config and up to 1 more config of type BROKER to stay
 			 * backward-compatible now that XsuaaServiceConfigurations contains all XSUAA
@@ -107,7 +106,7 @@ public class HybridIdentityServicesAutoConfiguration {
 					.equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
 				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
 			}
-
+      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
 			return new JwtDecoderBuilder()
 					.withIasServiceConfiguration(identityConfig)
 					.withXsuaaServiceConfigurations(usedXsuaaConfigs)
