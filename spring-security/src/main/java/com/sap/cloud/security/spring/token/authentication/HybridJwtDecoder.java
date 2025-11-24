@@ -44,7 +44,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class HybridJwtDecoder implements JwtDecoder {
 	final CombiningValidator<Token> xsuaaTokenValidators;
 	final CombiningValidator<Token> iasTokenValidators;
-  boolean exchangeToken;
+  final boolean exchangeToken;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -54,15 +54,27 @@ public class HybridJwtDecoder implements JwtDecoder {
    *
    * @param xsuaaValidator set of validators that should be used to validate a xsuaa access token.
    * @param iasValidator set of validators that should be used to validate an ias oidc token.
+   */
+  public HybridJwtDecoder(
+      CombiningValidator<Token> xsuaaValidator, @Nullable CombiningValidator<Token> iasValidator) {
+    this(xsuaaValidator, iasValidator, false);
+  }
+
+  /**
+   * Creates instance with a set of validators for validating the access / oidc token issued by the
+   * dedicated identity service as well as the option to exchange IAS Tokens to XSUAA Token.
+   *
+   * @param xsuaaValidator set of validators that should be used to validate a xsuaa access token.
+   * @param iasValidator set of validators that should be used to validate an ias oidc token.
    * @param enableTokenExchange flag to enable token exchange to XSUAA token
    */
   public HybridJwtDecoder(
       CombiningValidator<Token> xsuaaValidator,
       @Nullable CombiningValidator<Token> iasValidator,
       boolean enableTokenExchange) {
-		xsuaaTokenValidators = xsuaaValidator;
-		iasTokenValidators = iasValidator;
-    exchangeToken = enableTokenExchange;
+    this.xsuaaTokenValidators = xsuaaValidator;
+    this.iasTokenValidators = iasValidator;
+    this.exchangeToken = enableTokenExchange;
   }
 
 	@Override

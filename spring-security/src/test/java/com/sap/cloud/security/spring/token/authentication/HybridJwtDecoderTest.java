@@ -63,7 +63,7 @@ class HybridJwtDecoderTest {
 		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createValid());
     xsuaaTokenExchangeService = Mockito.mock(XsuaaTokenExchangeService.class);
 
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, false);
+    cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
 	}
 
 	@Test
@@ -119,7 +119,6 @@ class HybridJwtDecoderTest {
 	@Test
 	void decodeInvalidToken_throwsAccessDeniedException() {
 		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, false);
 		String encodedToken = jwtGenerator.createToken().getTokenValue();
 
 		assertThrows(BadJwtException.class, () -> cut.decode(encodedToken));
@@ -148,14 +147,14 @@ class HybridJwtDecoderTest {
 		when(configuration.getService()).thenReturn(XSUAA);
 		when(configuration.getClientId()).thenReturn("theClientId");
 		CombiningValidator<Token> xsuaaValidators = JwtValidatorBuilder.getInstance(configuration).build();
-    HybridJwtDecoder cut = new HybridJwtDecoder(xsuaaValidators, null, false);
+    HybridJwtDecoder cut = new HybridJwtDecoder(xsuaaValidators, null);
 		String encodedToken = JwtGenerator.getInstance(XSUAA, "theClientId").createToken().getTokenValue();
 		assertThrows(JwtException.class, () -> cut.decode(encodedToken));
 	}
 
 	@Test
 	void instantiateForXsuaaOnly() {
-    cut = new HybridJwtDecoder(combiningValidator, null, false);
+    cut = new HybridJwtDecoder(combiningValidator, null);
 
 		// IAS token can't be validated
 		String encodedIasToken = jwtGenerator.createToken().getTokenValue();
@@ -169,8 +168,6 @@ class HybridJwtDecoderTest {
 
   @Test
   void decodeXsuaaToken_withTokenExchangeEnabledAndTokenIsAlreadyXSUAA_doesNotPerformExchange() {
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, true);
-
     String xsuaaToken =
         JwtGenerator.getInstance(XSUAA, "theClientId").createToken().getTokenValue();
 
