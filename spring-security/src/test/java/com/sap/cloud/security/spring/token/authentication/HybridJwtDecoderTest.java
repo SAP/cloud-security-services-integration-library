@@ -119,6 +119,7 @@ class HybridJwtDecoderTest {
 	@Test
 	void decodeInvalidToken_throwsAccessDeniedException() {
 		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createInvalid("error"));
+    cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
 		String encodedToken = jwtGenerator.createToken().getTokenValue();
 
 		assertThrows(BadJwtException.class, () -> cut.decode(encodedToken));
