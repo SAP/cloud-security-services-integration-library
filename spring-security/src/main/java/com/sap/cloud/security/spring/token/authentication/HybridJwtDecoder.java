@@ -54,6 +54,7 @@ public class HybridJwtDecoder implements JwtDecoder {
    *
    * @param xsuaaValidator set of validators that should be used to validate a xsuaa access token.
    * @param iasValidator set of validators that should be used to validate an ias oidc token.
+   * @param enableTokenExchange flag to enable token exchange to XSUAA token
    */
   public HybridJwtDecoder(
       CombiningValidator<Token> xsuaaValidator,
