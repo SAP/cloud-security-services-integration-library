@@ -50,7 +50,7 @@ public class XsuaaTokenExchangeService {
     final URI tokenEndpoint = endpoints.getTokenEndpoint();
 
     if (endpoints.isCertificateCredentialType()) {
-      identity = new ClientCertificate(clientId, certPem, keyPem);
+      identity = new ClientCertificate(certPem, keyPem, clientId);
     } else {
       identity = new ClientCredentials(clientId, xsuaaConfig.getClientSecret());
     }

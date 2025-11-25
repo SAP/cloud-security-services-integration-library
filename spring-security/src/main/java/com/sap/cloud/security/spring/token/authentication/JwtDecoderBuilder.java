@@ -12,13 +12,12 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.util.Assert;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.util.Assert;
 
 /**
  * Builder that creates a {@link JwtDecoder} that can handle both kind of tokens:
@@ -34,6 +33,7 @@ public class JwtDecoderBuilder {
 	protected CloseableHttpClient httpClient;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 	private boolean enableProofTokenCheck;
+  private boolean enableTokenExchange;
 
 	/**
 	 * Use to configure the token key cache.
@@ -84,6 +84,11 @@ public class JwtDecoderBuilder {
 		return this;
 	}
 
+  public JwtDecoderBuilder withTokenExchange(boolean tokenExchange) {
+    this.enableTokenExchange = tokenExchange;
+    return this;
+  }
+
 	/**
 	 * Use to override the xsuaa service configuration used.
 	 *
@@ -122,7 +127,7 @@ public class JwtDecoderBuilder {
 		CombiningValidator<Token> xsuaaValidator = getValidators(Service.XSUAA);
 		CombiningValidator<Token> iasValidator = getValidators(Service.IAS);
 		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
-			return new HybridJwtDecoder(xsuaaValidator, iasValidator);
+      return new HybridJwtDecoder(xsuaaValidator, iasValidator, enableTokenExchange);
 		}
 
 		if (iasValidator == null) {
