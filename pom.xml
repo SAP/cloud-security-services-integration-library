@@ -52,7 +52,7 @@
 		<spring.security.version>6.5.5</spring.security.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
 		<org.eclipse.jetty.version>12.0.27</org.eclipse.jetty.version>
-		<reactor.version>3.7.11</reactor.version>
+		<reactor.version>3.8.0</reactor.version>
 		<log4j2.version>2.25.2</log4j2.version>
 		<slf4j.api.version>2.0.17</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20250517</org.json.version>
