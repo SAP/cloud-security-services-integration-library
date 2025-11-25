@@ -18,12 +18,15 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
      - [2.1.2 Spring Boot applications](#212-spring-boot-web-applications)
    - [2.2 Token Flows](#22-token-flows-for-token-retrievals)
    - [2.3 Testing utilities](#23-testing-utilities)
-3. [Installation](#installation)
-4. [Troubleshooting](#troubleshooting)
-5. [Common Pitfalls](#common-pitfalls)
-6. [Contributing](#contributing)
-7. [How to get support](#how-to-get-support)
-8. [License](#license)
+3. [Migration XSUAA to Identity Services](#Migrating-Authentication-from-XSUAA-to-Identity-Services)
+    - [3.1 For Jakarta EE Applications](#31-For-Jakarta-EE-Applications)
+    - [3.2 For Spring Boot Applications](#32-For-Spring-Boot-Applications)
+4. [Installation](#installation)
+5. [Troubleshooting](#troubleshooting)
+6. [Common Pitfalls](#common-pitfalls)
+7. [Contributing](#contributing)
+8. [How to get support](#how-to-get-support)
+9. [License](#license)
 
 ## Prerequisites
 Before you can use the SAP Cloud Security Services Integration libraries, you must fulfil the following requirements:
@@ -117,6 +120,130 @@ In the table below you'll find links to detailed information.
 | Library                                   | Usage Examples                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 
 |-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [java-security-test](/java-security-test) | [Integration test code snippet](/samples/spring-security-hybrid-usage/src/test/java/sample/spring/security/junitjupiter/TestControllerIasTest.java) for Spring application <br/>[Integration test code snippet](/samples/java-security-usage/src/test/java/com/sap/cloud/security/samples/HelloJavaServletIntegrationTest.java) for Jakarta EE web.xml based servlets <br/>  [Integration test code snippet](/samples/java-security-usage-ias/src/test/java/com/sap/cloud/security/samples/ias/HelloJavaServletIntegrationTest.java) for Jakarta EE annotation based servlets <br/>    |
+
+## Migrating Authentication from XSUAA to Identity Services
+
+SAP BTP is transitioning from XSUAA to Identity Services (IAS) as the preferred authentication provider.
+This library simplifies migration by supporting hybrid authentication — validating tokens from both XSUAA and IAS
+simultaneously.
+
+Migration Path
+Level 0: Enable Hybrid Authentication (Backward Compatible)
+Your application accepts tokens from both XSUAA and IAS without code changes to business logic.
+
+### 3.1 For Jakarta EE Applications
+
+Use HybridTokenAuthenticator from the java-security library:
+
+```java
+import com.sap.cloud.security.servlet.HybridTokenAuthenticator;
+
+// In your servlet filter or security configuration
+HybridTokenAuthenticator authenticator = new HybridTokenAuthenticator();
+authenticator.
+
+        validateRequest(request, response);
+```
+
+Manifest Configuration:     
+Ensure your manifest.yml includes both XSUAA and IAS service bindings.
+The identity service must be configured to allow cross-consumption of XSUAA service keys.
+
+```yml
+services:
+  - name: xsuaa-service-instance
+  - name: identity-service-instance
+    parameters:
+      xsuaa-cross-consumption: true  # Enable cross-consumption
+```
+
+### 3.2 For Spring Boot Applications
+
+Use HybridJwtDecoder from the spring-security library:
+
+Automatic Configuration: (Recommended)
+
+In application.yml:
+
+```yml
+sap:
+  spring:
+    security:
+      hybrid:
+        authentication:
+          token:
+            exchange: true
+```
+
+or in application.properties:
+
+```properties
+sap.spring.security.hybrid.authentication.token.exchange=true
+```
+
+Manual Configuration:
+
+```java
+import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfiguration {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/api/**").authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.decoder(hybridJwtDecoder()))
+                );
+        return http.build();
+    }
+
+    @Bean
+    public JwtDecoder hybridJwtDecoder() {
+        return new HybridJwtDecoder(
+                xsuaaValidator(),
+                iasValidator(),
+                true  // Enable token exchange from IAS → XSUAA
+        );
+    }
+
+}
+```
+
+Manifest Configuration:
+Ensure your manifest.yml includes both XSUAA and IAS service bindings.
+The identity service must be configured to allow cross-consumption of XSUAA service keys.
+
+```yml
+services:
+  - name: xsuaa-service-instance
+  - name: identity-service-instance
+    parameters:
+      xsuaa-cross-consumption: true  # Enable cross-consumption
+```
+
+What Happens Behind the Scenes:   
+Token Validation: Both XSUAA and IAS tokens are validated using their respective validators.    
+Token Exchange (when enabled): IAS tokens are automatically exchanged to XSUAA tokens to maintain compatibility with
+existing authorization logic.
+
+Backward Compatibility:    
+Existing XSUAA-based authorization checks continue working unchanged
+
+Key Benefits:    
+Zero business logic changes — Authorization code using XSUAA scopes/attributes works unchanged
+Gradual migration — Add IAS service binding without removing XSUAA  
+Automatic token exchange — IAS tokens converted to XSUAA format for legacy authorization    
+Testing support — Use java-security-test to generate both XSUAA and IAS test tokens
+
+<hr></hr> Important Notes:
+The xsuaa-cross-consumption: true parameter enables Identity Services to fetch XSUAA service keys for token exchange
+Token exchange adds latency — plan to migrate authorization logic to remove this overhead
+Requires SAP BTP Cloud Foundry runtime with both XSUAA and IAS service instances bound
 
 ## Installation
 The SAP Cloud Security Services Integration is published to maven central: https://search.maven.org/search?q=com.sap.cloud.security and is available as a Maven dependency. Add the following BOM to your dependency management in your `pom.xml`:
