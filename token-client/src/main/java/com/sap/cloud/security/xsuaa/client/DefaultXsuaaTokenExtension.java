@@ -4,10 +4,15 @@ import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.XsuaaTokenExtension;
 import java.net.URI;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Experimental
@@ -20,11 +25,41 @@ import java.util.Optional;
  * on the configuration of the target XSUAA service instance. The IAS token must contain the {@code
  * app_tid} claim, which is required for tenant resolution during token exchange.
  */
-public class XsuaaTokenExchangeService {
+public class DefaultXsuaaTokenExtension implements XsuaaTokenExtension {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultXsuaaTokenExtension.class);
+
+  private final OAuth2TokenService tokenService;
+  private final OAuth2ServiceConfiguration xsuaaConfig;
   private static final String CLAIM_APP_TID = "app_tid";
   private static final String CERTIFICATE = "certificate";
   private static final String KEY = "key";
+
+  public DefaultXsuaaTokenExtension(
+      OAuth2TokenService tokenService, OAuth2ServiceConfiguration xsuaaConfig) {
+    this.tokenService = Objects.requireNonNull(tokenService);
+    this.xsuaaConfig = Objects.requireNonNull(xsuaaConfig);
+  }
+
+  /**
+   * Resolves the XSUAA token from the extended security context.
+   *
+   * @return the XSUAA token or null if not available.
+   */
+  @Override
+  public Token resolveXsuaaToken() {
+    final Token idToken = SecurityContext.getIdToken();
+    if (idToken == null) {
+      LOGGER.warn("Cannot resolve XSUAA token with no ID token present");
+      return null;
+    }
+    try {
+      return exchangeToXsuaa(idToken);
+    } catch (OAuth2ServiceException e) {
+      LOGGER.warn("Failed to retrieve XSUAA-Token", e);
+      return null;
+    }
+  }
 
   /**
    * Exchanges an IAS ID token for an XSUAA token using the JWT Bearer Token flow.
@@ -33,11 +68,7 @@ public class XsuaaTokenExchangeService {
    * @return the exchanged XSUAA token
    * @throws OAuth2ServiceException in case of errors
    */
-  public Token exchangeToXsuaa(
-      final Token idToken,
-      final OAuth2ServiceConfiguration xsuaaConfig,
-      final OAuth2TokenService tokenService)
-      throws OAuth2ServiceException {
+  private Token exchangeToXsuaa(final Token idToken) throws OAuth2ServiceException {
     final ClientIdentity identity;
     final String zid =
         Optional.ofNullable(idToken.getClaimAsString(CLAIM_APP_TID))

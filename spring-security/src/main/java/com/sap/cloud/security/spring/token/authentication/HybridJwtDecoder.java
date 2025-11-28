@@ -17,9 +17,9 @@ import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.x509.X509Certificate;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaTokenExchangeService;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -115,17 +115,10 @@ public class HybridJwtDecoder implements JwtDecoder {
     }
     SecurityContext.setToken(token);
     OAuth2ServiceConfiguration xsuaaConfig = getXsuaaConfiguration();
-    Token idToken = getIdTokenFromSecurityContext();
     OAuth2TokenService tokenService = createTokenService(xsuaaConfig);
-    return new XsuaaTokenExchangeService().exchangeToXsuaa(idToken, xsuaaConfig, tokenService);
-  }
-
-  private static Token getIdTokenFromSecurityContext() throws OAuth2ServiceException {
-    return Optional.ofNullable(SecurityContext.getIdToken())
-        .orElseThrow(
-            () ->
-                new OAuth2ServiceException(
-                    "No ID token found in SecurityContext for token exchange."));
+    SecurityContext.registerXsuaaTokenExtension(
+        new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig));
+    return SecurityContext.getXsuaaToken();
   }
 
   private static OAuth2ServiceConfiguration getXsuaaConfiguration() throws OAuth2ServiceException {

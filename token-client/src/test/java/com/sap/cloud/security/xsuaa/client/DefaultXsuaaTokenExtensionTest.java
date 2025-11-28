@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
@@ -11,6 +12,7 @@ import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import java.net.URI;
 import org.junit.Before;
@@ -21,7 +23,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class XsuaaTokenExchangeServiceTest {
+public class DefaultXsuaaTokenExtensionTest {
 
   @Mock private OAuth2TokenService tokenService;
   @Mock private Token idToken;
@@ -31,11 +33,11 @@ public class XsuaaTokenExchangeServiceTest {
   @Mock private URI baseUri;
   @Mock private OAuth2TokenResponse response;
 
-  private XsuaaTokenExchangeService cut;
+  private DefaultXsuaaTokenExtension cut;
 
   @Before
   public void setUp() throws Exception {
-    cut = new XsuaaTokenExchangeService();
+    cut = new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig);
     when(xsuaaConfig.getProperty("certificate")).thenReturn("CERT");
     when(xsuaaConfig.getProperty("key")).thenReturn("KEY");
     when(xsuaaConfig.getClientId()).thenReturn("CLIENT_ID");
@@ -46,12 +48,35 @@ public class XsuaaTokenExchangeServiceTest {
         .thenReturn(response);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void exchangeToXsuaa_noAPP_TIDPresent_throwsIllegalStateException()
-      throws OAuth2ServiceException {
-    when(idToken.getClaimAsString("app_tid")).thenReturn(null);
+  @Test
+  public void exchangeToXsuaa_noIDTokenPresent_returnsNull() {
+    assertNull(cut.resolveXsuaaToken());
+  }
 
-    cut.exchangeToXsuaa(idToken, xsuaaConfig, tokenService);
+  @Test(expected = IllegalStateException.class)
+  public void exchangeToXsuaa_noAPP_TIDPresent_throwsIllegalStateException() {
+    try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+      securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+      when(idToken.getClaimAsString("app_tid")).thenReturn(null);
+
+      cut.resolveXsuaaToken();
+    }
+  }
+
+  @Test
+  public void exchangeToXsuaa_errorDuringTokenRetrieval_returnsNull()
+      throws OAuth2ServiceException {
+
+    try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+      securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+      when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.X509);
+      when(xsuaaConfig.getCertUrl()).thenReturn(certUrl);
+      when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+              any(), any(), any(), any(), any(Boolean.class), any()))
+          .thenThrow(OAuth2ServiceException.class);
+
+      assertNull(cut.resolveXsuaaToken());
+    }
   }
 
   @Test
@@ -59,15 +84,18 @@ public class XsuaaTokenExchangeServiceTest {
       throws OAuth2ServiceException {
 
     try (MockedStatic<Token> token = mockStatic(Token.class)) {
+      try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+        securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
       token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
       when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.X509);
       when(xsuaaConfig.getCertUrl()).thenReturn(certUrl);
 
-      cut.exchangeToXsuaa(idToken, xsuaaConfig, tokenService);
+        cut.resolveXsuaaToken();
 
       verify(tokenService, times(1))
           .retrieveAccessTokenViaJwtBearerTokenGrant(
               any(), any(ClientCertificate.class), eq("TOKEN"), any(), eq(false), eq("APP_TID"));
+      }
     }
   }
 
@@ -76,15 +104,18 @@ public class XsuaaTokenExchangeServiceTest {
       throws OAuth2ServiceException {
 
     try (MockedStatic<Token> token = mockStatic(Token.class)) {
-      token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
+      try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+        securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+        token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
       when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.BINDING_SECRET);
       when(xsuaaConfig.getUrl()).thenReturn(baseUri);
 
-      cut.exchangeToXsuaa(idToken, xsuaaConfig, tokenService);
+        cut.resolveXsuaaToken();
 
       verify(tokenService, times(1))
           .retrieveAccessTokenViaJwtBearerTokenGrant(
               any(), any(ClientCredentials.class), eq("TOKEN"), any(), eq(false), eq("APP_TID"));
+    }
     }
   }
 }
