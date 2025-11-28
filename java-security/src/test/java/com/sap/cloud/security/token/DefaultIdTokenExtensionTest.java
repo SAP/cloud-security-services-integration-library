@@ -79,19 +79,19 @@ public class DefaultIdTokenExtensionTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void resolveIdToken_noTokenInContext_throwsIllegalArgumentException() {
+  public void resolveToken_noTokenInContext_throwsIllegalArgumentException() {
     cut.resolveIdToken();
   }
 
   @Test(expected = IllegalArgumentException.class)
-  public void resolveIdToken_tokenIsTechnicalUser_throwsIllegalArgumentException() {
+  public void resolveToken_tokenIsTechnicalUser_throwsIllegalArgumentException() {
     SecurityContext.setToken(technicalUserToken);
 
     cut.resolveIdToken();
   }
 
   @Test
-  public void resolveIdToken_tokenIsAlreadyIDToken_returnToken() {
+  public void resolveIdToken_tokenIsAlreadyToken_returnToken() {
     SecurityContext.setToken(idToken);
 
     final Token result = cut.resolveIdToken();
@@ -100,7 +100,7 @@ public class DefaultIdTokenExtensionTest {
   }
 
   @Test
-  public void resolveIdToken_tokenIsAccessTokenWithCertificate_exchangeTokenForIDTokenWithCert()
+  public void resolveIdToken_tokenIsAccessTokenWithCertificate_exchangeTokenForTokenWithCert()
       throws OAuth2ServiceException {
     SecurityContext.setToken(accessToken);
     ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
@@ -128,7 +128,7 @@ public class DefaultIdTokenExtensionTest {
 
   @Test
   public void
-      resolveIdToken_tokenIsAccessTokenWithClientCredentials_exchangeTokenForIDTokenWithClientSecret()
+      resolveIdToken_tokenIsAccessTokenWithClientCredentials_exchangeTokenForTokenWithClientSecret()
           throws OAuth2ServiceException {
     SecurityContext.setToken(accessToken);
     when(serviceConfiguration.getProperty("certificate")).thenReturn(null);
@@ -158,7 +158,7 @@ public class DefaultIdTokenExtensionTest {
   }
 
   @Test
-  public void resolveIdToken_tokenIsAlreadyIDToken_doesNotCallTokenService() {
+  public void resolveIdToken_tokenIsAlreadyToken_doesNotCallTokenService() {
     SecurityContext.setToken(idToken);
 
     final Token result = cut.resolveIdToken();
@@ -168,7 +168,7 @@ public class DefaultIdTokenExtensionTest {
   }
 
   @Test
-  public void resolveIdToken_exchangeFails_returnsNull() throws OAuth2ServiceException {
+  public void resolveToken_exchangeFails_returnsNull() throws OAuth2ServiceException {
     SecurityContext.setToken(accessToken);
     when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
             eq(completeCertUri), any(), any(), any(), anyMap(), anyBoolean()))
@@ -180,7 +180,7 @@ public class DefaultIdTokenExtensionTest {
   }
 
   @Test
-  public void resolveIdToken_accessTokenWithEmptyAudience_treatedAsIdToken_noServiceCall() {
+  public void resolveIdToken_accessTokenWithEmptyAudience_treatedAsToken_noServiceCall() {
     Token t = new MockTokenBuilder().build();
     when(t.getClaimAsStringList("aud")).thenReturn(java.util.Collections.emptyList());
     when(t.getClientId()).thenReturn(clientId);

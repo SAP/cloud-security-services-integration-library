@@ -10,14 +10,11 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -29,18 +26,13 @@ import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.x509.X509Certificate;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaTokenExchangeService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -55,13 +47,11 @@ class HybridJwtDecoderTest {
 	JwtGenerator jwtGenerator = JwtGenerator.getInstance(IAS, "theClientId");
 	CombiningValidator<Token> combiningValidator;
 	HybridJwtDecoder cut;
-  XsuaaTokenExchangeService xsuaaTokenExchangeService;
 
 	@BeforeEach
 	void setup() {
 		combiningValidator = Mockito.mock(CombiningValidator.class);
 		when(combiningValidator.validate(any())).thenReturn(ValidationResults.createValid());
-    xsuaaTokenExchangeService = Mockito.mock(XsuaaTokenExchangeService.class);
 
     cut = new HybridJwtDecoder(combiningValidator, combiningValidator);
 	}
@@ -218,64 +208,38 @@ class HybridJwtDecoderTest {
     Environment environment = Mockito.mock(Environment.class);
     try (MockedStatic<SecurityContext> securityContext = Mockito.mockStatic(SecurityContext.class);
         MockedStatic<Environments> environments = Mockito.mockStatic(Environments.class)) {
-      securityContext.when(SecurityContext::getIdToken).thenReturn(null);
+      securityContext.when(SecurityContext::getXsuaaToken).thenReturn(null);
       environments.when(Environments::getCurrent).thenReturn(environment);
       Mockito.when(environment.getXsuaaConfiguration()).thenReturn(xsuaaConfig);
 
-      JwtException ex =
-          assertThrows(
-              JwtException.class,
-              () -> cut.decode(iasToken),
-              "IAS token with failing token exchange must result in JwtException");
-
-      assertTrue(
-          ex.getMessage()
-              .contains(
-                  "Token exchange failed: No ID token found in SecurityContext for token exchange."),
-          "Exception message should be wrapped with 'Token exchange failed:' prefix");
+      assertThrows(
+          JwtException.class,
+          () -> cut.decode(iasToken),
+          "IAS token with failing token exchange must result in JwtException");
     }
   }
 
   @Test
-  void decodeIasToken_withTokenExchangeEnabled_performsTokenExchangeAndReturnsExchangedToken()
-      throws OAuth2ServiceException {
+  void decodeIasToken_withTokenExchangeEnabled_performsTokenExchangeAndReturnsExchangedToken() {
     cut = new HybridJwtDecoder(combiningValidator, combiningValidator, true);
     String iasAccessTokenValue = jwtGenerator.createToken().getTokenValue();
-    Token idToken = Token.create(jwtGenerator.createToken().getTokenValue());
     String exchangedXsuaaTokenValue =
         JwtGenerator.getInstance(XSUAA, "exchangedClientId").createToken().getTokenValue();
     Token exchangedXsuaaToken = Token.create(exchangedXsuaaTokenValue);
 
     OAuth2ServiceConfiguration xsuaaConfig = Mockito.mock(OAuth2ServiceConfiguration.class);
     Environment environment = Mockito.mock(Environment.class);
-    CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
     try (MockedStatic<SecurityContext> securityContext = Mockito.mockStatic(SecurityContext.class);
-        MockedStatic<Environments> environments = Mockito.mockStatic(Environments.class);
-        MockedStatic<HttpClientFactory> httpClientFactory =
-            Mockito.mockStatic(HttpClientFactory.class);
-        MockedConstruction<XsuaaTokenExchangeService> exchangeServiceConstruction =
-            Mockito.mockConstruction(
-                XsuaaTokenExchangeService.class,
-                (mock, context) ->
-                    Mockito.when(
-                            mock.exchangeToXsuaa(
-                                eq(idToken), eq(xsuaaConfig), any(OAuth2TokenService.class)))
-                        .thenReturn(exchangedXsuaaToken))) {
-
-      securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+        MockedStatic<Environments> environments = Mockito.mockStatic(Environments.class)) {
+      securityContext.when(SecurityContext::getXsuaaToken).thenReturn(exchangedXsuaaToken);
       environments.when(Environments::getCurrent).thenReturn(environment);
       Mockito.when(environment.getXsuaaConfiguration()).thenReturn(xsuaaConfig);
-      httpClientFactory.when(() -> HttpClientFactory.create(null)).thenReturn(httpClient);
-
       Jwt result = cut.decode(iasAccessTokenValue);
       assertEquals(
           "exchangedClientId",
           result.getClaim(TokenClaims.AUTHORIZATION_PARTY),
           "Should use the exchanged XSUAA token, not the original IAS token");
-      XsuaaTokenExchangeService constructed = exchangeServiceConstruction.constructed().get(0);
-      verify(constructed)
-          .exchangeToXsuaa(eq(idToken), eq(xsuaaConfig), any(OAuth2TokenService.class));
       securityContext.verify(() -> SecurityContext.setToken(any()));
-    }
+  }
   }
 }

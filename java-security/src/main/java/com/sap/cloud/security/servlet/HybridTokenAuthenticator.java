@@ -8,9 +8,8 @@ import com.sap.cloud.security.token.DefaultIdTokenExtension;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaTokenExchangeService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
@@ -46,19 +45,17 @@ import org.apache.http.impl.client.CloseableHttpClient;
  */
 public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
 
-  private final OAuth2ServiceConfiguration xsuaaConfig;
-  private final OAuth2TokenService tokenService;
   private final IasTokenAuthenticator iasTokenAuthenticator = new IasTokenAuthenticator();
   private final XsuaaTokenAuthenticator xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
-  private final XsuaaTokenExchangeService exchangeService = new XsuaaTokenExchangeService();
 
   public HybridTokenAuthenticator(
       @Nonnull final OAuth2ServiceConfiguration iasConfig,
       @Nonnull final CloseableHttpClient httpClient,
       @Nonnull final OAuth2ServiceConfiguration xsuaaConfig) {
-    this.tokenService = new DefaultOAuth2TokenService(httpClient);
-    this.xsuaaConfig = xsuaaConfig;
+    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
     SecurityContext.registerIdTokenExtension(new DefaultIdTokenExtension(tokenService, iasConfig));
+    SecurityContext.registerXsuaaTokenExtension(
+        new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig));
   }
 
   @Override
@@ -92,14 +89,13 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       return iasResult;
     }
     try {
-      final Token idToken = SecurityContext.getIdToken();
-      if (idToken == null) {
-        return unauthenticated("Missing IAS ID Token. Cannot exchange for XSUAA Token.");
+      final Token xsuaaToken = SecurityContext.getXsuaaToken();
+      if (xsuaaToken == null) {
+        return unauthenticated("XSUAA Token couldn't be fetched.");
       }
-      final Token xsuaaToken = exchangeService.exchangeToXsuaa(idToken, xsuaaConfig, tokenService);
       SecurityContext.overwriteToken(xsuaaToken);
       return xsuaaTokenAuthenticator.authenticated(xsuaaToken);
-    } catch (OAuth2ServiceException | IllegalArgumentException | IllegalStateException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       return unauthenticated(
           "Unexpected error during exchange from ID token to XSUAA token:" + e.getMessage());
     }
