@@ -12,7 +12,6 @@ import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -32,7 +31,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class HybridTokenAuthenticatorTest {
 
-  @Mock private OAuth2TokenService tokenService;
   @Mock private IasTokenAuthenticator iasAuthenticator;
   @Mock private XsuaaTokenAuthenticator xsuaaAuthenticator;
   @Mock private HttpServletRequest httpReq;
@@ -75,7 +73,6 @@ public class HybridTokenAuthenticatorTest {
 
     setField(cut, "iasTokenAuthenticator", iasAuthenticator);
     setField(cut, "xsuaaTokenAuthenticator", xsuaaAuthenticator);
-    setField(cut, "tokenService", tokenService);
   }
 
   @Test
