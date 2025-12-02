@@ -1,5 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,6 +13,7 @@ import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import java.net.URI;
@@ -76,6 +78,18 @@ public class DefaultXsuaaTokenExtensionTest {
           .thenThrow(OAuth2ServiceException.class);
 
       assertNull(cut.resolveXsuaaToken());
+    }
+  }
+
+  @Test
+  public void exchangeToXsuaa_tokenIsAlreadyXSUAA_returnsToken() {
+    try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+      securityContext.when(SecurityContext::getToken).thenReturn(xsuaaToken);
+      when(xsuaaToken.getService()).thenReturn(Service.XSUAA);
+
+      Token result = cut.resolveXsuaaToken();
+
+      assertEquals(xsuaaToken, result);
     }
   }
 

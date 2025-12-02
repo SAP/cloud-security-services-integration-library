@@ -1,5 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
+import static com.sap.cloud.security.config.Service.XSUAA;
+
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
@@ -15,15 +17,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Experimental
+ * Default implementation of {@link XsuaaTokenExtension} that exchanges IAS tokens to XSUAA tokens.
  *
- * <p>Service responsible for exchanging an IAS (Identity Authentication Service) ID token for an
- * XSUAA (XS Advanced User Account and Authentication) token using the OAuth 2.0 JWT Bearer Token
- * flow.
+ * <p>This implementation enables <b>hybrid authentication scenarios (Level 0 migration)</b> where
+ * an application receives Identity Authentication Service (IAS) tokens but needs XSUAA tokens to
+ * maintain compatibility with existing XSUAA-based authorization logic (scopes, attributes, role
+ * collections).
  *
- * <p>This service supports both client credentials and certificate-based authentication depending
- * on the configuration of the target XSUAA service instance. The IAS token must contain the {@code
- * app_tid} claim, which is required for tenant resolution during token exchange.
+ * <p><b>Token Exchange Flow:</b>
+ *
+ * <ol>
+ *   <li>Retrieves the current token from {@link SecurityContext#getToken()}
+ *   <li>If already a XSUAA token, returns it immediately (no exchange needed)
+ *   <li>If IAS token, exchanges it to XSUAA format
+ * </ol>
+ *
+ * <p><b>Prerequisites:</b> Token exchange requires both service bindings in your Cloud Foundry
+ * manifest:
+ *
+ * <pre>{@code
+ * services:
+ *   - name: xsuaa-authn
+ *   - name: ias-authn
+ *     parameters:
+ *       xsuaa-cross-consumption: true  # Required for token exchange
+ * }</pre>
+ *
+ * The {@code xsuaa-cross-consumption: true} parameter allows IAS to fetch XSUAA service keys for
+ * JWT Bearer token exchange.
+ *
+ * @see XsuaaTokenExtension
+ * @see SecurityContext#registerXsuaaTokenExtension(XsuaaTokenExtension)
  */
 public class DefaultXsuaaTokenExtension implements XsuaaTokenExtension {
 
@@ -35,6 +59,16 @@ public class DefaultXsuaaTokenExtension implements XsuaaTokenExtension {
   private static final String CERTIFICATE = "certificate";
   private static final String KEY = "key";
 
+  /**
+   * Creates a new {@link DefaultXsuaaTokenExtension} with the specified token service and XSUAA
+   * configuration.
+   *
+   * @param tokenService the OAuth2 token service to use for token exchange (must not be {@code
+   *     null})
+   * @param xsuaaConfig the XSUAA OAuth2 service configuration containing client credentials and
+   *     token endpoints (must not be {@code null})
+   * @throws NullPointerException if {@code tokenService} or {@code xsuaaConfig} is {@code null}
+   */
   public DefaultXsuaaTokenExtension(
       OAuth2TokenService tokenService, OAuth2ServiceConfiguration xsuaaConfig) {
     this.tokenService = Objects.requireNonNull(tokenService);
@@ -42,12 +76,41 @@ public class DefaultXsuaaTokenExtension implements XsuaaTokenExtension {
   }
 
   /**
-   * Resolves the XSUAA token from the extended security context.
+   * Resolves a XSUAA token by exchanging the current IAS token from {@link SecurityContext}.
    *
-   * @return the XSUAA token or null if not available.
+   * <p><b>Execution Flow:</b>
+   *
+   * <ol>
+   *   <li>Retrieves the current token using {@link SecurityContext#getToken()}
+   *   <li>Returns {@code null} if no token is available
+   *   <li>Returns the current token immediately if it's already a XSUAA token (no exchange needed)
+   *   <li>Exchanges IAS tokens to XSUAA tokens using {@link
+   *       OAuth2TokenService#retrieveAccessTokenViaJwtBearerTokenGrant}
+   *   <li>Returns the exchanged XSUAA token
+   * </ol>
+   *
+   * <p><b>Failure Scenarios:</b> Returns {@code null} if:
+   *
+   * <ul>
+   *   <li>No token exists in {@link SecurityContext} (DEBUG: "Cannot resolve XSUAA token: No token
+   *       found")
+   *   <li>Token exchange fails due to:
+   *       <ul>
+   *         <li>Network errors
+   *         <li>Missing {@code xsuaa-cross-consumption: true} configuration
+   *         <li>Invalid XSUAA credentials
+   *         <li>XSUAA service unavailable
+   *       </ul>
+   * </ul>
+   *
+   * @return the XSUAA token (either existing or exchanged), or {@code null} if resolution fails
    */
   @Override
   public Token resolveXsuaaToken() {
+    final Token currentToken = SecurityContext.getToken();
+    if (currentToken != null && currentToken.getService() == XSUAA) {
+      return currentToken;
+    }
     final Token idToken = SecurityContext.getIdToken();
     if (idToken == null) {
       LOGGER.warn("Cannot resolve XSUAA token with no ID token present");

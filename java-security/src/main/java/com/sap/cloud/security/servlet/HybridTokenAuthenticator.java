@@ -20,28 +20,34 @@ import jakarta.servlet.http.HttpServletResponse;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.security.core.Authentication;
 
 /**
- * Experimental Authenticates HTTP requests carrying either an IAS Access Token, ID token or an
- * XSUAA access token in the {@code Authorization} header.
+ * Authenticates tokens issued by XSUAA or Identity Authentication Service (IAS).
  *
- * <p>If the token is already an XSUAA token, validation is delegated to {@link
- * XsuaaTokenAuthenticator}. Otherwise, the IAS token is validated via {@link
- * IasTokenAuthenticator}, and on success, exchanged for an XSUAA access token using the OAuth 2.0
- * JWT Bearer Token grant ({@code jwt_bearer}). The exchanged XSUAA token is then stored in the
- * {@link com.sap.cloud.security.token.SecurityContext} and used for subsequent authorization.
+ * <p>This authenticator validates JWT tokens and creates Spring Security {@link Authentication}
+ * objects, supporting both XSUAA access tokens and IAS OIDC tokens. It integrates with {@link
+ * SecurityContext} to enable automatic token exchange in hybrid scenarios.
  *
- * <p>Requirements:
+ * <p><b>Authentication Flow:</b>
  *
- * <ul>
- *   <li>XSUAA instance must support the {@code jwt_bearer} grant type.
- *   <li>The IAS ID token must contain the {@code app_tid} (tenant) claim.
- *   <li>Either client secret or certificate credentials must be configured for XSUAA.
- * </ul>
+ * <ol>
+ *   <li>Extract JWT token from HTTP request (Authorization header)
+ *   <li>Validate token using appropriate validator (XSUAA or IAS)
+ *   <li>Optionally exchange IAS token to XSUAA format if enabled
+ *   <li>Store token in thread-local {@link SecurityContext}
+ *   <li>Return {@link Authentication} object with token claims/authorities
+ * </ol>
  *
- * <p>This authenticator is stateless and thread-safe. It should be invoked once per request,
- * typically from a servlet filter. Ensure the {@link com.sap.cloud.security.token.SecurityContext}
- * is cleared after each request to prevent token leakage between threads.
+ * <p><b>Hybrid Authentication Support:</b> When token exchange is enabled, IAS tokens are
+ * automatically converted to XSUAA format after validation. This supports Level 0 migration where
+ * applications transition from XSUAA to IAS authentication while maintaining existing authorization
+ * logic.
+ *
+ * <p><b>Thread Safety:</b> This class is thread-safe. Each request is processed in its own thread
+ * with isolated {@link SecurityContext} storage.
+ *
+ * @see SecurityContext
  */
 public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
 
