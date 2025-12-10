@@ -13,7 +13,6 @@ import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import java.net.URI;
@@ -52,7 +51,7 @@ public class DefaultXsuaaTokenExtensionTest {
 
   @Test
   public void exchangeToXsuaa_noIDTokenPresent_returnsNull() {
-    assertNull(cut.resolveXsuaaToken());
+    assertNull(cut.resolveXsuaaToken(null));
   }
 
   @Test(expected = IllegalStateException.class)
@@ -61,7 +60,7 @@ public class DefaultXsuaaTokenExtensionTest {
       securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
       when(idToken.getClaimAsString("app_tid")).thenReturn(null);
 
-      cut.resolveXsuaaToken();
+      cut.resolveXsuaaToken(null);
     }
   }
 
@@ -77,19 +76,36 @@ public class DefaultXsuaaTokenExtensionTest {
               any(), any(), any(), any(), any(Boolean.class), any()))
           .thenThrow(OAuth2ServiceException.class);
 
-      assertNull(cut.resolveXsuaaToken());
+      assertNull(cut.resolveXsuaaToken(null));
     }
   }
 
   @Test
   public void exchangeToXsuaa_tokenIsAlreadyXSUAA_returnsToken() {
-    try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
-      securityContext.when(SecurityContext::getToken).thenReturn(xsuaaToken);
-      when(xsuaaToken.getService()).thenReturn(Service.XSUAA);
+    when(xsuaaToken.isExpired()).thenReturn(false);
 
-      Token result = cut.resolveXsuaaToken();
+    Token result = cut.resolveXsuaaToken(xsuaaToken);
 
       assertEquals(xsuaaToken, result);
+  }
+
+  @Test
+  public void getXsuaaToken_tokenIsExpired_exchangesForNewToken() throws OAuth2ServiceException {
+    when(xsuaaToken.isExpired()).thenReturn(true);
+
+    try (MockedStatic<Token> token = mockStatic(Token.class)) {
+      try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+        securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+        token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
+        when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.X509);
+        when(xsuaaConfig.getCertUrl()).thenReturn(certUrl);
+
+        cut.resolveXsuaaToken(xsuaaToken);
+
+        verify(tokenService, times(1))
+            .retrieveAccessTokenViaJwtBearerTokenGrant(
+                any(), any(ClientCertificate.class), eq("TOKEN"), any(), eq(false), eq("APP_TID"));
+      }
     }
   }
 
@@ -104,7 +120,7 @@ public class DefaultXsuaaTokenExtensionTest {
       when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.X509);
       when(xsuaaConfig.getCertUrl()).thenReturn(certUrl);
 
-        cut.resolveXsuaaToken();
+        cut.resolveXsuaaToken(null);
 
       verify(tokenService, times(1))
           .retrieveAccessTokenViaJwtBearerTokenGrant(
@@ -124,12 +140,30 @@ public class DefaultXsuaaTokenExtensionTest {
       when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.BINDING_SECRET);
       when(xsuaaConfig.getUrl()).thenReturn(baseUri);
 
-        cut.resolveXsuaaToken();
+        cut.resolveXsuaaToken(null);
 
       verify(tokenService, times(1))
           .retrieveAccessTokenViaJwtBearerTokenGrant(
               any(), any(ClientCredentials.class), eq("TOKEN"), any(), eq(false), eq("APP_TID"));
     }
+    }
+  }
+
+  @Test
+  public void getXsuaaToken_errorDuringTokenExchange_returnNull() throws OAuth2ServiceException {
+    when(xsuaaToken.isExpired()).thenReturn(true);
+
+    try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+      securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+      when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.X509);
+      when(xsuaaConfig.getCertUrl()).thenReturn(certUrl);
+      when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+              any(), any(ClientCertificate.class), eq("TOKEN"), any(), eq(false), eq("APP_TID")))
+          .thenThrow(OAuth2ServiceException.class);
+
+      Token result = cut.resolveXsuaaToken(xsuaaToken);
+
+      assertNull(result);
     }
   }
 }

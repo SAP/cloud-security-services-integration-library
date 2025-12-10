@@ -79,7 +79,7 @@ public class SecurityContextTest {
   @Test
   public void overwriteToken() {
     SecurityContext.setToken(TOKEN);
-    SecurityContext.overwriteToken(TOKEN);
+    SecurityContext.get().updateToken(TOKEN);
     assertThat(SecurityContext.getToken()).isEqualTo(TOKEN);
     assertThat(SecurityContext.getInitialToken()).isEqualTo(TOKEN);
   }
@@ -87,7 +87,7 @@ public class SecurityContextTest {
 	@Test
 	public void clear_removesToken() {
 		SecurityContext.setToken(TOKEN);
-		SecurityContext.clear();
+    SecurityContext.clearContext();
 
 		assertThat(SecurityContext.getToken()).isNull();
     assertThat(SecurityContext.getInitialToken()).isNull();
@@ -109,7 +109,7 @@ public class SecurityContextTest {
 			throws ExecutionException, InterruptedException {
 		SecurityContext.setToken(TOKEN);
 
-    executorService.submit(SecurityContext::clear).get(); // run and await other thread
+    executorService.submit(SecurityContext::clearContext).get(); // run and await other thread
 
 		assertThat(SecurityContext.getToken()).isEqualTo(TOKEN);
 	}
@@ -170,39 +170,13 @@ public class SecurityContextTest {
   }
 
   @Test
-  public void getIdToken_tokenHasNoExpirationSetAndNoExtension_removesTokenAndReturnsNull() {
-    when(TOKEN.getTokenValue()).thenReturn("expired-token");
-    when(TOKEN.getExpiration()).thenReturn(null);
-
-    setIdTokenStorage();
-
-    Token result = SecurityContext.getIdToken();
-
-    assertNull(result);
-    assertNull(getIdTokenStorage());
-  }
-
-  @Test
-  public void getIdToken_tokenIsExpiredAndNoExtension_removesExpiredTokenAndReturnsNull() {
-    when(TOKEN.getTokenValue()).thenReturn("expired-token");
-    when(TOKEN.getExpiration()).thenReturn(Instant.now().minus(1, ChronoUnit.MINUTES));
-
-    setIdTokenStorage();
-
-    Token result = SecurityContext.getIdToken();
-
-    assertNull(result);
-    assertNull(getIdTokenStorage());
-  }
-
-  @Test
   public void getIdToken_tokenIsExpiredButExtensionSet_removesExpiredTokenAndResolvesNewToken()
       throws IOException {
     IdTokenExtension extension = mock(IdTokenExtension.class);
     SecurityContext.registerIdTokenExtension(extension);
     when(TOKEN.getTokenValue()).thenReturn("expired-token");
     when(TOKEN.getExpiration()).thenReturn(Instant.now().minus(1, ChronoUnit.MINUTES));
-    when(extension.resolveIdToken())
+    when(extension.resolveIdToken(TOKEN))
         .thenReturn(Token.create(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8)));
 
     setIdTokenStorage();
@@ -217,7 +191,7 @@ public class SecurityContextTest {
   @Test
   public void getIdToken_usesExtension_whenNoTokenStored() throws IOException {
     IdTokenExtension extension = mock(IdTokenExtension.class);
-    when(extension.resolveIdToken())
+    when(extension.resolveIdToken(null))
         .thenReturn(Token.create(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8)));
     SecurityContext.registerIdTokenExtension(extension);
 
@@ -225,7 +199,7 @@ public class SecurityContextTest {
 
     assertEquals(
         IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8), result.getTokenValue());
-    verify(extension, times(1)).resolveIdToken();
+    verify(extension, times(1)).resolveIdToken(null);
     assertNotNull(getIdTokenStorage(), "Resolved token should be stored in ThreadLocal");
     assertEquals(
         IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8),
@@ -267,39 +241,13 @@ public class SecurityContextTest {
   }
 
   @Test
-  public void getXsuaaToken_tokenHasNoExpirationSetAndNoExtension_removesTokenAndReturnsNull() {
-    when(TOKEN.getTokenValue()).thenReturn("expired-token");
-    when(TOKEN.getExpiration()).thenReturn(null);
-
-    setXsuaaTokenStorage();
-
-    Token result = SecurityContext.getXsuaaToken();
-
-    assertNull(result);
-    assertNull(getXsuaaTokenStorage());
-  }
-
-  @Test
-  public void getXsuaaToken_tokenIsExpiredAndNoExtension_removesExpiredTokenAndReturnsNull() {
-    when(TOKEN.getTokenValue()).thenReturn("expired-token");
-    when(TOKEN.getExpiration()).thenReturn(Instant.now().minus(1, ChronoUnit.MINUTES));
-
-    setXsuaaTokenStorage();
-
-    Token result = SecurityContext.getXsuaaToken();
-
-    assertNull(result);
-    assertNull(getXsuaaTokenStorage());
-  }
-
-  @Test
   public void getXsuaaToken_tokenIsExpiredButExtensionSet_removesExpiredTokenAndResolvesNewToken()
       throws IOException {
     XsuaaTokenExtension extension = mock(XsuaaTokenExtension.class);
     SecurityContext.registerXsuaaTokenExtension(extension);
     when(TOKEN.getTokenValue()).thenReturn("expired-token");
     when(TOKEN.getExpiration()).thenReturn(Instant.now().minus(1, ChronoUnit.MINUTES));
-    when(extension.resolveXsuaaToken())
+    when(extension.resolveXsuaaToken(TOKEN))
         .thenReturn(Token.create(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8)));
 
     setXsuaaTokenStorage();
@@ -314,7 +262,7 @@ public class SecurityContextTest {
   @Test
   public void getXsuaaToken_usesExtension_whenNoTokenStored() throws IOException {
     XsuaaTokenExtension extension = mock(XsuaaTokenExtension.class);
-    when(extension.resolveXsuaaToken())
+    when(extension.resolveXsuaaToken(null))
         .thenReturn(Token.create(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8)));
     SecurityContext.registerXsuaaTokenExtension(extension);
 
@@ -322,7 +270,7 @@ public class SecurityContextTest {
 
     assertEquals(
         IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8), result.getTokenValue());
-    verify(extension, times(1)).resolveXsuaaToken();
+    verify(extension, times(1)).resolveXsuaaToken(null);
     assertNotNull(getXsuaaTokenStorage(), "Resolved token should be stored in ThreadLocal");
     assertEquals(
         IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8),

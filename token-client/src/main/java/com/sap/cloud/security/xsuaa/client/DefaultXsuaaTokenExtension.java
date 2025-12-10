@@ -1,6 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import static com.sap.cloud.security.config.Service.XSUAA;
+import static java.util.Objects.nonNull;
 
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
@@ -13,6 +13,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>Token Exchange Flow:</b>
  *
  * <ol>
+ *   <li>If the cached XSUAA token is still valid, return as is
  *   <li>Retrieves the current token from {@link SecurityContext#getToken()}
  *   <li>If already a XSUAA token, returns it immediately (no exchange needed)
  *   <li>If IAS token, exchanges it to XSUAA format
@@ -106,10 +108,9 @@ public class DefaultXsuaaTokenExtension implements XsuaaTokenExtension {
    * @return the XSUAA token (either existing or exchanged), or {@code null} if resolution fails
    */
   @Override
-  public Token resolveXsuaaToken() {
-    final Token currentToken = SecurityContext.getToken();
-    if (currentToken != null && currentToken.getService() == XSUAA) {
-      return currentToken;
+  public Token resolveXsuaaToken(@Nullable Token cachedXsuaaToken) {
+    if (nonNull(cachedXsuaaToken) && !cachedXsuaaToken.isExpired()) {
+      return cachedXsuaaToken;
     }
     final Token idToken = SecurityContext.getIdToken();
     if (idToken == null) {

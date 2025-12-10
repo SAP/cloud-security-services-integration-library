@@ -99,7 +99,7 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       if (xsuaaToken == null) {
         return unauthenticated("XSUAA Token couldn't be fetched.");
       }
-      SecurityContext.overwriteToken(xsuaaToken);
+      SecurityContext.get().updateToken(xsuaaToken);
       return xsuaaTokenAuthenticator.authenticated(xsuaaToken);
     } catch (IllegalArgumentException | IllegalStateException e) {
       return unauthenticated(

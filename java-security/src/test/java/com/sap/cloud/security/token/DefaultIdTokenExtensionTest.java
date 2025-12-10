@@ -45,7 +45,7 @@ public class DefaultIdTokenExtensionTest {
 
   @Before
   public void setUp() throws IOException {
-    SecurityContext.clear();
+    SecurityContext.clearContext();
     when(serviceConfiguration.getUrl()).thenReturn(tokenUri);
     when(serviceConfiguration.getClientId()).thenReturn(clientId);
     String clientSecret = "clientSecret";
@@ -80,23 +80,36 @@ public class DefaultIdTokenExtensionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void resolveToken_noTokenInContext_throwsIllegalArgumentException() {
-    cut.resolveIdToken();
+    cut.resolveIdToken(null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void resolveToken_tokenIsTechnicalUser_throwsIllegalArgumentException() {
     SecurityContext.setToken(technicalUserToken);
 
-    cut.resolveIdToken();
+    cut.resolveIdToken(null);
   }
 
   @Test
-  public void resolveIdToken_tokenIsAlreadyToken_returnToken() {
-    SecurityContext.setToken(idToken);
+  public void resolveIdToken_cachedTokenIsStillValid_returnToken() {
+    when(idToken.isExpired()).thenReturn(false);
 
-    final Token result = cut.resolveIdToken();
+    final Token result = cut.resolveIdToken(idToken);
 
     assertEquals(idToken, result);
+  }
+
+  @Test
+  public void resolveIdToken_tokenIsExpired_exchangeNewIdToken() throws OAuth2ServiceException {
+    when(idToken.isExpired()).thenReturn(true);
+    SecurityContext.setToken(accessToken);
+
+    final Token result = cut.resolveIdToken(idToken);
+
+    assertNotEquals(idToken, result);
+    verify(tokenService)
+        .retrieveAccessTokenViaJwtBearerTokenGrant(
+            eq(completeCertUri), any(), any(), any(), any(), eq(false));
   }
 
   @Test
@@ -106,7 +119,7 @@ public class DefaultIdTokenExtensionTest {
     ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<Map<String, String>> paramCaptor = ArgumentCaptor.forClass(Map.class);
 
-    final Token result = cut.resolveIdToken();
+    final Token result = cut.resolveIdToken(null);
 
     verify(tokenService)
         .retrieveAccessTokenViaJwtBearerTokenGrant(
@@ -136,7 +149,7 @@ public class DefaultIdTokenExtensionTest {
     ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<Map<String, String>> paramCaptor = ArgumentCaptor.forClass(Map.class);
 
-    final Token result = cut.resolveIdToken();
+    final Token result = cut.resolveIdToken(null);
 
     verify(tokenService)
         .retrieveAccessTokenViaJwtBearerTokenGrant(
@@ -161,7 +174,7 @@ public class DefaultIdTokenExtensionTest {
   public void resolveIdToken_tokenIsAlreadyToken_doesNotCallTokenService() {
     SecurityContext.setToken(idToken);
 
-    final Token result = cut.resolveIdToken();
+    final Token result = cut.resolveIdToken(null);
 
     assertSame(idToken, result);
     verifyNoInteractions(tokenService);
@@ -174,7 +187,7 @@ public class DefaultIdTokenExtensionTest {
             eq(completeCertUri), any(), any(), any(), anyMap(), anyBoolean()))
         .thenThrow(new OAuth2ServiceException("boom", null));
 
-    final Token result = cut.resolveIdToken();
+    final Token result = cut.resolveIdToken(null);
 
     assertNull(result);
   }
@@ -186,7 +199,7 @@ public class DefaultIdTokenExtensionTest {
     when(t.getClientId()).thenReturn(clientId);
     SecurityContext.setToken(t);
 
-    final Token result = cut.resolveIdToken();
+    final Token result = cut.resolveIdToken(null);
 
     assertSame(t, result);
     verifyNoInteractions(tokenService);
