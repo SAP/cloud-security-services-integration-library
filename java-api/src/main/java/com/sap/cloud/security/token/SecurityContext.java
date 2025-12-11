@@ -205,7 +205,7 @@ public class SecurityContext {
    *
    * @return the current thread's security context (never {@code null})
    */
-  public static SecurityContext get() {
+  private static SecurityContext get() {
     return contextStorage.get();
   }
 
@@ -323,8 +323,9 @@ public class SecurityContext {
    *
    * @param token the token to set
    */
-  public void updateToken(Token token) {
-    this.token = token;
+  public static void updateToken(Token token) {
+    SecurityContext ctx = get();
+    ctx.token = token;
   }
 
   /**

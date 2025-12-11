@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -44,20 +43,16 @@ public class SecurityContextTest {
 
   @Test
   public void clearContext_contextIsReplaced() {
-    SecurityContext context = SecurityContext.get();
     SecurityContext.setToken(TOKEN);
     SecurityContext.clearContext();
     assertThat(SecurityContext.getToken()).isNull();
-    assertNotEquals(context, SecurityContext.get());
   }
 
   @Test
   public void clear_contextIsCleared() {
-    SecurityContext context = SecurityContext.get();
     SecurityContext.setToken(TOKEN);
     SecurityContext.clear();
     assertThat(SecurityContext.getToken()).isNull();
-    assertEquals(context, SecurityContext.get());
   }
 
 	@Test
@@ -90,10 +85,9 @@ public class SecurityContextTest {
 
   @Test
   public void overwriteToken() {
-    SecurityContext.setToken(TOKEN);
-    SecurityContext.get().updateToken(TOKEN);
+    SecurityContext.updateToken(TOKEN);
     assertThat(SecurityContext.getToken()).isEqualTo(TOKEN);
-    assertThat(SecurityContext.getInitialToken()).isEqualTo(TOKEN);
+    assertThat(SecurityContext.getInitialToken()).isNull();
   }
 
 	@Test
