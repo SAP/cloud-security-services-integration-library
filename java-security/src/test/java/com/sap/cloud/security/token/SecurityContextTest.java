@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -43,9 +44,20 @@ public class SecurityContextTest {
 
   @Test
   public void clearContext_contextIsReplaced() {
+    SecurityContext context = SecurityContext.get();
     SecurityContext.setToken(TOKEN);
     SecurityContext.clearContext();
     assertThat(SecurityContext.getToken()).isNull();
+    assertNotEquals(context, SecurityContext.get());
+  }
+
+  @Test
+  public void clear_contextIsCleared() {
+    SecurityContext context = SecurityContext.get();
+    SecurityContext.setToken(TOKEN);
+    SecurityContext.clear();
+    assertThat(SecurityContext.getToken()).isNull();
+    assertEquals(context, SecurityContext.get());
   }
 
 	@Test
@@ -154,22 +166,6 @@ public class SecurityContextTest {
   }
 
   @Test
-  public void clearIdToken_returnsNull() {
-    when(TOKEN.getTokenValue()).thenReturn("valid-id-token");
-    when(TOKEN.getExpiration()).thenReturn(Instant.now().plus(10, ChronoUnit.MINUTES));
-
-    setIdTokenStorage();
-
-    Token result = SecurityContext.getIdToken();
-
-    assertEquals("valid-id-token", result.getTokenValue());
-    assertSame(TOKEN, getIdTokenStorage());
-
-    SecurityContext.clearIdToken();
-    assertNull(SecurityContext.getIdToken());
-  }
-
-  @Test
   public void getIdToken_tokenIsExpiredButExtensionSet_removesExpiredTokenAndResolvesNewToken()
       throws IOException {
     IdTokenExtension extension = mock(IdTokenExtension.class);
@@ -222,22 +218,6 @@ public class SecurityContextTest {
 
     assertEquals("valid-xsuaa-token", result.getTokenValue());
     assertSame(TOKEN, getXsuaaTokenStorage());
-  }
-
-  @Test
-  public void clearXsuaaToken_returnsNull() {
-    when(TOKEN.getTokenValue()).thenReturn("valid-xsuaa-token");
-    when(TOKEN.getExpiration()).thenReturn(Instant.now().plus(10, ChronoUnit.MINUTES));
-
-    setXsuaaTokenStorage();
-
-    Token result = SecurityContext.getXsuaaToken();
-
-    assertEquals("valid-xsuaa-token", result.getTokenValue());
-    assertSame(TOKEN, getXsuaaTokenStorage());
-
-    SecurityContext.clearXsuaaToken();
-    assertNull(SecurityContext.getXsuaaToken());
   }
 
   @Test

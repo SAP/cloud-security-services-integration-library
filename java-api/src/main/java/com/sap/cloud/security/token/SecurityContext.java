@@ -392,8 +392,8 @@ public class SecurityContext {
    * <p>This clears {@link #token} but does NOT clear:
    *
    * <ul>
-   *   <li>{@link #initialToken} — Use {@link #clearInitialToken()} separately if needed
-   *   <li>{@link #idToken}, {@link #xsuaaToken} — Use {@link #clear()} to remove all tokens
+   *   <li>{@link #initialToken}, {@link #idToken}, {@link #xsuaaToken} — Use {@link #clear()} to
+   *       remove all tokens
    * </ul>
    *
    * <p>Subsequent calls to {@link #getToken()} will return {@code null} until a new token is set.
@@ -411,16 +411,9 @@ public class SecurityContext {
   /**
    * Removes the initial access token from the security context.
    *
-   * <p>This clears {@link #initialToken} but does NOT clear:
-   *
-   * <ul>
-   *   <li>{@link #token} — Use {@link #clearToken()} separately if needed
-   *   <li>{@link #idToken}, {@link #xsuaaToken} — Use {@link #clear()} to remove all tokens
-   * </ul>
-   *
-   * <p>Subsequent calls to {@link #getInitialToken()} will return {@code null}.
+   * <p>This clears {@link #initialToken}
    */
-  public static void clearInitialToken() {
+  private static void clearInitialToken() {
     SecurityContext ctx = get();
     if (ctx.initialToken != null) {
       LOGGER.debug(
@@ -470,18 +463,9 @@ public class SecurityContext {
    * Removes the cached ID token from the security context.
    *
    * <p>This forces re-resolution on the next {@link #getIdToken()} call if an {@link
-   * IdTokenExtension} is registered. Use this to invalidate cached tokens when:
-   *
-   * <ul>
-   *   <li>The access token is refreshed
-   *   <li>User permissions change
-   *   <li>Tenant configuration is updated
-   * </ul>
-   *
-   * <p>Subsequent calls to {@link #getIdToken()} will trigger token re-resolution via the
-   * registered extension (if any).
+   * IdTokenExtension} is registered.
    */
-  public static void clearIdToken() {
+  private static void clearIdToken() {
     SecurityContext ctx = get();
     if (ctx.idToken != null) {
       LOGGER.debug("ID token removed from SecurityContext (thread-locally).");
@@ -540,18 +524,9 @@ public class SecurityContext {
    * Removes the cached XSUAA token from the security context.
    *
    * <p>This forces re-resolution/exchange on the next {@link #getXsuaaToken()} call if a {@link
-   * XsuaaTokenExtension} is registered. Use this to invalidate cached tokens when:
-   *
-   * <ul>
-   *   <li>The IAS access token is refreshed (requires new exchange)
-   *   <li>Tenant bindings change
-   *   <li>XSUAA service configuration is updated
-   * </ul>
-   *
-   * <p>Subsequent calls to {@link #getXsuaaToken()} will trigger token re-exchange via the
-   * registered extension (if any).
+   * XsuaaTokenExtension} is registered.
    */
-  public static void clearXsuaaToken() {
+  private static void clearXsuaaToken() {
     SecurityContext ctx = get();
     if (ctx.xsuaaToken != null) {
       LOGGER.debug("XSUAA token removed from SecurityContext (thread-locally).");
