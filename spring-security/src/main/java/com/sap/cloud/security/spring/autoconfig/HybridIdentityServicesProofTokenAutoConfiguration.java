@@ -68,8 +68,8 @@ public class HybridIdentityServicesProofTokenAutoConfiguration {
 	public static class JwtDecoderConfigurations {
 		XsuaaServiceConfigurations xsuaaConfigs;
 
-    @Value("${sap.spring.security.hybrid.authentication.token.exchange:false}")
-    private boolean enableTokenExchange;
+    @Value("${sap.spring.security.hybrid.token.exchange.mode:disabled}")
+    private String tokenExchangeMode;
 
 		JwtDecoderConfigurations(XsuaaServiceConfigurations xsuaaConfigs) {
 			this.xsuaaConfigs = xsuaaConfigs;
@@ -85,7 +85,7 @@ public class HybridIdentityServicesProofTokenAutoConfiguration {
           .withIasServiceConfiguration(identityConfig)
           .enableProofTokenCheck()
           .withXsuaaServiceConfiguration(xsuaaConfig)
-          .withTokenExchange(enableTokenExchange)
+          .withTokenExchange(tokenExchangeMode)
           .build();
 		}
 

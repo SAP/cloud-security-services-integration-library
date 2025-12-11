@@ -159,6 +159,7 @@ class HybridJwtDecoderTest {
 
   @Test
   void decodeXsuaaToken_withTokenExchangeEnabledAndTokenIsAlreadyXSUAA_doesNotPerformExchange() {
+    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, "forceXSUAA");
     String xsuaaToken =
         JwtGenerator.getInstance(XSUAA, "theClientId").createToken().getTokenValue();
 
@@ -176,33 +177,8 @@ class HybridJwtDecoderTest {
   }
 
   @Test
-  void decodeIasToken_withTokenExchangeEnabled_noXSUAAConfigPresent_throwsJwtException() {
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, true);
-    String iasToken = jwtGenerator.createToken().getTokenValue();
-
-    try (MockedStatic<Environments> environments = Mockito.mockStatic(Environments.class)) {
-      Environment mockEnvironment = Mockito.mock(Environment.class);
-      environments.when(Environments::getCurrent).thenReturn(mockEnvironment);
-
-      when(mockEnvironment.getXsuaaConfiguration()).thenReturn(null);
-
-      JwtException ex =
-          assertThrows(
-              JwtException.class,
-              () -> cut.decode(iasToken),
-              "IAS token with failing token exchange must result in JwtException");
-
-      assertTrue(
-          ex.getMessage()
-              .contains(
-                  "Token exchange failed: No XSUAA service configuration found for token exchange."),
-          "Exception message should be wrapped with 'Token exchange failed:' prefix");
-    }
-  }
-
-  @Test
   void decodeIasToken_withTokenExchangeEnabled_errorOnIDTokenRetrieval_throwsJwtException() {
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, true);
+    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, "forceXSUAA");
     String iasToken = jwtGenerator.createToken().getTokenValue();
     OAuth2ServiceConfiguration xsuaaConfig = Mockito.mock(OAuth2ServiceConfiguration.class);
     Environment environment = Mockito.mock(Environment.class);
@@ -221,7 +197,7 @@ class HybridJwtDecoderTest {
 
   @Test
   void decodeIasToken_withTokenExchangeEnabled_performsTokenExchangeAndReturnsExchangedToken() {
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, true);
+    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, "forceXSUAA");
     String iasAccessTokenValue = jwtGenerator.createToken().getTokenValue();
     String exchangedXsuaaTokenValue =
         JwtGenerator.getInstance(XSUAA, "exchangedClientId").createToken().getTokenValue();
@@ -241,5 +217,29 @@ class HybridJwtDecoderTest {
           "Should use the exchanged XSUAA token, not the original IAS token");
       securityContext.verify(() -> SecurityContext.setToken(any()));
   }
+  }
+
+  @Test
+  void decodeIasToken_withTokenExchangeEnabled_performsTokenExchangeAndReturnsOriginalToken() {
+    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, "provideXSUAA");
+    String iasAccessTokenValue = jwtGenerator.createToken().getTokenValue();
+    String exchangedXsuaaTokenValue =
+        JwtGenerator.getInstance(XSUAA, "exchangedClientId").createToken().getTokenValue();
+    Token exchangedXsuaaToken = Token.create(exchangedXsuaaTokenValue);
+
+    OAuth2ServiceConfiguration xsuaaConfig = Mockito.mock(OAuth2ServiceConfiguration.class);
+    Environment environment = Mockito.mock(Environment.class);
+    try (MockedStatic<SecurityContext> securityContext = Mockito.mockStatic(SecurityContext.class);
+        MockedStatic<Environments> environments = Mockito.mockStatic(Environments.class)) {
+      securityContext.when(SecurityContext::getXsuaaToken).thenReturn(exchangedXsuaaToken);
+      environments.when(Environments::getCurrent).thenReturn(environment);
+      Mockito.when(environment.getXsuaaConfiguration()).thenReturn(xsuaaConfig);
+      Jwt result = cut.decode(iasAccessTokenValue);
+      assertEquals(
+          iasAccessTokenValue,
+          result.getTokenValue(),
+          "Should use the original IAS token, not the exchanged XSUAA token");
+      securityContext.verify(() -> SecurityContext.setToken(any()));
+    }
   }
 }

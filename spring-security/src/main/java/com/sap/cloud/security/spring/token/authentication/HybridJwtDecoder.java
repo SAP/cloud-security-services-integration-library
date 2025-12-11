@@ -8,23 +8,19 @@ package com.sap.cloud.security.spring.token.authentication;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 
-import com.sap.cloud.security.client.HttpClientFactory;
-import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaTokenExtension;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.x509.X509Certificate;
-import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Optional;
 import javax.annotation.Nullable;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.BadJwtException;
@@ -109,7 +105,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class HybridJwtDecoder implements JwtDecoder {
 	final CombiningValidator<Token> xsuaaTokenValidators;
 	final CombiningValidator<Token> iasTokenValidators;
-  final boolean exchangeToken;
+  final String tokenExchangeMode;
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -122,7 +118,7 @@ public class HybridJwtDecoder implements JwtDecoder {
    */
   public HybridJwtDecoder(
       CombiningValidator<Token> xsuaaValidator, @Nullable CombiningValidator<Token> iasValidator) {
-    this(xsuaaValidator, iasValidator, false);
+    this(xsuaaValidator, iasValidator, "disabled");
   }
 
   /**
@@ -131,15 +127,16 @@ public class HybridJwtDecoder implements JwtDecoder {
    *
    * @param xsuaaValidator set of validators that should be used to validate a xsuaa access token.
    * @param iasValidator set of validators that should be used to validate an ias oidc token.
-   * @param enableTokenExchange flag to enable token exchange to XSUAA token
+   * @param tokenExchangeMode string mode to control token exchange behavior. Supported values:
+   *     "provideXSUAA", "forceXSUAA", "disabled"
    */
   public HybridJwtDecoder(
       CombiningValidator<Token> xsuaaValidator,
       @Nullable CombiningValidator<Token> iasValidator,
-      boolean enableTokenExchange) {
+      String tokenExchangeMode) {
     this.xsuaaTokenValidators = xsuaaValidator;
     this.iasTokenValidators = iasValidator;
-    this.exchangeToken = enableTokenExchange;
+    this.tokenExchangeMode = tokenExchangeMode;
   }
 
 	@Override
@@ -150,10 +147,24 @@ public class HybridJwtDecoder implements JwtDecoder {
       Token token = Token.create(encodedToken);
       validateToken(token);
       logger.debug("Token issued by {} service was successfully validated.", token.getService());
-      if (exchangeToken) {
-        logger.debug("Token exchange is enabled. Exchanging token...");
-        token = exchangeToken(token);
+      switch (tokenExchangeMode) {
+        case "provideXSUAA" -> {
+          logger.debug("Token exchange mode is 'provideXSUAA'. Exchanging token...");
+          exchangeToken(token);
+        }
+        case "forceXSUAA" -> {
+          if (token.getService() == Service.IAS) {
+            logger.debug(
+                "Token exchange mode is 'forceXSUAA' and token is issued by IAS. Exchanging token...");
+            token = exchangeToken(token);
+          } else {
+            logger.debug(
+                "Token exchange mode is 'forceXSUAA' and token is issued by XSUAA. No exchange needed.");
+          }
+        }
+        default -> logger.debug("Token exchange is disabled. No exchange performed.");
       }
+
       return parseJwt(token);
     } catch (OAuth2ServiceException ex) {
       throw new JwtException("Token exchange failed: " + ex.getMessage(), ex);
@@ -213,24 +224,7 @@ public class HybridJwtDecoder implements JwtDecoder {
       return token;
     }
     SecurityContext.setToken(token);
-    OAuth2ServiceConfiguration xsuaaConfig = getXsuaaConfiguration();
-    OAuth2TokenService tokenService = createTokenService(xsuaaConfig);
-    SecurityContext.registerXsuaaTokenExtension(
-        new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig));
     return SecurityContext.getXsuaaToken();
-  }
-
-  private static OAuth2ServiceConfiguration getXsuaaConfiguration() throws OAuth2ServiceException {
-    return Optional.ofNullable(Environments.getCurrent().getXsuaaConfiguration())
-        .orElseThrow(
-            () ->
-                new OAuth2ServiceException(
-                    "No XSUAA service configuration found for token exchange."));
-  }
-
-  private static OAuth2TokenService createTokenService(OAuth2ServiceConfiguration xsuaaConfig) {
-    CloseableHttpClient httpClient = HttpClientFactory.create(xsuaaConfig.getClientIdentity());
-    return new DefaultOAuth2TokenService(httpClient);
   }
 
   private void validateToken(Token token) {

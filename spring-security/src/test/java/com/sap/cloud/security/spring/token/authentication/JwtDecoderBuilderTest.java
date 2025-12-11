@@ -34,7 +34,7 @@ class JwtDecoderBuilderTest {
 
   @Test
   void withTokenExchange() {
-    assertNotNull(cut.withTokenExchange(true));
+    assertNotNull(cut.withTokenExchange("forceXSUAA"));
   }
 
 	@Test

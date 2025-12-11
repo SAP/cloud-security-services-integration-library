@@ -33,7 +33,7 @@ public class JwtDecoderBuilder {
 	protected CloseableHttpClient httpClient;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 	private boolean enableProofTokenCheck;
-  private boolean enableTokenExchange;
+  private String tokenExchangeMode;
 
 	/**
 	 * Use to configure the token key cache.
@@ -84,8 +84,14 @@ public class JwtDecoderBuilder {
 		return this;
 	}
 
-  public JwtDecoderBuilder withTokenExchange(boolean tokenExchange) {
-    this.enableTokenExchange = tokenExchange;
+  /**
+   * Use to override the token exchange mode.
+   *
+   * @param tokenExchangeMode the token exchange mode to use
+   * @return this jwt decoder builder
+   */
+  public JwtDecoderBuilder withTokenExchange(String tokenExchangeMode) {
+    this.tokenExchangeMode = tokenExchangeMode;
     return this;
   }
 
@@ -127,7 +133,7 @@ public class JwtDecoderBuilder {
 		CombiningValidator<Token> xsuaaValidator = getValidators(Service.XSUAA);
 		CombiningValidator<Token> iasValidator = getValidators(Service.IAS);
 		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
-      return new HybridJwtDecoder(xsuaaValidator, iasValidator, enableTokenExchange);
+      return new HybridJwtDecoder(xsuaaValidator, iasValidator, tokenExchangeMode);
 		}
 
 		if (iasValidator == null) {
