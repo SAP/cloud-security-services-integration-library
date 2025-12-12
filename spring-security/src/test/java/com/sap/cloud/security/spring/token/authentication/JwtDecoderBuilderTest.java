@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.sap.cloud.security.config.*;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ class JwtDecoderBuilderTest {
 
   @Test
   void withTokenExchange() {
-    assertNotNull(cut.withTokenExchange("forceXSUAA"));
+    assertNotNull(cut.withTokenExchange(TokenExchangeMode.FORCE_XSUAA));
   }
 
 	@Test

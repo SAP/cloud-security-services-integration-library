@@ -9,6 +9,7 @@ import static com.sap.cloud.security.spring.autoconfig.SapSecurityProperties.*;
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET;
 
 import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.spring.config.IdentityServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
@@ -16,7 +17,9 @@ import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.token.DefaultIdTokenExtension;
 import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,11 +84,13 @@ public class HybridIdentityServicesProofTokenAutoConfiguration {
 				IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures HybridJwtDecoder with proofToken check enabled.");
       SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
+      SecurityContext.registerXsuaaTokenExtension(getDefaultXSUAATokenExtension(identityConfig));
+      TokenExchangeMode mode = TokenExchangeMode.fromString(tokenExchangeMode);
       return new JwtDecoderBuilder()
           .withIasServiceConfiguration(identityConfig)
           .enableProofTokenCheck()
           .withXsuaaServiceConfiguration(xsuaaConfig)
-          .withTokenExchange(tokenExchangeMode)
+          .withTokenExchange(mode)
           .build();
 		}
 
@@ -135,5 +140,12 @@ public class HybridIdentityServicesProofTokenAutoConfiguration {
     return new DefaultIdTokenExtension(
         new DefaultOAuth2TokenService(HttpClientFactory.create(identityConfig.getClientIdentity())),
         identityConfig);
+  }
+
+  private static DefaultXsuaaTokenExtension getDefaultXSUAATokenExtension(
+      OAuth2ServiceConfiguration xsuaaConfig) {
+    return new DefaultXsuaaTokenExtension(
+        new DefaultOAuth2TokenService(HttpClientFactory.create(xsuaaConfig.getClientIdentity())),
+        xsuaaConfig);
   }
 }

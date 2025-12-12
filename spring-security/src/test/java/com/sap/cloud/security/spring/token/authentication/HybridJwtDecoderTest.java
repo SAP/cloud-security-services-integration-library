@@ -22,6 +22,7 @@ import com.sap.cloud.security.test.JwtGenerator;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -159,7 +160,8 @@ class HybridJwtDecoderTest {
 
   @Test
   void decodeXsuaaToken_withTokenExchangeEnabledAndTokenIsAlreadyXSUAA_doesNotPerformExchange() {
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, "forceXSUAA");
+    cut =
+        new HybridJwtDecoder(combiningValidator, combiningValidator, TokenExchangeMode.FORCE_XSUAA);
     String xsuaaToken =
         JwtGenerator.getInstance(XSUAA, "theClientId").createToken().getTokenValue();
 
@@ -178,7 +180,8 @@ class HybridJwtDecoderTest {
 
   @Test
   void decodeIasToken_withTokenExchangeEnabled_errorOnIDTokenRetrieval_throwsJwtException() {
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, "forceXSUAA");
+    cut =
+        new HybridJwtDecoder(combiningValidator, combiningValidator, TokenExchangeMode.FORCE_XSUAA);
     String iasToken = jwtGenerator.createToken().getTokenValue();
     OAuth2ServiceConfiguration xsuaaConfig = Mockito.mock(OAuth2ServiceConfiguration.class);
     Environment environment = Mockito.mock(Environment.class);
@@ -197,7 +200,8 @@ class HybridJwtDecoderTest {
 
   @Test
   void decodeIasToken_withTokenExchangeEnabled_performsTokenExchangeAndReturnsExchangedToken() {
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, "forceXSUAA");
+    cut =
+        new HybridJwtDecoder(combiningValidator, combiningValidator, TokenExchangeMode.FORCE_XSUAA);
     String iasAccessTokenValue = jwtGenerator.createToken().getTokenValue();
     String exchangedXsuaaTokenValue =
         JwtGenerator.getInstance(XSUAA, "exchangedClientId").createToken().getTokenValue();
@@ -211,17 +215,16 @@ class HybridJwtDecoderTest {
       environments.when(Environments::getCurrent).thenReturn(environment);
       Mockito.when(environment.getXsuaaConfiguration()).thenReturn(xsuaaConfig);
       Jwt result = cut.decode(iasAccessTokenValue);
-      assertEquals(
-          "exchangedClientId",
-          result.getClaim(TokenClaims.AUTHORIZATION_PARTY),
-          "Should use the exchanged XSUAA token, not the original IAS token");
+      assertEquals(result.getTokenValue(), exchangedXsuaaTokenValue);
       securityContext.verify(() -> SecurityContext.setToken(any()));
   }
   }
 
   @Test
   void decodeIasToken_withTokenExchangeEnabled_performsTokenExchangeAndReturnsOriginalToken() {
-    cut = new HybridJwtDecoder(combiningValidator, combiningValidator, "provideXSUAA");
+    cut =
+        new HybridJwtDecoder(
+            combiningValidator, combiningValidator, TokenExchangeMode.PROVIDE_XSUAA);
     String iasAccessTokenValue = jwtGenerator.createToken().getTokenValue();
     String exchangedXsuaaTokenValue =
         JwtGenerator.getInstance(XSUAA, "exchangedClientId").createToken().getTokenValue();
@@ -235,10 +238,7 @@ class HybridJwtDecoderTest {
       environments.when(Environments::getCurrent).thenReturn(environment);
       Mockito.when(environment.getXsuaaConfiguration()).thenReturn(xsuaaConfig);
       Jwt result = cut.decode(iasAccessTokenValue);
-      assertEquals(
-          iasAccessTokenValue,
-          result.getTokenValue(),
-          "Should use the original IAS token, not the exchanged XSUAA token");
+      assertEquals(iasAccessTokenValue, result.getTokenValue());
       securityContext.verify(() -> SecurityContext.setToken(any()));
     }
   }

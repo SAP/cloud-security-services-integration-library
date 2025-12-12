@@ -17,6 +17,7 @@ import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.token.DefaultIdTokenExtension;
 import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import java.util.List;
@@ -69,7 +70,7 @@ public class HybridIdentityServicesAutoConfiguration {
 		XsuaaServiceConfigurations xsuaaConfigs;
 
     @Value("${sap.spring.security.hybrid.token.exchange.mode:disabled}")
-    private String enableTokenExchange;
+    private String tokenExchangeMode;
 
 		JwtDecoderConfigurations(XsuaaServiceConfigurations xsuaaConfigs) {
 			this.xsuaaConfigs = xsuaaConfigs;
@@ -84,10 +85,11 @@ public class HybridIdentityServicesAutoConfiguration {
 			LOGGER.debug("auto-configures HybridJwtDecoder.");
       SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
       SecurityContext.registerXsuaaTokenExtension(getDefaultXSUAATokenExtension(identityConfig));
+      TokenExchangeMode mode = TokenExchangeMode.fromString(tokenExchangeMode);
       return new JwtDecoderBuilder()
           .withIasServiceConfiguration(identityConfig)
           .withXsuaaServiceConfiguration(xsuaaConfig)
-          .withTokenExchange(enableTokenExchange)
+          .withTokenExchange(mode)
           .build();
 		}
 

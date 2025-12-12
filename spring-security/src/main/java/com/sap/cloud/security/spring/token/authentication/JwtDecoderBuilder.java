@@ -9,6 +9,7 @@ import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
@@ -33,7 +34,7 @@ public class JwtDecoderBuilder {
 	protected CloseableHttpClient httpClient;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 	private boolean enableProofTokenCheck;
-  private String tokenExchangeMode;
+  private TokenExchangeMode tokenExchangeMode;
 
 	/**
 	 * Use to configure the token key cache.
@@ -85,12 +86,13 @@ public class JwtDecoderBuilder {
 	}
 
   /**
-   * Use to override the token exchange mode.
+   * Sets the token exchange mode to control hybrid authentication behavior.
    *
-   * @param tokenExchangeMode the token exchange mode to use
-   * @return this jwt decoder builder
+   * @param tokenExchangeMode the desired token exchange mode.
+   * @return this builder.
+   * @see TokenExchangeMode
    */
-  public JwtDecoderBuilder withTokenExchange(String tokenExchangeMode) {
+  public JwtDecoderBuilder withTokenExchange(TokenExchangeMode tokenExchangeMode) {
     this.tokenExchangeMode = tokenExchangeMode;
     return this;
   }
