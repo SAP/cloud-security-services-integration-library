@@ -81,6 +81,9 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
   private final XsuaaTokenAuthenticator xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
   private final TokenExchangeMode tokenExchangeMode;
   private final Logger logger = LoggerFactory.getLogger(getClass());
+  OAuth2ServiceConfiguration iasConfig;
+  OAuth2ServiceConfiguration xsuaaConfig;
+  CloseableHttpClient httpClient;
 
   public HybridTokenAuthenticator(
       @Nonnull final OAuth2ServiceConfiguration iasConfig,
@@ -88,11 +91,11 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       @Nonnull final OAuth2ServiceConfiguration xsuaaConfig,
       @Nonnull final TokenExchangeMode tokenExchangeMode) {
     this.tokenExchangeMode = tokenExchangeMode;
-    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
-    SecurityContext.registerIdTokenExtension(new DefaultIdTokenExtension(tokenService, iasConfig));
-    SecurityContext.registerXsuaaTokenExtension(
-        new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig));
+    this.httpClient = httpClient;
+    this.iasConfig = iasConfig;
+    this.xsuaaConfig = xsuaaConfig;
   }
+
 
   @Override
   public TokenAuthenticationResult validateRequest(
@@ -128,11 +131,13 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       switch (tokenExchangeMode) {
         case PROVIDE_XSUAA -> {
           logger.debug("Token exchange mode is 'PROVIDE_XSUAA'. Exchanging token...");
+          registerExtensions();
           SecurityContext.getXsuaaToken();
         }
         case FORCE_XSUAA -> {
           logger.debug(
               "Token exchange mode is 'FORCE_XSUAA' and token is issued by IAS. Exchanging token...");
+          registerExtensions();
           final Token xsuaaToken = SecurityContext.getXsuaaToken();
           SecurityContext.updateToken(xsuaaToken);
           return xsuaaTokenAuthenticator.authenticated(xsuaaToken);
@@ -160,5 +165,12 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
   @Override
   protected Token extractFromHeader(final String authorizationHeader) {
     return xsuaaTokenAuthenticator.extractFromHeader(authorizationHeader);
+  }
+
+  private void registerExtensions() {
+    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+    SecurityContext.registerIdTokenExtension(new DefaultIdTokenExtension(tokenService, iasConfig));
+    SecurityContext.registerXsuaaTokenExtension(
+        new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig));
   }
 }

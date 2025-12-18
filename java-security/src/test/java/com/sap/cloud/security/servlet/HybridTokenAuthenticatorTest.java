@@ -5,6 +5,7 @@ import static com.sap.cloud.security.token.TokenExchangeMode.FORCE_XSUAA;
 import static com.sap.cloud.security.token.TokenExchangeMode.PROVIDE_XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -205,15 +206,11 @@ public class HybridTokenAuthenticatorTest {
     when(authenticationResult.isAuthenticated()).thenReturn(true);
     createRequestWithBearerHeader(accessToken.getTokenValue());
 
-    try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
-      securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
-      securityContext.when(SecurityContext::getXsuaaToken).thenReturn(xsuaaToken);
+    TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
-      TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
-
-      verify(xsuaaAuthenticator, never()).authenticated(any());
-      assertTrue(response.isAuthenticated());
-    }
+    verify(xsuaaAuthenticator, never()).authenticated(any());
+    assertNull(SecurityContext.getXsuaaToken());
+    assertTrue(response.isAuthenticated());
   }
 
   @Test
