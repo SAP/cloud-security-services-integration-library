@@ -82,7 +82,7 @@ public enum TokenExchangeMode {
       case "providexsuaa" -> PROVIDE_XSUAA;
       case "forcexsuaa" -> FORCE_XSUAA;
       default -> {
-        logger.error("Wrong Token exchange mode: {}. Disabling Token Exchange...", value);
+        logger.error("Wrong Token exchange mode received. Disabling Token Exchange...");
         yield DISABLED;
       }
     };
