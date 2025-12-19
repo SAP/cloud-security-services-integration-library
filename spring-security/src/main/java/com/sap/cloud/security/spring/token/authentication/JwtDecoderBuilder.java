@@ -134,8 +134,11 @@ public class JwtDecoderBuilder {
 	public JwtDecoder build() {
 		CombiningValidator<Token> xsuaaValidator = getValidators(Service.XSUAA);
 		CombiningValidator<Token> iasValidator = getValidators(Service.IAS);
-		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
-      return new HybridJwtDecoder(xsuaaValidator, iasValidator, tokenExchangeMode);
+		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty() && tokenExchangeMode != null) {
+      		return new HybridJwtDecoder(xsuaaValidator, iasValidator, tokenExchangeMode);
+		} else if(xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()){
+			//If no token exchange mode is set, use default constructor with disabled token exchange
+			return new HybridJwtDecoder(xsuaaValidator, iasValidator);
 		}
 
 		if (iasValidator == null) {
