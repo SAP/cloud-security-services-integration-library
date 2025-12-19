@@ -83,7 +83,7 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
   private final Logger logger = LoggerFactory.getLogger(getClass());
   OAuth2ServiceConfiguration iasConfig;
   OAuth2ServiceConfiguration xsuaaConfig;
-  CloseableHttpClient httpClient;
+
 
   public HybridTokenAuthenticator(
       @Nonnull final OAuth2ServiceConfiguration iasConfig,
