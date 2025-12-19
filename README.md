@@ -18,6 +18,9 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
      - [2.1.2 Spring Boot applications](#212-spring-boot-web-applications)
    - [2.2 Token Flows](#22-token-flows-for-token-retrievals)
    - [2.3 Testing utilities](#23-testing-utilities)
+   - [2.4 Token Exchange for Hybrid Authentication](#24-token-exchange-for-hybrid-authentication)
+       - [2.4.1 Jakarta Example](#241-jakarta-example-using-hybridtokenauthenticator)
+       - [2.4.2 Spring Boot Example](#242-spring-boot-example-using-hybridjwtdecoder)
 3. [Installation](#installation)
 4. [Troubleshooting](#troubleshooting)
 5. [Common Pitfalls](#common-pitfalls)
@@ -117,6 +120,276 @@ In the table below you'll find links to detailed information.
 | Library                                   | Usage Examples                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 
 |-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [java-security-test](/java-security-test) | [Integration test code snippet](/samples/spring-security-hybrid-usage/src/test/java/sample/spring/security/junitjupiter/TestControllerIasTest.java) for Spring application <br/>[Integration test code snippet](/samples/java-security-usage/src/test/java/com/sap/cloud/security/samples/HelloJavaServletIntegrationTest.java) for Jakarta EE web.xml based servlets <br/>  [Integration test code snippet](/samples/java-security-usage-ias/src/test/java/com/sap/cloud/security/samples/ias/HelloJavaServletIntegrationTest.java) for Jakarta EE annotation based servlets <br/>    |
+
+### 2.4 Token Exchange for Hybrid Authentication
+
+In hybrid authentication setups, your application can accept tokens from both **SAP Identity Authentication Service (
+IAS)** and **XSUAA** simultaneously. This approach eases migration from XSUAA to IAS by exchanging IAS user tokens for
+XSUAA tokens behind the scenes.
+
+**Goal**: Maintain backward compatibility during migration. Users authenticate via IAS, but the application continues
+using XSUAA-based authorization (scopes, role collections).
+
+#### How Token Exchange Works
+
+When a JWT bearer token arrives:
+
+1. The library identifies whether the token was issued by IAS or XSUAA
+2. The token is validated using the appropriate validator
+3. If the token is from IAS and exchange is enabled, an XSUAA token is obtained via OAuth2 JWT bearer flow
+4. The XSUAA token contains the user's roles/scopes as defined in XSUAA
+5. Authorization proceeds using familiar XSUAA token attributes
+
+If the incoming token is already an XSUAA token, no exchange occurs—it's validated and used directly.
+
+#### Token Exchange Modes
+
+The [`TokenExchangeMode`](java-security/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)enum controls
+when
+and how IAS tokens are exchanged:
+
+| Mode                | Behavior                                                                                                                                                                                                                                                    |
+|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **`DISABLED`**      | No exchange. Each token type is validated and used as-is.                                                                                                                                                                                                   |
+| **`PROVIDE_XSUAA`** | IAS token is validated and exchanged for XSUAA, but the IAS token remains primary in the security context. The XSUAA token is accessible via [`SecurityContext.getXsuaaToken()`](java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java). |
+| **`FORCE_XSUAA`**   | IAS token is exchanged for XSUAA and the XSUAA token replaces the IAS token in the security context. The application treats all requests as XSUAA-authenticated.                                                                                            |
+
+**Mode Selection Guide**:
+
+- Use **`PROVIDE_XSUAA`** when gradually building IAS-based features while maintaining XSUAA authorization
+- Use **`FORCE_XSUAA`** for maximum backward compatibility—your app operates as if it were XSUAA-only
+- Use **`DISABLED`** after completing the migration to IAS
+
+#### Prerequisites for Token Exchange
+
+1. Both XSUAA and IAS service bindings must be configured
+2. IAS service binding must include `xsuaa-cross-consumption: true` parameter (Cloud Foundry)
+3. On Kubernetes/Kyma, ensure XSUAA trusts the IAS identity provider
+
+#### Token Exchange Flow Summary
+
+```
+1. Request arrives with Authorization: Bearer <token>
+2. Library identifies issuer (IAS vs XSUAA) from token claims
+3. Token validated against appropriate identity service
+4. [IF IAS token + exchange enabled]
+   ├─ Obtain strong IAS ID token (if access token provided)
+   ├─ Call XSUAA /oauth/token endpoint with JWT bearer grant
+   └─ Store exchanged XSUAA token in SecurityContext
+5. [IF exchange disabled OR XSUAA token]
+   └─ Use validated token directly
+6. Request proceeds with authenticated security context
+```
+
+**Failure Handling**: If token exchange fails (network issues, misconfiguration), authentication fails with 401
+Unauthorized. No silent fallback occurs since IAS access tokens typically lack scopes needed for authorization.
+
+#### 2.4.1 Jakarta Example: Using [`HybridTokenAuthenticator`](java-security/src/main/java/com/sap/cloud/security/servlet/HybridTokenAuthenticator.java)
+
+For Jakarta EE applications, use [
+`HybridTokenAuthenticator`](java-security/src/main/java/com/sap/cloud/security/servlet/HybridTokenAuthenticator.java) in
+a servlet filter:
+
+**Setup Requirements**:
+
+- IAS and XSUAA service configurations ([
+  `OAuth2ServiceConfiguration`](java-api/src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java))
+- HTTP client for token exchange (`CloseableHttpClient` via [
+  `HttpClientFactory`](token-client/src/main/java/com/sap/cloud/security/client/HttpClientFactory.java))
+- Chosen [`TokenExchangeMode`](java-security/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)
+
+**Configuration Example**:
+
+```java
+// 1. Load service configurations from environment
+// OAuth2ServiceConfiguration iasConfig = // obtain from environment bindings
+// OAuth2ServiceConfiguration xsuaaConfig = // obtain from environment bindings
+
+// 2. Create HTTP client for JWKS and token exchange
+CloseableHttpClient httpClient = HttpClientFactory.create(iasConfig.getClientIdentity());
+
+// 3. Choose token exchange mode
+TokenExchangeMode exchangeMode = TokenExchangeMode.FORCE_XSUAA;
+
+// 4. Create authenticator
+HybridTokenAuthenticator authenticator =
+        new HybridTokenAuthenticator(iasConfig, httpClient, xsuaaConfig, exchangeMode);
+
+// 5. Use in servlet filter
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+
+    TokenAuthenticationResult result = authenticator.validateRequest(request, response);
+
+    if (result.isAuthenticated()) {
+        // In FORCE_XSUAA mode: SecurityContext.getToken() returns XSUAA token
+        // In PROVIDE_XSUAA mode: SecurityContext.getToken() returns IAS token
+        //                       SecurityContext.getXsuaaToken() returns exchanged XSUAA token
+
+        chain.doFilter(request, response);
+    } else {
+        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    }
+}
+```
+
+**Key Classes**:
+
+- [
+  `HybridTokenAuthenticator`](java-security/src/main/java/com/sap/cloud/security/servlet/HybridTokenAuthenticator.java) —
+  Main authenticator
+- [`SecurityContext`](java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java) — Access tokens and
+  certificates
+- [
+  `TokenAuthenticationResult`](java-security/src/main/java/com/sap/cloud/security/servlet/TokenAuthenticatorResult.java) —
+  Authentication result
+
+#### 2.4.2 Spring Boot Example: Using [`HybridJwtDecoder`](spring-security/src/main/java/com/sap/cloud/security/spring/token/authentication/HybridJwtDecoder.java)
+
+For Spring Boot applications, [
+`HybridIdentityServicesAutoConfiguration`](spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java)
+automatically configures hybrid authentication when both IAS and XSUAA bindings are detected.
+
+**Enable Token Exchange via Configuration**:
+
+```yaml
+# application.yml
+sap:
+  spring:
+    security:
+      hybrid:
+        token:
+          exchange:
+            mode: provide_xsuaa  # Options: disabled, provide_xsuaa, force_xsuaa (default: disabled)
+```
+
+**Spring Security Configuration**:
+
+```java
+
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt());
+        // Uses auto-configured HybridJwtDecoder
+    }
+}
+```
+
+**How It Works**:
+
+1. [
+   `HybridIdentityServicesAutoConfiguration`](spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java)
+   detects IAS + XSUAA bindings
+2. Creates [
+   `HybridJwtDecoder`](spring-security/src/main/java/com/sap/cloud/security/spring/token/authentication/HybridJwtDecoder.java)
+   bean with configured mode
+3. Registers [`IdTokenExtension`](java-api/src/main/java/com/sap/cloud/security/token/IdTokenExtension.java) and [
+   `XsuaaTokenExtension`](java-api/src/main/java/com/sap/cloud/security/token/XsuaaTokenExtension.java) in [
+   `SecurityContext`](java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java)
+4. Spring Security uses decoder for all JWT validation
+
+**Access Tokens in Application Code**:
+
+```java
+
+@RestController
+public class ApiController {
+
+    @GetMapping("/api/resource")
+    public String getResource(@AuthenticationPrincipal Jwt jwt) {
+        // In FORCE_XSUAA mode: jwt is XSUAA token
+        // In PROVIDE_XSUAA mode: jwt is IAS token
+
+        Token xsuaaToken = SecurityContext.getXsuaaToken(); // Always available if exchange enabled
+        List<String> scopes = xsuaaToken.getClaimAsStringList("scope");
+
+        return "Resource accessed";
+    }
+}
+```
+
+**Key Configuration Properties**:
+
+| Property                                         | Default    | Description                                                     |
+|--------------------------------------------------|------------|-----------------------------------------------------------------|
+| `sap.spring.security.hybrid.auto`                | `true`     | Enable/disable hybrid auto-configuration                        |
+| `sap.spring.security.hybrid.token.exchange.mode` | `disabled` | Token exchange mode: `disabled`, `provide_xsuaa`, `force_xsuaa` |
+
+**Key Classes**:
+
+- [
+  `HybridJwtDecoder`](spring-security/src/main/java/com/sap/cloud/security/spring/token/authentication/HybridJwtDecoder.java) —
+  JWT decoder with exchange logic
+- [
+  `HybridIdentityServicesAutoConfiguration`](spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java) —
+  Auto-configuration
+- [
+  `DefaultIdTokenExtension`](java-security/src/main/java/com/sap/cloud/security/token/DefaultIdTokenExtension.java) —
+  ID token resolution
+- [
+  `DefaultXsuaaTokenExtension`](token-client/src/main/java/com/sap/cloud/security/xsuaa/client/DefaultXsuaaTokenExtension.java) —
+  XSUAA token exchange
+
+#### Important Constraints
+
+**IAS User Tokens Only**: Token exchange only applies to end-user tokens from IAS. Client credentials tokens are **not**
+exchanged. Attempting exchange on technical tokens will result in errors.
+
+**Service Binding Configuration**:
+
+- Cloud Foundry: IAS binding must include `"xsuaa-cross-consumption": true`
+- Kubernetes/Kyma: Ensure XSUAA trusts IAS as identity provider
+
+**Failure Behavior**: Exchange failures result in 401 Unauthorized responses. There is no silent fallback to avoid
+security issues.
+
+**Performance**: Exchanged tokens are cached per request and reused until expiration. Caching is automatic and requires
+no configuration.
+
+#### Migration Strategy
+
+**Phase 1 - Enable Hybrid Auth**:
+
+```yaml
+mode: provide_xsuaa  # Keep XSUAA for authorization, start accepting IAS tokens
+```
+
+**Phase 2 - Gradual Migration**:
+
+- Migrate roles/authorization to IAS/Attribute Management Service
+- Access both tokens via `SecurityContext`
+- Begin using IAS token attributes for new features
+
+**Phase 3 - Complete Migration**:
+
+```yaml
+mode: disabled  # Remove exchange, operate solely with IAS
+```
+
+- Remove XSUAA binding
+- Use IAS tokens exclusively
+
+#### Troubleshooting
+
+Common issues and solutions:
+
+| Issue                             | Cause                                          | Solution                                         |
+|-----------------------------------|------------------------------------------------|--------------------------------------------------|
+| `Token exchange failed` exception | Missing XSUAA binding or invalid configuration | Verify both IAS and XSUAA service bindings exist |
+| Exchange returns 400              | IAS binding missing `xsuaa-cross-consumption`  | Add parameter to IAS service binding             |
+| Exchanged token has no scopes     | Role mappings not configured in XSUAA          | Configure role collections in XSUAA              |
+| Memory leak warnings              | `SecurityContext` not cleared after request    | Call `SecurityContext.clear()` in finally block  |
+
+**Enable Debug Logging**:
+
+```yaml
+logging:
+  level:
+    com.sap.cloud.security: DEBUG
+```
 
 ## Installation
 The SAP Cloud Security Services Integration is published to maven central: https://search.maven.org/search?q=com.sap.cloud.security and is available as a Maven dependency. Add the following BOM to your dependency management in your `pom.xml`:
