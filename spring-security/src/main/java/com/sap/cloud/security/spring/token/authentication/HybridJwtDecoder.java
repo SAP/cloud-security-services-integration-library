@@ -39,7 +39,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * validation rules. It also supports hybrid scenarios where an IAS token can be exchanged for an
  * XSUAA token.
  *
- * <h3>Token Exchange Modes</h3>
+ * <p><b>Token Exchange Modes</b></p>
  *
  * The token exchange behavior is controlled by the {@link TokenExchangeMode}, which can be set
  * during instantiation:
@@ -55,7 +55,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  *       original token for the current request. XSUAA tokens are returned without exchange.
  * </ul>
  *
- * <h3>Client Certificate Forwarding</h3>
+ * <p><b>Client Certificate Forwarding</b></p>
  *
  * For mutual TLS (mTLS) scenarios, the decoder automatically extracts an X.509 client certificate
  * from the {@code x-forwarded-client-cert} HTTP header and makes it available via {@link

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * automatically determines the token's issuer and applies the appropriate validation rules,
  * supporting hybrid authentication scenarios where both IAS and XSUAA tokens are accepted.
  *
- * <h3>Authentication Flow</h3>
+ * <p><b>Authentication Flow</b></p>
  *
  * The authenticator performs the following steps:
  *
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  *   <li>Returns a validated {@link Token} object
  * </ol>
  *
- * <h3>Token Exchange Modes</h3>
+ * <p><b>Token Exchange Modes</b></p>
  *
  * The authenticator supports three token exchange modes:
  *
@@ -60,13 +60,13 @@ import org.slf4j.LoggerFactory;
  *       exchanged token is returned. XSUAA tokens are returned directly without exchange.
  * </ul>
  *
- * <h3>Client Certificate Support</h3>
+ * <p><b>Client Certificate Support</b></p>
  *
  * For mutual TLS (mTLS) scenarios, client certificates can be provided to the authenticator. The
  * certificate is automatically extracted and made available via {@link
  * SecurityContext#getClientCertificate()}.
  *
- * <h3>Thread Safety</h3>
+ * <p><b>Thread Safety</b></p>
  *
  * This class is thread-safe and can be reused across multiple authentication attempts.
  *
