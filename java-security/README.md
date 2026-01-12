@@ -48,6 +48,7 @@ Since it requires the Tomcat 10 runtime, it needs to be deployed using the [SAP 
     - [Maven Dependencies](#maven-dependencies)
 2. [Usage](#usage)
     - [TokenAuthenticator Usage](#tokenauthenticator-usage)
+      - [HybridTokenAuthenticator Usage](#hybridtokenauthenticator-usage)
     - [OAuth2ServiceServiceConfiguration Usage](#oauth2serviceserviceconfiguration-usage)
     - [JwtValidatorBuilder usage](#jwtvalidatorbuilder-usage)
     - [Token keys(JWKs) cache](#token-keys--jwks--cache)
@@ -79,11 +80,12 @@ Since it requires the Tomcat 10 runtime, it needs to be deployed using the [SAP 
 ## Usage
 ### `TokenAuthenticator` usage
 The [`TokenAuthenticator`](/java-api/src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java)  makes it easy to integrate token based authentication into your java application.
-The library provides 2 default implementations of `TokenAuthenticator` interface:
+The library provides 3 default implementations of `TokenAuthenticator` interface:
 - [XsuaaTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java) for Xsuaa Access token validation
 - [IasTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java) for Identity OIDC token validation.
+- [HybridTokenAuthenticator](src/main/java/com/sap/cloud/security/servlet/HybridTokenAuthenticator.java) for Identity OIDC token validation with Xsuaa token exchange in hybrid environments.
 
-`XsuaaTokenAuthenticator` and `IasTokenAuthenticator` takes care of
+`XsuaaTokenAuthenticator`, `HybridTokenAuthenticator` and `IasTokenAuthenticator` takes care of
 * `OAuth2ServiceConfiguration` loading
 * `org.apache.http.HttpClient` initialization (it's required for signature validation)
 * Jwt Validator setup with help of [`JwtValidatorBuilder`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java)
@@ -129,6 +131,50 @@ public class XsuaaSecurityFilter implements Filter {
 			SecurityContext.clear();
 		}
 	}
+}
+```
+
+#### `HybridTokenAuthenticator` usage
+
+The `HybridTokenAuthenticator` is designed for hybrid scenarios where an application needs to validate tokens issued by the Identity service (IAS) and exchange them for tokens issued by the XSUAA service. This is particularly useful when integrating applications that rely on both services for authentication and authorization.
+
+**Setup Requirements**:
+
+- IAS and XSUAA service configurations ([
+  `OAuth2ServiceConfiguration`](java-api/src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java))
+- HTTP client for token exchange (`CloseableHttpClient` via [
+  `HttpClientFactory`](token-client/src/main/java/com/sap/cloud/security/client/HttpClientFactory.java))
+- Chosen [`TokenExchangeMode`](java-security/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)
+
+**Configuration Example**:
+
+```java
+// 1. Load service configurations from environment
+ OAuth2ServiceConfiguration iasConfig = Environment.getIasConfiguration();
+ OAuth2ServiceConfiguration xsuaaConfig = Environment.getXsuaaConfiguration();
+
+// 2. Choose token exchange mode
+TokenExchangeMode exchangeMode = TokenExchangeMode.FORCE_XSUAA;
+
+// 3. Create authenticator
+HybridTokenAuthenticator authenticator =
+        new HybridTokenAuthenticator(iasConfig, HttpClientFactory.create(iasConfig.getClientIdentity()), xsuaaConfig, exchangeMode);
+
+// 4. Use in servlet filter
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+
+    TokenAuthenticationResult result = authenticator.validateRequest(request, response);
+
+    if (result.isAuthenticated()) {
+        // In FORCE_XSUAA mode: SecurityContext.getToken() returns XSUAA token
+        // In PROVIDE_XSUAA mode: SecurityContext.getToken() returns IAS token
+        //                       SecurityContext.getXsuaaToken() returns exchanged XSUAA token
+
+        chain.doFilter(request, response);
+    } else {
+        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    }
 }
 ```
 

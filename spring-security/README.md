@@ -39,6 +39,7 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
   + [Securing Endpoints](#securing-endpoints)
   + [Securing Methods](#securing-methods)
   + [Access token information](#access-token-information)
+  + [Token Exchange Configuration](#token-exchange-configuration)
   + [Fetch XSUAA Tokens](#fetch-xsuaa-tokens)
   + [Access service configurations](#access-service-configurations)
 * [Optional Usage](#optional-usage)
@@ -88,10 +89,11 @@ In addition, a bean of type [XsuaaTokenFlows](../token-client/src/main/java/com/
 
 #### Autoconfiguration properties
 | Autoconfiguration property              | Default value | Description                                                                                                             |
-|-----------------------------------------|---------------|-------------------------------------------------------------------------------------------------------------------------|
-| sap.spring.security.hybrid.auto         | true          | This enables all auto-configurations that setup your project for hybrid IAS and/or XSUAA token validation.              |
-| sap.spring.security.xsuaa.flows.auto    | true          | This enables all auto-configurations required for XSUAA token exchange using [`token-client`](../token-client) library. |
-| sap.spring.security.identity.prooftoken | true          | This creates a `JwtDecoder` for identity service with enabled prooftoken check                                          |
+|-----------------------------------------|-------------|-------------------------------------------------------------------------------------------------------------------------|
+| sap.spring.security.hybrid.auto         | true        | This enables all auto-configurations that setup your project for hybrid IAS and/or XSUAA token validation.              |
+| sap.spring.security.xsuaa.flows.auto    | true        | This enables all auto-configurations required for XSUAA token exchange using [`token-client`](../token-client) library. |
+| sap.spring.security.identity.prooftoken | true        | This creates a `JwtDecoder` for identity service with enabled prooftoken check                                          |
+| sap.spring.security.hybrid.token.exchange.mode | disabled | Token exchange mode: `disabled`, `provide_xsuaa`, `force_xsuaa` |
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
@@ -264,6 +266,72 @@ In case you need information from the service binding configuration from one of 
   ```
 
 Alternatively, you can also access the information with `Environments.getCurrent()`, which is provided with `java-security`.
+
+### Token Exchange Configuration
+
+The library supports automatic token exchange between IAS and XSUAA tokens in hybrid authentication scenarios.
+
+**Enable Token Exchange via Configuration**:
+
+```yaml
+# application.yml
+sap:
+  spring:
+    security:
+      hybrid:
+        token:
+          exchange:
+            mode: provide_xsuaa  # Options: disabled, provide_xsuaa, force_xsuaa (default: disabled)
+```
+
+**Spring Security Configuration**:
+
+```java
+
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt());
+        // Uses auto-configured HybridJwtDecoder
+    }
+}
+```
+
+**How It Works**:
+
+1. [
+   `HybridIdentityServicesAutoConfiguration`](spring-security/src/main/java/com/sap/cloud/security/spring/autoconfig/HybridIdentityServicesAutoConfiguration.java)
+   detects IAS + XSUAA bindings
+2. Creates [
+   `HybridJwtDecoder`](spring-security/src/main/java/com/sap/cloud/security/spring/token/authentication/HybridJwtDecoder.java)
+   bean with configured mode
+3. Registers [`IdTokenExtension`](java-api/src/main/java/com/sap/cloud/security/token/IdTokenExtension.java) and [
+   `XsuaaTokenExtension`](java-api/src/main/java/com/sap/cloud/security/token/XsuaaTokenExtension.java) in [
+   `SecurityContext`](java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java)
+4. Spring Security uses decoder for all JWT validation
+
+**Access Tokens in Application Code**:
+
+```java
+
+@RestController
+public class ApiController {
+
+    @GetMapping("/api/resource")
+    public String getResource(@AuthenticationPrincipal Jwt jwt) {
+      // In FORCE_XSUAA mode: SecurityContext.getToken() returns XSUAA token
+      // In PROVIDE_XSUAA mode: SecurityContext.getToken() returns IAS token
+      //                       SecurityContext.getXsuaaToken() returns exchanged XSUAA token
+
+        Token xsuaaToken = SecurityContext.getXsuaaToken(); // Always available if exchange enabled
+        List<String> scopes = xsuaaToken.getClaimAsStringList("scope");
+
+        return "Resource accessed";
+    }
+}
+```
 
 ## Optional Usage
 <details>
