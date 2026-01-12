@@ -148,23 +148,25 @@ The [`TokenExchangeMode`](java-security/src/main/java/com/sap/cloud/security/tok
 when
 and how IAS tokens are exchanged:
 
-| Mode                | Behavior                                                                                                                                                                                                                                                    |
-|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **`DISABLED`**      | No exchange. Each token type is validated and used as-is.                                                                                                                                                                                                   |
-| **`PROVIDE_XSUAA`** | IAS token is validated and exchanged for XSUAA, but the IAS token remains primary in the security context. The XSUAA token is accessible via [`SecurityContext.getXsuaaToken()`](java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java). |
-| **`FORCE_XSUAA`**   | IAS token is exchanged for XSUAA and the XSUAA token replaces the IAS token in the security context. The application treats all requests as XSUAA-authenticated.                                                                                            |
+| Mode                | Behavior                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+|---------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **`DISABLED`**      | No exchange. Each token type is validated and used as-is.                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **`PROVIDE_XSUAA`** | IAS token is validated and exchanged for XSUAA, but the IAS token remains primary in the security context. The XSUAA token is accessible via [`SecurityContext.getXsuaaToken()`](java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java).                                                                                                                                                                                                                                                   |
+| **`FORCE_XSUAA`**   | IAS token is exchanged for XSUAA and the XSUAA token replaces the IAS token in the security context. The resulting security context looks as if an XSUAA token had been received directly.    |
+
+The Initial token is still available via the [`SecurityContext.getInitialToken()`](java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java) getter and the ID token is available with [`SecurityContext.getIdToken()`](java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java) 
 
 **Mode Selection Guide**:
 
-- Use **`PROVIDE_XSUAA`** when gradually building IAS-based features while maintaining XSUAA authorization
-- Use **`FORCE_XSUAA`** for maximum backward compatibility—your app operates as if it were XSUAA-only
-- Use **`DISABLED`** after completing the migration to IAS
+- Use **`PROVIDE_XSUAA`** when the app is migrated to AMS authorization and wants to offer combined XSUAA and AMS authorizations for migrated tenants (requires additional configuration of the AMS client library)
+- Use **`FORCE_XSUAA`** for maximum backward compatibility—the app operates based on XSUAA tokens like before
+- Use **`DISABLED`** or remove the property completely after completing the migration to IAS
 
 #### Prerequisites for Token Exchange
 
 1. Both XSUAA and IAS service bindings must be configured
-2. IAS service binding must include `xsuaa-cross-consumption: true` parameter (Cloud Foundry)
-3. On Kubernetes/Kyma, ensure XSUAA trusts the IAS identity provider
+2. IAS service binding must include `xsuaa-cross-consumption: true` parameter
+3. Ensure XSUAA trusts the IAS identity provider
 
 #### Token Exchange Flow Summary
 
