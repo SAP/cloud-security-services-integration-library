@@ -202,20 +202,28 @@ public class HybridJwtDecoder implements JwtDecoder {
 				throw new BadJwtException("Tokens issued by IAS service aren't accepted");
 			}
 			validationResult = iasTokenValidators.validate(token);
+            checkValidation(validationResult);
 		}
-		case XSUAA -> validationResult = xsuaaTokenValidators.validate(token);
+		case XSUAA -> {
+            validationResult = xsuaaTokenValidators.validate(token);
+            checkValidation(validationResult);
+            SecurityContext.setXsuaaToken(token);
+        }
 		default -> throw new BadJwtException("Tokens issued by " + token.getService() + " service aren't supported.");
 		}
-		if (validationResult.isErroneous()) {
-			if (validationResult.getErrorDescription().contains("JWKS could not be fetched")) {
-				throw new JwtException(validationResult.getErrorDescription());
-			} else {
-				throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
-			}
-		}
-	}
+  }
 
-	/**
+    private static void checkValidation(ValidationResult validationResult) {
+        if (validationResult.isErroneous()) {
+            if (validationResult.getErrorDescription().contains("JWKS could not be fetched")) {
+                throw new JwtException(validationResult.getErrorDescription());
+            } else {
+                throw new BadJwtException("The token is invalid: " + validationResult.getErrorDescription());
+            }
+        }
+    }
+
+    /**
 	 * Parses decoded Jwt token to {@link Jwt}
 	 *
 	 * @param token

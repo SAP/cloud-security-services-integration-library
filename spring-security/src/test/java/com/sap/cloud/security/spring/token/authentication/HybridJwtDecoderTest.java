@@ -10,6 +10,7 @@ import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.Logger;
@@ -175,6 +176,7 @@ class HybridJwtDecoderTest {
           "Decoded XSUAA token should still contain original azp");
       assertEquals(jwt.getTokenValue(), xsuaaToken);
       securityContext.verify(() -> SecurityContext.setToken(any()), Mockito.never());
+      securityContext.verify(() -> SecurityContext.setXsuaaToken(any()), times(1));
     }
   }
 

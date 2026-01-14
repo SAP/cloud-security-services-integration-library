@@ -4,6 +4,7 @@ import static com.sap.cloud.security.token.TokenExchangeMode.DISABLED;
 import static com.sap.cloud.security.token.TokenExchangeMode.FORCE_XSUAA;
 import static com.sap.cloud.security.token.TokenExchangeMode.PROVIDE_XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -128,6 +129,7 @@ public class HybridTokenAuthenticatorTest {
     TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
     verify(xsuaaAuthenticator, times(1)).validateRequest(httpReq, httpResp);
+    assertEquals(SecurityContext.getXsuaaToken(), response.getToken());
     assertTrue(response.isAuthenticated());
   }
 

@@ -201,12 +201,18 @@ public class SecurityContextTest {
     assertNull(SecurityContext.getXsuaaToken());
   }
 
+    @Test
+    public void getXsuaaToken_withoutExtensionButTokenIsSet_returnsToken() {
+        SecurityContext.setXsuaaToken(TOKEN);
+        assertThat(SecurityContext.getXsuaaToken()).isEqualTo(TOKEN);
+    }
+
   @Test
   public void getXsuaaToken_xsuaaTokenTokenPresentAndValid_returnsTokenValue() {
     when(TOKEN.getTokenValue()).thenReturn("valid-xsuaa-token");
     when(TOKEN.getExpiration()).thenReturn(Instant.now().plus(10, ChronoUnit.MINUTES));
 
-    setXsuaaTokenStorage();
+    SecurityContext.setXsuaaToken(TOKEN);
 
     Token result = SecurityContext.getXsuaaToken();
 
@@ -224,7 +230,7 @@ public class SecurityContextTest {
     when(extension.resolveXsuaaToken(TOKEN))
         .thenReturn(Token.create(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8)));
 
-    setXsuaaTokenStorage();
+    SecurityContext.setXsuaaToken(TOKEN);
 
     Token result = SecurityContext.getXsuaaToken();
 
@@ -279,21 +285,6 @@ public class SecurityContextTest {
     } catch (Exception e) {
       fail(e);
       return null;
-    }
-  }
-
-  private static void setXsuaaTokenStorage() {
-    try {
-      var field = SecurityContext.class.getDeclaredField("contextStorage");
-      field.setAccessible(true);
-      ThreadLocal<?> tl = (ThreadLocal<?>) field.get(null);
-
-      Object contextHolder = tl.get();
-      var xsuaaTokenField = contextHolder.getClass().getDeclaredField("xsuaaToken");
-      xsuaaTokenField.setAccessible(true);
-      xsuaaTokenField.set(contextHolder, TOKEN);
-    } catch (Exception e) {
-      fail(e);
     }
   }
 

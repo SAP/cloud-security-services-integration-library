@@ -116,9 +116,11 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       return unauthenticated("Unexpected error occurred: " + e.getMessage());
     }
 
-    // If token is already an XSUAA token, delegate to XSUAA authenticator
+    // If token is already an XSUAA token, delegate to XSUAA authenticator and save XSUAA token in context
     if (isXsuaaToken(decodedJwt)) {
-      return xsuaaTokenAuthenticator.validateRequest(httpRequest, response);
+      TokenAuthenticationResult authenticationResult = xsuaaTokenAuthenticator.validateRequest(httpRequest, response);
+      SecurityContext.setXsuaaToken(authenticationResult.getToken());
+      return authenticationResult;
     }
 
     // Otherwise, treat it as an IAS token

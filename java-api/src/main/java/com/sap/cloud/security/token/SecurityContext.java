@@ -475,6 +475,16 @@ public class SecurityContext {
   }
 
   /**
+   * Sets the XSUAA token for the current thread.
+   *
+   * @param token the XSUAA token to set
+   */
+  public static void setXsuaaToken(Token token) {
+    SecurityContext ctx = get();
+    ctx.xsuaaToken =token;
+  }
+
+  /**
    * Retrieves the XSUAA token associated with the current context.
    *
    * <p>This method implements lazy-loading, caching, and automatic token exchange:
