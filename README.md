@@ -130,6 +130,14 @@ XSUAA tokens behind the scenes.
 **Goal**: Maintain backward compatibility during migration. Users authenticate via IAS, but the application continues
 using XSUAA-based authorization (scopes, role collections).
 
+#### Important Constraints
+
+**IAS User Tokens Only**: Token exchange only applies to end-user tokens from IAS. Client credentials tokens are **not**
+exchanged. Attempting exchange on technical tokens will result in errors.
+
+**Performance**: Exchanged tokens are cached per request and reused until expiration. Caching is automatic and requires
+no configuration.
+
 #### How Token Exchange Works
 
 ```
@@ -193,13 +201,6 @@ automatically configures hybrid authentication when both IAS and XSUAA bindings 
 
 For more information, see the [HybridJwtDecoder Javadoc](spring-security/README.md#token-exchange-configuration).
 
-#### Important Constraints
-
-**IAS User Tokens Only**: Token exchange only applies to end-user tokens from IAS. Client credentials tokens are **not**
-exchanged. Attempting exchange on technical tokens will result in errors.
-
-**Performance**: Exchanged tokens are cached per request and reused until expiration. Caching is automatic and requires
-no configuration.
 
 #### Troubleshooting
 

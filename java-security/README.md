@@ -136,7 +136,7 @@ public class XsuaaSecurityFilter implements Filter {
 
 #### `HybridTokenAuthenticator` usage
 
-The `HybridTokenAuthenticator` is designed for hybrid scenarios where an application needs to validate tokens issued by the Identity service (IAS) and exchange them for tokens issued by the XSUAA service. This is particularly useful when integrating applications that rely on both services for authentication and authorization.
+The `HybridTokenAuthenticator` is designed for hybrid scenarios where an application needs to validate tokens issued both by the Identity service (IAS) and the XSUAA service. IAS Tokens are exchanged for tokens issued by the XSUAA service while XSUAA tokens are validated as is. This is particularly useful when integrating applications that rely on both services for authentication and authorization.
 
 **Setup Requirements**:
 
@@ -167,10 +167,12 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
     TokenAuthenticationResult result = authenticator.validateRequest(request, response);
 
     if (result.isAuthenticated()) {
-        // In FORCE_XSUAA mode: SecurityContext.getToken() returns XSUAA token
+        // In FORCE_XSUAA mode: SecurityContext.getToken() returns exchanged XSUAA token
+        //                       SecurityContext.getXsuaaToken() returns exchanged XSUAA token
         // In PROVIDE_XSUAA mode: SecurityContext.getToken() returns IAS token
         //                       SecurityContext.getXsuaaToken() returns exchanged XSUAA token
-
+        // No matter the mode, SecurityContext.getXsuaaToken() always returns the XSUAA token, even if the incoming token was an XSUAA token.
+        
         chain.doFilter(request, response);
     } else {
         ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
