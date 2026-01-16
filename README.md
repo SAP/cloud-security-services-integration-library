@@ -155,6 +155,7 @@ no configuration.
 ```
 
 If the incoming token is already an XSUAA token, no exchange occurs—it's validated and used directly.
+The XSUAA token will then be available in the security context as usual via getToken() as well as via getXsuaaToken().
 
 **Failure Handling**: If token exchange fails (network issues, misconfiguration), authentication fails with 401
 Unauthorized. No silent fallback occurs since IAS access tokens typically lack scopes needed for authorization.

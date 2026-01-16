@@ -167,11 +167,10 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
     TokenAuthenticationResult result = authenticator.validateRequest(request, response);
 
     if (result.isAuthenticated()) {
-        // In FORCE_XSUAA mode: SecurityContext.getToken() returns exchanged XSUAA token
-        //                       SecurityContext.getXsuaaToken() returns exchanged XSUAA token
-        // In PROVIDE_XSUAA mode: SecurityContext.getToken() returns IAS token
-        //                       SecurityContext.getXsuaaToken() returns exchanged XSUAA token
-        // No matter the mode, SecurityContext.getXsuaaToken() always returns the XSUAA token, even if the incoming token was an XSUAA token.
+        // In FORCE_XSUAA mode: SecurityContext.getToken() returns XSUAA token
+        //                       SecurityContext.getXsuaaToken() returns XSUAA token
+        // In PROVIDE_XSUAA mode: SecurityContext.getToken() returns incoming (IAS or XSUAA) token
+        //                       SecurityContext.getXsuaaToken() returns XSUAA token
         
         chain.doFilter(request, response);
     } else {

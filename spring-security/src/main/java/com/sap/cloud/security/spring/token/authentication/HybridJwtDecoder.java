@@ -45,14 +45,13 @@ import org.springframework.web.context.request.ServletRequestAttributes;
  * during instantiation:
  *
  * <ul>
- *   <li>{@link TokenExchangeMode#DISABLED}: No token exchange is performed. The original, validated
- *       token is used.
- *   <li>{@link TokenExchangeMode#PROVIDE_XSUAA}: If an IAS token is received, it is validated, and
- *       an exchange for an XSUAA token is initiated. The exchanged XSUAA token is stored in the
- *       {@link SecurityContext}, but the original IAS token is returned by this decoder.
- *   <li>{@link TokenExchangeMode#FORCE_XSUAA}: If an IAS token is received, it is exchanged for an
- *       XSUAA token. The new XSUAA token is returned by this decoder, effectively replacing the
- *       original token for the current request. XSUAA tokens are returned without exchange.
+ *   <li>{@link TokenExchangeMode#DISABLED}: No token exchange is performed. The original token is
+ *       returned after validation.
+ *   <li>{@link TokenExchangeMode#PROVIDE_XSUAA}: XSUAA tokens are validated and returned. IAS tokens are validated and exchanged for XSUAA
+ *       tokens. The XSUAA token is stored in {@link SecurityContext}, but the original IAS token is
+ *       returned.
+ *   <li>{@link TokenExchangeMode#FORCE_XSUAA}: XSUAA tokens are validated and returned. IAS tokens are exchanged for XSUAA tokens, and the
+ *       exchanged token is returned. XSUAA tokens are returned directly without exchange.
  * </ul>
  *
  * <p><b>Client Certificate Forwarding</b></p>

@@ -53,10 +53,10 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *   <li>{@link TokenExchangeMode#DISABLED}: No token exchange is performed. The original token is
  *       returned after validation.
- *   <li>{@link TokenExchangeMode#PROVIDE_XSUAA}: IAS tokens are validated and exchanged for XSUAA
+ *   <li>{@link TokenExchangeMode#PROVIDE_XSUAA}: XSUAA tokens are validated and returned. IAS tokens are validated and exchanged for XSUAA
  *       tokens. The XSUAA token is stored in {@link SecurityContext}, but the original IAS token is
  *       returned.
- *   <li>{@link TokenExchangeMode#FORCE_XSUAA}: IAS tokens are exchanged for XSUAA tokens, and the
+ *   <li>{@link TokenExchangeMode#FORCE_XSUAA}: XSUAA tokens are validated and returned. IAS tokens are exchanged for XSUAA tokens, and the
  *       exchanged token is returned. XSUAA tokens are returned directly without exchange.
  * </ul>
  *
