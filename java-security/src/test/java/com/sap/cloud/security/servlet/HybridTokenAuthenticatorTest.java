@@ -1,20 +1,20 @@
 package com.sap.cloud.security.servlet;
 
+import static com.sap.cloud.security.token.TokenExchangeMode.DISABLED;
+import static com.sap.cloud.security.token.TokenExchangeMode.FORCE_XSUAA;
+import static com.sap.cloud.security.token.TokenExchangeMode.PROVIDE_XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
-import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
-import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.token.XsuaaToken;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
-import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaTokenExchangeService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -34,16 +34,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class HybridTokenAuthenticatorTest {
 
-  @Mock private OAuth2TokenService tokenService;
   @Mock private IasTokenAuthenticator iasAuthenticator;
   @Mock private XsuaaTokenAuthenticator xsuaaAuthenticator;
   @Mock private HttpServletRequest httpReq;
   @Mock private HttpServletResponse httpResp;
   @Mock private TokenAuthenticationResult authenticationResult;
-  @Mock private XsuaaTokenExchangeService exchangeService;
   @Mock private CloseableHttpClient httpClientMock;
+  @Mock private OAuth2ServiceConfiguration iasConfig;
+  @Mock private OAuth2ServiceConfiguration xsuaaConfig;
 
-  private static OAuth2ServiceConfiguration xsuaaConfig;
   private final SapIdToken accessToken;
   private final SapIdToken idToken;
   private final XsuaaToken xsuaaToken;
@@ -60,30 +59,7 @@ public class HybridTokenAuthenticatorTest {
 
   @Before
   public void setUp() throws Exception {
-    OAuth2ServiceConfiguration iasConfig =
-        OAuth2ServiceConfigurationBuilder.forService(Service.IAS)
-            .withDomains("myauth.com")
-            .withClientId("T000310")
-            .build();
-
-    xsuaaConfig =
-        OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
-            .withDomains("auth.com")
-            .withProperty(ServiceConstants.XSUAA.APP_ID, "appId")
-            .withClientId("clientId")
-            .withClientSecret("mySecret")
-            .withUrl("https://myauth.com")
-            .build();
-
-    cut = new HybridTokenAuthenticator(iasConfig, httpClientMock, xsuaaConfig);
-
-    setField(cut, "iasTokenAuthenticator", iasAuthenticator);
-    setField(cut, "xsuaaTokenAuthenticator", xsuaaAuthenticator);
-    setField(cut, "tokenService", tokenService);
-    setField(cut, "exchangeService", exchangeService);
-
-    when(exchangeService.exchangeToXsuaa(idToken, xsuaaConfig, tokenService))
-        .thenReturn(xsuaaToken);
+    setupClassUnderTesting(DISABLED);
   }
 
   @Test
@@ -153,6 +129,7 @@ public class HybridTokenAuthenticatorTest {
     TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
     verify(xsuaaAuthenticator, times(1)).validateRequest(httpReq, httpResp);
+    assertEquals(SecurityContext.getXsuaaToken(), response.getToken());
     assertTrue(response.isAuthenticated());
   }
 
@@ -168,12 +145,17 @@ public class HybridTokenAuthenticatorTest {
   }
 
   @Test
-  public void validateRequest_validIasToken_butExceptionOnGetIdToken_returnsUnauthenticated() {
+  public void validateRequest_validIasToken_butExceptionOnTokenExchange_returnsUnauthenticated()
+      throws Exception {
+    setupClassUnderTesting(FORCE_XSUAA);
     when(authenticationResult.isAuthenticated()).thenReturn(true);
     createRequestWithBearerHeader(accessToken.getTokenValue());
 
     try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
-      securityContext.when(SecurityContext::getIdToken).thenThrow(IllegalArgumentException.class);
+      securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+      securityContext
+          .when(SecurityContext::getXsuaaToken)
+          .thenThrow(IllegalArgumentException.class);
 
       TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
@@ -186,58 +168,51 @@ public class HybridTokenAuthenticatorTest {
   }
 
   @Test
-  public void validateRequest_validIasToken_butExceptionOnTokenExchange_returnsUnauthenticated() {
+  public void validateRequest_forceXsuaaMode_returnsAuthenticatedXSUAAResult() throws Exception {
+    setupClassUnderTesting(FORCE_XSUAA);
     when(authenticationResult.isAuthenticated()).thenReturn(true);
     createRequestWithBearerHeader(accessToken.getTokenValue());
 
     try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
       securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
-      when(exchangeService.exchangeToXsuaa(idToken, xsuaaConfig, tokenService))
-          .thenThrow(OAuth2ServiceException.class);
+      securityContext.when(SecurityContext::getXsuaaToken).thenReturn(xsuaaToken);
 
-      TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
+      cut.validateRequest(httpReq, httpResp);
 
-      assertFalse(response.isAuthenticated());
-      assertTrue(
-          response
-              .getUnauthenticatedReason()
-              .contains("Unexpected error during exchange from ID token to XSUAA token:"));
-    } catch (OAuth2ServiceException e) {
-      throw new RuntimeException(e);
+      verify(xsuaaAuthenticator, times(1)).authenticated(xsuaaToken);
+      securityContext.verify(SecurityContext::getXsuaaToken);
+      securityContext.verify(() -> SecurityContext.updateToken(xsuaaToken));
     }
   }
 
   @Test
-  public void validateRequest_validIasToken_butMissingIdToken_returnsUnauthenticated() {
-    when(authenticationResult.isAuthenticated()).thenReturn(true);
-    createRequestWithBearerHeader(accessToken.getTokenValue());
-
-    try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
-      securityContext.when(SecurityContext::getIdToken).thenReturn(null);
-
-      TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
-
-      verify(iasAuthenticator, times(1)).validateRequest(httpReq, httpResp);
-      assertFalse(response.isAuthenticated());
-    }
-  }
-
-  @Test
-  public void validateRequest_validIasToken_withValidIdToken_returnsAuthenticatedXsuaaToken()
-      throws OAuth2ServiceException {
+  public void validateRequest_provideXsuaaMode_returnsAuthenticatedIASResult() throws Exception {
+    setupClassUnderTesting(PROVIDE_XSUAA);
     when(authenticationResult.isAuthenticated()).thenReturn(true);
     createRequestWithBearerHeader(accessToken.getTokenValue());
 
     try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
       securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+      securityContext.when(SecurityContext::getXsuaaToken).thenReturn(xsuaaToken);
 
       TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
-      verify(iasAuthenticator, times(1)).validateRequest(httpReq, httpResp);
-      verify(exchangeService, times(1)).exchangeToXsuaa(idToken, xsuaaConfig, tokenService);
+      verify(xsuaaAuthenticator, never()).authenticated(any());
+      securityContext.verify(SecurityContext::getXsuaaToken);
       assertTrue(response.isAuthenticated());
-      securityContext.verify(() -> SecurityContext.overwriteToken(xsuaaToken), times(1));
     }
+  }
+
+  @Test
+  public void validateRequest_tokenExchangeDisabled_returnsAuthenticatedIASResult() {
+    when(authenticationResult.isAuthenticated()).thenReturn(true);
+    createRequestWithBearerHeader(accessToken.getTokenValue());
+
+    TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
+
+    verify(xsuaaAuthenticator, never()).authenticated(any());
+    assertNull(SecurityContext.getXsuaaToken());
+    assertTrue(response.isAuthenticated());
   }
 
   @Test
@@ -262,11 +237,16 @@ public class HybridTokenAuthenticatorTest {
         .extractFromHeader(httpReq.getHeader(HttpHeaders.AUTHORIZATION));
   }
 
+  private void setupClassUnderTesting(final TokenExchangeMode mode) throws Exception {
+    cut = new HybridTokenAuthenticator(iasConfig, httpClientMock, xsuaaConfig, mode);
+    setField(cut, "iasTokenAuthenticator", iasAuthenticator);
+    setField(cut, "xsuaaTokenAuthenticator", xsuaaAuthenticator);
+  }
+
   private void createRequestWithoutToken() {
     when(httpReq.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
     when(iasAuthenticator.validateRequest(httpReq, httpResp)).thenReturn(authenticationResult);
     when(xsuaaAuthenticator.validateRequest(httpReq, httpResp)).thenReturn(authenticationResult);
-    when(xsuaaAuthenticator.authenticated(xsuaaToken)).thenReturn(authenticationResult);
   }
 
   private void createRequestWithBearerHeader(String tokenValue) {
