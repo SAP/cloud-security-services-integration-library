@@ -5,18 +5,18 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
 import com.sap.cloud.security.config.*;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.token.validation.ValidationListener;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 class JwtDecoderBuilderTest {
 	JwtDecoderBuilder cut = new JwtDecoderBuilder();
@@ -32,6 +32,11 @@ class JwtDecoderBuilderTest {
 		CloseableHttpClient mockHttpClient = Mockito.mock(CloseableHttpClient.class);
 		assertNotNull(cut.withHttpClient(mockHttpClient));
 	}
+
+  @Test
+  void withTokenExchange() {
+    assertNotNull(cut.withTokenExchange(TokenExchangeMode.FORCE_XSUAA));
+  }
 
 	@Test
 	void buildWithoutConfiguration_IllegalStateException() {
