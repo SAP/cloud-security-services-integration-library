@@ -116,7 +116,7 @@
 			<scope>test</scope>
 			<version>${slf4j.api.version}</version>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>

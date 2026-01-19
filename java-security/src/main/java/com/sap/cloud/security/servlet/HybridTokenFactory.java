@@ -5,6 +5,9 @@
  */
 package com.sap.cloud.security.servlet;
 
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
+import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ENHANCER;
+
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -13,16 +16,12 @@ import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE;
-import static com.sap.cloud.security.token.TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE_ENHANCER;
+import javax.annotation.Nonnull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates a {@link Token} instance. Supports Jwt tokens from IAS and XSUAA identity service. TokenFactory loads and
@@ -34,14 +33,16 @@ public class HybridTokenFactory implements TokenFactory {
 	static Optional<String> xsAppId;
 	static ScopeConverter xsScopeConverter;
 
-	/**
-	 * Determines whether the JWT token is issued by XSUAA or IAS identity service, and creates a Token for it.
-	 *
-	 * @param jwtToken
-	 * 		the encoded JWT token (access_token or id_token), e.g. from the Authorization Header.
-	 * @return the new token instance
-	 */
-	public Token create(String jwtToken) {
+  /**
+   * Determines whether the JWT token is issued by XSUAA or IAS identity service, and creates a
+   * Token for it.
+   *
+   * @param jwtToken the encoded JWT token (access_token or id_token), e.g. from the Authorization
+   *     Header.
+   * @return the new token instance
+   */
+  @Override
+  public Token create(String jwtToken) {
 		try {
 			Objects.requireNonNull(jwtToken, "Requires encoded jwtToken to create a Token instance.");
 			DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(removeBearer(jwtToken));
@@ -90,14 +91,13 @@ public class HybridTokenFactory implements TokenFactory {
 		return xsAppId;
 	}
 
-	/**
-	 * Determines if the provided decoded jwt token is issued by the XSUAA identity service.
-	 *
-	 * @param decodedJwt
-	 * 		jwt to be checked
-	 * @return true if provided token is a XSUAA token
-	 */
-	private static boolean isXsuaaToken(DecodedJwt decodedJwt) {
+  /**
+   * Determines if the provided decoded jwt token is issued by the XSUAA identity service.
+   *
+   * @param decodedJwt jwt to be checked
+   * @return true if provided token is a XSUAA token
+   */
+  protected static boolean isXsuaaToken(DecodedJwt decodedJwt) {
 		String jwtPayload = decodedJwt.getPayload().toLowerCase();
 		return (jwtPayload.contains(EXTERNAL_ATTRIBUTE)
 				&& jwtPayload.contains(EXTERNAL_ATTRIBUTE_ENHANCER)
@@ -105,7 +105,7 @@ public class HybridTokenFactory implements TokenFactory {
 				|| jwtPayload.contains("\"zid\":\"uaa\",");
 	}
 
-	private static String removeBearer(@Nonnull String jwtToken) {
+  protected static String removeBearer(@Nonnull String jwtToken) {
 		Assertions.assertHasText(jwtToken, "jwtToken must not be null / empty");
 		Pattern bearerPattern = Pattern.compile("[B|b]earer ");
 		return bearerPattern.matcher(jwtToken).replaceFirst("");
