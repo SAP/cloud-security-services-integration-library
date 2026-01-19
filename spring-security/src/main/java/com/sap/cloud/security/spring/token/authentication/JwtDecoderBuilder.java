@@ -9,16 +9,16 @@ import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.util.Assert;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.util.Assert;
 
 /**
  * Builder that creates a {@link JwtDecoder} that can handle both kind of tokens:
@@ -34,6 +34,7 @@ public class JwtDecoderBuilder {
 	protected CloseableHttpClient httpClient;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 	private boolean enableProofTokenCheck;
+  private TokenExchangeMode tokenExchangeMode;
 
 	/**
 	 * Use to configure the token key cache.
@@ -84,6 +85,18 @@ public class JwtDecoderBuilder {
 		return this;
 	}
 
+  /**
+   * Sets the token exchange mode to control hybrid authentication behavior.
+   *
+   * @param tokenExchangeMode the desired token exchange mode.
+   * @return this builder.
+   * @see TokenExchangeMode
+   */
+  public JwtDecoderBuilder withTokenExchange(TokenExchangeMode tokenExchangeMode) {
+    this.tokenExchangeMode = tokenExchangeMode;
+    return this;
+  }
+
 	/**
 	 * Use to override the xsuaa service configuration used.
 	 *
@@ -121,7 +134,10 @@ public class JwtDecoderBuilder {
 	public JwtDecoder build() {
 		CombiningValidator<Token> xsuaaValidator = getValidators(Service.XSUAA);
 		CombiningValidator<Token> iasValidator = getValidators(Service.IAS);
-		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()) {
+		if (xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty() && tokenExchangeMode != null) {
+      		return new HybridJwtDecoder(xsuaaValidator, iasValidator, tokenExchangeMode);
+		} else if(xsuaaConfigurations != null && !xsuaaConfigurations.isEmpty()){
+			//If no token exchange mode is set, use default constructor with disabled token exchange
 			return new HybridJwtDecoder(xsuaaValidator, iasValidator);
 		}
 

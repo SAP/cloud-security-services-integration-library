@@ -7,10 +7,10 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.DefaultIdTokenExtension;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import com.sap.cloud.security.xsuaa.client.XsuaaTokenExchangeService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
@@ -21,45 +21,81 @@ import jakarta.servlet.http.HttpServletResponse;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Experimental Authenticates HTTP requests carrying either an IAS Access Token, ID token or an
- * XSUAA access token in the {@code Authorization} header.
+ * A token authenticator that validates and processes JSON Web Tokens (JWTs) issued by either the
+ * SAP Identity Authentication Service (IAS) or the SAP Authorization and Trust Management Service
+ * (XSUAA).
  *
- * <p>If the token is already an XSUAA token, validation is delegated to {@link
- * XsuaaTokenAuthenticator}. Otherwise, the IAS token is validated via {@link
- * IasTokenAuthenticator}, and on success, exchanged for an XSUAA access token using the OAuth 2.0
- * JWT Bearer Token grant ({@code jwt_bearer}). The exchanged XSUAA token is then stored in the
- * {@link com.sap.cloud.security.token.SecurityContext} and used for subsequent authorization.
+ * <p>This authenticator validates bearer tokens and creates authenticated token objects. It
+ * automatically determines the token's issuer and applies the appropriate validation rules,
+ * supporting hybrid authentication scenarios where both IAS and XSUAA tokens are accepted.
  *
- * <p>Requirements:
+ * <p><b>Authentication Flow</b></p>
+ *
+ * The authenticator performs the following steps:
+ *
+ * <ol>
+ *   <li>Accepts an encoded JWT string
+ *   <li>Determines whether the token was issued by IAS or XSUAA
+ *   <li>Validates the token using the appropriate validator
+ *   <li>Optionally exchanges IAS tokens for XSUAA tokens based on the configured {@link
+ *       TokenExchangeMode}
+ *   <li>Returns a validated {@link Token} object
+ * </ol>
+ *
+ * <p><b>Token Exchange Modes</b></p>
+ *
+ * The authenticator supports three token exchange modes:
  *
  * <ul>
- *   <li>XSUAA instance must support the {@code jwt_bearer} grant type.
- *   <li>The IAS ID token must contain the {@code app_tid} (tenant) claim.
- *   <li>Either client secret or certificate credentials must be configured for XSUAA.
+ *   <li>{@link TokenExchangeMode#DISABLED}: No token exchange is performed. The original token is
+ *       returned after validation.
+ *   <li>{@link TokenExchangeMode#PROVIDE_XSUAA}: XSUAA tokens are validated and returned. IAS tokens are validated and exchanged for XSUAA
+ *       tokens. The XSUAA token is stored in {@link SecurityContext}, but the original IAS token is
+ *       returned.
+ *   <li>{@link TokenExchangeMode#FORCE_XSUAA}: XSUAA tokens are validated and returned. IAS tokens are exchanged for XSUAA tokens, and the
+ *       exchanged token is returned. XSUAA tokens are returned directly without exchange.
  * </ul>
  *
- * <p>This authenticator is stateless and thread-safe. It should be invoked once per request,
- * typically from a servlet filter. Ensure the {@link com.sap.cloud.security.token.SecurityContext}
- * is cleared after each request to prevent token leakage between threads.
+ * <p><b>Client Certificate Support</b></p>
+ *
+ * For mutual TLS (mTLS) scenarios, client certificates can be provided to the authenticator. The
+ * certificate is automatically extracted and made available via {@link
+ * SecurityContext#getClientCertificate()}.
+ *
+ * <p><b>Thread Safety</b></p>
+ *
+ * This class is thread-safe and can be reused across multiple authentication attempts.
+ *
+ * @see Token
+ * @see TokenExchangeMode
+ * @see SecurityContext
+ * @see com.sap.cloud.security.token.validation.CombiningValidator
  */
 public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
 
-  private final OAuth2ServiceConfiguration xsuaaConfig;
-  private final OAuth2TokenService tokenService;
   private final IasTokenAuthenticator iasTokenAuthenticator = new IasTokenAuthenticator();
   private final XsuaaTokenAuthenticator xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
-  private final XsuaaTokenExchangeService exchangeService = new XsuaaTokenExchangeService();
+  private final TokenExchangeMode tokenExchangeMode;
+  private final Logger logger = LoggerFactory.getLogger(getClass());
+  OAuth2ServiceConfiguration iasConfig;
+  OAuth2ServiceConfiguration xsuaaConfig;
+
 
   public HybridTokenAuthenticator(
       @Nonnull final OAuth2ServiceConfiguration iasConfig,
       @Nonnull final CloseableHttpClient httpClient,
-      @Nonnull final OAuth2ServiceConfiguration xsuaaConfig) {
-    this.tokenService = new DefaultOAuth2TokenService(httpClient);
+      @Nonnull final OAuth2ServiceConfiguration xsuaaConfig,
+      @Nonnull final TokenExchangeMode tokenExchangeMode) {
+    this.tokenExchangeMode = tokenExchangeMode;
+    this.httpClient = httpClient;
+    this.iasConfig = iasConfig;
     this.xsuaaConfig = xsuaaConfig;
-    SecurityContext.registerIdTokenExtension(new DefaultIdTokenExtension(tokenService, iasConfig));
   }
+
 
   @Override
   public TokenAuthenticationResult validateRequest(
@@ -80,9 +116,11 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       return unauthenticated("Unexpected error occurred: " + e.getMessage());
     }
 
-    // If token is already an XSUAA token, delegate to XSUAA authenticator
+    // If token is already an XSUAA token, delegate to XSUAA authenticator and save XSUAA token in context
     if (isXsuaaToken(decodedJwt)) {
-      return xsuaaTokenAuthenticator.validateRequest(httpRequest, response);
+      TokenAuthenticationResult authenticationResult = xsuaaTokenAuthenticator.validateRequest(httpRequest, response);
+      SecurityContext.setXsuaaToken(authenticationResult.getToken());
+      return authenticationResult;
     }
 
     // Otherwise, treat it as an IAS token
@@ -92,17 +130,27 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
       return iasResult;
     }
     try {
-      final Token idToken = SecurityContext.getIdToken();
-      if (idToken == null) {
-        return unauthenticated("Missing IAS ID Token. Cannot exchange for XSUAA Token.");
+      switch (tokenExchangeMode) {
+        case PROVIDE_XSUAA -> {
+          logger.debug("Token exchange mode is 'PROVIDE_XSUAA'. Exchanging token...");
+          registerExtensions();
+          SecurityContext.getXsuaaToken();
+        }
+        case FORCE_XSUAA -> {
+          logger.debug(
+              "Token exchange mode is 'FORCE_XSUAA' and token is issued by IAS. Exchanging token...");
+          registerExtensions();
+          final Token xsuaaToken = SecurityContext.getXsuaaToken();
+          SecurityContext.updateToken(xsuaaToken);
+          return xsuaaTokenAuthenticator.authenticated(xsuaaToken);
+        }
+        case DISABLED -> logger.debug("Token exchange is disabled. No exchange performed.");
       }
-      final Token xsuaaToken = exchangeService.exchangeToXsuaa(idToken, xsuaaConfig, tokenService);
-      SecurityContext.overwriteToken(xsuaaToken);
-      return xsuaaTokenAuthenticator.authenticated(xsuaaToken);
-    } catch (OAuth2ServiceException | IllegalArgumentException | IllegalStateException e) {
+    } catch (IllegalArgumentException | IllegalStateException e) {
       return unauthenticated(
           "Unexpected error during exchange from ID token to XSUAA token:" + e.getMessage());
     }
+    return iasResult;
   }
 
   @Override
@@ -119,5 +167,12 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
   @Override
   protected Token extractFromHeader(final String authorizationHeader) {
     return xsuaaTokenAuthenticator.extractFromHeader(authorizationHeader);
+  }
+
+  private void registerExtensions() {
+    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+    SecurityContext.registerIdTokenExtension(new DefaultIdTokenExtension(tokenService, iasConfig));
+    SecurityContext.registerXsuaaTokenExtension(
+        new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig));
   }
 }
