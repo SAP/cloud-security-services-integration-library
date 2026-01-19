@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * <p>Resolution behavior:
  *
  * <ul>
+ *   <li>If cached ID Token is still valid, it is returned as is
  *   <li>If the current token is already an ID token, it is returned as-is.
  *   <li>If the token belongs to a technical user (where {@code sub == azp}), an exception is
  *       thrown.
@@ -71,7 +73,10 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
    * @throws IllegalArgumentException if the token belongs to a technical user
    */
   @Override
-  public Token resolveIdToken() {
+  public Token resolveIdToken(@Nullable Token idToken) {
+    if (nonNull(idToken) && !idToken.isExpired()) {
+      return idToken;
+    }
     final Token token = SecurityContext.getInitialToken();
 
     if (token == null) {
