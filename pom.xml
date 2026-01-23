@@ -69,7 +69,7 @@
 		<mockito.version>5.20.0</mockito.version>
 		<assertj.version>3.27.6</assertj.version>
 		<reactor.test.version>3.7.11</reactor.test.version>
-		<wiremock.version>3.13.1</wiremock.version>
+		<wiremock.version>3.13.2</wiremock.version>
 		<javax.annotation.version>1.3.2</javax.annotation.version>
 		<spotbugs.version>4.9.8.1</spotbugs.version>
 		<spotbugs.annotations.version>4.9.8</spotbugs.annotations.version>
@@ -379,7 +379,7 @@
 						<plugin>
 							<groupId>net.revelc.code</groupId>
 							<artifactId>impsort-maven-plugin</artifactId>
-							<version>1.12.0</version>
+							<version>1.13.0</version>
 							<configuration>
 								<groups>java.,javax.,org.,com.</groups>
 								<staticGroups>java,*</staticGroups>
