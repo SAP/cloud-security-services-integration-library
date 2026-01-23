@@ -1,6 +1,28 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.6
+
+- added Token Exchange support to Security Library for ID Token exchange and XSUAA Token exchange
+
+### Dependency upgrades
+
+- Bump io.projectreactor:reactor-test from 3.7.11 to 3.8.2 (#1892)
+- Configure Dependabot with dependency groups (#1900)
+- Bump org.sonatype.central:central-publishing-maven-plugin (#1894)
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.5.1 to 5.6 (#1895)
+- Bump org.json:json from 20250517 to 20251224 (#1898)
+- Bump ch.qos.logback:logback-core from 1.5.19 to 1.5.25 in /token-client (#1899)
+- Bump org.jacoco:jacoco-maven-plugin from 0.8.13 to 0.8.14 (#1873)
+- Bump org.apache.maven.plugins:maven-pmd-plugin from 3.27.0 to 3.28.0 (#1874)
+- Bump reactor.version from 3.7.11 to 3.7.12 (#1875)
+- Bump spring.core.version from 6.2.11 to 6.2.12 (#1878)
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.6.0 to 4.9.8.1 (#1880)
+- Bump com.github.spotbugs:spotbugs-annotations from 4.9.6 to 4.9.8 (#1881)
+- Bump spring.security.version from 6.5.5 to 6.5.6 (#1882)
+- Bump spring.security.oauth2.version from 6.5.5 to 6.5.6 (#1883)
+- Bump ch.qos.logback:logback-core from 1.5.13 to 1.5.19 in /token-client (#1884)
+
 ## 3.6.5
 
 ### Dependency upgrades

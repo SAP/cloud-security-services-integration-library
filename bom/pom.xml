@@ -8,7 +8,7 @@
 
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-bom</artifactId>
-    <version>3.6.5</version>
+    <version>3.6.6</version>
     <packaging>pom</packaging>
     <name>java-bom</name>
 
