@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 
 ### Dependency upgrades
 
+- Update Spring dependencies (#1907)
+- Bump the prod-deps-ver group with 9 updates (#1902)
+- Bump the dev-deps group with 3 updates (#1901)
 - Bump io.projectreactor:reactor-test from 3.7.11 to 3.8.2 (#1892)
 - Configure Dependabot with dependency groups (#1900)
 - Bump org.sonatype.central:central-publishing-maven-plugin (#1894)
