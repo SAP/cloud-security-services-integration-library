@@ -25,21 +25,19 @@ jobs:
     name: Build with Java ${{ matrix.java-version }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
       - name: mvn cache
-        uses: actions/cache@v4
+        uses: actions/cache@v2
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-owasp-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-owasp-
       - name: Set up JDK ${{ matrix.java-version }}
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java-version }}
-      - name: Print Maven version
-        run: mvn -v
       - name: Build with Maven
         run: mvn -B install --file pom.xml
       - name: Run java-security integration tests
@@ -50,8 +48,8 @@ jobs:
         run: cd samples/spring-security-basic-auth; mvn -B package --file pom.xml
       - name: Build spring-security-xsuaa-usage
         run: cd samples/spring-security-xsuaa-usage; mvn -B package --file pom.xml
-      - name: Build spring-webflux-security-hybrid-usage
-        run: cd samples/spring-webflux-security-hybrid-usage; mvn -B package --file pom.xml
+      - name: Build spring-webflux-security-xsuaa-usage
+        run: cd samples/spring-webflux-security-xsuaa-usage; mvn -B package --file pom.xml
       - name: Build java-security-usage
         run: cd samples/java-security-usage; mvn -B package --file pom.xml
       - name: Build sap-java-buildpack-api-usage
