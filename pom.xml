@@ -104,6 +104,14 @@
 			</dependency>
 			<!-- spring -->
 			<!-- BOMs -->
+			<!-- Align all Jetty artifacts FIRST so its versions win over Spring Boot's -->
+			<dependency>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-bom</artifactId>
+				<version>${org.eclipse.jetty.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-bom</artifactId>
