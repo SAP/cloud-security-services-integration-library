@@ -5,9 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.jwt;
 
-import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.oauth2.jwt.Jwt;
+
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -20,10 +20,18 @@ public class Base64JwtDecoderTest {
 	private static final String CLIENT_ID = "clientId123";
 	private static final String[] SCOPES = { "scope1", "scope2" };
 
-	private final static Jwt TOKEN = new JwtGenerator(CLIENT_ID)
-			.addScopes(SCOPES)
-			.setJku(JKU_HEADER)
-			.getToken();
+	// Simple JWT with JKU header and scopes for testing
+	private static String createTestJwt() {
+		String header = "{\"alg\":\"RS256\",\"jku\":\"" + JKU_HEADER + "\",\"kid\":\"key-id-1\",\"typ\":\"JWT\"}";
+		String payload = "{\"client_id\":\"" + CLIENT_ID + "\",\"scope\":[\"" + SCOPES[0] + "\",\"" + SCOPES[1] + "\"],\"exp\":9999999999}";
+		String signature = "test-signature";
+
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(header.getBytes()) + "." +
+			   Base64.getUrlEncoder().withoutPadding().encodeToString(payload.getBytes()) + "." +
+			   Base64.getUrlEncoder().withoutPadding().encodeToString(signature.getBytes());
+	}
+
+	private final static String TOKEN = createTestJwt();
 
 	@Test
 	public void itDecodesAnEncodedJwtString() {
@@ -51,7 +59,7 @@ public class Base64JwtDecoderTest {
 
 	@Test
 	public void toStringReturnsHeadersAndPayload() {
-		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(TOKEN.getTokenValue());
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(TOKEN);
 		assertThat(decodedJwt.toString())
 				.contains("Jwt header")
 				.contains(JKU_HEADER)
@@ -77,11 +85,11 @@ public class Base64JwtDecoderTest {
 
 	@Test
 	public void toStringDoesNotContainSignatureNorEncodedToken() {
-		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(TOKEN.getTokenValue());
+		DecodedJwt decodedJwt = Base64JwtDecoder.getInstance().decode(TOKEN);
 
 		assertThat(decodedJwt.toString())
 				.doesNotContain(decodedJwt.getSignature())
-				.doesNotContain(TOKEN.getTokenValue());
+				.doesNotContain(TOKEN);
 	}
 
 }
