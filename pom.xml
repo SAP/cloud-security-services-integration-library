@@ -84,10 +84,9 @@
 		<module>java-security</module>
 		<module>spring-security</module>
 		<module>spring-security-compatibility</module>
+		<module>spring-security-legacy-module</module>
 		<module>spring-security-starter</module>
 		<module>java-security-test</module>
-		<module>spring-xsuaa-test</module>
-		<module>spring-xsuaa-starter</module>
 		<module>bom</module>
     </modules>
 
