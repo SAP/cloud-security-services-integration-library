@@ -15,7 +15,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
