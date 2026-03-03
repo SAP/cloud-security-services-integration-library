@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.sap.cloud.security.xsuaa</groupId>
+		<artifactId>parent</artifactId>
+		<version>3.6.5</version>
+	</parent>
+
+	<groupId>com.sap.cloud.security</groupId>
+	<artifactId>spring-security</artifactId>
+	<name>spring-security</name>
+	<packaging>jar</packaging>
+	<version>3.6.5</version>
+
+	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	<description>Java Spring security library</description>
+
+	<organization>
+		<name>SAP SE</name>
+		<url>https://www.sap.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Identity Service Development</name>
+			<email>xsuaa-development@sap.com</email>
+			<organization>SAP SE</organization>
+			<organizationUrl>https://www.sap.com</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/SAP/cloud-security-xsuaa-integration.git</connection>
+		<developerConnection>scm:git:ssh//github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
+		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	</scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-jose</artifactId>
+			<scope>provided</scope>
+			<version>6.5.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-resource-server</artifactId>
+			<scope>provided</scope>
+			<version>6.5.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-autoconfigure</artifactId>
+			<scope>provided</scope>
+			<version>3.5.9</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-security</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<scope>provided</scope>
+			<version>${jakarta.servlet.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${apache.httpclient.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<optional>true</optional>
+			<version>${spotbugs.annotations.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
+			<version>${reactor.version}</version>
+		</dependency>
+
+		<!-- test utilities -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+			<version>${mockito.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-security-test</artifactId>
+			<scope>test</scope>
+			<version>${project.parent.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sap.cloud.security</groupId>
+					<artifactId>java-security</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<version>3.5.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>test</scope>
+			<version>3.5.9</version>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<scope>test</scope>
+			<version>${reactor.test.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven.source.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

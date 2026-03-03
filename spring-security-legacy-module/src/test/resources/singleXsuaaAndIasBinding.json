@@ -1,0 +1,27 @@
+{
+  "xsuaa": [
+    {
+      "credentials": {
+        "clientid": "client-id",
+        "clientsecret": "client-secret",
+        "url": "http://domain.xsuaadomain",
+        "uaadomain": "xsuaadomain",
+        "xsappname": "xsappname"
+      },
+      "name": "xsuaaInstance0",
+      "plan": "application"
+    }
+  ],
+  "identity": [
+    {
+      "credentials": {
+        "clientid": "client-id-ias",
+        "clientsecret": "client-secret-ias",
+        "url": "http://domain.iasdomain",
+        "domains": ["iasdomain"]
+      },
+      "name": "identityInstance0",
+      "plan": "broker"
+    }
+   ]
+}
