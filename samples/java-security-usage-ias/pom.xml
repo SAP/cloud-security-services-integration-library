@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sap.cloud.security.xssec.samples</groupId>
     <artifactId>java-security-usage-ias</artifactId>
-    <version>3.6.7</version>
+    <version>4.0.0</version>
     <packaging>war</packaging>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
