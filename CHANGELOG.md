@@ -1,6 +1,20 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.7
+
+- Fix FIPS compatibility by using default KeyManagerFactory algorithm instead of hardcoded "SunX509"
+- Fix "Connection pool shut down" exception by properly reusing cached SSL connections
+
+### Dependency upgrades
+
+- Bump org.eclipse.jetty:jetty-bom from 12.1.5 to 12.1.6
+- Bump io.projectreactor:reactor-core from 3.8.2 to 3.8.3
+- Bump io.projectreactor:reactor-test from 3.8.2 to 3.8.3
+- Bump org.mockito:mockito-core from 5.21.0 to 5.22.0
+- Bump org.assertj:assertj-core from 3.27.6 to 3.27.7
+- Bump org.apache.maven.plugins:maven-surefire-plugin from 3.5.4 to 3.5.5
+
 ## 3.6.6
 
 - added Token Exchange support to Security Library for ID Token exchange and XSUAA Token exchange
