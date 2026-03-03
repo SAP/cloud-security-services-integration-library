@@ -7,45 +7,82 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.servlet.MDCHelper.CORRELATION_ID;
+import org.junit.jupiter.api.Test;
 import static java.util.Collections.emptyMap;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
 
 import ch.qos.logback.classic.Level;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.classic.Logger;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.core.read.ListAppender;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.config.ClientCredentials;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.servlet.MDCHelper;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
+import org.junit.jupiter.api.Test;
 import java.io.IOException;
+import org.junit.jupiter.api.Test;
 import java.net.URI;
+import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Test;
 import java.time.Instant;
+import org.junit.jupiter.api.Test;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 import java.util.Set;
+import org.junit.jupiter.api.Test;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.core5.http.HttpEntity;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.core5.http.HttpStatus;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.junit.jupiter.api.Test;
 import org.assertj.core.util.Maps;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
+import org.junit.jupiter.api.Test;
 
 public class DefaultOAuth2TokenServiceTest {
 
@@ -55,16 +92,15 @@ public class DefaultOAuth2TokenServiceTest {
   private static final String ERROR_MESSAGE = "Error message";
   private static final Map<String, String> PARAMS = Map.of("param1", "value1");
   private static final String VALID_JSON_RESPONSE =
-      String.format(
-          "{expires_in: 10000, access_token: %s, refresh_token: %s, token_type: %s}",
-          ACCESS_TOKEN, REFRESH_TOKEN, TOKEN_TYPE);
+			"{expires_in: 10000, access_token: %s, refresh_token: %s, token_type: %s}".formatted(
+					ACCESS_TOKEN, REFRESH_TOKEN, TOKEN_TYPE);
   private static final URI TOKEN_URI =
       URI.create("https://subdomain.myauth.server.com/oauth/token");
 
   private CloseableHttpClient mockHttpClient;
   private DefaultOAuth2TokenService cut;
 
-  @Before
+  @BeforeEach
   public void setup() {
     mockHttpClient = Mockito.mock(CloseableHttpClient.class);
     cut = new DefaultOAuth2TokenService(mockHttpClient);
@@ -97,7 +133,7 @@ public class DefaultOAuth2TokenServiceTest {
 
   @Test
   public void requestAccessToken_errorOccurs_throwsServiceException() throws IOException {
-    when(mockHttpClient.execute(any(), any(ResponseHandler.class)))
+    when(mockHttpClient.execute(any(), any(HttpClientResponseHandler.class)))
         .thenThrow(new IOException(ERROR_MESSAGE));
 
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, PARAMS))
@@ -128,7 +164,7 @@ public class DefaultOAuth2TokenServiceTest {
     final OAuth2TokenResponse result = requestAccessToken(TOKEN_URI, emptyParams);
 
     assertThat(result).isNotNull();
-    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -137,7 +173,7 @@ public class DefaultOAuth2TokenServiceTest {
 
     requestAccessToken(TOKEN_URI, PARAMS);
 
-    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -180,7 +216,7 @@ public class DefaultOAuth2TokenServiceTest {
     final ArgumentCaptor<HttpPost> httpPostCaptor = ArgumentCaptor.forClass(HttpPost.class);
     requestAccessToken(TOKEN_URI, Maps.newHashMap("myKey", "myValue"));
 
-    verify(mockHttpClient, times(1)).execute(httpPostCaptor.capture(), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(httpPostCaptor.capture(), any(HttpClientResponseHandler.class));
     final HttpPost httpPost = httpPostCaptor.getValue();
     final HttpEntity httpEntity = httpPost.getEntity();
     assertThat(httpEntity).isNotNull();
@@ -212,7 +248,7 @@ public class DefaultOAuth2TokenServiceTest {
     cut.retrieveAccessTokenViaClientCredentialsGrant(
         TOKEN_URI, new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
 
-    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -223,7 +259,7 @@ public class DefaultOAuth2TokenServiceTest {
 
     final OAuth2TokenResponse result = requestAccessToken(TOKEN_URI, emptyMap());
 
-    verify(mockHttpClient, times(2)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(2)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
     assertThat(result.getAccessToken()).isEqualTo(ACCESS_TOKEN);
   }
 
@@ -240,7 +276,7 @@ public class DefaultOAuth2TokenServiceTest {
         .hasMessageContaining("Request Headers [")
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 400");
-    verify(mockHttpClient, times(7)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(7)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -255,7 +291,7 @@ public class DefaultOAuth2TokenServiceTest {
         .hasMessageContaining("Request Headers [")
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 500");
-    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -270,7 +306,7 @@ public class DefaultOAuth2TokenServiceTest {
         .hasMessageContaining("Request Headers [")
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining(TOKEN_URI.toString());
-    verify(mockHttpClient, times(3)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(3)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -294,7 +330,7 @@ public class DefaultOAuth2TokenServiceTest {
         .extracting(ILoggingEvent::getFormattedMessage)
         .contains("Thread.sleep has been interrupted. Retry starts now.");
     logger.detachAppender(listAppender);
-    verify(mockHttpClient, times(2)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(2)).execute(any(HttpPost.class), any(HttpClientResponseHandler.class));
   }
 
   private OAuth2TokenResponse requestAccessToken(
@@ -305,7 +341,7 @@ public class DefaultOAuth2TokenServiceTest {
   }
 
   private void mockResponse(final String responseAsString, final Integer... statusCodes) {
-    final List<CloseableHttpResponse> responses =
+    final List<ClassicHttpResponse> responses =
         Arrays.stream(statusCodes)
             .map(
                 statusCode ->
@@ -314,11 +350,11 @@ public class DefaultOAuth2TokenServiceTest {
 
     final AtomicInteger index = new AtomicInteger(0);
     try {
-      when(mockHttpClient.execute(any(HttpPost.class), any(ResponseHandler.class)))
+      when(mockHttpClient.execute(any(HttpPost.class), any(HttpClientResponseHandler.class)))
           .thenAnswer(
               invocation -> {
-                final ResponseHandler responseHandler = invocation.getArgument(1);
-                final CloseableHttpResponse response = responses.get(index.getAndIncrement());
+                final HttpClientResponseHandler<String> responseHandler = invocation.getArgument(1);
+                final ClassicHttpResponse response = responses.get(index.getAndIncrement());
                 return responseHandler.handleResponse(response);
               });
     } catch (final IOException ignored) {

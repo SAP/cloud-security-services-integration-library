@@ -6,33 +6,55 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.config.ClientCredentials;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.config.ClientIdentity;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.*;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.MultiValueMap;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.client.HttpClientErrorException;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestOperations;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import org.junit.jupiter.api.Test;
 import java.net.URI;
+import org.junit.jupiter.api.Test;
 import java.util.HashMap;
+import org.junit.jupiter.api.Test;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import org.junit.jupiter.api.Test;
 import static java.util.Collections.emptyMap;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.eq;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import org.junit.jupiter.api.Test;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 
 	private OAuth2TokenService cut;
@@ -47,32 +69,34 @@ public class XsuaaOAuth2TokenServiceJwtBearerTokenTest {
 	@Mock
 	private RestOperations mockRestOperations;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		response = new HashMap<>();
 		response.putIfAbsent(ACCESS_TOKEN, "f529.dd6e30.d454677322aaabb0");
 		response.putIfAbsent(EXPIRES_IN, "43199");
 		response.putIfAbsent(TOKEN_TYPE, "bearer");
-		when(mockRestOperations.postForEntity(any(), any(), any()))
+		lenient().when(mockRestOperations.postForEntity(any(), any(), any()))
 				.thenReturn(ResponseEntity.status(200).body(response));
 		optionalParameters = new HashMap<>();
 		cut = new XsuaaOAuth2TokenService(mockRestOperations);
 	}
 
-	@Test(expected = OAuth2ServiceException.class)
-	public void retrieveToken_httpStatusUnauthorized_throwsException() throws OAuth2ServiceException {
+	@Test
+	public void retrieveToken_httpStatusUnauthorized_throwsException() {
 		throwExceptionOnPost(HttpStatus.UNAUTHORIZED);
 
-		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
-				jwtToken, null, null, false);
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
+				jwtToken, null, null, false))
+				.isInstanceOf(OAuth2ServiceException.class);
 	}
 
-	@Test(expected = OAuth2ServiceException.class)
-	public void retrieveToken_httpStatusNotOk_throwsException() throws OAuth2ServiceException {
+	@Test
+	public void retrieveToken_httpStatusNotOk_throwsException() {
 		throwExceptionOnPost(HttpStatus.BAD_REQUEST);
 
-		cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
-				jwtToken, null, null, false);
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaJwtBearerTokenGrant(tokenEndpoint, clientIdentity,
+				jwtToken, null, null, false))
+				.isInstanceOf(OAuth2ServiceException.class);
 	}
 
 	@Test

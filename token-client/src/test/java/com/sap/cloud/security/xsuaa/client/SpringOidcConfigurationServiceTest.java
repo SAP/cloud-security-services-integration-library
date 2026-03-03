@@ -7,35 +7,62 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.eq;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
 
 import ch.qos.logback.classic.Level;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.classic.Logger;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.core.read.ListAppender;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import org.junit.jupiter.api.Test;
 import java.io.IOException;
+import org.junit.jupiter.api.Test;
 import java.net.URI;
+import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Test;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import java.util.Set;
+import org.junit.jupiter.api.Test;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatusCode;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.client.HttpClientErrorException;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestOperations;
+import org.junit.jupiter.api.Test;
 
 public class SpringOidcConfigurationServiceTest {
   public static final URI CONFIG_ENDPOINT_URI =
@@ -51,7 +78,7 @@ public class SpringOidcConfigurationServiceTest {
         IOUtils.resourceToString("/oidcConfiguration.json", StandardCharsets.UTF_8);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     restOperationsMock = mock(RestOperations.class);
     cut = new SpringOidcConfigurationService(restOperationsMock);

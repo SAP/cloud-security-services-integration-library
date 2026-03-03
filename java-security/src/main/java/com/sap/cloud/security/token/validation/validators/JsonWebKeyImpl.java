@@ -7,7 +7,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import com.sap.cloud.security.xsuaa.Assertions;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;

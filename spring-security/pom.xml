@@ -79,11 +79,6 @@
 			<version>${jakarta.servlet.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>${apache.httpclient.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.github.spotbugs</groupId>
 			<artifactId>spotbugs-annotations</artifactId>
 			<optional>true</optional>
@@ -93,6 +88,10 @@
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
 			<version>${reactor.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
 		</dependency>
 
 		<!-- test utilities -->
@@ -111,6 +110,10 @@
 				<exclusion>
 					<groupId>com.sap.cloud.security</groupId>
 					<artifactId>java-security</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

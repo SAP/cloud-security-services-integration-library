@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.servlet;
 
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
@@ -16,21 +18,19 @@ import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-
-import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
@@ -98,7 +98,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private void setupTokenFactory() {
 		if (serviceConfiguration.getService() == Service.XSUAA) {
-			HybridTokenFactory.withXsuaaAppId(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
+			HybridTokenFactory.withXsuaaAppId(Objects.requireNonNull(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID)));
 		}
 	}
 

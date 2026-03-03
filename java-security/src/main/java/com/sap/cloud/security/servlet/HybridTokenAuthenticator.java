@@ -18,9 +18,9 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import org.apache.http.impl.client.CloseableHttpClient;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

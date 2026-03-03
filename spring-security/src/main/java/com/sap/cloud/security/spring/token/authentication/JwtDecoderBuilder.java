@@ -16,7 +16,7 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
 

@@ -15,12 +15,14 @@ import com.sap.cloud.security.token.Token;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
-public class SecurityTestRule extends ExternalResource
-		implements SecurityTestContext, ServiceMockConfiguration, ApplicationServerConfiguration {
+public class SecurityTestRule implements BeforeEachCallback, AfterEachCallback,
+		SecurityTestContext, ServiceMockConfiguration, ApplicationServerConfiguration {
 
 	public static final String DEFAULT_APP_ID = SecurityTest.DEFAULT_APP_ID;
 	public static final String DEFAULT_CLIENT_ID = SecurityTest.DEFAULT_CLIENT_ID;
@@ -90,7 +92,7 @@ public class SecurityTestRule extends ExternalResource
 	}
 
 	@Override
-	protected void before() throws Exception {
+	public void beforeEach(ExtensionContext context) throws Exception {
 		base.setup(); // starts WireMock (to stub communication to identity service)
 	}
 
@@ -133,7 +135,7 @@ public class SecurityTestRule extends ExternalResource
 	}
 
 	@Override
-	protected void after() {
+	public void afterEach(ExtensionContext context) {
 		base.tearDown();
 	}
 

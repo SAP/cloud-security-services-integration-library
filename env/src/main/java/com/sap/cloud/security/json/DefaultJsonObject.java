@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.Serial;
 import java.time.DateTimeException;
 import java.time.Instant;

@@ -17,11 +17,11 @@ import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

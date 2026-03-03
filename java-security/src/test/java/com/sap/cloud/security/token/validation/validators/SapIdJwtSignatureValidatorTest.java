@@ -20,9 +20,9 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 
@@ -32,11 +32,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
@@ -52,7 +49,7 @@ public class SapIdJwtSignatureValidatorTest {
 	private OidcConfigurationService oidcConfigServiceMock;
 	private OAuth2ServiceEndpointsProvider endpointsProviderMock;
 
-	@Before
+	@BeforeEach
 	public void setup() throws IOException {
 		// no zone-id but iss host == jwks host
 		iasPaasToken = new SapIdToken(
@@ -81,7 +78,7 @@ public class SapIdJwtSignatureValidatorTest {
 						.withOidcConfigurationService(oidcConfigServiceMock));
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContext.clear();
 	}
@@ -92,9 +89,9 @@ public class SapIdJwtSignatureValidatorTest {
 		doReturn(null).when(tokenSpy).getTokenValue();
 
 		ValidationResult validationResult = cut.validate(tokenSpy);
-		assertTrue(validationResult.isErroneous());
-		assertThat(validationResult.getErrorDescription(),
-				containsString("JWT token validation failed because token content was null."));
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription())
+				.contains("JWT token validation failed because token content was null.");
 	}
 
 	@Test
@@ -103,9 +100,9 @@ public class SapIdJwtSignatureValidatorTest {
 		doReturn(null).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
 
 		ValidationResult validationResult = cut.validate(tokenSpy);
-		assertTrue(validationResult.isErroneous());
-		assertThat(validationResult.getErrorDescription(),
-				containsString("JWT token validation with signature algorithm 'null' is not supported"));
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription())
+				.contains("JWT token validation with signature algorithm 'null' is not supported");
 	}
 
 	@Test
@@ -114,8 +111,8 @@ public class SapIdJwtSignatureValidatorTest {
 		doReturn(null).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.KID_PARAMETER_NAME);
 
 		ValidationResult validationResult = cut.validate(tokenSpy);
-		assertTrue(validationResult.isErroneous());
-		assertThat(validationResult.getErrorDescription(), containsString("keyId must not be null"));
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription()).contains("keyId must not be null");
 	}
 
 	@Test
@@ -123,18 +120,18 @@ public class SapIdJwtSignatureValidatorTest {
 		when(endpointsProviderMock.getJwksUri()).thenReturn(null);
 
 		ValidationResult validationResult = cut.validate(iasToken);
-		assertTrue(validationResult.isErroneous());
-		assertThat(validationResult.getErrorDescription(),
-				containsString("OIDC .well-known response did not contain JWKS URI."));
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription())
+				.contains("OIDC .well-known response did not contain JWKS URI.");
 	}
 
 	@Test
 	public void validationFails_WhenAppTidIsNull() {
 		ValidationResult validationResult = cut.validate(iasPaasToken);
-		assertTrue(validationResult.isErroneous());
-		assertThat(validationResult.getErrorDescription(),
-				containsString(
-						"Token signature can not be validated because: OIDC token must provide the app_tid claim for tenant validation when issuer is not the same as the url from the service credentials."));
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription())
+				.contains(
+						"Token signature can not be validated because: OIDC token must provide the app_tid claim for tenant validation when issuer is not the same as the url from the service credentials.");
 	}
 
 	@Test
@@ -146,7 +143,7 @@ public class SapIdJwtSignatureValidatorTest {
 				OidcConfigurationServiceWithCache.getInstance()
 						.withOidcConfigurationService(oidcConfigServiceMock));
 		cut.disableTenantIdCheck();
-		assertTrue(cut.validate(iasPaasToken).isValid());
+		assertThat(cut.validate(iasPaasToken).isValid()).isTrue();
 	}
 
 	@Test
@@ -196,9 +193,8 @@ public class SapIdJwtSignatureValidatorTest {
 		cut.enableProofTokenValidationCheck();
 		ValidationResult validationResult = cut.validate(iasToken);
 		assertTrue(validationResult.isErroneous());
-		assertThat(validationResult.getErrorDescription(),
-				containsString(
-						"Token signature can not be validated because JWKS could not be fetched: Client certificate for proof token validation could not be read from 'x-forwarded-client-cert' header."));
+		assertThat(validationResult.getErrorDescription())
+				.contains("Token signature can not be validated because JWKS could not be fetched: Client certificate for proof token validation could not be read from 'x-forwarded-client-cert' header.");
 	}
 
 	@Test
@@ -221,7 +217,7 @@ public class SapIdJwtSignatureValidatorTest {
 				.append(tokenHeaderPayloadSignature[1])
 				.append(".")
 				.append(tokenHeaderPayloadSignature[2]).toString();
-		assertThat(cut.validate(new SapIdToken(tokenWithOthersSignature)).isErroneous(), is(true));
+		assertThat(cut.validate(new SapIdToken(tokenWithOthersSignature)).isErroneous()).isTrue();
 	}
 
 	@Test
@@ -234,9 +230,9 @@ public class SapIdJwtSignatureValidatorTest {
 		doReturn(tokenWithNoSignature).when(tokenSpy).getTokenValue();
 
 		ValidationResult result = cut.validate(tokenSpy);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(),
-				containsString("Jwt token does not consist of three sections: 'header'.'payload'.'signature'."));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription())
+				.contains("Jwt token does not consist of three sections: 'header'.'payload'.'signature'.");
 	}
 
 	@Test
@@ -248,9 +244,9 @@ public class SapIdJwtSignatureValidatorTest {
 
 		ValidationResult validationResult = cut.validate(tokenSpy);
 
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(), startsWith(
-				"JWT token validation with signature algorithm '" + unsupportedAlgorithm + "' is not supported."));
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription())
+				.startsWith("JWT token validation with signature algorithm '" + unsupportedAlgorithm + "' is not supported.");
 	}
 
 	@Test
@@ -260,9 +256,9 @@ public class SapIdJwtSignatureValidatorTest {
 
 		ValidationResult validationResult = cut.validate(tokenSpy);
 
-		assertThat(validationResult.isErroneous(), is(true));
-		assertThat(validationResult.getErrorDescription(),
-				startsWith("JWT token validation with signature algorithm 'NONE' is not supported."));
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription())
+				.startsWith("JWT token validation with signature algorithm 'NONE' is not supported.");
 	}
 
 	@Test
@@ -270,8 +266,8 @@ public class SapIdJwtSignatureValidatorTest {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any(), anyMap())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("JWKS could not be fetched");
 	}
 
 	static class ParamsHasClientCertHeader implements ArgumentMatcher<Map<String, String>> {

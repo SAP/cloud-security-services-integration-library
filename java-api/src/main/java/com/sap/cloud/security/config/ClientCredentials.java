@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.config;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -63,7 +63,7 @@ public class ClientCredentials implements ClientIdentity, Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("%s:%s", clientId, clientSecret);
+		return "%s:%s".formatted(clientId, clientSecret);
 	}
 
 }

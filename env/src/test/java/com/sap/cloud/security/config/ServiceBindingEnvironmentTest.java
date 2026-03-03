@@ -1,18 +1,16 @@
 package com.sap.cloud.security.config;
 
-import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
-import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.sap.cloud.environment.servicebinding.SapVcapServicesServiceBindingAccessor;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 class ServiceBindingEnvironmentTest {
 	private static ServiceBindingEnvironment cutIas;
@@ -59,30 +57,30 @@ class ServiceBindingEnvironmentTest {
 		assertNotNull(cutXsuaa.getXsuaaConfiguration());
 		assertNull(cutUnknownServicePlanXsuaa.getXsuaaConfiguration());
 		assertEquals(Service.XSUAA, cutXsuaa.getXsuaaConfiguration().getService());
-		assertThat(cutMultipleXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN),
-				equalToIgnoringCase(ServiceConstants.Plan.APPLICATION.toString()));
-		assertThat(cutMultipleApplicationPlanXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN),
-				equalToIgnoringCase(ServiceConstants.Plan.APPLICATION.toString()));
-		assertThat(cutMultipleApplicationPlanXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.XSUAA.APP_ID),
-				equalTo("na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066"));
+		assertThat(cutMultipleXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN)).isEqualToIgnoringCase(
+				(ServiceConstants.Plan.APPLICATION.toString()));
+		assertThat(cutMultipleApplicationPlanXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.SERVICE_PLAN)).isEqualToIgnoringCase(
+				(ServiceConstants.Plan.APPLICATION.toString()));
+		assertThat(cutMultipleApplicationPlanXsuaa.getXsuaaConfiguration().getProperty(ServiceConstants.XSUAA.APP_ID)).isEqualTo(
+				("na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066"));
 	}
 
 	@Test
 	void getXsuaaConfigurationForTokenExchange() {
-		assertThat(cutMultipleXsuaa.getXsuaaConfigurationForTokenExchange().getProperty(ServiceConstants.SERVICE_PLAN),
-				equalToIgnoringCase(ServiceConstants.Plan.BROKER.toString()));
+		assertThat(cutMultipleXsuaa.getXsuaaConfigurationForTokenExchange().getProperty(ServiceConstants.SERVICE_PLAN)).isEqualToIgnoringCase(
+				(ServiceConstants.Plan.BROKER.toString()));
 		assertNotSame(cutMultipleXsuaa.getXsuaaConfigurationForTokenExchange(),
 				cutMultipleXsuaa.getXsuaaConfiguration());
 
 		assertThat(
 				cutMultipleApplicationPlanXsuaa.getXsuaaConfigurationForTokenExchange()
-						.getProperty(ServiceConstants.SERVICE_PLAN),
-				equalToIgnoringCase(ServiceConstants.Plan.BROKER.toString()));
+						.getProperty(ServiceConstants.SERVICE_PLAN)).isEqualToIgnoringCase(
+				(ServiceConstants.Plan.BROKER.toString()));
 		assertNotSame(cutMultipleApplicationPlanXsuaa.getXsuaaConfigurationForTokenExchange(),
 				cutMultipleXsuaa.getXsuaaConfiguration());
 
-		assertThat(cutXsuaa.getXsuaaConfigurationForTokenExchange().getProperty(ServiceConstants.SERVICE_PLAN),
-				equalToIgnoringCase(ServiceConstants.Plan.APPLICATION.toString()));
+		assertThat(cutXsuaa.getXsuaaConfigurationForTokenExchange().getProperty(ServiceConstants.SERVICE_PLAN)).isEqualToIgnoringCase(
+				(ServiceConstants.Plan.APPLICATION.toString()));
 		assertSame(cutXsuaa.getXsuaaConfigurationForTokenExchange(), cutXsuaa.getXsuaaConfiguration());
 
 		assertNull(cutIas.getXsuaaConfigurationForTokenExchange());
@@ -92,62 +90,62 @@ class ServiceBindingEnvironmentTest {
 	void getIasConfiguration() {
 		assertNull(cutXsuaa.getIasConfiguration());
 		assertNotNull(cutIas.getIasConfiguration());
-		assertThat(cutIas.getIasConfiguration().getService(), equalTo(Service.IAS));
-		assertThat(cutIas.getIasConfiguration().getClientId(), equalTo("T000310"));
-		assertThat(cutIas.getIasConfiguration().getClientSecret(), startsWith("pCghfbrL"));
-		assertThat(cutIas.getIasConfiguration().getDomains(), hasSize(2));
+		assertThat(cutIas.getIasConfiguration().getService()).isEqualTo(Service.IAS);
+		assertThat(cutIas.getIasConfiguration().getClientId()).isEqualTo("T000310");
+		assertThat(cutIas.getIasConfiguration().getClientSecret()).isEqualTo("pCghfbrLudwzXM2fPq7YSIhujAmpHj_I0DeMKHKRAqs=");
+		assertThat(cutIas.getIasConfiguration().getDomains()).hasSize(2);
 		assertFalse(cutIas.getIasConfiguration().isLegacyMode());
 	}
 
 	@Test
 	void getServiceConfigurationsAsList() {
 		Map<Service, List<OAuth2ServiceConfiguration>> configs = cutIas.getServiceConfigurationsAsList();
-		assertThat(configs.get(Service.XSUAA), hasSize(0));
-		assertThat(configs.get(Service.IAS), hasSize(1));
+		assertThat(configs.get(Service.XSUAA)).hasSize(0);
+		assertThat(configs.get(Service.IAS)).hasSize(1);
 
 		configs = cutXsuaa.getServiceConfigurationsAsList();
-		assertThat(configs.get(Service.XSUAA), hasSize(1));
-		assertThat(configs.get(Service.IAS), hasSize(0));
+		assertThat(configs.get(Service.XSUAA)).hasSize(1);
+		assertThat(configs.get(Service.IAS)).hasSize(0);
 
 		configs = cutMultipleXsuaa.getServiceConfigurationsAsList();
-		assertThat(configs.get(Service.XSUAA), hasSize(2));
-		assertThat(configs.get(Service.IAS), hasSize(0));
+		assertThat(configs.get(Service.XSUAA)).hasSize(2);
+		assertThat(configs.get(Service.IAS)).hasSize(0);
 
 		configs = cutMultipleApplicationPlanXsuaa.getServiceConfigurationsAsList();
-		assertThat(configs.get(Service.XSUAA), hasSize(3));
-		assertThat(configs.get(Service.IAS), hasSize(0));
+		assertThat(configs.get(Service.XSUAA)).hasSize(3);
+		assertThat(configs.get(Service.IAS)).hasSize(0);
 
 		configs = cutUnknownServicePlanXsuaa.getServiceConfigurationsAsList();
-		assertThat(configs.get(Service.XSUAA), hasSize(1));
+		assertThat(configs.get(Service.XSUAA)).hasSize(1);
 	}
 
 	@Test
 	void getServiceConfigurations() {
 		Map<Service, Map<ServiceConstants.Plan, OAuth2ServiceConfiguration>> configs = cutIas
 				.getServiceConfigurations();
-		assertThat(configs.get(Service.XSUAA).entrySet(), is((empty())));
-		assertThat(configs.get(Service.IAS).entrySet(), hasSize(1));
+		assertThat(configs.get(Service.XSUAA).entrySet()).isEmpty();
+		assertThat(configs.get(Service.IAS).entrySet()).hasSize(1);
 
 		configs = cutXsuaa.getServiceConfigurations();
-		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(1));
-		assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
+		assertThat(configs.get(Service.XSUAA).entrySet()).hasSize(1);
+		assertThat(configs.get(Service.IAS).entrySet()).isEmpty();
 
 		configs = cutMultipleXsuaa.getServiceConfigurations();
-		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(2));
-		assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
+		assertThat(configs.get(Service.XSUAA).entrySet()).hasSize(2);
+		assertThat(configs.get(Service.IAS).entrySet()).isEmpty();
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.BROKER));
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION));
 
 		configs = cutMultipleApplicationPlanXsuaa.getServiceConfigurations();
-		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(2));
-		assertThat(configs.get(Service.IAS).entrySet(), is(empty()));
+		assertThat(configs.get(Service.XSUAA).entrySet()).hasSize(2);
+		assertThat(configs.get(Service.IAS).entrySet()).isEmpty();
 		assertThat(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION)
-				.getProperty(ServiceConstants.XSUAA.APP_ID), equalTo("na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066"));
+				.getProperty(ServiceConstants.XSUAA.APP_ID)).isEqualTo("na-d6a3278d-5e07-40e9-92ae-546bbfd9cdde!t8066");
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.BROKER));
 		assertNotNull(configs.get(Service.XSUAA).get(ServiceConstants.Plan.APPLICATION));
 
 		configs = cutUnknownServicePlanXsuaa.getServiceConfigurations();
-		assertThat(configs.get(Service.XSUAA).entrySet(), hasSize(0));
+		assertThat(configs.get(Service.XSUAA).entrySet()).hasSize(0);
 	}
 
 	@Test
@@ -163,6 +161,6 @@ class ServiceBindingEnvironmentTest {
 		assertTrue(cut.getXsuaaConfiguration().isLegacyMode());
 
 		assertEquals(1, cut.getNumberOfXsuaaConfigurations());
-		assertThat(cut.getXsuaaConfigurationForTokenExchange(), sameInstance(cut.getXsuaaConfiguration()));
+		assertThat(cut.getXsuaaConfigurationForTokenExchange()).isEqualTo(cut.getXsuaaConfiguration());
 	}
 }

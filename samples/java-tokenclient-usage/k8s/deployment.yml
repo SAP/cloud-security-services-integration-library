@@ -107,8 +107,7 @@ spec:
   host: java-tokenclient-api
   rules:
     - accessStrategies:
-        - config: {}
-          handler: allow
+        - handler: allow
       methods:
         - GET
         - POST

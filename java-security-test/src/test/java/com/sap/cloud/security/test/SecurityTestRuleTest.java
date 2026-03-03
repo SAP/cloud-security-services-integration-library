@@ -5,6 +5,13 @@
  */
 package com.sap.cloud.security.test;
 
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
@@ -16,17 +23,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -35,13 +31,16 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.sap.cloud.security.config.Service.IAS;
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import org.apache.commons.io.IOUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mockito;
 
 public class SecurityTestRuleTest {
 
@@ -51,7 +50,7 @@ public class SecurityTestRuleTest {
 	private static final String PUBLIC_KEY_PATH = "/publicKey.txt";
 	private static final String PRIVATE_KEY_PATH = "/privateKey.txt";
 
-	@ClassRule
+	@RegisterExtension
 	public static SecurityTestRule cut = SecurityTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(PUBLIC_KEY_PATH, PRIVATE_KEY_PATH)
@@ -63,11 +62,11 @@ public class SecurityTestRuleTest {
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+		try (ClassicHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
 			String expEncodedKey = Base64.getEncoder()
 					.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
 
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 
 			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
 			assertThat(tokenKeys).hasSize(4);
@@ -152,11 +151,12 @@ public class SecurityTestRuleTest {
 		assertThat(cut.getContext()).isNotNull();
 	}
 
-	public static class SecurityTestRuleWithMockServlet {
+	@Nested
+    class SecurityTestRuleWithMockServlet {
 
 		private HttpServlet mockServlet = Mockito.mock(HttpServlet.class);
 
-		@Rule
+		@RegisterExtension
 		public SecurityTestRule mockServletRule = SecurityTestRule.getInstance(XSUAA)
 				.useApplicationServer()
 				.addApplicationServlet(new ServletHolder(mockServlet), "/");
@@ -164,17 +164,18 @@ public class SecurityTestRuleTest {
 		@Test
 		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
 			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
-			try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-				assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
+			try (ClassicHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+				assertThat(response.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 			}
 			Mockito.verify(mockServlet, Mockito.times(0)).service(any(), any());
 		}
 
 	}
 
-	public static class SecurityTestRuleWithoutApplicationServer {
+	@Nested
+    class SecurityTestRuleWithoutApplicationServer {
 
-		@Rule
+		@RegisterExtension
 		public SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA);
 
 		@Test
@@ -184,9 +185,10 @@ public class SecurityTestRuleTest {
 		}
 	}
 
-	public static class SecurityTestRuleApplicationServer_IAS {
+	@Nested
+    class SecurityTestRuleApplicationServer_IAS {
 
-		@Rule
+		@RegisterExtension
 		public SecurityTestRule rule = SecurityTestRule.getInstance(IAS);
 
 		@Test
@@ -207,7 +209,7 @@ public class SecurityTestRuleTest {
 		}
 	}
 
-	private static String readContent(CloseableHttpResponse response) throws IOException {
+	private static String readContent(ClassicHttpResponse response) throws IOException {
 		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
 				.collect(Collectors.joining());
 	}

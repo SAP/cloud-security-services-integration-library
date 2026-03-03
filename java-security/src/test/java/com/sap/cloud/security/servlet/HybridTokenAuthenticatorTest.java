@@ -4,10 +4,7 @@ import static com.sap.cloud.security.token.TokenExchangeMode.DISABLED;
 import static com.sap.cloud.security.token.TokenExchangeMode.FORCE_XSUAA;
 import static com.sap.cloud.security.token.TokenExchangeMode.PROVIDE_XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -23,15 +20,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HybridTokenAuthenticatorTest {
 
   @Mock private IasTokenAuthenticator iasAuthenticator;
@@ -57,7 +54,7 @@ public class HybridTokenAuthenticatorTest {
     idToken = new SapIdToken(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     setupClassUnderTesting(DISABLED);
   }
@@ -68,8 +65,8 @@ public class HybridTokenAuthenticatorTest {
 
     TokenAuthenticationResult result = cut.validateRequest(nonHttpReq, httpResp);
 
-    assertFalse(result.isAuthenticated());
-    assertTrue(result.getUnauthenticatedReason().contains("Could not process request"));
+    assertThat(result.isAuthenticated()).isFalse();
+    assertThat(result.getUnauthenticatedReason()).contains("Could not process request");
   }
 
   @Test
@@ -78,24 +75,24 @@ public class HybridTokenAuthenticatorTest {
 
     TokenAuthenticationResult result = cut.validateRequest(httpReq, nonHttpResp);
 
-    assertFalse(result.isAuthenticated());
-    assertTrue(result.getUnauthenticatedReason().contains("Could not process request"));
+    assertThat(result.isAuthenticated()).isFalse();
+    assertThat(result.getUnauthenticatedReason()).contains("Could not process request");
   }
 
   @Test
   public void returnsUnauthenticated_whenRequestIsNull() {
     TokenAuthenticationResult result = cut.validateRequest(null, httpResp);
 
-    assertFalse(result.isAuthenticated());
-    assertTrue(result.getUnauthenticatedReason().contains("Could not process request"));
+    assertThat(result.isAuthenticated()).isFalse();
+    assertThat(result.getUnauthenticatedReason()).contains("Could not process request");
   }
 
   @Test
   public void returnsUnauthenticated_whenResponseIsNull() {
     TokenAuthenticationResult result = cut.validateRequest(httpReq, null);
 
-    assertFalse(result.isAuthenticated());
-    assertTrue(result.getUnauthenticatedReason().contains("Could not process request"));
+    assertThat(result.isAuthenticated()).isFalse();
+    assertThat(result.getUnauthenticatedReason()).contains("Could not process request");
   }
 
   @Test
@@ -104,8 +101,8 @@ public class HybridTokenAuthenticatorTest {
 
     TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
-    assertFalse(response.isAuthenticated());
-    assertTrue(response.getUnauthenticatedReason().contains("Authorization header is missing"));
+    assertThat(response.isAuthenticated()).isFalse();
+    assertThat(response.getUnauthenticatedReason()).contains("Authorization header is missing");
   }
 
   @Test
@@ -114,11 +111,9 @@ public class HybridTokenAuthenticatorTest {
 
     TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
-    assertFalse(response.isAuthenticated());
-    assertTrue(
-        response
-            .getUnauthenticatedReason()
-            .contains("JWT token does not consist of 'header'.'payload'.'signature'"));
+    assertThat(response.isAuthenticated()).isFalse();
+    assertThat(response.getUnauthenticatedReason())
+        .contains("JWT token does not consist of 'header'.'payload'.'signature'");
   }
 
   @Test
@@ -129,8 +124,8 @@ public class HybridTokenAuthenticatorTest {
     TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
     verify(xsuaaAuthenticator, times(1)).validateRequest(httpReq, httpResp);
-    assertEquals(SecurityContext.getXsuaaToken(), response.getToken());
-    assertTrue(response.isAuthenticated());
+    assertThat(SecurityContext.getXsuaaToken()).isEqualTo(response.getToken());
+    assertThat(response.isAuthenticated()).isTrue();
   }
 
   @Test
@@ -141,7 +136,7 @@ public class HybridTokenAuthenticatorTest {
     TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
     verify(iasAuthenticator, times(1)).validateRequest(httpReq, httpResp);
-    assertFalse(response.isAuthenticated());
+    assertThat(response.isAuthenticated()).isFalse();
   }
 
   @Test
@@ -159,11 +154,9 @@ public class HybridTokenAuthenticatorTest {
 
       TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
-      assertFalse(response.isAuthenticated());
-      assertTrue(
-          response
-              .getUnauthenticatedReason()
-              .contains("Unexpected error during exchange from ID token to XSUAA token:"));
+      assertThat(response.isAuthenticated()).isFalse();
+      assertThat(response.getUnauthenticatedReason())
+          .contains("Unexpected error during exchange from ID token to XSUAA token:");
     }
   }
 
@@ -199,7 +192,7 @@ public class HybridTokenAuthenticatorTest {
 
       verify(xsuaaAuthenticator, never()).authenticated(any());
       securityContext.verify(SecurityContext::getXsuaaToken);
-      assertTrue(response.isAuthenticated());
+      assertThat(response.isAuthenticated()).isTrue();
     }
   }
 
@@ -211,8 +204,8 @@ public class HybridTokenAuthenticatorTest {
     TokenAuthenticationResult response = cut.validateRequest(httpReq, httpResp);
 
     verify(xsuaaAuthenticator, never()).authenticated(any());
-    assertNull(SecurityContext.getXsuaaToken());
-    assertTrue(response.isAuthenticated());
+    assertThat(SecurityContext.getXsuaaToken()).isNull();
+    assertThat(response.isAuthenticated()).isTrue();
   }
 
   @Test
@@ -244,9 +237,9 @@ public class HybridTokenAuthenticatorTest {
   }
 
   private void createRequestWithoutToken() {
-    when(httpReq.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
-    when(iasAuthenticator.validateRequest(httpReq, httpResp)).thenReturn(authenticationResult);
-    when(xsuaaAuthenticator.validateRequest(httpReq, httpResp)).thenReturn(authenticationResult);
+    lenient().when(httpReq.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(null);
+    lenient().when(iasAuthenticator.validateRequest(httpReq, httpResp)).thenReturn(authenticationResult);
+    lenient().when(xsuaaAuthenticator.validateRequest(httpReq, httpResp)).thenReturn(authenticationResult);
   }
 
   private void createRequestWithBearerHeader(String tokenValue) {

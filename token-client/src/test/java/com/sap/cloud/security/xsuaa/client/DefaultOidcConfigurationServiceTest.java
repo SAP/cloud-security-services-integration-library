@@ -7,37 +7,66 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.client.OidcConfigurationService.DISCOVERY_ENDPOINT_DEFAULT;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.any;
+import org.junit.jupiter.api.Test;
 import static org.mockito.ArgumentMatchers.argThat;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.times;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
 
 import ch.qos.logback.classic.Level;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.classic.Logger;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import org.junit.jupiter.api.Test;
 import ch.qos.logback.core.read.ListAppender;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
+import org.junit.jupiter.api.Test;
 import java.io.IOException;
+import org.junit.jupiter.api.Test;
 import java.net.URI;
+import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Test;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import java.util.Set;
+import org.junit.jupiter.api.Test;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.junit.jupiter.api.Test;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
+import org.junit.jupiter.api.Test;
 
 public class DefaultOidcConfigurationServiceTest {
   public static final URI CONFIG_ENDPOINT_URI =
@@ -52,7 +81,7 @@ public class DefaultOidcConfigurationServiceTest {
         IOUtils.resourceToString("/oidcConfiguration.json", StandardCharsets.UTF_8);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     httpClientMock = Mockito.mock(CloseableHttpClient.class);
     cut = new DefaultOidcConfigurationService(httpClientMock);
@@ -91,12 +120,12 @@ public class DefaultOidcConfigurationServiceTest {
     retrieveEndpoints();
 
     Mockito.verify(httpClientMock, times(1))
-        .execute(argThat(isHttpGetAndContainsCorrectURI()), any(ResponseHandler.class));
+        .execute(argThat(isHttpGetAndContainsCorrectURI()), any(HttpClientResponseHandler.class));
   }
 
   @Test
   public void retrieveEndpoints_IOExceptionOccurs_throwsServiceException() throws IOException {
-    when(httpClientMock.execute(any(), any(ResponseHandler.class)))
+    when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class)))
         .thenThrow(new IOException(ERROR_MESSAGE));
 
     assertThatThrownBy(this::retrieveEndpoints)
@@ -123,7 +152,7 @@ public class DefaultOidcConfigurationServiceTest {
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Error retrieving configured oidc endpoints");
     Mockito.verify(httpClientMock, times(2))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(HttpUriRequest.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -171,7 +200,7 @@ public class DefaultOidcConfigurationServiceTest {
     final OAuth2ServiceEndpointsProvider result = retrieveEndpoints();
 
     Mockito.verify(httpClientMock, times(2))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(HttpUriRequest.class), any(HttpClientResponseHandler.class));
     assertThat(result).isNotNull();
   }
 
@@ -190,7 +219,7 @@ public class DefaultOidcConfigurationServiceTest {
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(httpClientMock, times(7))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(HttpUriRequest.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -207,7 +236,7 @@ public class DefaultOidcConfigurationServiceTest {
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(httpClientMock, times(1))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(HttpUriRequest.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -224,7 +253,7 @@ public class DefaultOidcConfigurationServiceTest {
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(httpClientMock, times(3))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(HttpUriRequest.class), any(HttpClientResponseHandler.class));
   }
 
   @Test
@@ -249,16 +278,16 @@ public class DefaultOidcConfigurationServiceTest {
         .contains("Thread.sleep has been interrupted. Retry starts now.");
     logger.detachAppender(listAppender);
     Mockito.verify(httpClientMock, times(2))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(HttpUriRequest.class), any(HttpClientResponseHandler.class));
   }
 
   private void mockResponse() throws IOException {
-    final CloseableHttpResponse response =
+    final ClassicHttpResponse response =
         HttpClientTestFactory.createHttpResponse(jsonOidcConfiguration);
-    when(httpClientMock.execute(any(), any(ResponseHandler.class)))
+    when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class)))
         .thenAnswer(
             invocation -> {
-              final ResponseHandler responseHandler = invocation.getArgument(1);
+              final HttpClientResponseHandler<String> responseHandler = invocation.getArgument(1);
               return responseHandler.handleResponse(response);
             });
   }
@@ -269,15 +298,19 @@ public class DefaultOidcConfigurationServiceTest {
 
   private ArgumentMatcher<HttpUriRequest> isHttpGetAndContainsCorrectURI() {
     return (httpGet) -> {
-      final boolean hasCorrectURI;
-      hasCorrectURI = httpGet.getURI().equals(CONFIG_ENDPOINT_URI);
-      final boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
-      return hasCorrectURI && correctMethod;
+      try {
+        final boolean hasCorrectURI;
+        hasCorrectURI = httpGet.getUri().equals(CONFIG_ENDPOINT_URI);
+        final boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
+        return hasCorrectURI && correctMethod;
+      } catch (Exception e) {
+        return false;
+      }
     };
   }
 
   private void mockResponse(final String responseAsString, final Integer... statusCodes) {
-    final List<CloseableHttpResponse> responses =
+    final List<ClassicHttpResponse> responses =
         Arrays.stream(statusCodes)
             .map(
                 statusCode ->
@@ -286,11 +319,11 @@ public class DefaultOidcConfigurationServiceTest {
 
     final AtomicInteger index = new AtomicInteger(0);
     try {
-      when(httpClientMock.execute(any(), any(ResponseHandler.class)))
+      when(httpClientMock.execute(any(), any(HttpClientResponseHandler.class)))
           .thenAnswer(
               invocation -> {
-                final ResponseHandler responseHandler = invocation.getArgument(1);
-                final CloseableHttpResponse response = responses.get(index.getAndIncrement());
+                final HttpClientResponseHandler<String> responseHandler = invocation.getArgument(1);
+                final ClassicHttpResponse response = responses.get(index.getAndIncrement());
                 return responseHandler.handleResponse(response);
               });
     } catch (final IOException ignored) {
