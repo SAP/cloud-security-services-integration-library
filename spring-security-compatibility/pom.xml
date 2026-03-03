@@ -49,8 +49,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>spring-xsuaa</artifactId>
+            <groupId>com.sap.cloud.security</groupId>
+            <artifactId>spring-security-legacy-module</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
