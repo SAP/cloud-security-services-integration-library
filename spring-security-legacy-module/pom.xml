@@ -48,6 +48,16 @@
 		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	</scm>
 
+	<properties>
+		<!-- Override parent's Spring Boot 4.x with Spring Boot 3.x for legacy compatibility -->
+		<spring.boot.version>3.5.9</spring.boot.version>
+		<spring.core.version>6.2.15</spring.core.version>
+		<spring.security.version>6.5.7</spring.security.version>
+		<spring.security.oauth2.version>6.5.7</spring.security.oauth2.version>
+		<reactor.version>3.8.2</reactor.version>
+		<reactor.test.version>3.8.2</reactor.test.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
@@ -92,7 +102,7 @@
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-core</artifactId>
-			<version>${reactor.version}</version>
+			<version>3.8.2</version>
 		</dependency>
 
 		<!-- test utilities -->
@@ -130,7 +140,7 @@
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
-			<version>${reactor.test.version}</version>
+			<version>3.8.2</version>
 		</dependency>
 	</dependencies>
 
