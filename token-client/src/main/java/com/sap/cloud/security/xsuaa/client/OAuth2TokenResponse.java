@@ -8,7 +8,7 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 

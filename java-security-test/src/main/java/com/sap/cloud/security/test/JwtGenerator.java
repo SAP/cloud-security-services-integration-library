@@ -16,7 +16,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
@@ -520,7 +520,7 @@ public class JwtGenerator {
 		String alg = jsonHeader.getString(ALGORITHM);
 		JwtSignatureAlgorithm algorithm = JwtSignatureAlgorithm.fromValue(alg);
 		if (algorithm == null) {
-			throw new UnsupportedOperationException(String.format("Algorithm %s of token not supported!", alg));
+			throw new UnsupportedOperationException("Algorithm %s of token not supported!".formatted(alg));
 		}
 		return Optional.of(algorithm);
 	}

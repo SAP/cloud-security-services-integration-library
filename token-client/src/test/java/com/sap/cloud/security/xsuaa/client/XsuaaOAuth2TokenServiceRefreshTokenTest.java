@@ -7,12 +7,12 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,15 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 
 	private static final String refreshToken = "d2faefe7ea834ba895d20730f106128c-r";
@@ -45,7 +43,7 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 	@Mock
 	RestOperations mockRestOperations;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		cut = new XsuaaOAuth2TokenService(mockRestOperations);
 		clientIdentity = new ClientCredentials("clientid", "mysecretpassword");
@@ -71,20 +69,24 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 				.isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("refreshToken");
 	}
 
-	@Test(expected = OAuth2ServiceException.class)
-	public void retrieveToken_throwsIfHttpStatusUnauthorized() throws OAuth2ServiceException {
+	@Test
+	public void retrieveToken_throwsIfHttpStatusUnauthorized() {
 		Mockito.when(mockRestOperations.postForEntity(eq(tokenEndpoint), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
-		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,
-				refreshToken, null, true);
+
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,
+				refreshToken, null, true))
+				.isInstanceOf(OAuth2ServiceException.class);
 	}
 
-	@Test(expected = OAuth2ServiceException.class)
-	public void retrieveToken_throwsIfHttpStatusNotOk() throws OAuth2ServiceException {
+	@Test
+	public void retrieveToken_throwsIfHttpStatusNotOk() {
 		Mockito.when(mockRestOperations.postForEntity(eq(tokenEndpoint), any(HttpEntity.class), eq(Map.class)))
 				.thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-		cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,
-				refreshToken, null, true);
+
+		assertThatThrownBy(() -> cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,
+				refreshToken, null, true))
+				.isInstanceOf(OAuth2ServiceException.class);
 	}
 
 	@Test
@@ -103,9 +105,9 @@ public class XsuaaOAuth2TokenServiceRefreshTokenTest {
 
 		OAuth2TokenResponse accessToken = cut.retrieveAccessTokenViaRefreshToken(tokenEndpoint, clientIdentity,
 				refreshToken, null, true);
-		assertThat(accessToken.getRefreshToken(), is(responseMap.get(REFRESH_TOKEN)));
-		assertThat(accessToken.getAccessToken(), is(responseMap.get(ACCESS_TOKEN)));
-		assertThat(accessToken.getTokenType(), is(responseMap.get(TOKEN_TYPE)));
-		assertNotNull(accessToken.getExpiredAt());
+		assertThat(accessToken.getRefreshToken()).isEqualTo(responseMap.get(REFRESH_TOKEN));
+		assertThat(accessToken.getAccessToken()).isEqualTo(responseMap.get(ACCESS_TOKEN));
+		assertThat(accessToken.getTokenType()).isEqualTo(responseMap.get(TOKEN_TYPE));
+		assertThat(accessToken.getExpiredAt()).isNotNull();
 	}
 }

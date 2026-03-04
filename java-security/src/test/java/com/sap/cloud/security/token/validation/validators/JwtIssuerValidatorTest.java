@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
@@ -21,9 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 
 class JwtIssuerValidatorTest {
@@ -61,8 +61,8 @@ class JwtIssuerValidatorTest {
 		when(token.getIssuer()).thenReturn(issuer);
 
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(true));
-		assertThat(validationResult.isErroneous(), is(false));
+		assertThat(validationResult.isValid()).isTrue();
+		assertThat(validationResult.isErroneous()).isFalse();
 	}
 
 	/**
@@ -76,39 +76,43 @@ class JwtIssuerValidatorTest {
 		when(token.getIssuer()).thenReturn("http://" + localDomain);
 
 		ValidationResult validationResult = cut.validate(token);
-		assertThat(validationResult.isValid(), is(true));
-		assertThat(validationResult.isErroneous(), is(false));
+		assertThat(validationResult.isValid()).isTrue();
+		assertThat(validationResult.isErroneous()).isFalse();
 	}
 
 	@Test
 	void validationFails_whenSubdomainHasMoreThan63Characters() {
 		for (String d : trustedDomains) {
 			when(token.getIssuer()).thenReturn("https://a." + d);
-			assertThat(cut.validate(token).isValid(), is(true));
+			assertThat(cut.validate(token).isValid()).isTrue();
 
 			when(token.getIssuer()).thenReturn("https://" + "a".repeat(63) + "." + d);
-			assertThat(cut.validate(token).isValid(), is(true));
+			assertThat(cut.validate(token).isValid()).isTrue();
 
 			when(token.getIssuer()).thenReturn("https://" + "a".repeat(64) + "." + d);
-			assertThat(cut.validate(token).isValid(), is(false));
+			assertThat(cut.validate(token).isValid()).isFalse();
 		}
 	}
 
 	@ParameterizedTest
-	@CsvSource({
-			"https://accou\tnts400.ondemand.com",
-			"https://accou\nnts400.ondemand.com",
-			"https://accounts400.onde\tmand.com",
-			"https://accounts400.onde\nmand.com",
-			"https://tena\tnt.accounts400.ondemand.com",
-			"https://tena\nnt.accounts400.ondemand.com",
-			"https://tenant.accounts400.onde\tmand.com",
-			"https://tenant.accounts400.onde\nmand.com"
-	})
+	@MethodSource("invisibleCharacterIssuers")
 	void validationFails_whenIssuerContainsInvisibleCharacters(String issuer) {
 		when(token.getIssuer()).thenReturn(issuer);
-		assertThat(cut.validate(token).isValid(), is(false));
-		assertThat(cut.validate(token).isErroneous(), is(true));
+		assertThat(cut.validate(token).isValid()).isFalse();
+		assertThat(cut.validate(token).isErroneous()).isTrue();
+	}
+
+	static java.util.stream.Stream<String> invisibleCharacterIssuers() {
+		return java.util.stream.Stream.of(
+				"https://accou\tnts400.ondemand.com",
+				"https://accou\nnts400.ondemand.com",
+				"https://accounts400.onde\tmand.com",
+				"https://accounts400.onde\nmand.com",
+				"https://tena\tnt.accounts400.ondemand.com",
+				"https://tena\nnt.accounts400.ondemand.com",
+				"https://tenant.accounts400.onde\tmand.com",
+				"https://tenant.accounts400.onde\nmand.com"
+		);
 	}
 
 	@ParameterizedTest
@@ -121,8 +125,8 @@ class JwtIssuerValidatorTest {
 	})
 	void validationFails_whenIssuerContainsEncodedCharacters(String issuer) {
 		when(token.getIssuer()).thenReturn(issuer);
-		assertThat(cut.validate(token).isValid(), is(false));
-		assertThat(cut.validate(token).isErroneous(), is(true));
+		assertThat(cut.validate(token).isValid()).isFalse();
+		assertThat(cut.validate(token).isErroneous()).isTrue();
 	}
 
 	@ParameterizedTest
@@ -130,23 +134,23 @@ class JwtIssuerValidatorTest {
 	@ValueSource(strings = { "  " })
 	void validationFails_whenIssuerIsEmpty(String issuer) {
 		when(token.getIssuer()).thenReturn(issuer);
-		assertThat(cut.validate(token).isValid(), is(false));
-		assertThat(cut.validate(token).isErroneous(), is(true));
+		assertThat(cut.validate(token).isValid()).isFalse();
+		assertThat(cut.validate(token).isErroneous()).isTrue();
 	}
 
 	@Test
 	void validationFails_whenIssuerIsNotAValidURL() {
 		when(token.getIssuer()).thenReturn("https://");
-		assertThat(cut.validate(token).isValid(), is(false));
-		assertThat(cut.validate(token).isErroneous(), is(true));
+		assertThat(cut.validate(token).isValid()).isFalse();
+		assertThat(cut.validate(token).isErroneous()).isTrue();
 
 		when(token.getIssuer()).thenReturn("http://");
-		assertThat(cut.validate(token).isValid(), is(false));
-		assertThat(cut.validate(token).isErroneous(), is(true));
+		assertThat(cut.validate(token).isValid()).isFalse();
+		assertThat(cut.validate(token).isErroneous()).isTrue();
 
 		when(token.getIssuer()).thenReturn("http://" + trustedDomains[0]);
-		assertThat(cut.validate(token).isValid(), is(false));
-		assertThat(cut.validate(token).isErroneous(), is(true));
+		assertThat(cut.validate(token).isValid()).isFalse();
+		assertThat(cut.validate(token).isErroneous()).isTrue();
 	}
 
 	@ParameterizedTest
@@ -174,8 +178,8 @@ class JwtIssuerValidatorTest {
 	})
 	void validationFails_whenIssuerContainsMoreThanDomain(String issuer) {
 		when(token.getIssuer()).thenReturn(issuer);
-		assertThat(cut.validate(token).isValid(), is(false));
-		assertThat(cut.validate(token).isErroneous(), is(true));
+		assertThat(cut.validate(token).isValid()).isFalse();
+		assertThat(cut.validate(token).isErroneous()).isTrue();
 	}
 
 	@ParameterizedTest
@@ -189,7 +193,7 @@ class JwtIssuerValidatorTest {
 	})
 	void validationFails_whenIssuerIsNotASubdomainOfTrustedDomains(String issuer) {
 		when(token.getIssuer()).thenReturn(issuer);
-		assertThat(cut.validate(token).isValid(), is(false));
-		assertThat(cut.validate(token).isErroneous(), is(true));
+		assertThat(cut.validate(token).isValid()).isFalse();
+		assertThat(cut.validate(token).isErroneous()).isTrue();
 	}
 }

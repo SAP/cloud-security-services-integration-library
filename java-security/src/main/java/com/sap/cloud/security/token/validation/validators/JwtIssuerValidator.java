@@ -105,6 +105,12 @@ class JwtIssuerValidator implements Validator<Token> {
 					"Issuer validation can not be performed because token does not contain an issuer claim.");
 		}
 
+		// Check for invisible characters (tabs, newlines, etc.) or URL-encoded characters
+		if (containsInvisibleOrEncodedCharacters(issuer)) {
+			return createInvalid(
+					"Issuer validation failed because token issuer contains invalid characters (invisible or encoded).");
+		}
+
 		String issuerUrl = issuer.startsWith(HTTPS_SCHEME) || issuer.startsWith("http://localhost") ? issuer
 				: HTTPS_SCHEME + issuer;
 
@@ -120,7 +126,7 @@ class JwtIssuerValidator implements Validator<Token> {
 		for (String d : domains) {
 			// issuerDomain is valid if it is a string that ends with .<d> and contains 1-63 letters,
 			// digits or '-' before that for the subdomain
-			String validSubdomainPattern = String.format("^[a-zA-Z0-9-]{1,63}\\.%s$", Pattern.quote(d));
+			String validSubdomainPattern = "^[a-zA-Z0-9-]{1,63}\\.%s$".formatted(Pattern.quote(d));
 			if (Objects.equals(d, issuerDomain) || issuerDomain.matches(validSubdomainPattern)) {
 				return createValid();
 			}
@@ -136,5 +142,30 @@ class JwtIssuerValidator implements Validator<Token> {
 
 		return createInvalid("Issuer {} was not a trusted domain or a subdomain of the trusted domains {}.", issuer,
 				domains);
+	}
+
+	/**
+	 * Checks if the issuer string contains invisible characters (control characters, whitespace)
+	 * or URL-encoded characters that could be used for bypass attacks.
+	 *
+	 * @param issuer the issuer string to check
+	 * @return true if the issuer contains invalid characters, false otherwise
+	 */
+	private boolean containsInvisibleOrEncodedCharacters(String issuer) {
+		// Check for URL-encoded characters (% followed by hex digits)
+		if (issuer.contains("%")) {
+			return true;
+		}
+
+		// Check for invisible/control characters (anything below space character, tabs, newlines, etc.)
+		for (int i = 0; i < issuer.length(); i++) {
+			char c = issuer.charAt(i);
+			// Control characters (0-31) and DEL (127), plus common whitespace
+			if (Character.isISOControl(c) || c == '\t' || c == '\n' || c == '\r') {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

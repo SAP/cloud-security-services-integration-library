@@ -9,8 +9,8 @@ package com.sap.cloud.security.xsuaa.client;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import jakarta.annotation.Nonnull;
 import java.net.URI;
-import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -88,11 +88,12 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
   }
 
   private static String[] getHeadersAsStringArray(
-      final org.springframework.http.HttpHeaders headers) {
-    return headers != null
-        ? headers.entrySet().stream()
-            .map(e -> e.getKey() + ": " + String.join(",", e.getValue()))
-            .toArray(String[]::new)
-        : new String[0];
+      final HttpHeaders headers) {
+    if (headers == null) {
+      return new String[0];
+    }
+    return headers.toSingleValueMap().entrySet().stream()
+        .map(e -> e.getKey() + ": " + e.getValue())
+        .toArray(String[]::new);
   }
 }

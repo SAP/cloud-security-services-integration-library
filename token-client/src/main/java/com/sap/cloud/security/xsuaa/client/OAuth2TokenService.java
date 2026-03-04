@@ -7,8 +7,8 @@ package com.sap.cloud.security.xsuaa.client;
 
 import com.sap.cloud.security.config.ClientIdentity;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.net.URI;
 import java.util.Map;
 

@@ -7,7 +7,7 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
-import static org.apache.http.HttpHeaders.USER_AGENT;
+import static org.apache.hc.core5.http.HttpHeaders.USER_AGENT;
 
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.servlet.MDCHelper;
@@ -15,22 +15,21 @@ import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import jakarta.annotation.Nonnull;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import org.apache.http.Header;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +82,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
       return httpClient.execute(
           httpPost,
           response -> {
-            final int statusCode = response.getStatusLine().getStatusCode();
+            final int statusCode = response.getCode();
             final String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             LOGGER.debug("Received statusCode {} from {}", statusCode, tokenUri);
             if (HttpStatus.SC_OK == statusCode) {
@@ -101,8 +100,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
             throw OAuth2ServiceException.builder("Error requesting access token!")
                 .withStatusCode(statusCode)
                 .withUri(tokenUri)
-                .withRequestHeaders(getHeadersAsStringArray(httpPost.getAllHeaders()))
-                .withResponseHeaders(getHeadersAsStringArray(response.getAllHeaders()))
+                .withRequestHeaders(getHeadersAsStringArray(httpPost.getHeaders()))
+                .withResponseHeaders(getHeadersAsStringArray(response.getHeaders()))
                 .withResponseBody(body)
                 .build();
           });
@@ -112,7 +111,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
       } else {
         throw OAuth2ServiceException.builder("Error requesting access token!")
             .withUri(tokenUri)
-            .withRequestHeaders(getHeadersAsStringArray(httpPost.getAllHeaders()))
+            .withRequestHeaders(getHeadersAsStringArray(httpPost.getHeaders()))
             .withResponseBody(e.getMessage())
             .build();
       }
@@ -144,20 +143,15 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
   }
 
   private HttpPost createHttpPost(
-      final URI uri, final HttpHeaders headers, final Map<String, String> parameters)
-      throws OAuth2ServiceException {
+      final URI uri, final HttpHeaders headers, final Map<String, String> parameters) {
     final HttpPost httpPost = new HttpPost(uri);
     headers.getHeaders().forEach(header -> httpPost.setHeader(header.getName(), header.getValue()));
     final List<BasicNameValuePair> basicNameValuePairs =
         parameters.entrySet().stream()
             .map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
             .toList();
-    try {
-      httpPost.setEntity(new UrlEncodedFormEntity(basicNameValuePairs));
-      httpPost.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
-    } catch (final UnsupportedEncodingException e) {
-      throw new OAuth2ServiceException("Unexpected error parsing URI: " + e.getMessage());
-    }
+    httpPost.setEntity(new UrlEncodedFormEntity(basicNameValuePairs));
+    httpPost.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
     logRequest(headers, parameters);
     return httpPost;
   }
@@ -178,7 +172,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
       return Long.parseLong(expiresIn);
     } catch (final NumberFormatException e) {
       throw new OAuth2ServiceException(
-          String.format("Cannot convert expires_in from response (%s) to long", expiresIn));
+					"Cannot convert expires_in from response (%s) to long".formatted(expiresIn));
     }
   }
 
@@ -186,7 +180,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
     return String.valueOf(accessTokenMap.get(key));
   }
 
-  private static String[] getHeadersAsStringArray(final org.apache.http.Header[] headers) {
+  private static String[] getHeadersAsStringArray(final Header[] headers) {
     return headers != null
         ? Arrays.stream(headers).map(Header::toString).toArray(String[]::new)
         : new String[0];

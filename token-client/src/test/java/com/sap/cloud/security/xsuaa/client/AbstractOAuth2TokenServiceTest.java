@@ -6,26 +6,43 @@
 package com.sap.cloud.security.xsuaa.client;
 
 import com.github.benmanes.caffeine.cache.Ticker;
+import org.junit.jupiter.api.Test;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.config.ClientCredentials;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.config.ClientIdentity;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
+import org.junit.jupiter.api.Test;
 import org.assertj.core.util.Maps;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import org.junit.jupiter.api.Test;
 import java.time.Clock;
+import org.junit.jupiter.api.Test;
 import java.time.Duration;
+import org.junit.jupiter.api.Test;
 import java.time.Instant;
+import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.Test;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 import static java.time.ZoneOffset.UTC;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.mock;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
 
 public class AbstractOAuth2TokenServiceTest {
 
@@ -38,7 +55,7 @@ public class AbstractOAuth2TokenServiceTest {
 
 	private TestOAuth2TokenService cut;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		cut = new TestOAuth2TokenService(TEST_CACHE_CONFIGURATION);
 	}

@@ -15,12 +15,12 @@ import com.sap.cloud.security.util.HttpClientTestFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,8 +28,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.logging.log4j.ThreadContext.isEmpty;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -59,19 +58,23 @@ class XsuaaTokenAuthenticatorTest {
 	static void setUp() throws IOException {
 		mockHttpClient = Mockito.mock(CloseableHttpClient.class);
 
-		CloseableHttpResponse xsuaaTokenKeysResponse = HttpClientTestFactory
+		ClassicHttpResponse xsuaaTokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
-		when(mockHttpClient.execute(any(HttpGet.class), any(ResponseHandler.class)))
+		when(mockHttpClient.execute(any(HttpGet.class), any(HttpClientResponseHandler.class)))
 				.thenAnswer(invocation -> {
-					ResponseHandler responseHandler = invocation.getArgument(1);
+					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
 					return responseHandler.handleResponse(xsuaaTokenKeysResponse);
 				});
 
-		CloseableHttpResponse xsuaaTokenResponse = HttpClientTestFactory
+		ClassicHttpResponse xsuaaTokenResponse = HttpClientTestFactory
 				.createHttpResponse(
 						"{ \"access_token\": \"" + IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8)
 								+ "\", \"expires_in\" : 43199}");
-		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(xsuaaTokenResponse);
+		when(mockHttpClient.execute(any(HttpPost.class), any(HttpClientResponseHandler.class)))
+				.thenAnswer(invocation -> {
+					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
+					return responseHandler.handleResponse(xsuaaTokenResponse);
+				});
 
 		oAuth2ServiceConfigBuilder = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
@@ -110,7 +113,7 @@ class XsuaaTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason(), isEmpty());
+		assertThat(response.getUnauthenticatedReason()).isEmpty();
 		assertTrue(response.isAuthenticated());
 		assertSame(response.getToken(), SecurityContext.getToken());
 		assertEquals(Service.XSUAA, response.getToken().getService());
@@ -143,7 +146,7 @@ class XsuaaTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason(), isEmpty());
+		assertThat(response.getUnauthenticatedReason()).isEmpty();
 		assertTrue(response.isAuthenticated());
 		assertSame(response.getToken(), SecurityContext.getToken());
 		assertEquals(Service.XSUAA, response.getToken().getService());

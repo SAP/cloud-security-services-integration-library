@@ -16,10 +16,10 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,8 +28,7 @@ import java.io.IOException;
 
 import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,17 +60,17 @@ class IasTokenAuthenticatorX509Test {
 
 		CloseableHttpClient httpClientMock = Mockito.mock(CloseableHttpClient.class);
 
-		CloseableHttpResponse oidcResponse = HttpClientTestFactory
+		ClassicHttpResponse oidcResponse = HttpClientTestFactory
 				.createHttpResponse("{\"jwks_uri\" : \"https://application.auth.com/oauth2/certs\"}");
-		CloseableHttpResponse tokenKeysResponse = HttpClientTestFactory
+		ClassicHttpResponse tokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
-		when(httpClientMock.execute(any(HttpGet.class), any(ResponseHandler.class)))
+		when(httpClientMock.execute(any(HttpGet.class), any(HttpClientResponseHandler.class)))
 				.thenAnswer(invocation -> {
-					ResponseHandler responseHandler = invocation.getArgument(1);
+					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
 					return responseHandler.handleResponse(oidcResponse);
 				})
 				.thenAnswer(invocation -> {
-					ResponseHandler responseHandler = invocation.getArgument(1);
+					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
 					return responseHandler.handleResponse(tokenKeysResponse);
 				});
 
@@ -132,7 +131,7 @@ class IasTokenAuthenticatorX509Test {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason(), emptyString());
+		assertThat(response.getUnauthenticatedReason()).isEmpty();
 		assertTrue(response.isAuthenticated());
 	}
 

@@ -22,8 +22,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -66,17 +65,17 @@ class XsuaaTokenCompTest {
 	void checkBasicJwtWithoutScopes() {
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
 
-		assertThat(token.getClientId(), is("client"));
-		assertThat(token.getGrantType(), is(GrantType.JWT_BEARER.toString()));
-		assertThat(token.getOrigin(), is("userIdp"));
-		assertThat(token.getFamilyName(), nullValue());
-		assertThat(token.getGivenName(), nullValue());
-		assertThat(token.getEmail(), is("testUser@test.org"));
-		assertThat(token.getSubaccountId(), is(zoneId));
-		assertThat(token.getExpiration(), is(JwtGenerator.NO_EXPIRE_DATE));
-		assertThat(token.getAdditionalAuthAttribute("any"), nullValue());
-		assertThat(token.getZoneId(), is(zoneId));
-		assertThat(token.getLogonName(), is(userName));
+		assertThat(token.getClientId()).isEqualTo("client");
+		assertThat(token.getGrantType()).isEqualTo(GrantType.JWT_BEARER.toString());
+		assertThat(token.getOrigin()).isEqualTo("userIdp");
+		assertThat(token.getFamilyName()).isNull();
+		assertThat(token.getGivenName()).isNull();
+		assertThat(token.getEmail()).isEqualTo("testUser@test.org");
+		assertThat(token.getSubaccountId()).isEqualTo(zoneId);
+		assertThat(token.getExpiration()).isEqualTo(JwtGenerator.NO_EXPIRE_DATE);
+		assertThat(token.getAdditionalAuthAttribute("any")).isNull();
+		assertThat(token.getZoneId()).isEqualTo(zoneId);
+		assertThat(token.getLogonName()).isEqualTo(userName);
 	}
 
 	@ParameterizedTest
@@ -85,7 +84,7 @@ class XsuaaTokenCompTest {
 		token = XsuaaTokenComp.createInstance(jwtGenerator
 				.withClaimValue(TokenClaims.AUTHORIZATION_PARTY, azp)
 				.withClaimValues(TokenClaims.AUDIENCE, aud.toArray(new String[] {})).createToken());
-		assertThat(token.getClientId(), is(expectedClientId));
+		assertThat(token.getClientId()).isEqualTo(expectedClientId);
 	}
 
 	private static Stream<Arguments> clientIdTestArguments() {
@@ -115,10 +114,10 @@ class XsuaaTokenCompTest {
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
 
 		Collection<String> scopes = token.getScopes();
-		assertThat(scopes.size(), is(3));
-		assertThat(scopes, hasItem(scopeRead));
-		assertThat(scopes, hasItem(scopeWrite));
-		assertThat(scopes, hasItem(scopeOther));
+		assertThat(scopes.size()).isEqualTo(3);
+		assertThat(scopes).contains(scopeRead);
+		assertThat(scopes).contains(scopeWrite);
+		assertThat(scopes).contains(scopeOther);
 	}
 
 	@Test
@@ -127,25 +126,25 @@ class XsuaaTokenCompTest {
 
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
 
-		assertThat(token.getSubaccountId(), is(zoneId));
-		assertThat(token.getZoneId(), is(zoneId));
+		assertThat(token.getSubaccountId()).isEqualTo(zoneId);
+		assertThat(token.getZoneId()).isEqualTo(zoneId);
 	}
 
 	@Test
 	void getSubaccountIdFromSystemAttributes() {
-		assertThat(XsuaaTokenComp.createInstance(tokenSAML).getSubaccountId(), is("test-subaccount"));
+		assertThat(XsuaaTokenComp.createInstance(tokenSAML).getSubaccountId()).isEqualTo("test-subaccount");
 	}
 
 	@Test
 	void getUserNameIsUniqueWithOrigin() {
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		assertThat(token.getUsername(), is("user/userIdp/testUser"));
+		assertThat(token.getUsername()).isEqualTo("user/userIdp/testUser");
 	}
 
 	@Test
 	void toStringShouldReturnUserName() {
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		assertThat(token.toString(), is(token.getUsername()));
+		assertThat(token.toString()).isEqualTo(token.getUsername());
 	}
 
 	@Test
@@ -158,7 +157,7 @@ class XsuaaTokenCompTest {
 	@Test
 	void getUniquePrincipalNameForOriginAndName() {
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		assertThat(token.toString(), is("user/userIdp/testUser"));
+		assertThat(token.toString()).isEqualTo("user/userIdp/testUser");
 	}
 
 	@Test
@@ -180,15 +179,15 @@ class XsuaaTokenCompTest {
 	@Test
 	void getXsUserAttributeValues() {
 		String[] userAttrValues = XsuaaTokenComp.createInstance(tokenSAML).getXSUserAttribute("cost-center");
-		assertThat(userAttrValues, arrayContainingInAnyOrder("0815", "4711"));
+		assertThat(userAttrValues).containsExactlyInAnyOrder("0815", "4711");
 	}
 
 	@Test
 	void getXsUserAttributeValues_isNull() {
 		String[] userAttrEmptyArray = XsuaaTokenComp.createInstance(tokenSAML).getXSUserAttribute("empty-array");
-		assertThat(userAttrEmptyArray, nullValue());
+		assertThat(userAttrEmptyArray).isNull();
 		String[] userAttrValues = XsuaaTokenComp.createInstance(tokenSAML).getXSUserAttribute("nonExisting");
-		assertThat(userAttrValues, nullValue());
+		assertThat(userAttrValues).isNull();
 	}
 
 	@Test
@@ -199,7 +198,7 @@ class XsuaaTokenCompTest {
 		jwtGenerator.withClaimValue(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, extAttr);
 
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		assertThat(token.getCloneServiceInstanceId(), is("abcd1234"));
+		assertThat(token.getCloneServiceInstanceId()).isEqualTo("abcd1234");
 	}
 
 	@Test
@@ -210,7 +209,7 @@ class XsuaaTokenCompTest {
 		jwtGenerator.withClaimValue(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, extAttr);
 
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		assertThat(token.getSubdomain(), is("testsubdomain"));
+		assertThat(token.getSubdomain()).isEqualTo("testsubdomain");
 	}
 
 	@Test
@@ -218,16 +217,16 @@ class XsuaaTokenCompTest {
 		Map<String, String> addAuthAttr = new HashMap<>();
 		addAuthAttr.put("external_group", "domain\\group1");
 		addAuthAttr.put("external_id", "ext-id-abcd1234");
-		assertThat(XsuaaTokenComp.createInstance(jwtGenerator.createToken()).getSubdomain(), nullValue());
+		assertThat(XsuaaTokenComp.createInstance(jwtGenerator.createToken()).getSubdomain()).isNull();
 
 		jwtGenerator.withClaimValue("az_attr", addAuthAttr);
-		assertThat(XsuaaTokenComp.createInstance(jwtGenerator.createToken()).getSubdomain(), nullValue());
+		assertThat(XsuaaTokenComp.createInstance(jwtGenerator.createToken()).getSubdomain()).isNull();
 	}
 
 	@Test
 	void getAppToken() {
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		assertThat(token.getAppToken(), startsWith("eyJraWQiOiJkZWZhdWx0LWtpZCIs"));
+		assertThat(token.getAppToken()).startsWith("eyJraWQiOiJkZWZhdWx0LWtpZCIs");
 	}
 
 	@Test

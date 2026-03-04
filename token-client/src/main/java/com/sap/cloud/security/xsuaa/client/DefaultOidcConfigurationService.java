@@ -6,22 +6,23 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
+import static org.apache.hc.core5.http.HttpHeaders.USER_AGENT;
+
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
+import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import javax.annotation.Nonnull;
-import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,17 +75,17 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
   private String executeRequest(final URI discoveryEndpointUri, final int attemptsLeft)
       throws OAuth2ServiceException {
     final HttpGet httpGet = new HttpGet(discoveryEndpointUri);
-    httpGet.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
+    httpGet.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
     LOGGER.debug(
         "Retrieving configured oidc endpoints: {} with headers {} and {} retries left",
         discoveryEndpointUri,
-        httpGet.getAllHeaders(),
+        httpGet.getHeaders(),
         attemptsLeft);
     try {
       return httpClient.execute(
           httpGet,
           response -> {
-            final int statusCode = response.getStatusLine().getStatusCode();
+            final int statusCode = response.getCode();
             final String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             LOGGER.debug("Received statusCode {} from {}", statusCode, discoveryEndpointUri);
             if (HttpStatus.SC_OK == statusCode) {
@@ -99,8 +100,8 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
             throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
                 .withStatusCode(statusCode)
                 .withUri(discoveryEndpointUri)
-                .withRequestHeaders(getHeadersAsStringArray(httpGet.getAllHeaders()))
-                .withResponseHeaders(getHeadersAsStringArray(response.getAllHeaders()))
+                .withRequestHeaders(getHeadersAsStringArray(httpGet.getHeaders()))
+                .withResponseHeaders(getHeadersAsStringArray(response.getHeaders()))
                 .withResponseBody(body)
                 .build();
           });
@@ -111,14 +112,14 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
         throw OAuth2ServiceException.builder(
                 "Error retrieving configured oidc endpoints: " + e.getMessage())
             .withUri(discoveryEndpointUri)
-            .withRequestHeaders(getHeadersAsStringArray(httpGet.getAllHeaders()))
+            .withRequestHeaders(getHeadersAsStringArray(httpGet.getHeaders()))
             .withResponseBody(e.getMessage())
             .build();
       }
     }
   }
 
-  private static String[] getHeadersAsStringArray(final org.apache.http.Header[] headers) {
+  private static String[] getHeadersAsStringArray(final Header[] headers) {
     return headers != null
         ? Arrays.stream(headers).map(Header::toString).toArray(String[]::new)
         : new String[0];

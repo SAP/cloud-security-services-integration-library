@@ -7,21 +7,21 @@ package com.sap.cloud.security.client;
 
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.mtls.SSLContextFactory;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.SSLContext;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
+import org.apache.hc.client5.http.ssl.DefaultClientTlsStrategy;
+import org.apache.hc.core5.http.ssl.TLS;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Constructs a {@link CloseableHttpClient} object. Facilitates certificate and client credentials-based communication
@@ -39,14 +39,20 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	private static final int MAX_CONNECTIONS_PER_ROUTE = 20; // default is 2
 	private static final int MAX_CONNECTIONS = 200;
 	private final ConcurrentHashMap<String, SslConnection> sslConnectionPool = new ConcurrentHashMap<>();
-	private final org.apache.http.client.config.RequestConfig requestConfig;
+	private final RequestConfig requestConfig;
+	private final ConnectionConfig connectionConfig;
 
 	public DefaultHttpClientFactory() {
-		requestConfig = org.apache.http.client.config.RequestConfig.custom()
-				.setConnectTimeout(DEFAULT_TIMEOUT)
-				.setConnectionRequestTimeout(DEFAULT_TIMEOUT)
-				.setSocketTimeout(DEFAULT_SOCKET_TIMEOUT)
+		requestConfig = RequestConfig.custom()
+				.setConnectTimeout(Timeout.ofMilliseconds(DEFAULT_TIMEOUT))
+				.setConnectionRequestTimeout(Timeout.ofMilliseconds(DEFAULT_TIMEOUT))
+				.setResponseTimeout(Timeout.ofMilliseconds(DEFAULT_SOCKET_TIMEOUT))
 				.setRedirectsEnabled(false)
+				.build();
+
+		connectionConfig = ConnectionConfig.custom()
+				.setConnectTimeout(Timeout.ofMilliseconds(DEFAULT_TIMEOUT))
+				.setSocketTimeout(Timeout.ofMilliseconds(DEFAULT_SOCKET_TIMEOUT))
 				.build();
 	}
 
@@ -57,11 +63,9 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 
 		if (clientId != null && clientIdentity.isCertificateBased()) {
 			SslConnection connectionPool = sslConnectionPool.computeIfAbsent(clientId,
-					s -> new SslConnection(clientIdentity));
+					s -> new SslConnection(clientIdentity, connectionConfig));
 			return httpClientBuilder
-					.setConnectionManager(connectionPool.poolingConnectionManager)
-					.setSSLContext(connectionPool.context)
-					.setSSLSocketFactory(connectionPool.sslSocketFactory)
+					.setConnectionManager(connectionPool.connectionManager)
 					.build();
 		}
 		return httpClientBuilder
@@ -69,25 +73,29 @@ public class DefaultHttpClientFactory implements HttpClientFactory {
 	}
 
 	private static class SslConnection {
-		SSLContext context;
-		SSLConnectionSocketFactory sslSocketFactory;
-		PoolingHttpClientConnectionManager poolingConnectionManager;
+		HttpClientConnectionManager connectionManager;
 
-		public SslConnection(ClientIdentity clientIdentity) {
+		public SslConnection(ClientIdentity clientIdentity, ConnectionConfig connectionConfig) {
+			SSLContext context;
 			try {
-				this.context = SSLContextFactory.getInstance().create(clientIdentity);
+				context = SSLContextFactory.getInstance().create(clientIdentity);
 			} catch (IOException | GeneralSecurityException e) {
 				throw new HttpClientException(
-						String.format("Couldn't set up https client for service provider %s. %s.",
+						"Couldn't set up https client for service provider %s. %s.".formatted(
 								clientIdentity.getId(), e.getLocalizedMessage()));
 			}
-			this.sslSocketFactory = new SSLConnectionSocketFactory(context);
-			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
-					.register("http", PlainConnectionSocketFactory.getSocketFactory())
-					.register("https", sslSocketFactory).build();
-			this.poolingConnectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-			this.poolingConnectionManager.setDefaultMaxPerRoute(MAX_CONNECTIONS_PER_ROUTE);
-			this.poolingConnectionManager.setMaxTotal(MAX_CONNECTIONS);
+
+			this.connectionManager = PoolingHttpClientConnectionManagerBuilder.create()
+					.setDefaultConnectionConfig(connectionConfig)
+					.setMaxConnPerRoute(MAX_CONNECTIONS_PER_ROUTE)
+					.setMaxConnTotal(MAX_CONNECTIONS)
+					.setTlsSocketStrategy(new DefaultClientTlsStrategy(
+							context,
+							new String[] { TLS.V_1_2.id, TLS.V_1_3.id },
+							null,
+							null,
+							null))
+					.build();
 		}
 	}
 

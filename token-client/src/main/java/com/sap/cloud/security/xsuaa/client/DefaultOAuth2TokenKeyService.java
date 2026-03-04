@@ -18,15 +18,15 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
-import javax.annotation.Nonnull;
-import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.util.EntityUtils;
+import jakarta.annotation.Nonnull;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,13 +65,13 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
     LOGGER.debug(
         "Executing token key retrieval GET request to {} with headers: {} and {} retries left",
         tokenKeysEndpointUri,
-        httpUriRequest.getAllHeaders(),
+        httpUriRequest.getHeaders(),
         attemptsLeft);
     try {
       return httpClient.execute(
           httpUriRequest,
           response -> {
-            final int statusCode = response.getStatusLine().getStatusCode();
+            final int statusCode = response.getCode();
             final String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
             LOGGER.debug("Received statusCode {} from {}", statusCode, tokenKeysEndpointUri);
             if (HttpStatus.SC_OK == statusCode) {
@@ -86,8 +86,8 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
             }
             throw OAuth2ServiceException.builder("Error retrieving token keys.")
                 .withUri(tokenKeysEndpointUri)
-                .withResponseHeaders(getHeadersAsStringArray(response.getAllHeaders()))
-                .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
+                .withResponseHeaders(getHeadersAsStringArray(response.getHeaders()))
+                .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getHeaders()))
                 .withStatusCode(statusCode)
                 .withResponseBody(body)
                 .build();
@@ -98,7 +98,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
       } else {
         throw OAuth2ServiceException.builder("Error retrieving token keys: " + e.getMessage())
             .withUri(tokenKeysEndpointUri)
-            .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getAllHeaders()))
+            .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getHeaders()))
             .withResponseBody(e.getMessage())
             .build();
       }
@@ -136,7 +136,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
     }
   }
 
-  private static String[] getHeadersAsStringArray(final org.apache.http.Header[] headers) {
+  private static String[] getHeadersAsStringArray(final org.apache.hc.core5.http.Header[] headers) {
     return headers != null
         ? Arrays.stream(headers).map(Header::toString).toArray(String[]::new)
         : new String[0];

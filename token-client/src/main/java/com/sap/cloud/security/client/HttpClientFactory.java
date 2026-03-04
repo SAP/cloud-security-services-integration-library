@@ -8,7 +8,7 @@ package com.sap.cloud.security.client;
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.token.ProviderNotFoundException;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.LoggerFactory;
 
 import java.security.ProviderException;

@@ -5,11 +5,11 @@
  */
 package com.sap.cloud.security.core;
 
-import org.junit.Test;
-
 import static com.sap.cloud.security.xsuaa.Assertions.assertHasText;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import org.junit.jupiter.api.Test;
 
 public class AssertionsTest {
 

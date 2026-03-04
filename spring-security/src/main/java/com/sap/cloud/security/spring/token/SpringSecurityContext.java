@@ -9,6 +9,7 @@ import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
 import com.sap.cloud.security.spring.token.authentication.XsuaaTokenAuthorizationConverter;
 import com.sap.cloud.security.token.AccessToken;
 import com.sap.cloud.security.token.Token;
+import jakarta.annotation.Nullable;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -18,8 +19,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
-
-import javax.annotation.Nullable;
 
 /**
  * This is an alternative way of accessing jwt tokens of type {@link Token} or {@link AccessToken} in context of an
@@ -50,8 +49,8 @@ public class SpringSecurityContext {
 			throw new AccessDeniedException("Access forbidden: not authenticated");
 		}
 		Object principal = authentication.getPrincipal();
-		if (principal instanceof Token) {
-			return (Token) principal;
+		if (principal instanceof Token token) {
+			return token;
 		}
 		throw new AccessDeniedException(
 				"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token'. Found instead a principal of type "
@@ -71,7 +70,7 @@ public class SpringSecurityContext {
 	@Nullable
 	public static AccessToken getAccessToken() {
 		Token token = getToken();
-		return token instanceof AccessToken ? (AccessToken) token : null;
+		return token instanceof AccessToken accessToken ? accessToken : null;
 	}
 
 	/**

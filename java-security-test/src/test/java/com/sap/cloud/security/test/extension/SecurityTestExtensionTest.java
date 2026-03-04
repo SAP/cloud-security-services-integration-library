@@ -8,11 +8,11 @@ package com.sap.cloud.security.test.extension;
 import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.api.SecurityTestContext;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -62,14 +62,14 @@ class SecurityTestExtensionTest {
 				.stubFor(get(urlEqualTo("/testing"))
 						.willReturn(aResponse().withBody("OK")));
 
-		try (CloseableHttpResponse response = httpClient.execute(new HttpGet(url))) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+		try (ClassicHttpResponse response = httpClient.execute(new HttpGet(url))) {
+			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 			String responseBody = readBody(response);
 			assertThat(responseBody).isEqualTo("OK");
 		}
 	}
 
-	private String readBody(CloseableHttpResponse response) throws IOException {
+	private String readBody(ClassicHttpResponse response) throws IOException {
 		return IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
 	}
 

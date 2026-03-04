@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import org.junit.jupiter.api.Test;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -17,12 +19,10 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.net.URI;
@@ -34,11 +34,12 @@ import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JwtValidatorBuilderTest {
 
 	OAuth2ServiceConfigurationBuilder xsuaaConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(XSUAA)
@@ -46,7 +47,7 @@ public class JwtValidatorBuilderTest {
 			.withProperty(ServiceConstants.XSUAA.APP_ID, "test-app!t123")
 			.withClientId("sb-test-app!t123");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		Mockito.mockitoSession().initMocks();
 	}
@@ -194,12 +195,12 @@ public class JwtValidatorBuilderTest {
 				.build();
 
 		for (Validator validator : combiningValidator.getValidators()) {
-			if (validator instanceof JwtAudienceValidator) {
-				assertThat(((JwtAudienceValidator) validator).getTrustedClientIds()).containsAll(clientIds);
+			if (validator instanceof JwtAudienceValidator audienceValidator) {
+				assertThat(audienceValidator.getTrustedClientIds()).containsAll(clientIds);
 				return;
 			}
 		}
-		Assert.fail("No JwtAudienceValidator found that contains all clientIds!"); // should never be called
+		fail("No JwtAudienceValidator found that contains all clientIds!"); // should never be called
 	}
 
 }
