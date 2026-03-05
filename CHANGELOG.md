@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 
 - Fix hybrid authentication issue where IAS Configuration was incorrectly used for XSUAA token exchange instead of XSUAA Configuration in `HybridIdentityServicesAutoConfiguration`
 
+### Dependency upgrades
+
+- Bump org.eclipse.jetty:jetty-bom from 12.1.6 to 12.1.7
+
 ## 3.6.7
 
 - Fix FIPS compatibility by using default KeyManagerFactory algorithm instead of hardcoded "SunX509"
