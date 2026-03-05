@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.8
+
+- Fix hybrid authentication issue where IAS Configuration was incorrectly used for XSUAA token exchange instead of XSUAA Configuration in `HybridIdentityServicesAutoConfiguration`
+
 ## 3.6.7
 
 - Fix FIPS compatibility by using default KeyManagerFactory algorithm instead of hardcoded "SunX509"

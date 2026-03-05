@@ -69,7 +69,7 @@ Since it requires the Tomcat 10 runtime, it needs to be deployed using the [SAP 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>3.6.7</version>
+    <version>3.6.8</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>

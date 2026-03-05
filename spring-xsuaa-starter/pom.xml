@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.6.7</version>
+		<version>3.6.8</version>
 	</parent>
 
 	<artifactId>xsuaa-spring-boot-starter</artifactId>
