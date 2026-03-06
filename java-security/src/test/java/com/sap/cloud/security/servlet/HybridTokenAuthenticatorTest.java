@@ -1,5 +1,9 @@
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpRequest;
+import com.sap.cloud.security.client.SecurityHttpResponse;
+
 import static com.sap.cloud.security.token.TokenExchangeMode.DISABLED;
 import static com.sap.cloud.security.token.TokenExchangeMode.FORCE_XSUAA;
 import static com.sap.cloud.security.token.TokenExchangeMode.PROVIDE_XSUAA;
@@ -20,7 +24,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +39,7 @@ public class HybridTokenAuthenticatorTest {
   @Mock private HttpServletRequest httpReq;
   @Mock private HttpServletResponse httpResp;
   @Mock private TokenAuthenticationResult authenticationResult;
-  @Mock private CloseableHttpClient httpClientMock;
+  @Mock private SecurityHttpClient httpClientMock;
   @Mock private OAuth2ServiceConfiguration iasConfig;
   @Mock private OAuth2ServiceConfiguration xsuaaConfig;
 

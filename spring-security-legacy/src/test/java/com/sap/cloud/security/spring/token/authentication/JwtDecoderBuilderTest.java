@@ -8,12 +8,12 @@ package com.sap.cloud.security.spring.token.authentication;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
+import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.config.*;
 import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -29,7 +29,7 @@ class JwtDecoderBuilderTest {
 
 	@Test
 	void withHttpClient() {
-		CloseableHttpClient mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+		SecurityHttpClient mockHttpClient = Mockito.mock(SecurityHttpClient.class);
 		assertNotNull(cut.withHttpClient(mockHttpClient));
 	}
 

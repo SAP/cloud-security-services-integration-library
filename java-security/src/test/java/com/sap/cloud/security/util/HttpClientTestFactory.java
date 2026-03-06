@@ -5,23 +5,19 @@
  */
 package com.sap.cloud.security.util;
 
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.mockito.Mockito;
+import com.sap.cloud.security.client.SecurityHttpResponse;
 
-import static org.mockito.Mockito.when;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpClientTestFactory {
 
-	public static ClassicHttpResponse createHttpResponse(String responseAsJson, int statusCode) {
-		ClassicHttpResponse response = Mockito.mock(ClassicHttpResponse.class);
-		when(response.getCode()).thenReturn(statusCode);
-		when(response.getEntity()).thenReturn(new StringEntity(responseAsJson, org.apache.hc.core5.http.ContentType.APPLICATION_JSON));
-		return response;
+	public static SecurityHttpResponse createHttpResponse(String responseAsJson, int statusCode) {
+		Map<String, String> headers = new HashMap<>();
+		return new SecurityHttpResponse(statusCode, headers, responseAsJson);
 	}
 
-	public static ClassicHttpResponse createHttpResponse(String responseAsJson) {
-		return createHttpResponse(responseAsJson, HttpStatus.SC_OK);
+	public static SecurityHttpResponse createHttpResponse(String responseAsJson) {
+		return createHttpResponse(responseAsJson, 200);
 	}
 }

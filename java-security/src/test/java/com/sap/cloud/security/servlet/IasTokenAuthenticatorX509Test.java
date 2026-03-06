@@ -5,6 +5,10 @@
  */
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpRequest;
+import com.sap.cloud.security.client.SecurityHttpResponse;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
@@ -16,10 +20,6 @@ import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -58,21 +58,15 @@ class IasTokenAuthenticatorX509Test {
 				.withClientId("myClientId")
 				.build();
 
-		CloseableHttpClient httpClientMock = Mockito.mock(CloseableHttpClient.class);
+		SecurityHttpClient httpClientMock = Mockito.mock(SecurityHttpClient.class);
 
-		ClassicHttpResponse oidcResponse = HttpClientTestFactory
+		SecurityHttpResponse oidcResponse = HttpClientTestFactory
 				.createHttpResponse("{\"jwks_uri\" : \"https://application.auth.com/oauth2/certs\"}");
-		ClassicHttpResponse tokenKeysResponse = HttpClientTestFactory
+		SecurityHttpResponse tokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
-		when(httpClientMock.execute(any(HttpGet.class), any(HttpClientResponseHandler.class)))
-				.thenAnswer(invocation -> {
-					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
-					return responseHandler.handleResponse(oidcResponse);
-				})
-				.thenAnswer(invocation -> {
-					HttpClientResponseHandler responseHandler = invocation.getArgument(1);
-					return responseHandler.handleResponse(tokenKeysResponse);
-				});
+		when(httpClientMock.execute(any(SecurityHttpRequest.class)))
+				.thenReturn(oidcResponse)
+				.thenReturn(tokenKeysResponse);
 
 		JwtValidatorBuilder
 				.getInstance(configuration)

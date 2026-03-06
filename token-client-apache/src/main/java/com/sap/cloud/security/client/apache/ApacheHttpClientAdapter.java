@@ -9,16 +9,15 @@ import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.client.SecurityHttpRequest;
 import com.sap.cloud.security.client.SecurityHttpResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.http.Header;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Adapter that wraps Apache HttpClient to implement SecurityHttpClient.
@@ -50,7 +49,7 @@ public class ApacheHttpClientAdapter implements SecurityHttpClient {
 		});
 	}
 
-	private HttpUriRequest createHttpRequest(SecurityHttpRequest request) throws HttpClientException {
+	private HttpUriRequest committ (SecurityHttpRequest request) throws HttpClientException {
 		HttpRequestBase httpRequest;
 
 		switch (request.getMethod().toUpperCase()) {

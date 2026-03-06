@@ -5,7 +5,9 @@
  */
 package com.sap.cloud.security.spring.autoconfig;
 
-import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.client.HttpClientException;
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpClientProvider;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.config.XsuaaServiceConfigurations;
@@ -15,7 +17,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,7 +59,7 @@ public class XsuaaTokenFlowAutoConfiguration {
   @Bean
   @Conditional(PropertyConditions.class)
   public XsuaaTokenFlows xsuaaTokenFlows(
-      @Qualifier("tokenFlowHttpClient") final CloseableHttpClient httpClient) {
+      @Qualifier("tokenFlowHttpClient") final SecurityHttpClient httpClient) {
     logger.debug(
         "auto-configuring XsuaaTokenFlows using {} based restOperations",
         xsuaaConfig.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
@@ -70,17 +71,20 @@ public class XsuaaTokenFlowAutoConfiguration {
 	}
 
   /**
-   * Creates a {@link CloseableHttpClient} instance configured with the ClientIdentity provided.
-   * Conditional on missing CloseableHttpClient Bean.
+   * Creates a {@link SecurityHttpClient} instance configured with the ClientIdentity provided.
+   * Uses Java HttpClient by default, but Apache HttpClient will be used if token-client-apache is on the classpath.
+   * Conditional on missing SecurityHttpClient Bean.
    *
-   * @return the {@link CloseableHttpClient} instance.
+   * @return the {@link SecurityHttpClient} instance.
+   * @throws HttpClientException if the client cannot be created
    */
   @Bean
   @Conditional(PropertyConditions.class)
-  public CloseableHttpClient tokenFlowHttpClient(final XsuaaServiceConfiguration xsuaaConfig) {
+  public SecurityHttpClient tokenFlowHttpClient(final XsuaaServiceConfiguration xsuaaConfig)
+      throws HttpClientException {
 		logger.debug(
-				"If the performance for the token validation is degrading provide your own well configured HttpClientFactory implementation");
-		return HttpClientFactory.create(xsuaaConfig.getClientIdentity());
+				"Auto-configuring SecurityHttpClient. Apache HttpClient will be used if token-client-apache is on classpath.");
+		return SecurityHttpClientProvider.createClient(xsuaaConfig.getClientIdentity());
 	}
 
 	private static class PropertyConditions extends AnyNestedCondition {

@@ -5,10 +5,9 @@
  */
 package com.sap.cloud.security.spring.autoconfig;
 
+import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,8 +54,8 @@ class XsuaaTokenFlowAutoConfigurationTest {
 
 	@Test
 	void autoConfigurationActive() {
-		runner.withClassLoader(new FilteredClassLoader(CloseableHttpClient.class)).run(context -> {
-			assertThat(context).hasSingleBean(CloseableHttpClient.class);
+		runner.withClassLoader(new FilteredClassLoader(SecurityHttpClient.class)).run(context -> {
+			assertThat(context).hasSingleBean(SecurityHttpClient.class);
 			assertThat(context).hasBean("tokenFlowHttpClient");
 			assertNotNull(context.getBean("xsuaaTokenFlows", XsuaaTokenFlows.class));
 		});
@@ -78,7 +77,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 				.withPropertyValues("sap.security.services.xsuaa.certificate:" + cert)
 				.withPropertyValues("sap.security.services.xsuaa.key:" + key)
 				.run((context) -> {
-					assertThat(context).hasSingleBean(CloseableHttpClient.class);
+					assertThat(context).hasSingleBean(SecurityHttpClient.class);
 					assertThat(context).hasBean("tokenFlowHttpClient");
 				});
 	}
@@ -126,7 +125,7 @@ class XsuaaTokenFlowAutoConfigurationTest {
 					assertNotNull(context.getBean("customTokenFlows", XsuaaTokenFlows.class));
 					assertThat(context).doesNotHaveBean("tokenFlowHttpClient");
 					assertThat(context).hasBean("customHttpClient");
-					assertThat(context).hasSingleBean(CloseableHttpClient.class);
+					assertThat(context).hasSingleBean(SecurityHttpClient.class);
 				});
 	}
 
@@ -134,8 +133,8 @@ class XsuaaTokenFlowAutoConfigurationTest {
 	static class UserConfiguration {
 
 		@Bean
-		public CloseableHttpClient customHttpClient() {
-			return HttpClients.createDefault();
+		public SecurityHttpClient customHttpClient() {
+			return Mockito.mock(SecurityHttpClient.class);
 		}
 
 		@Bean

@@ -3,6 +3,7 @@ package com.sap.cloud.security.servlet;
 import static com.sap.cloud.security.servlet.HybridTokenFactory.isXsuaaToken;
 import static com.sap.cloud.security.servlet.HybridTokenFactory.removeBearer;
 
+import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.DefaultIdTokenExtension;
 import com.sap.cloud.security.token.SecurityContext;
@@ -20,7 +21,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +87,7 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
 
   public HybridTokenAuthenticator(
       @Nonnull final OAuth2ServiceConfiguration iasConfig,
-      @Nonnull final CloseableHttpClient httpClient,
+      @Nonnull final SecurityHttpClient httpClient,
       @Nonnull final OAuth2ServiceConfiguration xsuaaConfig,
       @Nonnull final TokenExchangeMode tokenExchangeMode) {
     this.tokenExchangeMode = tokenExchangeMode;

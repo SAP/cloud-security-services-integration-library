@@ -7,6 +7,7 @@ package com.sap.cloud.security.servlet;
 
 import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 
+import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
@@ -28,7 +29,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private Validator<Token> tokenValidator;
-	protected CloseableHttpClient httpClient;
+	protected SecurityHttpClient httpClient;
 	protected OAuth2ServiceConfiguration serviceConfiguration;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 
@@ -78,7 +78,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 * 		the HttpClient
 	 * @return this authenticator
 	 */
-	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
+	public AbstractTokenAuthenticator withHttpClient(SecurityHttpClient httpClient) {
 		this.httpClient = httpClient;
 		return this;
 	}

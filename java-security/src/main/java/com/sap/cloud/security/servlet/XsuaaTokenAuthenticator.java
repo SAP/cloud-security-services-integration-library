@@ -5,7 +5,8 @@
  */
 package com.sap.cloud.security.servlet;
 
-import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpClientProvider;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -16,7 +17,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 
 import jakarta.annotation.Nullable;
 import java.util.Collection;
@@ -27,8 +27,12 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 
 	public XsuaaTokenAuthenticator() {
 		serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
-		httpClient = HttpClientFactory
-				.create(serviceConfiguration != null ? serviceConfiguration.getClientIdentity() : null);
+		try {
+			httpClient = SecurityHttpClientProvider
+					.createClient(serviceConfiguration != null ? serviceConfiguration.getClientIdentity() : null);
+		} catch (Exception e) {
+			throw new IllegalStateException("Failed to create HTTP client", e);
+		}
 	}
 
 	@Override
@@ -38,7 +42,7 @@ public class XsuaaTokenAuthenticator extends AbstractTokenAuthenticator {
 	}
 
 	@Override
-	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
+	public AbstractTokenAuthenticator withHttpClient(SecurityHttpClient httpClient) {
 		super.withHttpClient(httpClient);
 		return this;
 	}

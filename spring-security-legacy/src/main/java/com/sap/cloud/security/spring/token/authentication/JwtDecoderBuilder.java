@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
+import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
@@ -16,7 +17,6 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.util.Assert;
 
@@ -31,7 +31,7 @@ public class JwtDecoderBuilder {
 	private List<? extends OAuth2ServiceConfiguration> xsuaaConfigurations;
 	private OAuth2ServiceConfiguration iasConfiguration;
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
-	protected CloseableHttpClient httpClient;
+	protected SecurityHttpClient httpClient;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 	private boolean enableProofTokenCheck;
   private TokenExchangeMode tokenExchangeMode;
@@ -55,7 +55,7 @@ public class JwtDecoderBuilder {
 	 * 		the HttpClient
 	 * @return this jwt decoder builder
 	 */
-	public JwtDecoderBuilder withHttpClient(CloseableHttpClient httpClient) {
+	public JwtDecoderBuilder withHttpClient(SecurityHttpClient httpClient) {
 		this.httpClient = httpClient;
 		return this;
 	}
