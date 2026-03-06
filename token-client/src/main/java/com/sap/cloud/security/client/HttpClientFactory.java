@@ -7,69 +7,45 @@ package com.sap.cloud.security.client;
 
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientIdentity;
-import com.sap.cloud.security.token.ProviderNotFoundException;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.slf4j.LoggerFactory;
-
-import java.security.ProviderException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
 
 /**
- * Represents a {@link CloseableHttpClient} creation interface.
+ * @deprecated Use {@link SecurityHttpClientProvider} instead. This interface is kept for backward compatibility
+ * in the legacy module. The new abstraction {@link SecurityHttpClient} allows switching between different
+ * HTTP client implementations without recompilation.
  */
+@Deprecated(since = "4.0.0", forRemoval = true)
 public interface HttpClientFactory {
 
-	@SuppressWarnings("unchecked")
-	List<HttpClientFactory> services = new ArrayList() {
-		{
-			ServiceLoader.load(HttpClientFactory.class).forEach(this::add);
-			LoggerFactory.getLogger(HttpClientFactory.class).info("loaded HttpClientFactory service providers: {}",
-					this);
-		}
-	};
-
-	String DEFAULT_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.client.DefaultHttpClientFactory";
-
 	/**
-	 * Provides CloseableHttpClient based on ClientIdentity details. For ClientIdentity that is certificate based it
+	 * @deprecated Use {@link SecurityHttpClientProvider#createClient(ClientIdentity)} instead.
+	 *
+	 * Provides SecurityHttpClient based on ClientIdentity details. For ClientIdentity that is certificate based it
 	 * will resolve https client using the provided ClientIdentity, if the ClientIdentity wasn't provided it will return
 	 * default HttpClient.
 	 *
 	 * @param clientIdentity
 	 * 		for X.509 certificate based communication {@link ClientCertificate} implementation of ClientIdentity interface
 	 * 		should be provided
-	 * @return HTTP or HTTPS client
+	 * @return SecurityHttpClient instance
 	 * @throws HttpClientException
 	 * 		in case HTTPS Client could not be setup
 	 */
-	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException;
+	@Deprecated(since = "4.0.0", forRemoval = true)
+	SecurityHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException;
 
 	/**
+	 * @deprecated Use {@link SecurityHttpClientProvider#createClient(ClientIdentity)} instead.
+	 *
 	 * Don't close the HTTPClient when you've provided it to {@code TokenAuthenticator} or {@code XsuaaTokenFlows}
 	 * instance.
 	 *
 	 * @param clientIdentity
 	 * 		to identify the identity provider client.
-	 * @return HTTP or HTTPS client
+	 * @return SecurityHttpClient instance
 	 * @throws HttpClientException
 	 */
-	static CloseableHttpClient create(ClientIdentity clientIdentity) throws HttpClientException {
-		if (services.isEmpty()) {
-			throw new ProviderNotFoundException("No HttpClientFactory service could be found in the classpath");
-		}
-		if (services.size() > 2) {
-			throw new ProviderException(
-					"More than 1 Custom HttpClientFactory service provider found. There should be only one");
-		}
-		if (services.size() == 2) {
-			return services.stream()
-					.filter(httpClientFactory -> !httpClientFactory.getClass().getName()
-							.equals(DEFAULT_HTTP_CLIENT_FACTORY))
-					.findFirst().get().createClient(clientIdentity);
-		}
-		return services.get(0).createClient(clientIdentity);
+	@Deprecated(since = "4.0.0", forRemoval = true)
+	static SecurityHttpClient create(ClientIdentity clientIdentity) throws HttpClientException {
+		return SecurityHttpClientProvider.createClient(clientIdentity);
 	}
-
 }

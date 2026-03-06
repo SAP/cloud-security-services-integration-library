@@ -6,23 +6,20 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import static org.apache.hc.core5.http.HttpHeaders.USER_AGENT;
-
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
-import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.client.HttpClientException;
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpClientProvider;
+import com.sap.cloud.security.client.SecurityHttpRequest;
+import com.sap.cloud.security.client.SecurityHttpResponse;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import com.sap.cloud.security.xsuaa.util.UriUtil;
 import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,17 +30,17 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultOidcConfigurationService implements OidcConfigurationService {
 
-  private final CloseableHttpClient httpClient;
+  private final SecurityHttpClient httpClient;
   private static final Logger LOGGER =
       LoggerFactory.getLogger(DefaultOidcConfigurationService.class);
   private final DefaultTokenClientConfiguration config;
 
-  public DefaultOidcConfigurationService() {
-    this.httpClient = HttpClientFactory.create(null);
+  public DefaultOidcConfigurationService() throws HttpClientException {
+    this.httpClient = SecurityHttpClientProvider.createClient(null);
     this.config = DefaultTokenClientConfiguration.getInstance();
   }
 
-  public DefaultOidcConfigurationService(final CloseableHttpClient httpClient) {
+  public DefaultOidcConfigurationService(final SecurityHttpClient httpClient) {
     Assertions.assertNotNull(httpClient, "httpClient is required");
     this.httpClient = httpClient;
     this.config = DefaultTokenClientConfiguration.getInstance();
@@ -74,37 +71,39 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
 
   private String executeRequest(final URI discoveryEndpointUri, final int attemptsLeft)
       throws OAuth2ServiceException {
-    final HttpGet httpGet = new HttpGet(discoveryEndpointUri);
-    httpGet.addHeader(USER_AGENT, HttpClientUtil.getUserAgent());
+
+    SecurityHttpRequest request = createHttpRequest(discoveryEndpointUri);
     LOGGER.debug(
         "Retrieving configured oidc endpoints: {} with headers {} and {} retries left",
         discoveryEndpointUri,
-        httpGet.getHeaders(),
+        request.getHeaders(),
         attemptsLeft);
+
     try {
-      return httpClient.execute(
-          httpGet,
-          response -> {
-            final int statusCode = response.getCode();
-            final String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            LOGGER.debug("Received statusCode {} from {}", statusCode, discoveryEndpointUri);
-            if (HttpStatus.SC_OK == statusCode) {
-              LOGGER.debug("Successfully retrieved oidc endpoints from {}.", discoveryEndpointUri);
-              return body;
-            } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
-              LOGGER.warn(
-                  "Request failed with status {} but is retryable. Retrying...", statusCode);
-              pauseBeforeNextAttempt(config.getRetryDelayTime());
-              return executeRequest(discoveryEndpointUri, attemptsLeft - 1);
-            }
-            throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
-                .withStatusCode(statusCode)
-                .withUri(discoveryEndpointUri)
-                .withRequestHeaders(getHeadersAsStringArray(httpGet.getHeaders()))
-                .withResponseHeaders(getHeadersAsStringArray(response.getHeaders()))
-                .withResponseBody(body)
-                .build();
-          });
+      SecurityHttpResponse response = httpClient.execute(request);
+      final int statusCode = response.getStatusCode();
+      final String body = response.getBody();
+
+      LOGGER.debug("Received statusCode {} from {}", statusCode, discoveryEndpointUri);
+
+      if (statusCode == 200) {
+        LOGGER.debug("Successfully retrieved oidc endpoints from {}.", discoveryEndpointUri);
+        return body;
+      } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
+        LOGGER.warn(
+            "Request failed with status {} but is retryable. Retrying...", statusCode);
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(discoveryEndpointUri, attemptsLeft - 1);
+      }
+
+      throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
+          .withStatusCode(statusCode)
+          .withUri(discoveryEndpointUri)
+          .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
+          .withResponseHeaders(getHeadersAsStringArray(response.getHeaders()))
+          .withResponseBody(body)
+          .build();
+
     } catch (final IOException e) {
       if (e instanceof final OAuth2ServiceException oAuth2Exception) {
         throw oAuth2Exception;
@@ -112,16 +111,29 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
         throw OAuth2ServiceException.builder(
                 "Error retrieving configured oidc endpoints: " + e.getMessage())
             .withUri(discoveryEndpointUri)
-            .withRequestHeaders(getHeadersAsStringArray(httpGet.getHeaders()))
+            .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
             .withResponseBody(e.getMessage())
             .build();
       }
     }
   }
 
-  private static String[] getHeadersAsStringArray(final Header[] headers) {
+  private SecurityHttpRequest createHttpRequest(final URI discoveryEndpointUri) {
+    Map<String, String> headers = new HashMap<>();
+    headers.put("User-Agent", HttpClientUtil.getUserAgent());
+
+    return SecurityHttpRequest.newBuilder()
+        .method("GET")
+        .uri(discoveryEndpointUri)
+        .headers(headers)
+        .build();
+  }
+
+  private static String[] getHeadersAsStringArray(final Map<String, String> headers) {
     return headers != null
-        ? Arrays.stream(headers).map(Header::toString).toArray(String[]::new)
+        ? headers.entrySet().stream()
+            .map(e -> e.getKey() + ": " + e.getValue())
+            .toArray(String[]::new)
         : new String[0];
   }
 

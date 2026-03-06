@@ -9,24 +9,19 @@ package com.sap.cloud.security.xsuaa.client;
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
 
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
-import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.client.HttpClientException;
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpClientProvider;
+import com.sap.cloud.security.client.SecurityHttpRequest;
+import com.sap.cloud.security.client.SecurityHttpResponse;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import jakarta.annotation.Nonnull;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,15 +30,15 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
   private static final String SUCCESS_MESSAGE =
       "Successfully retrieved token keys from {} with params {}.";
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultOAuth2TokenKeyService.class);
-  private final CloseableHttpClient httpClient;
+  private final SecurityHttpClient httpClient;
   private final DefaultTokenClientConfiguration config;
 
-  public DefaultOAuth2TokenKeyService() {
-    httpClient = HttpClientFactory.create(null);
+  public DefaultOAuth2TokenKeyService() throws HttpClientException {
+    httpClient = SecurityHttpClientProvider.createClient(null);
     config = DefaultTokenClientConfiguration.getInstance();
   }
 
-  public DefaultOAuth2TokenKeyService(@Nonnull final CloseableHttpClient httpClient) {
+  public DefaultOAuth2TokenKeyService(@Nonnull final SecurityHttpClient httpClient) {
     Assertions.assertNotNull(httpClient, "httpClient is required");
     this.httpClient = httpClient;
     config = DefaultTokenClientConfiguration.getInstance();
@@ -61,58 +56,64 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
   private String executeRequest(
       final URI tokenKeysEndpointUri, final Map<String, String> params, final int attemptsLeft)
       throws OAuth2ServiceException {
-    final HttpUriRequest httpUriRequest = getHttpUriRequest(tokenKeysEndpointUri, params);
+
+    SecurityHttpRequest request = createHttpRequest(tokenKeysEndpointUri, params);
     LOGGER.debug(
         "Executing token key retrieval GET request to {} with headers: {} and {} retries left",
         tokenKeysEndpointUri,
-        httpUriRequest.getHeaders(),
+        request.getHeaders(),
         attemptsLeft);
+
     try {
-      return httpClient.execute(
-          httpUriRequest,
-          response -> {
-            final int statusCode = response.getCode();
-            final String body = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
-            LOGGER.debug("Received statusCode {} from {}", statusCode, tokenKeysEndpointUri);
-            if (HttpStatus.SC_OK == statusCode) {
-              LOGGER.debug(SUCCESS_MESSAGE, tokenKeysEndpointUri, params);
-              handleServicePlanFromResponse(response);
-              return body;
-            } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
-              LOGGER.warn(
-                  "Request failed with status {} but is retryable. Retrying...", statusCode);
-              pauseBeforeNextAttempt(config.getRetryDelayTime());
-              return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
-            }
-            throw OAuth2ServiceException.builder("Error retrieving token keys.")
-                .withUri(tokenKeysEndpointUri)
-                .withResponseHeaders(getHeadersAsStringArray(response.getHeaders()))
-                .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getHeaders()))
-                .withStatusCode(statusCode)
-                .withResponseBody(body)
-                .build();
-          });
+      SecurityHttpResponse response = httpClient.execute(request);
+      final int statusCode = response.getStatusCode();
+      final String body = response.getBody();
+
+      LOGGER.debug("Received statusCode {} from {}", statusCode, tokenKeysEndpointUri);
+
+      if (statusCode == 200) {
+        LOGGER.debug(SUCCESS_MESSAGE, tokenKeysEndpointUri, params);
+        handleServicePlanFromResponse(response);
+        return body;
+      } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
+        LOGGER.warn(
+            "Request failed with status {} but is retryable. Retrying...", statusCode);
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
+      }
+
+      throw OAuth2ServiceException.builder("Error retrieving token keys.")
+          .withUri(tokenKeysEndpointUri)
+          .withResponseHeaders(getHeadersAsStringArray(response.getHeaders()))
+          .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
+          .withStatusCode(statusCode)
+          .withResponseBody(body)
+          .build();
+
     } catch (final IOException e) {
       if (e instanceof final OAuth2ServiceException oAuth2Exception) {
         throw oAuth2Exception;
       } else {
         throw OAuth2ServiceException.builder("Error retrieving token keys: " + e.getMessage())
             .withUri(tokenKeysEndpointUri)
-            .withRequestHeaders(getHeadersAsStringArray(httpUriRequest.getHeaders()))
+            .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
             .withResponseBody(e.getMessage())
             .build();
       }
     }
   }
 
-  private HttpUriRequest getHttpUriRequest(
+  private SecurityHttpRequest createHttpRequest(
       final URI tokenKeysEndpointUri, final Map<String, String> params) {
-    final HttpUriRequest request = new HttpGet(tokenKeysEndpointUri);
-    for (final Map.Entry<String, String> p : params.entrySet()) {
-      request.addHeader(p.getKey(), p.getValue());
-    }
-    request.addHeader(HttpHeaders.USER_AGENT, HttpClientUtil.getUserAgent());
-    return request;
+
+    Map<String, String> headers = new HashMap<>(params);
+    headers.put("User-Agent", HttpClientUtil.getUserAgent());
+
+    return SecurityHttpRequest.newBuilder()
+        .method("GET")
+        .uri(tokenKeysEndpointUri)
+        .headers(headers)
+        .build();
   }
 
   private void pauseBeforeNextAttempt(final long sleepTime) {
@@ -124,21 +125,21 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
     }
   }
 
-  private void handleServicePlanFromResponse(final HttpResponse response) {
+  private void handleServicePlanFromResponse(final SecurityHttpResponse response) {
     /* This is required for Identity Service App2Service communication. When proof token validation is enabled,
     the response can contain an Identity Service broker plan header whose content needs to be accessible
     on the SecurityContext. */
-    if (response.containsHeader(X_OSB_PLAN)) {
-      final String xOsbPlan = response.getFirstHeader(X_OSB_PLAN).getValue();
-      if (xOsbPlan != null) {
-        SecurityContext.setServicePlans(xOsbPlan);
-      }
+    String xOsbPlan = response.getHeader(X_OSB_PLAN);
+    if (xOsbPlan != null) {
+      SecurityContext.setServicePlans(xOsbPlan);
     }
   }
 
-  private static String[] getHeadersAsStringArray(final org.apache.hc.core5.http.Header[] headers) {
+  private static String[] getHeadersAsStringArray(final Map<String, String> headers) {
     return headers != null
-        ? Arrays.stream(headers).map(Header::toString).toArray(String[]::new)
+        ? headers.entrySet().stream()
+            .map(e -> e.getKey() + ": " + e.getValue())
+            .toArray(String[]::new)
         : new String[0];
   }
 }
