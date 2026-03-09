@@ -134,7 +134,7 @@ class XsuaaTokenCompTest {
 	@Test
 	@SuppressWarnings("deprecation")
 	void getSubaccountIdFromSystemAttributes() {
-		assertThat(XsuaaTokenComp.createInstance(tokenSAML).getZoneId()).isEqualTo("test-subaccount");
+		assertThat(XsuaaTokenComp.createInstance(tokenSAML).getSubaccountId()).isEqualTo("test-subaccount");
 	}
 
 	@Test
@@ -212,9 +212,7 @@ class XsuaaTokenCompTest {
 		jwtGenerator.withClaimValue(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE, extAttr);
 
 		token = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		Map<String, Object> externalAttributes = token.getClaimAsMap(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE);
-		assertThat(externalAttributes).isNotNull();
-		assertThat(externalAttributes.get("zdn")).isEqualTo("testsubdomain");
+		assertThat(token.getSubdomain()).isEqualTo("testsubdomain");
 	}
 
 	@Test
@@ -223,14 +221,10 @@ class XsuaaTokenCompTest {
 		Map<String, String> addAuthAttr = new HashMap<>();
 		addAuthAttr.put("external_group", "domain\\group1");
 		addAuthAttr.put("external_id", "ext-id-abcd1234");
-		Token tokenWithoutExtAttr = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		Map<String, Object> externalAttributes1 = tokenWithoutExtAttr.getClaimAsMap(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE);
-		assertThat(externalAttributes1 == null || !externalAttributes1.containsKey("zdn")).isTrue();
+		assertThat(XsuaaTokenComp.createInstance(jwtGenerator.createToken()).getSubdomain()).isNull();
 
 		jwtGenerator.withClaimValue("az_attr", addAuthAttr);
-		Token tokenWithAzAttrOnly = XsuaaTokenComp.createInstance(jwtGenerator.createToken());
-		Map<String, Object> externalAttributes2 = tokenWithAzAttrOnly.getClaimAsMap(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE);
-		assertThat(externalAttributes2 == null || !externalAttributes2.containsKey("zdn")).isTrue();
+		assertThat(XsuaaTokenComp.createInstance(jwtGenerator.createToken()).getSubdomain()).isNull();
 	}
 
 	@Test
