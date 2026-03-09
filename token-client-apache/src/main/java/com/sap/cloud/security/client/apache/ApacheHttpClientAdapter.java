@@ -49,7 +49,7 @@ public class ApacheHttpClientAdapter implements SecurityHttpClient {
 		});
 	}
 
-	private HttpUriRequest committ (SecurityHttpRequest request) throws HttpClientException {
+	private HttpUriRequest createHttpRequest (SecurityHttpRequest request) throws HttpClientException {
 		HttpRequestBase httpRequest;
 
 		switch (request.getMethod().toUpperCase()) {
