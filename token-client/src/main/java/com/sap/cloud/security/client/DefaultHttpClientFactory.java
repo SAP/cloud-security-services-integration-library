@@ -9,7 +9,7 @@ import com.sap.cloud.security.config.ClientIdentity;
 
 /**
  * @deprecated Use {@link SecurityHttpClientProvider} with {@link JavaHttpClientFactory}
- * or {@link com.sap.cloud.security.client.apache.ApacheHttpClientFactory} instead.
+ * or {@code com.sap.cloud.security.client.apache.ApacheHttpClientFactory} instead.
  * This class is kept for backward compatibility in the legacy module.
  */
 @Deprecated(since = "4.0.0", forRemoval = true)
