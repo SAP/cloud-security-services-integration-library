@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Copied from {@code com.sap.cloud.security.xsuaa.token.XsuaaTokenTest}.
  */
+@SuppressWarnings("deprecation")
 class XsuaaTokenCompTest {
 	private static final String CLAIM_USER_NAME = "user_name";
 	private com.sap.cloud.security.xsuaa.token.Token token;
