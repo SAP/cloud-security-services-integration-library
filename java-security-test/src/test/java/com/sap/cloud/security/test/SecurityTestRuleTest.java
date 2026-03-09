@@ -33,11 +33,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -65,8 +63,7 @@ public class SecurityTestRuleTest {
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
-		try (CloseableHttpClient client = HttpClients.createDefault();
-			 ClassicHttpResponse response = client.execute(httpGet, httpResponse -> (ClassicHttpResponse) httpResponse)) {
+		try (ClassicHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
 
 			String expEncodedKey = Base64.getEncoder()
 					.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());

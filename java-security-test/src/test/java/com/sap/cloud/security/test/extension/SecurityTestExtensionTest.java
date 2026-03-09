@@ -57,14 +57,13 @@ class SecurityTestExtensionTest {
 	@SuppressWarnings("deprecation")
 	public void addingStubIsPossibleAfterSetup(SecurityTestContext context) throws IOException {
 		String url = context.getWireMockServer().baseUrl() + "/testing";
+		CloseableHttpClient httpClient = HttpClients.createDefault();
 
 		context.getWireMockServer()
 				.stubFor(get(urlEqualTo("/testing"))
 						.willReturn(aResponse().withBody("OK")));
 
-		try (CloseableHttpClient httpClient = HttpClients.createDefault();
-			 ClassicHttpResponse response = httpClient.execute(new HttpGet(url),
-					 classicHttpResponse -> classicHttpResponse)) {
+		try (ClassicHttpResponse response = httpClient.execute(new HttpGet(url))) {
 			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 			String responseBody = readBody(response);
 			assertThat(responseBody).isEqualTo("OK");
