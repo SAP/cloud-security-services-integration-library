@@ -166,7 +166,7 @@ public class SecurityTestRuleTest {
 		@SuppressWarnings("deprecation")
 		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
 			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
-			try (ClassicHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			try (ClassicHttpResponse response = HttpClients.createDefault().executeOpen(httpGet, null)) {
 				assertThat(response.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 			}
 			Mockito.verify(mockServlet, Mockito.times(0)).service(any(), any());
