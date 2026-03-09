@@ -49,11 +49,13 @@ public class JavaSecurityContextHolderStrategy implements SecurityContextHolderS
 
 	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
 
+	@Override
 	public void clearContext() {
 		contextHolder.remove();
 		com.sap.cloud.security.token.SecurityContext.clear();
 	}
 
+	@Override
 	public SecurityContext getContext() {
 		SecurityContext context = contextHolder.get();
 		if (context == null) {
@@ -63,6 +65,7 @@ public class JavaSecurityContextHolderStrategy implements SecurityContextHolderS
 		return context;
 	}
 
+	@Override
 	public void setContext(SecurityContext context) {
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
 		contextHolder.set(context);
@@ -76,6 +79,7 @@ public class JavaSecurityContextHolderStrategy implements SecurityContextHolderS
 		}
 	}
 
+	@Override
 	public SecurityContext createEmptyContext() {
 		return new SecurityContextImpl();
 	}

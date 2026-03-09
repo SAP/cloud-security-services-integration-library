@@ -131,6 +131,7 @@ class XsuaaTokenCompTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	void getSubaccountIdFromSystemAttributes() {
 		assertThat(XsuaaTokenComp.createInstance(tokenSAML).getSubaccountId()).isEqualTo("test-subaccount");
 	}
@@ -202,6 +203,7 @@ class XsuaaTokenCompTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	void getSubdomainFromExtAttr() {
 		Map<String, String> extAttr = new HashMap<>();
 		extAttr.put("serviceinstanceid", "abcd1234");
@@ -213,6 +215,7 @@ class XsuaaTokenCompTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	void getSubdomainFails() {
 		Map<String, String> addAuthAttr = new HashMap<>();
 		addAuthAttr.put("external_group", "domain\\group1");

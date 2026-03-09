@@ -54,6 +54,7 @@ class SecurityTestExtensionTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void addingStubIsPossibleAfterSetup(SecurityTestContext context) throws IOException {
 		String url = context.getWireMockServer().baseUrl() + "/testing";
 		CloseableHttpClient httpClient = HttpClients.createDefault();

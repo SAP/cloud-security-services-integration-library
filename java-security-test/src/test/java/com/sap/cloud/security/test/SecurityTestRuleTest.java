@@ -58,6 +58,7 @@ public class SecurityTestRuleTest {
 			.addApplicationServlet(TestServlet.class, "/hi");
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 
@@ -162,6 +163,7 @@ public class SecurityTestRuleTest {
 				.addApplicationServlet(new ServletHolder(mockServlet), "/");
 
 		@Test
+		@SuppressWarnings("deprecation")
 		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
 			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
 			try (ClassicHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
