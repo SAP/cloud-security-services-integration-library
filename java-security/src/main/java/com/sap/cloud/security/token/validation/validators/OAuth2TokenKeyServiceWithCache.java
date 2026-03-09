@@ -9,6 +9,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.config.CacheConfiguration;
+import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
@@ -167,7 +168,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		}
 
 		if (jwks.getAll().isEmpty()) {
-			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", keyParameters.keyUri);
+			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", LogSanitizer.sanitize(keyParameters.keyUri));
 			return null;
 		}
 

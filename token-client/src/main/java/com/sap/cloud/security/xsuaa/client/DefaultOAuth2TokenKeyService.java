@@ -15,6 +15,7 @@ import com.sap.cloud.security.client.SecurityHttpClientProvider;
 import com.sap.cloud.security.client.SecurityHttpRequest;
 import com.sap.cloud.security.client.SecurityHttpResponse;
 import com.sap.cloud.security.token.SecurityContext;
+import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import java.io.IOException;
@@ -49,8 +50,25 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
       @Nonnull final URI tokenKeysEndpointUri, final Map<String, String> params)
       throws OAuth2ServiceException {
     Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
+    validateUri(tokenKeysEndpointUri);
     return executeRequest(
         tokenKeysEndpointUri, params, config.isRetryEnabled() ? config.getMaxRetryAttempts() : 0);
+  }
+
+  private void validateUri(final URI uri) throws OAuth2ServiceException {
+    String scheme = uri.getScheme();
+    if (scheme == null || (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http"))) {
+      throw OAuth2ServiceException.builder("Invalid URI scheme. Only HTTP/HTTPS are allowed.")
+          .withUri(uri)
+          .build();
+    }
+
+    String host = uri.getHost();
+    if (host == null || host.isEmpty()) {
+      throw OAuth2ServiceException.builder("Invalid URI: missing host.")
+          .withUri(uri)
+          .build();
+    }
   }
 
   private String executeRequest(
@@ -60,8 +78,8 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
     SecurityHttpRequest request = createHttpRequest(tokenKeysEndpointUri, params);
     LOGGER.debug(
         "Executing token key retrieval GET request to {} with headers: {} and {} retries left",
-        tokenKeysEndpointUri,
-        request.getHeaders(),
+        LogSanitizer.sanitize(tokenKeysEndpointUri),
+        LogSanitizer.sanitize(request.getHeaders()),
         attemptsLeft);
 
     try {
@@ -69,10 +87,10 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
       final int statusCode = response.getStatusCode();
       final String body = response.getBody();
 
-      LOGGER.debug("Received statusCode {} from {}", statusCode, tokenKeysEndpointUri);
+      LOGGER.debug("Received statusCode {} from {}", statusCode, LogSanitizer.sanitize(tokenKeysEndpointUri));
 
       if (statusCode == 200) {
-        LOGGER.debug(SUCCESS_MESSAGE, tokenKeysEndpointUri, params);
+        LOGGER.debug(SUCCESS_MESSAGE, LogSanitizer.sanitize(tokenKeysEndpointUri), LogSanitizer.sanitize(params));
         handleServicePlanFromResponse(response);
         return body;
       } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {

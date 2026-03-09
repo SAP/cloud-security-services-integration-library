@@ -9,6 +9,7 @@ package com.sap.cloud.security.xsuaa.client;
 import static org.springframework.http.HttpMethod.GET;
 
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
 import jakarta.annotation.Nonnull;
@@ -42,8 +43,25 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
       @Nonnull final URI tokenKeysEndpointUri, final Map<String, String> params)
       throws OAuth2ServiceException {
     Assertions.assertNotNull(tokenKeysEndpointUri, "Token key endpoint must not be null!");
+    validateUri(tokenKeysEndpointUri);
     return executeRequest(
         tokenKeysEndpointUri, params, config.isRetryEnabled() ? config.getMaxRetryAttempts() : 0);
+  }
+
+  private void validateUri(final URI uri) throws OAuth2ServiceException {
+    String scheme = uri.getScheme();
+    if (scheme == null || (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http"))) {
+      throw OAuth2ServiceException.builder("Invalid URI scheme. Only HTTP/HTTPS are allowed.")
+          .withUri(uri)
+          .build();
+    }
+
+    String host = uri.getHost();
+    if (host == null || host.isEmpty()) {
+      throw OAuth2ServiceException.builder("Invalid URI: missing host.")
+          .withUri(uri)
+          .build();
+    }
   }
 
   private String executeRequest(
@@ -52,8 +70,8 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
     final HttpHeaders headers = getHttpHeaders(params);
     LOGGER.debug(
         "Requesting access token from url='{}' with headers={} and {} retries left",
-        tokenKeysEndpointUri,
-        headers,
+        LogSanitizer.sanitize(tokenKeysEndpointUri),
+        LogSanitizer.sanitize(headers.toSingleValueMap()),
         attemptsLeft);
     try {
       final ResponseEntity<String> responseEntity =
@@ -64,8 +82,8 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
       if (HttpStatus.OK.value() == statusCode) {
         LOGGER.debug(
             "Successfully retrieved token keys from {} for params '{}'",
-            tokenKeysEndpointUri,
-            params);
+            LogSanitizer.sanitize(tokenKeysEndpointUri),
+            LogSanitizer.sanitize(params));
         return responseEntity.getBody();
       } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
         LOGGER.warn("Request failed with status {} but is retryable. Retrying...", statusCode);

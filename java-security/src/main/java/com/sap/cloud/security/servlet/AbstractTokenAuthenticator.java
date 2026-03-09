@@ -18,6 +18,7 @@ import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.ServletRequest;
@@ -154,7 +155,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	TokenAuthenticationResult unauthenticated(String message) {
-		logger.warn("Request could not be authenticated: {}.", message);
+		logger.warn("Request could not be authenticated: {}.", LogSanitizer.sanitize(message));
 		return TokenAuthenticatorResult.createUnauthenticated(message);
 	}
 
