@@ -28,6 +28,9 @@ class JavaHttpClientAdapter implements SecurityHttpClient {
 
 	@Override
 	public SecurityHttpResponse execute(SecurityHttpRequest request) throws IOException {
+		// Validate URI to prevent SSRF attacks
+		validateUri(request.getUri());
+
 		try {
 			HttpRequest.Builder builder = HttpRequest.newBuilder()
 					.uri(request.getUri())
@@ -65,6 +68,28 @@ class JavaHttpClientAdapter implements SecurityHttpClient {
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
 			throw new IOException("Request was interrupted", e);
+		}
+	}
+
+	/**
+	 * Validates the URI to prevent SSRF attacks by ensuring it uses a safe scheme and has a valid host.
+	 *
+	 * @param uri the URI to validate
+	 * @throws HttpClientException if the URI is invalid or uses an unsafe scheme
+	 */
+	private void validateUri(java.net.URI uri) throws HttpClientException {
+		if (uri == null) {
+			throw new HttpClientException("URI cannot be null");
+		}
+
+		String scheme = uri.getScheme();
+		if (scheme == null || (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http"))) {
+			throw new HttpClientException("Invalid URI scheme. Only HTTP/HTTPS are allowed: " + uri);
+		}
+
+		String host = uri.getHost();
+		if (host == null || host.isEmpty()) {
+			throw new HttpClientException("Invalid URI: missing host: " + uri);
 		}
 	}
 

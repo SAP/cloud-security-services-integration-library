@@ -10,6 +10,7 @@ import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.client.SecurityHttpRequest;
 import com.sap.cloud.security.client.SecurityHttpResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +51,9 @@ public class ApacheHttpClientAdapter implements SecurityHttpClient {
 	}
 
 	private HttpUriRequest createHttpRequest (SecurityHttpRequest request) throws HttpClientException {
+		// Validate URI to prevent SSRF attacks
+		validateUri(request.getUri());
+
 		HttpRequestBase httpRequest;
 
 		switch (request.getMethod().toUpperCase()) {
@@ -84,6 +88,28 @@ public class ApacheHttpClientAdapter implements SecurityHttpClient {
 		request.getHeaders().forEach(httpRequest::addHeader);
 
 		return httpRequest;
+	}
+
+	/**
+	 * Validates the URI to prevent SSRF attacks by ensuring it uses a safe scheme and has a valid host.
+	 *
+	 * @param uri the URI to validate
+	 * @throws HttpClientException if the URI is invalid or uses an unsafe scheme
+	 */
+	private void validateUri(URI uri) throws HttpClientException {
+		if (uri == null) {
+			throw new HttpClientException("URI cannot be null");
+		}
+
+		String scheme = uri.getScheme();
+		if (scheme == null || (!scheme.equalsIgnoreCase("https") && !scheme.equalsIgnoreCase("http"))) {
+			throw new HttpClientException("Invalid URI scheme. Only HTTP/HTTPS are allowed: " + uri);
+		}
+
+		String host = uri.getHost();
+		if (host == null || host.isEmpty()) {
+			throw new HttpClientException("Invalid URI: missing host: " + uri);
+		}
 	}
 
 	@Override

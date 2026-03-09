@@ -13,6 +13,7 @@ import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.client.SecurityHttpRequest;
 import com.sap.cloud.security.client.SecurityHttpResponse;
 import com.sap.cloud.security.servlet.MDCHelper;
+import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
@@ -74,7 +75,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
     SecurityHttpRequest request = createHttpRequest(tokenUri, createRequestHeaders(headers), parameters);
     LOGGER.debug(
         "Requesting access token from url {} with headers {} and {} retries left",
-        tokenUri,
+        LogSanitizer.sanitize(tokenUri),
         headers,
         attemptsLeft);
 
@@ -83,13 +84,13 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
       final int statusCode = response.getStatusCode();
       final String body = response.getBody();
 
-      LOGGER.debug("Received statusCode {} from {}", statusCode, tokenUri);
+      LOGGER.debug("Received statusCode {} from {}", statusCode, LogSanitizer.sanitize(tokenUri));
 
       if (statusCode == 200) {
         LOGGER.debug(
             "Successfully retrieved access token from {} with params {}.",
-            tokenUri,
-            parameters);
+            LogSanitizer.sanitize(tokenUri),
+            LogSanitizer.sanitize(parameters));
         return body;
       } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
         LOGGER.warn(
