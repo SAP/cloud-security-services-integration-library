@@ -96,12 +96,6 @@
             <version>${junit-jupiter.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.sap.cloud.security.xsuaa</groupId>
-            <artifactId>spring-xsuaa</artifactId>
-            <scope>test</scope>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>spring-security</artifactId>
             <scope>test</scope>
