@@ -13,6 +13,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.HttpClientResponseHandler;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -63,7 +64,8 @@ class SecurityTestExtensionTest {
 				.stubFor(get(urlEqualTo("/testing"))
 						.willReturn(aResponse().withBody("OK")));
 
-		try (ClassicHttpResponse response = httpClient.execute(new HttpGet(url))) {
+		try (ClassicHttpResponse response = httpClient.execute(new HttpGet(url),
+				(HttpClientResponseHandler<ClassicHttpResponse>) classicHttpResponse -> classicHttpResponse)) {
 			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 			String responseBody = readBody(response);
 			assertThat(responseBody).isEqualTo("OK");
