@@ -80,7 +80,7 @@ public class HybridIdentityServicesProofTokenAutoConfiguration {
 				IdentityServiceConfiguration identityConfig) {
 			LOGGER.debug("auto-configures HybridJwtDecoder with proofToken check enabled.");
       SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
-      SecurityContext.registerXsuaaTokenExtension(getDefaultXSUAATokenExtension(identityConfig));
+      SecurityContext.registerXsuaaTokenExtension(getDefaultXSUAATokenExtension(xsuaaConfig));
       TokenExchangeMode mode = TokenExchangeMode.fromString(tokenExchangeMode);
       return new JwtDecoderBuilder()
           .withIasServiceConfiguration(identityConfig)
