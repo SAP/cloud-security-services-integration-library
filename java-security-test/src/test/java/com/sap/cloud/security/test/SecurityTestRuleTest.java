@@ -63,7 +63,7 @@ public class SecurityTestRuleTest {
 			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 
 		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
-		try (ClassicHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+		try (ClassicHttpResponse response = HttpClients.createDefault().executeOpen(null, httpGet, null)) {
 			String expEncodedKey = Base64.getEncoder()
 					.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
 
@@ -166,7 +166,7 @@ public class SecurityTestRuleTest {
 		@SuppressWarnings("deprecation")
 		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
 			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
-			try (ClassicHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+			try (ClassicHttpResponse response = HttpClients.createDefault().executeOpen(null, httpGet, null)) {
 				assertThat(response.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
 			}
 			Mockito.verify(mockServlet, Mockito.times(0)).service(any(), any());

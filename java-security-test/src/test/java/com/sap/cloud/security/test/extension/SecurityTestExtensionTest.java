@@ -63,7 +63,7 @@ class SecurityTestExtensionTest {
 				.stubFor(get(urlEqualTo("/testing"))
 						.willReturn(aResponse().withBody("OK")));
 
-		try (ClassicHttpResponse response = httpClient.execute(new HttpGet(url))) {
+		try (ClassicHttpResponse response = httpClient.executeOpen(null, new HttpGet(url), null)) {
 			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
 			String responseBody = readBody(response);
 			assertThat(responseBody).isEqualTo("OK");
