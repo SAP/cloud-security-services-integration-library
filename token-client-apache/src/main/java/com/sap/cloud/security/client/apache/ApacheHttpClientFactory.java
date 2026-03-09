@@ -10,6 +10,7 @@ import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.client.SecurityHttpClientFactory;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.mtls.SSLContextFactory;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
@@ -42,10 +43,11 @@ public class ApacheHttpClientFactory implements SecurityHttpClientFactory {
 	private static final int MAX_CONNECTIONS = 200;
 
 	private final ConcurrentHashMap<String, SslConnection> sslConnectionPool = new ConcurrentHashMap<>();
-	private final org.apache.http.client.config.RequestConfig requestConfig;
+	private final RequestConfig requestConfig;
 
+	@SuppressWarnings("deprecation")
 	public ApacheHttpClientFactory() {
-		requestConfig = org.apache.http.client.config.RequestConfig.custom()
+		requestConfig = RequestConfig.custom()
 				.setConnectTimeout(DEFAULT_TIMEOUT)
 				.setConnectionRequestTimeout(DEFAULT_TIMEOUT)
 				.setSocketTimeout(DEFAULT_SOCKET_TIMEOUT)
