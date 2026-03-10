@@ -15,7 +15,8 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
 > Note: The **Authorization Code Grant Flow** requires a browser and is typically initiated by an API gateway, such as an Application Router. However, other flows might need to be triggered programmatically, such as swapping one token for another or refreshing a token prior to its expiration. When creating an Xsuaa service instance, an OAuth client is generated, and the client Identity (client ID and secret or client certificate and key) are supplied when you bind your application to the Xsuaa service instance. With these elements in place, you can leverage the token flows in your Java application.
 
 ## Requirements
-- [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
+- Java 11 or higher (for the default HTTP client implementation)
+- Optional: Any HTTP client library if you need custom configuration (see [Custom HTTP Client Integration](CUSTOM_HTTP_CLIENT.md))
 
 ## Table of Contents
 1. [Setup](#setup)
@@ -222,27 +223,24 @@ To utilize an **externally managed certificate** in
 ### HttpClientFactory
 `HttpClientFactory` creates an HTTP client that will make the requests to the corresponding Identity service.
 
-#### Autoconfigured tokenFlowHttpClient
-When using `resourceserver-security-spring-boot-starter` Spring Boot Starter client library, a readily configured `CloseableHttpClient` is accessible via `tokenFlowHttpClient` Bean that uses the `HttpClientFactory` internally to set up the HTTP Client for token flows.
+#### Autoconfigured SecurityHttpClient
+When using `resourceserver-security-spring-boot-starter` Spring Boot Starter client library, a readily configured `SecurityHttpClient` is accessible via autowiring that uses Java 11's HttpClient by default.
 
-#### Default HttpClientFactory
-The Token Client library includes a default implementation [DefaultHttpClientFactory](./src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java), of the [HttpClientFactory](./src/main/java/com/sap/cloud/security/client/HttpClientFactory.java) interface. 
-It creates a preconfigured [Apache HttpClient 4](https://hc.apache.org/httpcomponents-client-4.5.x/index.html) with the given [ClientIdentity](../java-api/src/main/java/com/sap/cloud/security/config/ClientIdentity.java) for the Identity service instance.
+#### Default SecurityHttpClient
+The Token Client library uses Java 11's HttpClient as the default HTTP client implementation through [JavaHttpClientFactory](./src/main/java/com/sap/cloud/security/client/JavaHttpClientFactory.java).
+It creates a preconfigured HTTP client with the given [ClientIdentity](../java-api/src/main/java/com/sap/cloud/security/config/ClientIdentity.java) for the Identity service instance.
 
 To acquire the HTTP client, use the following code:
 ```java
-CloseableHttpClient client = HttpClientFactory.createClient(ClientIdentity clientIdentity); // you can obtain ClientIdentity by invoking the OAuthServiceConfiguration.getClientIdentity() method
+SecurityHttpClient client = SecurityHttpClientProvider.createClient(clientIdentity); // you can obtain ClientIdentity by invoking the OAuthServiceConfiguration.getClientIdentity() method
 ```
 
-`DefaultHttpClientFactory` HTTP Clients are configured in the following way:
-- connection pool
-    - maximum of 200 total connections
-    - 50 connections per route.
-- connection and connection request timeouts -  5 seconds
-- socket timeout 30 seconds
+The default `JavaHttpClientFactory` HTTP Clients are configured with:
+- Connect timeout: 5 seconds
+- Socket timeout: 30 seconds
+- Redirect handling: disabled
 
-:information_source: These values are intended as an initial configuration, and you should monitor your application's performance and provide your own `HttpClientFactory` implementation, if you observe performance degradation.
-For more information, refer to the [Troubleshooting](#insufficient-performance-for-token-validations-or-token-flows) section.
+:information_source: These values are intended as an initial configuration. If you need custom HTTP client configuration (proxy, custom timeouts, connection pooling, etc.), refer to the [Custom HTTP Client Integration](CUSTOM_HTTP_CLIENT.md) guide.
 
 ### Cache Configuration
 

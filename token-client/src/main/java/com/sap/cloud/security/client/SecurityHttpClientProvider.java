@@ -64,7 +64,7 @@ public class SecurityHttpClientProvider {
 				.max(Comparator.comparingInt(SecurityHttpClientFactory::getPriority))
 				.orElseThrow(() -> new HttpClientException(
 						"No SecurityHttpClientFactory implementation found. " +
-								"Add token-client-apache to classpath or ensure Java 11+ HttpClient is available."));
+								"Ensure Java 11+ HttpClient is available."));
 	}
 
 	/**

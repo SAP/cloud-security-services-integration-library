@@ -25,8 +25,8 @@ public interface SecurityHttpClientFactory {
 
 	/**
 	 * Returns the priority of this factory. Higher values indicate higher priority.
-	 * The default Java 11 HttpClient implementation should return 0.
-	 * Third-party implementations (like Apache HttpClient) should return higher values.
+	 * The default Java 11 HttpClient implementation returns 0.
+	 * Custom implementations can return higher values to override the default.
 	 *
 	 * @return the priority (default implementations should return 0)
 	 */

@@ -50,8 +50,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.6.7</sap.cloud.security.version>
+		<sap.cloud.security.version>4.0.0</sap.cloud.security.version>
 		<spring.boot.version>3.5.3</spring.boot.version>
+		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 	</properties>
 
 	<dependencyManagement>
