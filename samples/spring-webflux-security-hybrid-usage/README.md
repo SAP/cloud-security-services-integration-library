@@ -1,7 +1,33 @@
-# SAP BTP Spring Security Client Library Webflux sample application
-This Spring Boot sample application is build with the `spring-webflux` framework and is protected by the
+# SAP BTP Spring Security Client Library Webflux sample application (Legacy Module)
+This Spring Boot sample application is built with the `spring-webflux` framework and is protected by the
 `spring-security-oauth2-resource-server`.
-It uses the `spring-security` module to validate JWT tokens issued by either the `xsuaa` or the `identity` service.
+
+**This sample showcases the `spring-security-legacy-module`**, which provides backward compatibility for applications still using **Spring Boot 3.x** while the main library has moved to Spring Boot 4.x.
+
+## About the Legacy Module
+
+The `spring-security-legacy-module` is designed for customers who:
+- Cannot immediately upgrade to Spring Boot 4.x
+- Want to use the latest security fixes from version 4.0.0
+- Need time to plan their Spring Boot 4.x migration
+
+This module uses the same core security features but is compatible with:
+- **Spring Boot 3.5.9** (instead of 4.x)
+- **Spring Framework 6.2.x** (instead of 7.x)
+- **Spring Security 6.5.x** (instead of 7.x)
+
+## Key Differences from Main Module
+
+| Aspect | Main Module (`spring-security`) | Legacy Module (`spring-security-legacy-module`) |
+|--------|--------------------------------|------------------------------------------------|
+| Spring Boot | 4.0.3 | 3.5.9 |
+| Spring Framework | 7.0.5 | 6.2.15 |
+| Spring Security | 7.0.3 | 6.5.7 |
+| Target | New applications | Existing apps on Spring Boot 3.x |
+
+## Usage
+
+This sample uses the `spring-security-legacy-module` to validate JWT tokens issued by either the `xsuaa` or the `identity` service.
 The `xsuaa` service provides an OAuth access token, while the `identity` service provides an OIDC token.
 The tokens differ in the details they provide through token claims.
 In both instances, the validated token is accessible as a [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the `ReactiveSecurityContext`.

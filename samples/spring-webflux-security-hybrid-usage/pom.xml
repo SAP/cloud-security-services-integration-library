@@ -15,10 +15,10 @@
     <groupId>com.sap.cloud.security.samples</groupId>
     <artifactId>spring-webflux-security-hybrid-usage</artifactId>
     <version>4.0.0</version>
-    <name>spring-webflux-security-hybrid-usage</name>
+    <name>spring-webflux-security-hybrid-usage-legacy</name>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
-    <description>Java Spring webflux security hybrid usage sample</description>
+    <description>Java Spring webflux security hybrid usage sample using spring-security-legacy-module (Spring Boot 3.x compatibility)</description>
 
     <organization>
         <name>SAP SE</name>
@@ -49,8 +49,8 @@
     </scm>
     <properties>
         <java.version>17</java.version>
-        <sap.cloud.security.version>3.6.7</sap.cloud.security.version>
-        <spring.boot.version>3.5.3</spring.boot.version>
+        <sap.cloud.security.version>4.0.0</sap.cloud.security.version>
+        <spring.boot.version>3.5.9</spring.boot.version>
         <junit.version>4.13.2</junit.version>
     </properties>
 
@@ -78,13 +78,24 @@
             <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.1.0</version>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-resource-server</artifactId>
+            <version>6.5.7</version>
         </dependency>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+            <version>6.5.7</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+        </dependency>
+        <!-- Use spring-security-legacy-module for Spring Boot 3.x compatibility -->
+        <dependency>
             <groupId>com.sap.cloud.security</groupId>
-            <artifactId>resourceserver-security-spring-boot-starter</artifactId>
+            <artifactId>spring-security-legacy-module</artifactId>
             <version>${sap.cloud.security.version}</version>
         </dependency>
         <dependency>
