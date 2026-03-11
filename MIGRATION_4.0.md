@@ -276,6 +276,10 @@ Version 4.0.0 uses Java 11 HttpClient by default. No external dependencies requi
 
 **Migration:** No code changes needed! The HTTP client is an internal implementation detail.
 
+### Timeout and Connection Pooling
+
+The timeout settings (5s connect, 30s socket) have been preserved. Connection pooling behavior differs slightly - see the [token-client README](token-client/README.md#connection-pooling) for details and configuration options.
+
 ### Custom HTTP Client Integration
 
 To use a different HTTP client (Apache HttpClient 4.x/5.x, OkHttp):

@@ -239,6 +239,22 @@ The default `JavaHttpClientFactory` HTTP Clients are configured with:
 - Socket timeout: 30 seconds
 - Redirect handling: disabled
 
+#### Connection Pooling
+The Java HttpClient uses internal connection pooling that is managed automatically by the JVM. Unlike Apache HttpClient, there are no explicit limits like `maxConnections` or `maxConnectionsPerRoute`.
+
+For most use cases, this is sufficient since:
+- Tokens are cached, resulting in few HTTP requests
+- OAuth servers (XSUAA/IAS) are typically only 1-2 hosts
+- Idle connections are automatically closed after ~20 minutes
+
+If you need explicit connection pool limits (e.g., for high-load scenarios), you can set JVM system properties:
+```
+-Djdk.httpclient.connectionPoolSize=200
+-Djdk.httpclient.keepalive.timeout=1200
+```
+
+Alternatively, implement a custom `SecurityHttpClientFactory` with Apache HttpClient 5 for full control over connection pooling - see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).
+
 :information_source: These values are intended as an initial configuration. If you need custom HTTP client configuration (proxy, custom timeouts, connection pooling, etc.), refer to the [Custom HTTP Client Integration](CUSTOM_HTTP_CLIENT.md) guide.
 
 ### Cache Configuration
