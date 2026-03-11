@@ -13,8 +13,8 @@
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
-	<artifactId>spring-security-legacy-module</artifactId>
-	<name>spring-security-legacy-module</name>
+	<artifactId>spring-security-legacy</artifactId>
+	<name>spring-security-legacy</name>
 	<packaging>jar</packaging>
 	<version>4.0.0</version>
 

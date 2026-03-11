@@ -93,7 +93,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>spring-security-legacy-module</artifactId>
+                <artifactId>spring-security-legacy</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -66,7 +66,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>spring-security-legacy-module</artifactId>
+			<artifactId>spring-security-legacy</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency> <!-- includes spring-security-oauth2-->
