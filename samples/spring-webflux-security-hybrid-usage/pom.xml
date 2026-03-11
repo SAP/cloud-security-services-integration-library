@@ -73,6 +73,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
         <!-- SAP Security Library Legacy Starter for Spring Boot 3.x -->
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
