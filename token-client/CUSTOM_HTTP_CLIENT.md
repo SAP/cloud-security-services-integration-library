@@ -306,3 +306,82 @@ A: Yes! The executor interface is agnostic to the HTTP client library version.
 **Q: How do I handle connection pooling?**
 
 A: Configure it in your HTTP client before passing it to the executor. The library doesn't manage pooling - that's up to your HTTP client configuration.
+
+## Special Use Cases
+
+### Using with SAP Cloud SDK's HttpClientAccessor
+
+If you're using SAP Cloud SDK and want to leverage its `HttpClientAccessor` for destination management, you can integrate it like this:
+
+**Version 4.0.0+ with HttpClientAccessor:**
+```java
+import com.sap.cloud.sdk.cloudplatform.connectivity.HttpClientAccessor;
+import com.sap.cloud.security.client.*;
+import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
+
+// Get HttpClient from Cloud SDK's HttpClientAccessor
+CloseableHttpClient apacheClient = (CloseableHttpClient) HttpClientAccessor.getHttpClient(destination);
+
+// Create executor that wraps the Cloud SDK's HttpClient
+HttpRequestExecutor executor = (uri, method, headers, body) -> {
+    HttpPost request = new HttpPost(uri);
+
+    // Add headers
+    headers.forEach(request::addHeader);
+
+    // Add body if present
+    if (body != null) {
+        request.setEntity(new ByteArrayEntity(body));
+    }
+
+    // Execute with Cloud SDK's HttpClient
+    try (CloseableHttpResponse response = apacheClient.execute(request)) {
+        String responseBody = EntityUtils.toString(response.getEntity());
+
+        Map<String, String> responseHeaders = new HashMap<>();
+        for (org.apache.http.Header header : response.getAllHeaders()) {
+            responseHeaders.put(header.getName(), header.getValue());
+        }
+
+        return new HttpRequestExecutor.HttpResponse(
+            response.getStatusLine().getStatusCode(),
+            responseHeaders,
+            responseBody
+        );
+    }
+};
+
+// Wrap in SecurityHttpClient
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor);
+
+// Create token service with your custom client
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(
+    securityClient,
+    TokenCacheConfiguration.defaultConfiguration()
+);
+```
+
+**Migration from 3.x:**
+```java
+// Before (Version < 4.0.0):
+CloseableHttpClient client = (CloseableHttpClient) HttpClientAccessor.getHttpClient(destination);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client, tokenCacheConfiguration);
+
+// After (Version 4.0.0+):
+CloseableHttpClient client = (CloseableHttpClient) HttpClientAccessor.getHttpClient(destination);
+HttpRequestExecutor executor = (uri, method, headers, body) -> { /* implementation above */ };
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient, tokenCacheConfiguration);
+```
+
+**Benefits of this approach:**
+- ✅ Leverages Cloud SDK's destination management
+- ✅ Inherits proxy, authentication, and connection pooling from destination configuration
+- ✅ Compatible with both on-premise and cloud destinations
+- ✅ Maintains full Cloud SDK feature compatibility
