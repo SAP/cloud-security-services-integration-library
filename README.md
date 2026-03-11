@@ -22,8 +22,8 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
 **Key Changes:**
 - :rocket: Spring Boot 4.0.3, Spring Framework 7.0.5, Spring Security 7.0.3
 - :package: New Spring Boot 3.x compatibility layer via legacy modules
-- :zap: Token-client now uses Java 11 HttpClient by default (pluggable HTTP client support)
-- :x: Removed deprecated modules: `spring-xsuaa`, `spring-xsuaa-test`, `spring-xsuaa-it`, `spring-security-compatibility`, `token-client-apache`
+- :zap: Token-client now uses Java 11 HttpClient by default (Apache HttpClient support via custom integration)
+- :x: Removed deprecated modules: `spring-xsuaa`, `spring-xsuaa-test`, `spring-xsuaa-it`, `spring-security-compatibility`
 
 See [CHANGELOG.md](CHANGELOG.md) for complete details.
 

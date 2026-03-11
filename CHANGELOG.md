@@ -22,8 +22,8 @@ The following deprecated modules have been removed. Migrate to the recommended a
 | `spring-xsuaa` | `spring-security` | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
 | `spring-xsuaa-it` | `spring-security` + `java-security-test` | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
 | `spring-xsuaa-test` | `java-security-test` | Use JwtGenerator from java-security-test |
-| `spring-security-compatibility` | `spring-security-legacy-module` | See below |
-| `token-client-apache` | `token-client` with custom HttpClient | [Custom HTTP Client Guide](token-client/CUSTOM_HTTP_CLIENT.md) |
+| `spring-security-compatibility` | `spring-security-legacy` | See below |
+| `token-client` with Apache HttpClient | `token-client` with Java HttpClient | [Custom HTTP Client Guide](token-client/CUSTOM_HTTP_CLIENT.md) |
 
 #### Sample Removals
 - `samples/spring-security-xsuaa-usage` - replaced by `samples/spring-security-hybrid-usage` and legacy WebFlux sample
@@ -33,7 +33,7 @@ The following deprecated modules have been removed. Migrate to the recommended a
 #### Spring Boot 3.x Compatibility Layer
 For applications that cannot immediately upgrade to Spring Boot 4.x, two new modules provide backward compatibility:
 
-**1. spring-security-legacy-module** (`com.sap.cloud.security:spring-security-legacy-module`)
+**1. spring-security-legacy** (`com.sap.cloud.security:spring-security-legacy`)
 - Core security module compatible with Spring Boot 3.5.9, Spring Framework 6.2.15, Spring Security 6.5.7
 - Contains all AutoConfiguration classes and token validation logic
 - Direct drop-in replacement for the removed `spring-xsuaa` module
@@ -64,9 +64,10 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 **Sample Application:**
 - `samples/spring-webflux-security-hybrid-usage` now demonstrates the legacy starter usage for Spring Boot 3.x applications
 
-#### Token Client HTTP Client Abstraction
+#### Token Client HTTP Client Changes
 - Replaced internal Apache HttpClient implementation with pluggable `HttpRequestExecutor` interface
 - Default implementation uses Java 11 HttpClient (no external HTTP client dependencies)
+- **Breaking Change**: Apache HttpClient is no longer included by default
 - Custom HTTP client implementations can be provided via `SecurityHttpClientFactory` service loader
 - See [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) for integration examples (Apache HttpClient 4.x, 5.x, OkHttp)
 
@@ -74,7 +75,7 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 
 #### Token Client Modernization
 - Migrated from Apache HttpClient 4.x to Java 11 HttpClient as default
-- Removed `token-client-apache` module (functionality now available via custom HttpClient integration)
+- **Breaking Change**: Apache HttpClient no longer included as dependency
 - Introduced `SecurityHttpClient` abstraction for easier HTTP client customization
 - Added comprehensive guide for custom HTTP client implementations
 

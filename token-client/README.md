@@ -128,18 +128,17 @@ See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [H
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.6.8</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpclient</artifactId>
+    <version>4.0.0</version>
 </dependency>
 ```
 
+**Note:** As of version 4.0.0, token-client uses Java 11 HttpClient by default (no external HTTP client dependency required). If you need Apache HttpClient for specific features, see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).
+
 #### XsuaaTokenFlows Initialization
 ```java
+// Uses default Java 11 HttpClient
 XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(
-                                    new DefaultOAuth2TokenService(CloseableHttpClient), 
+                                    new DefaultOAuth2TokenService(),
                                     new XsuaaDefaultEndpoints(OAuth2ServiceConfiguration),
                                     OAuth2ServiceConfiguration.getClientIdentity()));
 ```
@@ -147,7 +146,7 @@ The `XsuaaTokenFlows` needs to be instantiated with a `DefaultOAuth2TokenService
 
 - `OAuth2ServiceConfiguration` is placeholder for the Identity service configuration, see [here](#oauth2serviceconfiguration) how to initialize it
 
-- `CloseableHttpClient` is a placeholder for the Apache HTTP client, see [here](#httpclientfactory) how to initialize it
+For custom HTTP client configuration (e.g., Apache HttpClient with connection pooling), see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).
 
 ### OAuth2ServiceConfiguration
 `OAuth2ServiceConfiguration` holds the information from the respective Identity service binding and is used in `XsuaaTokenFlows` initialization.
@@ -395,32 +394,44 @@ To troubleshoot problems with the token client, you can set the logging level fo
 `com.sap.cloud.security` package to `DEBUG`. 
 Have a look at the [Logging](/java-security/README.md#logging) section for more information on logging for Java EE applications.
 
-If you need more detailed network data in your logs, you can also enable debugging for your HTTP client. For more information see
-[Apache HTTP Client logging documentation](https://hc.apache.org/httpcomponents-client-4.5.x/logging.html).
+For HTTP client-specific logging (Java HttpClient or custom implementations), refer to:
+- [Java HttpClient logging documentation](https://docs.oracle.com/en/java/javase/17/docs/api/java.net.http/java/net/http/HttpClient.html)
+- [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md) for Apache HttpClient logging configuration
 
-:exclamation:Note that this might leak encoded tokens into your logs. Use with caution!
+:exclamation:Note that HTTP client logging might leak encoded tokens into your logs. Use with caution!
 
 ### Insufficient performance for token validations or token flows
 
-If you observe performance degradation for token validation or token flows, `HttpClient` configuration should be adjusted according to your platform's requirements, infrastructure, and anticipated load. You should monitor the performance of your `HttpClient` under various loads and adjust these parameters accordingly to achieve optimal performance.
+If you observe performance degradation for token validation or token flows, HTTP client configuration should be adjusted according to your platform's requirements, infrastructure, and anticipated load. You should monitor the performance of your HTTP client under various loads and adjust these parameters accordingly to achieve optimal performance.
 
-> You may need to configure the timeouts to specify how long to wait until a connection is established and how long a socket should be kept open (i.e. how long to wait for the (next) data package). As the SSL handshake is time-consuming, it might be recommended to configure an HTTP connection pool to reuse connections by keeping the sockets open. See also [Baeldung: HttpClient Connection Management](https://www.baeldung.com/httpclient-connection-management).<br>
+**For Java 11 HttpClient (default):**
+The default Java HttpClient is configured with reasonable defaults. For advanced configuration, see [Java HttpClient documentation](https://docs.oracle.com/en/java/javase/17/docs/api/java.net.http/java/net/http/HttpClient.html).
 
-To adjust the `HttpClient` parameters you will need to provide your own implementation of `HttpClientFactory` interface.
+**For Apache HttpClient (custom implementation):**
+You may need to configure timeouts, connection pooling, and SSL handshake optimization. See [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md) for detailed examples of:
+- Connection pool configuration
+- Timeout settings
+- SSL/TLS optimization
+- Apache HttpClient integration
 
-- Create an SPI configuration file with name `com.sap.cloud.security.client.HttpClientFactory` in ``src/main/resources/META-INF/services`` directory
-- Enter the fully qualified name of your `HttpClientFactory` implementation class, e.g. `com.mypackage.CustomHttpClientFactory`
-- The implementation could look like:
-````java
-public class CustomHttpClientFactory implements HttpClientFactory {
+Example with connection pooling:
+```java
+// See CUSTOM_HTTP_CLIENT.md for complete implementation
+public class ApacheHttpClient5Factory implements SecurityHttpClientFactory {
+    @Override
+    public SecurityHttpClient create() {
+        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
+        cm.setMaxTotal(100);
+        cm.setDefaultMaxPerRoute(20);
 
-    public CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException {
-        // here comes your implementation
+        CloseableHttpClient httpClient = HttpClients.custom()
+            .setConnectionManager(cm)
+            .build();
+
+        return new ApacheHttpClient5Adapter(httpClient);
     }
 }
-````
-:bangbang: For your custom `CloseableHttpClient` implementation always disable redirects :bangbang:
-
+```
 
 ### Common Pitfalls
 #### This module requires the [JSON-Java](https://github.com/stleary/JSON-java) library

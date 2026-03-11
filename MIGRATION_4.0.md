@@ -36,8 +36,8 @@ The following modules have been removed:
 - `spring-xsuaa` → migrate to `spring-security` or `spring-security-legacy`
 - `spring-xsuaa-test` → migrate to `java-security-test`
 - `spring-xsuaa-it` → migrate to `java-security-test` + `spring-security`
-- `spring-security-compatibility` → migrate to `spring-security-legacy-module`
-- `token-client-apache` → use `token-client` with custom HTTP client
+- `spring-security-compatibility` → migrate to `spring-security-legacy`
+- Apache HttpClient in token-client → migrate to Java 11 HttpClient (default) or custom implementation
 
 ### HTTP Client Changes
 
@@ -199,7 +199,7 @@ import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.test.JwtGenerator;
 ```
 
-### spring-security-compatibility → spring-security-legacy-module
+### spring-security-compatibility → spring-security-legacy
 
 **Before:**
 ```xml
@@ -214,20 +214,40 @@ import com.sap.cloud.security.test.JwtGenerator;
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>spring-security-legacy-module</artifactId>
+    <artifactId>spring-security-legacy</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
 
 **Note:** For Spring Boot 4.x, use `spring-security` module directly.
 
-### token-client-apache → token-client with custom HTTP client
+### Token Client: Apache HttpClient → Java 11 HttpClient
 
-The `token-client-apache` module has been removed. The main `token-client` module now uses Java 11 HttpClient by default.
+The token-client module no longer uses Apache HttpClient by default. It now uses Java 11 HttpClient, which is included in the JDK.
 
 **Option 1: Use default Java 11 HttpClient (Recommended)**
 
-No code changes required - just remove the `token-client-apache` dependency.
+The `token-client` module now uses Java 11 HttpClient by default - no additional dependencies or code changes required.
+
+**Before (Version 3.x with Apache HttpClient):**
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+    <version>3.6.8</version>
+</dependency>
+```
+
+**After (Version 4.0.0 with Java HttpClient):**
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+    <version>4.0.0</version>
+</dependency>
+```
+
+No code changes required - the HTTP client change is transparent.
 
 **Option 2: Provide custom Apache HttpClient**
 
@@ -249,6 +269,12 @@ If you need Apache HttpClient for specific features (e.g., connection pooling, p
 ### Default HTTP Client
 
 Version 4.0.0 uses Java 11 HttpClient by default. No external dependencies required.
+
+**What Changed:**
+- **Version 3.x**: Used Apache HttpClient 4.x internally
+- **Version 4.0.0**: Uses Java 11 HttpClient (built into JDK)
+
+**Migration:** No code changes needed! The HTTP client is an internal implementation detail.
 
 ### Custom HTTP Client Integration
 
