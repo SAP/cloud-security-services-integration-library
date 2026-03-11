@@ -15,10 +15,10 @@
     <groupId>com.sap.cloud.security.samples</groupId>
     <artifactId>spring-webflux-security-hybrid-usage</artifactId>
     <version>4.0.0</version>
-    <name>spring-webflux-security-hybrid-usage-legacy</name>
+    <name>spring-webflux-security-hybrid-usage</name>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
-    <description>Java Spring webflux security hybrid usage sample using resourceserver-security-spring-boot-starter-legacy (Spring Boot 3.x compatibility)</description>
+    <description>Java Spring webflux security hybrid usage sample using resourceserver-security-spring-boot-starter (Spring Boot 3.x compatibility)</description>
 
     <organization>
         <name>SAP SE</name>

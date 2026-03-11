@@ -49,18 +49,14 @@ public class SecurityConfiguration {
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-		logger.info("Configuring SecurityWebFilterChain");
 		http.authorizeExchange((exchanges) ->
 						exchanges
-								.pathMatchers("/actuator/health").permitAll()
 								.pathMatchers("v1/sayHello").hasAuthority("Read")
 								.anyExchange().authenticated())
 				.securityContextRepository(sessionConfig)
 				.oauth2ResourceServer(oauth2 -> oauth2
-						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToken -> {
-									logger.info("JWT Authentication Converter called for token: {}", jwtToken.getSubject());
-									return new MyCustomHybridTokenAuthenticationConverter().convert(jwtToken);
-								})
+						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToken ->
+											new MyCustomHybridTokenAuthenticationConverter().convert(jwtToken))
 								.jwtDecoder(new JwtDecoderBuilder()
 										.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
 										.withIasServiceConfiguration(iasServiceConfiguration)
@@ -74,45 +70,30 @@ public class SecurityConfiguration {
 	class MyCustomHybridTokenAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
 
 		public AbstractAuthenticationToken doConversion(Jwt jwt) {
-			logger.info("=== doConversion called ===");
-			logger.info("JWT Subject: {}", jwt.getSubject());
-			logger.info("JWT Claims: {}", jwt.getClaims().keySet());
-
 			if (jwt.hasClaim(TokenClaims.XSUAA.EXTERNAL_ATTRIBUTE)) {
-				logger.info("XSUAA token detected, using authConverter");
 				return authConverter.convert(jwt);
 			}
-			logger.info("IAS token detected, deriving authorities from groups");
 			return new AuthenticationToken(jwt, deriveAuthoritiesFromGroup(jwt));
 		}
 
 		private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
 			Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
-			logger.info("=== Deriving authorities from JWT ===");
 			if (jwt.hasClaim(TokenClaims.GROUPS)) {
 				Object groupsClaim = jwt.getClaim(TokenClaims.GROUPS);
-				logger.info("Groups claim found. Type: {}, Value: {}", groupsClaim.getClass().getName(), groupsClaim);
 				List<String> groups = new ArrayList<>();
 
 				// Handle both String and List<String>
 				if (groupsClaim instanceof String) {
-					logger.info("Groups claim is a String");
 					groups.add((String) groupsClaim);
 				} else if (groupsClaim instanceof List) {
-					logger.info("Groups claim is a List");
 					groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
 				}
 
-				logger.info("Processing {} group(s)", groups.size());
 				for (String group : groups) {
 					String authority = group.replace("IASAUTHZ_", "");
-					logger.info("Group: '{}' -> Authority: '{}'", group, authority);
 					groupAuthorities.add(new SimpleGrantedAuthority(authority));
 				}
-			} else {
-				logger.warn("No groups claim found in JWT");
 			}
-			logger.info("Total authorities derived: {}", groupAuthorities.size());
 			return groupAuthorities;
 		}
 

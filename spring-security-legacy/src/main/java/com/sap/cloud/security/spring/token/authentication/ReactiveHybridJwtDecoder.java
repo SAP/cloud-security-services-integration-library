@@ -29,10 +29,17 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
 
 	@Override
 	public Mono<Jwt> decode(String encodedToken) throws JwtException {
+		logger.info("=== ReactiveHybridJwtDecoder.decode() called ===");
+		logger.info("Token (first 50 chars): {}", encodedToken != null && encodedToken.length() > 50 ? encodedToken.substring(0, 50) : encodedToken);
 		return Mono.justOrEmpty(encodedToken)
 				.filter(StringUtils::hasText)
 				.switchIfEmpty(Mono.error(new BadJwtException("Encoded Token must neither be null nor empty String.")))
-				.map(Token::create)
+				.map(token -> {
+					logger.info("About to call Token.create()");
+					Token t = Token.create(token);
+					logger.info("Token.create() returned token with service: {}", t.getService());
+					return t;
+				})
 				.flatMap(token -> {
 					Mono<Jwt> jwt = parseJwt(token);
 					ValidationResult validationResult;
@@ -45,7 +52,10 @@ public class ReactiveHybridJwtDecoder implements ReactiveJwtDecoder {
 						validationResult = iasTokenValidators.validate(token);
 						break;
 					case XSUAA:
+						logger.info("XSUAA token detected, validating with xsuaaTokenValidators");
 						validationResult = xsuaaTokenValidators.validate(token);
+						logger.info("XSUAA validation result: isErroneous={}, errors={}",
+							validationResult.isErroneous(), validationResult.getErrorDescription());
 						break;
 					default:
 						return Mono.error(new BadJwtException(
