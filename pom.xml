@@ -57,8 +57,6 @@
 		<slf4j.api.version>2.0.17</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
 		<org.json.version>20251224</org.json.version>
 		<sap.cloud.env.servicebinding.version>0.21.0</sap.cloud.env.servicebinding.version>
-		<apache.httpclient5.version>5.6</apache.httpclient5.version>
-		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.2.0</caffeine.version>
 		<commons.io.version>2.21.0</commons.io.version>
 		<jakarta.servlet.api.version>6.1.0</jakarta.servlet.api.version>
@@ -223,26 +221,6 @@
 				<artifactId>spotbugs-annotations</artifactId>
 				<version>${spotbugs.annotations.version}</version>
 				<optional>true</optional>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents</groupId>
-				<artifactId>httpclient</artifactId>
-				<version>${apache.httpclient.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents.client5</groupId>
-				<artifactId>httpclient5</artifactId>
-				<version>${apache.httpclient5.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents.core5</groupId>
-				<artifactId>httpcore5</artifactId>
-				<version>5.4</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.httpcomponents.core5</groupId>
-				<artifactId>httpcore5-h2</artifactId>
-				<version>5.4</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.ben-manes.caffeine</groupId>
