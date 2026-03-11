@@ -83,9 +83,9 @@
 		<module>token-client</module>
 		<module>java-security</module>
 		<module>spring-security</module>
-		<module>spring-security-compatibility</module>
 		<module>spring-security-legacy</module>
 		<module>spring-security-starter</module>
+		<module>spring-security-starter-legacy</module>
 		<module>java-security-test</module>
 		<module>bom</module>
     </modules>

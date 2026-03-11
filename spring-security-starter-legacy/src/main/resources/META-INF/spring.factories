@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+com.sap.cloud.security.spring.autoconfig.SecurityContextEnvironmentPostProcessor

@@ -1,24 +1,24 @@
-# SAP BTP Spring Security Client Library Webflux sample application (Legacy Module)
+# SAP BTP Spring Security Client Library Webflux sample application (Legacy Starter)
 This Spring Boot sample application is built with the `spring-webflux` framework and is protected by the
 `spring-security-oauth2-resource-server`.
 
-**This sample showcases the `spring-security-legacy-module`**, which provides backward compatibility for applications still using **Spring Boot 3.x** while the main library has moved to Spring Boot 4.x.
+**This sample showcases the `resourceserver-security-spring-boot-starter-legacy`**, which provides backward compatibility for applications still using **Spring Boot 3.x** while the main library has moved to Spring Boot 4.x.
 
-## About the Legacy Module
+## About the Legacy Starter
 
-The `spring-security-legacy-module` is designed for customers who:
+The `resourceserver-security-spring-boot-starter-legacy` is designed for customers who:
 - Cannot immediately upgrade to Spring Boot 4.x
 - Want to use the latest security fixes from version 4.0.0
 - Need time to plan their Spring Boot 4.x migration
 
-This module uses the same core security features but is compatible with:
+This starter uses the same core security features but is compatible with:
 - **Spring Boot 3.5.9** (instead of 4.x)
 - **Spring Framework 6.2.x** (instead of 7.x)
 - **Spring Security 6.5.x** (instead of 7.x)
 
-## Key Differences from Main Module
+## Key Differences from Main Starter
 
-| Aspect | Main Module (`spring-security`) | Legacy Module (`spring-security-legacy-module`) |
+| Aspect | Main Starter (`resourceserver-security-spring-boot-starter`) | Legacy Starter (`resourceserver-security-spring-boot-starter-legacy`) |
 |--------|--------------------------------|------------------------------------------------|
 | Spring Boot | 4.0.3 | 3.5.9 |
 | Spring Framework | 7.0.5 | 6.2.15 |
@@ -27,10 +27,12 @@ This module uses the same core security features but is compatible with:
 
 ## Usage
 
-This sample uses the `spring-security-legacy-module` to validate JWT tokens issued by either the `xsuaa` or the `identity` service.
+This sample uses the `resourceserver-security-spring-boot-starter-legacy` to validate JWT tokens issued by either the `xsuaa` or the `identity` service.
 The `xsuaa` service provides an OAuth access token, while the `identity` service provides an OIDC token.
 The tokens differ in the details they provide through token claims.
 In both instances, the validated token is accessible as a [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the `ReactiveSecurityContext`.
+
+**Note:** This is a WebFlux (reactive) application. The autoconfiguration for JwtDecoder only works for Servlet applications. Therefore, this sample includes a manual `SecurityConfiguration` to configure the reactive JWT decoder and authentication converter.
 
 ## Configure the Application Router
 The [Application Router](approuter/package.json) is used to provide a single entry point to a business application that consists of several different apps (microservices).

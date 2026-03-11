@@ -87,6 +87,16 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>spring-security-legacy-module</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>${xsuaa-groupId}</groupId>
                 <artifactId>token-client</artifactId>
                 <version>${project.version}</version>

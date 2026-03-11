@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.4</version>
+        <version>3.5.9</version>
         <relativePath/>
     </parent>
 
@@ -18,7 +18,7 @@
     <name>spring-webflux-security-hybrid-usage-legacy</name>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
-    <description>Java Spring webflux security hybrid usage sample using spring-security-legacy-module (Spring Boot 3.x compatibility)</description>
+    <description>Java Spring webflux security hybrid usage sample using resourceserver-security-spring-boot-starter-legacy (Spring Boot 3.x compatibility)</description>
 
     <organization>
         <name>SAP SE</name>
@@ -50,8 +50,6 @@
     <properties>
         <java.version>17</java.version>
         <sap.cloud.security.version>4.0.0</sap.cloud.security.version>
-        <spring.boot.version>3.5.9</spring.boot.version>
-        <junit.version>4.13.2</junit.version>
     </properties>
 
     <dependencyManagement>
@@ -70,51 +68,32 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-            <version>${spring.boot.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-resource-server</artifactId>
-            <version>6.5.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-jose</artifactId>
-            <version>6.5.7</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.1.0</version>
-        </dependency>
-        <!-- Use spring-security-legacy-module for Spring Boot 3.x compatibility -->
+        <!-- SAP Security Library Legacy Starter for Spring Boot 3.x -->
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
-            <artifactId>spring-security-legacy-module</artifactId>
+            <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
             <version>${sap.cloud.security.version}</version>
         </dependency>
+        <!-- Test Dependencies -->
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-security-test</artifactId>
             <scope>test</scope>
-            <version>${sap.cloud.security.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-            <version>${junit.version}</version>
         </dependency>
     </dependencies>
 
