@@ -49,13 +49,18 @@ public class SecurityConfiguration {
 
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		logger.info("Configuring SecurityWebFilterChain");
 		http.authorizeExchange((exchanges) ->
 						exchanges
-								.pathMatchers("v1/sayHello").hasAuthority("Read"))
+								.pathMatchers("/actuator/health").permitAll()
+								.pathMatchers("v1/sayHello").hasAuthority("Read")
+								.anyExchange().authenticated())
 				.securityContextRepository(sessionConfig)
 				.oauth2ResourceServer(oauth2 -> oauth2
-						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwt2 ->
-										new MyCustomHybridTokenAuthenticationConverter().convert(jwt2))
+						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToken -> {
+									logger.info("JWT Authentication Converter called for token: {}", jwtToken.getSubject());
+									return new MyCustomHybridTokenAuthenticationConverter().convert(jwtToken);
+								})
 								.jwtDecoder(new JwtDecoderBuilder()
 										.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
 										.withIasServiceConfiguration(iasServiceConfiguration)
