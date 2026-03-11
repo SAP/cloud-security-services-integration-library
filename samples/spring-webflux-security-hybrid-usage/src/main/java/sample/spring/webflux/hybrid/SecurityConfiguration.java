@@ -75,7 +75,16 @@ public class SecurityConfiguration {
 		private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
 			Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
 			if (jwt.hasClaim(TokenClaims.GROUPS)) {
-				List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+				Object groupsClaim = jwt.getClaim(TokenClaims.GROUPS);
+				List<String> groups = new ArrayList<>();
+
+				// Handle both String and List<String>
+				if (groupsClaim instanceof String) {
+					groups.add((String) groupsClaim);
+				} else if (groupsClaim instanceof List) {
+					groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+				}
+
 				for (String group : groups) {
 					groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
 				}
