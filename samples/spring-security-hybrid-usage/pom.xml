@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.3</version>
+		<version>4.0.3</version>
 		<relativePath/>
 	</parent>
 
@@ -58,7 +58,6 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
 		<sap.cloud.security.version>4.0.0</sap.cloud.security.version>
-		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 	</properties>
 
 	<dependencyManagement>
@@ -89,11 +88,6 @@
 			<version>${sap.cloud.security.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>${apache.httpclient.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.sap.hcp.cf.logging</groupId>
 			<artifactId>cf-java-logging-support-servlet-jakarta</artifactId>
 			<version>3.7.0</version>
@@ -120,6 +114,11 @@
 		<dependency>
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
