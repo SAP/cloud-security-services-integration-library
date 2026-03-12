@@ -8,6 +8,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
+import com.sap.cloud.security.client.ApacheHttpClient4Adapter;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.client.SecurityHttpRequest;
@@ -27,6 +28,7 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +58,8 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
    * @param httpClient the Apache HttpClient 4 instance
    */
   @Deprecated(since = "4.0.0", forRemoval = true)
-  public DefaultOAuth2TokenService(@Nonnull final org.apache.http.impl.client.CloseableHttpClient httpClient) {
-    this(new com.sap.cloud.security.client.ApacheHttpClient4Adapter(httpClient));
+  public DefaultOAuth2TokenService(@Nonnull final CloseableHttpClient httpClient) {
+    this(new ApacheHttpClient4Adapter(httpClient));
   }
 
   /**
@@ -68,9 +70,9 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
    */
   @Deprecated(since = "4.0.0", forRemoval = true)
   public DefaultOAuth2TokenService(
-      @Nonnull final org.apache.http.impl.client.CloseableHttpClient httpClient,
+      @Nonnull final CloseableHttpClient httpClient,
       @Nonnull final TokenCacheConfiguration tokenCacheConfiguration) {
-    this(new com.sap.cloud.security.client.ApacheHttpClient4Adapter(httpClient), tokenCacheConfiguration);
+    this(new ApacheHttpClient4Adapter(httpClient), tokenCacheConfiguration);
   }
 
   @Override

@@ -12,11 +12,31 @@ This guide explains:
 
 ## Quick Summary
 
-| Version | Default HTTP Client | Apache HttpClient 4 Support |
-|---------|---------------------|----------------------------|
-| 3.x | Apache HttpClient 4 (built-in) | ✅ Native support |
-| 4.0.0+ | Java 11 HttpClient (built-in) | ⚠️ Deprecated backward compatibility |
-| 5.0.0 (planned) | Java 11 HttpClient (built-in) | ❌ Removed |
+| Version | Default HTTP Client | Apache HttpClient 4 Support | `HttpClientFactory` |
+|---------|---------------------|----------------------------|---------------------|
+| 3.x | Apache HttpClient 4 (built-in) | ✅ Native support | Returns `CloseableHttpClient` |
+| 4.x | Java 11 HttpClient (built-in) | ⚠️ Deprecated backward compatibility | Returns `CloseableHttpClient` (deprecated) |
+| 5.0.0 (planned) | Java 11 HttpClient (built-in) | ⚠️ Deprecated | Returns `SecurityHttpClient` (breaking change) |
+| 6.0.0 (planned) | Java 11 HttpClient (built-in) | ❌ Removed | ❌ Removed |
+
+## 3-Step Deprecation Plan for HttpClientFactory
+
+To ensure a smooth migration, the `HttpClientFactory` and `DefaultHttpClientFactory` classes follow a 3-step deprecation plan:
+
+### Step 1: Version 4.x (Current)
+- `HttpClientFactory.create()` returns `CloseableHttpClient` (Apache HttpClient 4)
+- Full backward compatibility - **no code changes required**
+- Classes are marked `@Deprecated` with warnings
+- Apache HttpClient 4 dependency is `optional` - you must add it explicitly if using these classes
+
+### Step 2: Version 5.0.0
+- `HttpClientFactory.create()` will return `SecurityHttpClient` instead of `CloseableHttpClient`
+- **Breaking change** - code using `HttpClientFactory` will need updates
+- Apache HttpClient 4 adapter (`ApacheHttpClient4Adapter`) will be removed
+
+### Step 3: Version 6.0.0
+- `HttpClientFactory` and `DefaultHttpClientFactory` will be **removed entirely**
+- Only `SecurityHttpClientProvider` will be available
 
 ## Migration Paths
 
@@ -280,10 +300,10 @@ See [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md) for complete examples with Ap
 
 | Version | Status |
 |---------|--------|
-| **3.x** | Apache HttpClient 4 constructors are the standard way |
-| **4.0.0** | Apache HttpClient 4 constructors deprecated, `ApacheHttpClient4Adapter` added as deprecated |
-| **4.x** | Deprecation warnings encourage migration to new approaches |
-| **5.0.0** | Apache HttpClient 4 constructors and `ApacheHttpClient4Adapter` will be **removed** |
+| **3.x** | Apache HttpClient 4 is the default and only option |
+| **4.x** | Apache HttpClient 4 constructors deprecated; `HttpClientFactory` still returns `CloseableHttpClient` for compatibility |
+| **5.0.0** | `HttpClientFactory` will return `SecurityHttpClient`; `ApacheHttpClient4Adapter` will be removed |
+| **6.0.0** | `HttpClientFactory` and `DefaultHttpClientFactory` will be **removed entirely** |
 
 **Recommendation:** Migrate to **Path 1** (default Java HttpClient) or **Path 4** (custom executor) before version 5.0.0.
 

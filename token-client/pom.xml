@@ -88,12 +88,11 @@
 			<artifactId>caffeine</artifactId>
 			<version>${caffeine.version}</version>
 		</dependency>
-		<!-- Optional: Apache HttpClient 4 for backward compatibility -->
+		<!-- Apache HttpClient 4 for backward compatibility (deprecated constructors) -->
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.14</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
