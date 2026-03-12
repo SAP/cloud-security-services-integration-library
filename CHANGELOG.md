@@ -90,7 +90,8 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 #### Token Client HTTP Client Changes
 - Replaced internal Apache HttpClient implementation with pluggable `HttpRequestExecutor` interface
 - Default implementation uses Java 11 HttpClient (no external HTTP client dependencies)
-- **Breaking Change**: Apache HttpClient is no longer included by default
+- Apache HttpClient 4 is included as a transitive dependency for backward compatibility
+- `HttpClientFactory` and `DefaultHttpClientFactory` still return `CloseableHttpClient` (deprecated, will change in 5.0.0)
 - Custom HTTP client implementations can be provided via `SecurityHttpClientFactory` service loader
 - See [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) for integration examples (Apache HttpClient 4.x, 5.x, OkHttp)
 
@@ -98,7 +99,7 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 
 #### Token Client Modernization
 - Migrated from Apache HttpClient 4.x to Java 11 HttpClient as default
-- **Breaking Change**: Apache HttpClient no longer included as dependency
+- Apache HttpClient 4 remains available as transitive dependency for backward compatibility
 - Introduced `SecurityHttpClient` abstraction for easier HTTP client customization
 - Added comprehensive guide for custom HTTP client implementations
 

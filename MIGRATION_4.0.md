@@ -223,7 +223,7 @@ import com.sap.cloud.security.test.JwtGenerator;
 
 ### Token Client: Apache HttpClient → Java 11 HttpClient
 
-The token-client module no longer uses Apache HttpClient by default. It now uses Java 11 HttpClient, which is included in the JDK.
+The token-client module now uses Java 11 HttpClient as the default. Apache HttpClient 4 is still included as a transitive dependency for backward compatibility.
 
 **Option 1: Use default Java 11 HttpClient (Recommended)**
 
@@ -249,11 +249,23 @@ The `token-client` module now uses Java 11 HttpClient by default - no additional
 
 No code changes required - the HTTP client change is transparent.
 
-**Option 2: Provide custom Apache HttpClient**
+**Option 2: Continue using deprecated Apache HttpClient constructors**
 
-If you need Apache HttpClient for specific features (e.g., connection pooling, proxy support):
+If you have existing code using Apache HttpClient 4, it will continue to work:
 
-1. Add Apache HttpClient dependency:
+```java
+// This code still works in 4.x (deprecated, will be removed in 5.0.0)
+CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+```
+
+Apache HttpClient 4 is included transitively - no additional dependency needed.
+
+**Option 3: Provide custom Apache HttpClient 5**
+
+If you need Apache HttpClient 5 for specific features (e.g., connection pooling, proxy support):
+
+1. Add Apache HttpClient 5 dependency:
 ```xml
 <dependency>
     <groupId>org.apache.httpcomponents.client5</groupId>
