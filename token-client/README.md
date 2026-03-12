@@ -94,9 +94,9 @@ private XsuaaTokenFlows xsuaaTokenFlows;
 #### Custom XsuaaTokenFlows Bean
 For non Spring Boot Applications or if the `XsuaaTokenFlowAutoConfiguration` doesn't fit to your use case you can provide your own `XsuaaTokenFlows` Bean.
 
+**Recommended approach (Java 11 HttpClient):**
 ```java
-import com.sap.cloud.security.annotation.Beta;
-import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.client.SecurityHttpClientProvider;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 
@@ -114,6 +114,40 @@ public class CustomConfiguration {
 	}
 
 	@Bean
+	public XsuaaTokenFlows customTokenFlows(OAuth2ServiceConfiguration customServiceConfiguration) {
+		return new XsuaaTokenFlows(
+						new DefaultOAuth2TokenService(SecurityHttpClientProvider.createClient(customServiceConfiguration.getClientIdentity())),
+						new XsuaaDefaultEndpoints(customServiceConfiguration),
+				        customServiceConfiguration.getClientIdentity()
+        );
+	}
+}
+```
+
+<details>
+<summary>Deprecated approach (Apache HttpClient 4) - for backward compatibility</summary>
+
+```java
+import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
+import org.apache.http.impl.client.CloseableHttpClient;
+
+@Configuration
+public class CustomConfiguration {
+
+	@Bean
+	public OAuth2ServiceConfiguration customServiceConfiguration() {
+		return OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA)
+                .withClientId(...)
+                .withCertificate(...)
+                .withPrivateKey(...)
+                .withUrl(...)
+                .withCertUrl(...).build();
+	}
+
+	@Bean
+	@Deprecated // Will be removed in version 5.0.0
 	public CloseableHttpClient customHttpClient(OAuth2ServiceConfiguration customServiceConfiguration) {
 		return HttpClientFactory.create(customServiceConfiguration.getClientIdentity());
 	}
@@ -128,6 +162,7 @@ public class CustomConfiguration {
 	}
 }
 ```
+</details>
 See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [HttpClientFactory](#httpclientfactory) for more detailed information about the involved classes.
 
 ### 1.2. Configuration for Java EE Applications
@@ -228,7 +263,10 @@ To utilize an **externally managed certificate** in
 ```
 
 ### HttpClientFactory
-`HttpClientFactory` creates an HTTP client that will make the requests to the corresponding Identity service.
+> **⚠️ Deprecated:** `HttpClientFactory` is deprecated since version 4.0.0 and will be removed in version 6.0.0.
+> Use `SecurityHttpClientProvider.createClient()` instead (see below).
+
+`HttpClientFactory` creates an Apache HttpClient 4 instance. It is kept for backward compatibility with existing code.
 
 #### Autoconfigured SecurityHttpClient
 When using `resourceserver-security-spring-boot-starter` Spring Boot Starter client library, a readily configured `SecurityHttpClient` is accessible via autowiring that uses Java 11's HttpClient by default.

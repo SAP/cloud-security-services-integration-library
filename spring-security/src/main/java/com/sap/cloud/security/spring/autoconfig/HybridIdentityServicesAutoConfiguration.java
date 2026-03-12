@@ -8,7 +8,7 @@ package com.sap.cloud.security.spring.autoconfig;
 import static com.sap.cloud.security.spring.autoconfig.SapSecurityProperties.*;
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET;
 
-import com.sap.cloud.security.client.HttpClientFactory;
+import com.sap.cloud.security.client.SecurityHttpClientProvider;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.spring.config.IdentityServiceConfiguration;
@@ -24,7 +24,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -130,14 +129,14 @@ public class HybridIdentityServicesAutoConfiguration {
   private static DefaultIdTokenExtension getDefaultIdTokenExtension(
       IdentityServiceConfiguration identityConfig) {
     return new DefaultIdTokenExtension(
-        new DefaultOAuth2TokenService(HttpClientFactory.create(identityConfig.getClientIdentity())),
+        new DefaultOAuth2TokenService(SecurityHttpClientProvider.createClient(identityConfig.getClientIdentity())),
         identityConfig);
   }
 
   private static DefaultXsuaaTokenExtension getDefaultXSUAATokenExtension(
       OAuth2ServiceConfiguration xsuaaConfig) {
     return new DefaultXsuaaTokenExtension(
-        new DefaultOAuth2TokenService(HttpClientFactory.create(xsuaaConfig.getClientIdentity())),
+        new DefaultOAuth2TokenService(SecurityHttpClientProvider.createClient(xsuaaConfig.getClientIdentity())),
         xsuaaConfig);
   }
 }

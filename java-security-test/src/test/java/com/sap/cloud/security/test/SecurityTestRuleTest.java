@@ -25,17 +25,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.apache.commons.io.IOUtils;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,9 +42,9 @@ public class SecurityTestRuleTest {
 
 	private static final int PORT = 8484;
 	private static final int APPLICATION_SERVER_PORT = 8383;
-	private static final String UTF_8 = StandardCharsets.UTF_8.displayName();
 	private static final String PUBLIC_KEY_PATH = "/publicKey.txt";
 	private static final String PRIVATE_KEY_PATH = "/privateKey.txt";
+	private static final HttpClient httpClient = HttpClient.newHttpClient();
 
 	@RegisterExtension
 	public static SecurityTestRule cut = SecurityTestRule.getInstance(XSUAA)
@@ -60,27 +56,29 @@ public class SecurityTestRuleTest {
 	@Test
 	@SuppressWarnings("deprecation")
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
-			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InterruptedException {
 
-		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
-		try (ClassicHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://localhost:" + PORT + "/token_keys"))
+				.GET()
+				.build();
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-			String expEncodedKey = Base64.getEncoder()
-					.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
+		String expEncodedKey = Base64.getEncoder()
+				.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
 
-			assertThat(response.getCode()).isEqualTo(HttpStatus.SC_OK);
+		assertThat(response.statusCode()).isEqualTo(200);
 
-			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
-			assertThat(tokenKeys).hasSize(4);
-			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
-			assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
-			assertThat(publicKeyFromTokenKeys)
-					.contains("d5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbW");
+		List<JsonObject> tokenKeys = new DefaultJsonObject(response.body()).getJsonObjects("keys");
+		assertThat(tokenKeys).hasSize(4);
+		String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
+		assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
+		assertThat(publicKeyFromTokenKeys)
+				.contains("d5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbW");
 
-			String modulusFromTokenKeys = tokenKeys.get(0).getAsString("n"); // public key modulus
-			assertThat(modulusFromTokenKeys).contains(
-					"9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2y");
-		}
+		String modulusFromTokenKeys = tokenKeys.get(0).getAsString("n"); // public key modulus
+		assertThat(modulusFromTokenKeys).contains(
+				"9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2y");
 	}
 
 	@Test
@@ -165,11 +163,13 @@ public class SecurityTestRuleTest {
 
 		@Test
 		@SuppressWarnings("deprecation")
-		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
-			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
-			try (ClassicHttpResponse response = HttpClients.createDefault().executeOpen(null, httpGet, null)) {
-				assertThat(response.getCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
-			}
+		public void testThatServletMethodIsNotCalled() throws ServletException, IOException, InterruptedException {
+			HttpRequest request = HttpRequest.newBuilder()
+					.uri(URI.create(mockServletRule.getApplicationServerUri()))
+					.GET()
+					.build();
+			HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			assertThat(response.statusCode()).isEqualTo(401); // UNAUTHORIZED
 			Mockito.verify(mockServlet, Mockito.times(0)).service(any(), any());
 		}
 
@@ -207,14 +207,9 @@ public class SecurityTestRuleTest {
 		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("text/plain");
-			response.setCharacterEncoding(UTF_8);
+			response.setCharacterEncoding("UTF-8");
 			response.getWriter().print("Hi!");
 		}
-	}
-
-	private static String readContent(ClassicHttpResponse response) throws IOException {
-		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
-				.collect(Collectors.joining());
 	}
 
 }

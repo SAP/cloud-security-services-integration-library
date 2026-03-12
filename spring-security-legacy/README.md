@@ -27,7 +27,9 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
 - Java 17
 - Spring Boot 3
 - Spring Framework 6
-- [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
+
+> **Note:** This module uses Apache HttpClient 4.5 internally for HTTP communication (same as version 3.x of the library).
+> The main `spring-security` module (for Spring Boot 4.x) uses Java 11 HttpClient instead.
 
 ## Table of Contents
 * [Setup](#setup)
@@ -67,8 +69,8 @@ These (spring) dependencies need to be provided:
 </dependency>
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.6.5</version>
+    <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+    <version>4.0.0</version>
 </dependency>
 ```
 
