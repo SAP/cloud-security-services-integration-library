@@ -1,7 +1,47 @@
 # SAP BTP Java Security Client Library with XSUAA sample application
-This Java backend application uses the [token-client](/token-client/) module to requests access tokens from `XSUAA` service via the [ClientCredentialsTokenFlow](/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/ClientCredentialsTokenFlow.java).
-There is no authentication done, i.e. the resulting tokens are not related to a user accessing the application.
-Instead, the access token is issued for the bound service instance on behalf of the application itself.
+
+This Java backend application uses the [token-client](/token-client/) module to request access tokens from `XSUAA` service via the [ClientCredentialsTokenFlow](/token-client/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/ClientCredentialsTokenFlow.java).
+
+**Important:** This sample demonstrates **backward compatibility with Apache HttpClient 4** using deprecated constructors. This approach is supported in version 4.x but will be removed in version 5.0.0.
+
+## About This Sample
+
+This sample showcases how existing applications using Apache HttpClient 4 can continue to work with version 4.0.0+ of the library through deprecated constructors. It serves two purposes:
+
+1. **Testing**: Validates that the backward compatibility layer works correctly
+2. **Migration Example**: Shows customers how to temporarily maintain their existing Apache HttpClient 4 integration
+
+### ⚠️ Deprecation Notice
+
+The approach used in this sample relies on deprecated constructors that will be **removed in version 5.0.0**:
+- `DefaultOAuth2TokenService(CloseableHttpClient)`
+- `DefaultOAuth2TokenKeyService(CloseableHttpClient)`
+- `DefaultOidcConfigurationService(CloseableHttpClient)`
+- `ApacheHttpClient4Adapter` class
+
+### 📖 Migration Guidance
+
+For production applications, we recommend migrating to one of these approaches:
+
+**Option 1: Use Default Java 11 HttpClient (Recommended)**
+```java
+// No custom HTTP client needed - works out of the box
+DefaultOAuth2TokenService tokenService = new DefaultOAuth2TokenService();
+```
+
+**Option 2: Custom HttpRequestExecutor (Future-Proof)**
+See the [Apache HttpClient Migration Guide](../../token-client/APACHE_HTTPCLIENT_MIGRATION.md) for implementing custom HTTP clients with any library.
+
+## Code Highlights
+
+The [HelloTokenClientServlet.java](src/main/java/com/sap/cloud/security/xssec/samples/tokenflow/usage/HelloTokenClientServlet.java) demonstrates:
+
+1. **Custom Apache HttpClient 4 configuration** with connection pooling
+2. **Using the deprecated constructor** with `@SuppressWarnings("deprecation")`
+3. **Proper resource cleanup** in the `destroy()` method
+4. **Inline migration comments** showing alternative approaches
+
+There is no authentication done, i.e. the resulting tokens are not related to a user accessing the application. Instead, the access token is issued for the bound service instance on behalf of the application itself.
 
 ## Build and Deploy
 ### 1. Run maven to compile and package the sample application:
