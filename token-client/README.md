@@ -15,8 +15,17 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
 > Note: The **Authorization Code Grant Flow** requires a browser and is typically initiated by an API gateway, such as an Application Router. However, other flows might need to be triggered programmatically, such as swapping one token for another or refreshing a token prior to its expiration. When creating an Xsuaa service instance, an OAuth client is generated, and the client Identity (client ID and secret or client certificate and key) are supplied when you bind your application to the Xsuaa service instance. With these elements in place, you can leverage the token flows in your Java application.
 
 ## Requirements
-- Java 11 or higher (for the default HTTP client implementation)
-- Optional: Any HTTP client library if you need custom configuration (see [Custom HTTP Client Integration](CUSTOM_HTTP_CLIENT.md))
+- Java 11 or higher
+- **HTTP Client**: Starting with version 4.0.0, the library uses Java 11's built-in `HttpClient` as the default implementation (no external dependencies required)
+
+### HTTP Client Changes in Version 4.0.0
+
+:warning: **Important:** The library no longer uses Apache HttpClient 4 as the default. If you're upgrading from version 3.x:
+
+- ✅ **No action required** if you use the default (parameterless) constructors - the library automatically uses Java 11's HttpClient
+- ⚠️ **Deprecated constructors available** for temporary backward compatibility with Apache HttpClient 4
+- 📖 **See [Apache HttpClient Migration Guide](APACHE_HTTPCLIENT_MIGRATION.md)** for detailed migration instructions
+- 🔧 **Need custom HTTP client?** See [Custom HTTP Client Integration](CUSTOM_HTTP_CLIENT.md) for implementing custom HTTP clients with any library
 
 ## Table of Contents
 1. [Setup](#setup)
@@ -61,12 +70,18 @@ In context of Spring Applications you will need the following dependencies:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.6.8</version>
+    <version>4.0.0</version>
 </dependency>
+<!-- No additional HTTP client dependency needed - Java 11 HttpClient is used by default -->
+<!-- Optional: Only if you want to use Apache HttpClient 4 with deprecated constructors -->
+<!-- See APACHE_HTTPCLIENT_MIGRATION.md for migration guidance -->
+<!--
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
+    <version>4.5.14</version>
 </dependency>
+-->
 ```
 
 #### XsuaaTokenFlows Initialization

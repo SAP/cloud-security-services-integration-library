@@ -7,6 +7,29 @@ This is a major release with breaking changes. The library has been upgraded to 
 
 ### :warning: BREAKING CHANGES
 
+#### HTTP Client Migration: Apache HttpClient 4 → Java 11 HttpClient
+
+**Token-client module** now uses **Java 11's HttpClient** as the default implementation instead of Apache HttpClient 4. This eliminates external dependencies and modernizes the HTTP client layer.
+
+**Impact:**
+- ✅ **No code changes required** if you use the default (parameterless) constructors
+- ⚠️ **Deprecated constructors** added for backward compatibility with Apache HttpClient 4
+- ❌ **Will be removed in version 5.0.0** - Plan to migrate
+
+**Deprecated in 4.0.0 (Removed in 5.0.0):**
+- `DefaultOAuth2TokenKeyService(CloseableHttpClient)`
+- `DefaultOAuth2TokenService(CloseableHttpClient)`
+- `DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
+- `DefaultOidcConfigurationService(CloseableHttpClient)`
+- `ApacheHttpClient4Adapter` class
+
+**Migration Path:**
+- **Option 1 (Recommended):** Use default constructors - no custom HTTP client needed
+- **Option 2 (Temporary):** Continue using deprecated constructors with Apache HttpClient 4
+- **Option 3 (Future-proof):** Implement `HttpRequestExecutor` interface for custom HTTP client needs
+
+See the comprehensive [Apache HttpClient Migration Guide](token-client/APACHE_HTTPCLIENT_MIGRATION.md) for detailed migration instructions.
+
 #### Spring Boot and Jakarta EE Version Upgrades
 - **Spring Boot**: Upgraded from 3.x to **4.0.3**
 - **Spring Framework**: Upgraded from 6.x to **7.0.5**

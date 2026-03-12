@@ -50,6 +50,29 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
     this.httpClient = httpClient;
   }
 
+  /**
+   * @deprecated Since version 4.0.0. Use {@link #DefaultOAuth2TokenService(SecurityHttpClient)} instead.
+   *             For migration guidance, see the project documentation on custom HTTP clients.
+   * @param httpClient the Apache HttpClient 4 instance
+   */
+  @Deprecated(since = "4.0.0", forRemoval = true)
+  public DefaultOAuth2TokenService(@Nonnull final org.apache.http.impl.client.CloseableHttpClient httpClient) {
+    this(new com.sap.cloud.security.client.ApacheHttpClient4Adapter(httpClient));
+  }
+
+  /**
+   * @deprecated Since version 4.0.0. Use {@link #DefaultOAuth2TokenService(SecurityHttpClient, TokenCacheConfiguration)} instead.
+   *             For migration guidance, see the project documentation on custom HTTP clients.
+   * @param httpClient the Apache HttpClient 4 instance
+   * @param tokenCacheConfiguration the token cache configuration
+   */
+  @Deprecated(since = "4.0.0", forRemoval = true)
+  public DefaultOAuth2TokenService(
+      @Nonnull final org.apache.http.impl.client.CloseableHttpClient httpClient,
+      @Nonnull final TokenCacheConfiguration tokenCacheConfiguration) {
+    this(new com.sap.cloud.security.client.ApacheHttpClient4Adapter(httpClient), tokenCacheConfiguration);
+  }
+
   @Override
   protected OAuth2TokenResponse requestAccessToken(
       final URI tokenUri, final HttpHeaders headers, final Map<String, String> parameters)

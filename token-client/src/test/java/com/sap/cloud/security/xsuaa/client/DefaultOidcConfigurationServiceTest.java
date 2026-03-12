@@ -58,7 +58,7 @@ public class DefaultOidcConfigurationServiceTest {
 
   @Test
   public void retrieveEndpoints_httpClientIsNull_throwsException() {
-    assertThatThrownBy(() -> new DefaultOidcConfigurationService(null))
+    assertThatThrownBy(() -> new DefaultOidcConfigurationService((SecurityHttpClient) null))
         .isInstanceOf(IllegalArgumentException.class);
   }
 

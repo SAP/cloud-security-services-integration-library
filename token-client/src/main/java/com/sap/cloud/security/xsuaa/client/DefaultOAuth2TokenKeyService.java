@@ -45,6 +45,16 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
     config = DefaultTokenClientConfiguration.getInstance();
   }
 
+  /**
+   * @deprecated Since version 4.0.0. Use {@link #DefaultOAuth2TokenKeyService(SecurityHttpClient)} instead.
+   *             For migration guidance, see the project documentation on custom HTTP clients.
+   * @param httpClient the Apache HttpClient 4 instance
+   */
+  @Deprecated(since = "4.0.0", forRemoval = true)
+  public DefaultOAuth2TokenKeyService(@Nonnull final org.apache.http.impl.client.CloseableHttpClient httpClient) {
+    this(new com.sap.cloud.security.client.ApacheHttpClient4Adapter(httpClient));
+  }
+
   @Override
   public String retrieveTokenKeys(
       @Nonnull final URI tokenKeysEndpointUri, final Map<String, String> params)

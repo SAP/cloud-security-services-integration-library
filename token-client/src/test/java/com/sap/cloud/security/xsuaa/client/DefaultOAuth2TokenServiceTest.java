@@ -66,7 +66,7 @@ public class DefaultOAuth2TokenServiceTest {
 
   @Test
   public void requestAccessToken_httpClientIsNull_throwsException() {
-    assertThatThrownBy(() -> new DefaultOAuth2TokenService(null))
+    assertThatThrownBy(() -> new DefaultOAuth2TokenService((SecurityHttpClient) null))
         .isInstanceOf(IllegalArgumentException.class);
   }
 

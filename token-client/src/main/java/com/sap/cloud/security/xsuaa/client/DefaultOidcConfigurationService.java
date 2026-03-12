@@ -46,6 +46,16 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
     this.config = DefaultTokenClientConfiguration.getInstance();
   }
 
+  /**
+   * @deprecated Since version 4.0.0. Use {@link #DefaultOidcConfigurationService(SecurityHttpClient)} instead.
+   *             For migration guidance, see the project documentation on custom HTTP clients.
+   * @param httpClient the Apache HttpClient 4 instance
+   */
+  @Deprecated(since = "4.0.0", forRemoval = true)
+  public DefaultOidcConfigurationService(final org.apache.http.impl.client.CloseableHttpClient httpClient) {
+    this(new com.sap.cloud.security.client.ApacheHttpClient4Adapter(httpClient));
+  }
+
   public static URI getDiscoveryEndpointUri(@Nonnull final String issuerUri) {
     final URI uri;
 	if (issuerUri.startsWith("http://localhost") || issuerUri.startsWith("https://")) {
