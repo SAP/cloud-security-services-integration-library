@@ -27,7 +27,7 @@ To ensure a smooth migration, the `HttpClientFactory` and `DefaultHttpClientFact
 - `HttpClientFactory.create()` returns `CloseableHttpClient` (Apache HttpClient 4)
 - Full backward compatibility - **no code changes required**
 - Classes are marked `@Deprecated` with warnings
-- Apache HttpClient 4 dependency is `optional` - you must add it explicitly if using these classes
+- Apache HttpClient 4 is included as a transitive dependency of `token-client`
 
 ### Step 2: Version 5.0.0
 - `HttpClientFactory.create()` will return `SecurityHttpClient` instead of `CloseableHttpClient`
@@ -112,20 +112,13 @@ OidcConfigurationService oidcService = new DefaultOidcConfigurationService(httpC
 **Migration steps:**
 1. Update to version 4.0.0+
 2. Keep your existing code - it still works!
-3. Ensure Apache HttpClient 4 dependency is in your `pom.xml`:
-   ```xml
-   <dependency>
-       <groupId>org.apache.httpcomponents</groupId>
-       <artifactId>httpclient</artifactId>
-       <version>4.5.14</version>
-   </dependency>
-   ```
+3. Apache HttpClient 4 is included as a transitive dependency - no additional dependency needed
 4. You'll see deprecation warnings - these are reminders to migrate before version 5.0.0
 
 **Important Notes:**
 - ⚠️ **Deprecated in 4.0.0** - These constructors are marked for removal
 - ⚠️ **Will be removed in 5.0.0** - Plan to migrate before then
-- ⚠️ You must explicitly add Apache HttpClient 4 to your dependencies
+- ℹ️ Apache HttpClient 4 is included transitively via `token-client`
 - ℹ️ The library internally uses `ApacheHttpClient4Adapter` (also deprecated)
 
 ---

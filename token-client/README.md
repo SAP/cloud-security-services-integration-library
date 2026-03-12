@@ -73,15 +73,8 @@ In context of Spring Applications you will need the following dependencies:
     <version>4.0.0</version>
 </dependency>
 <!-- No additional HTTP client dependency needed - Java 11 HttpClient is used by default -->
-<!-- Optional: Only if you want to use Apache HttpClient 4 with deprecated constructors -->
+<!-- Apache HttpClient 4 is included transitively for backward compatibility (deprecated constructors) -->
 <!-- See APACHE_HTTPCLIENT_MIGRATION.md for migration guidance -->
-<!--
-<dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpclient</artifactId>
-    <version>4.5.14</version>
-</dependency>
--->
 ```
 
 #### XsuaaTokenFlows Initialization
