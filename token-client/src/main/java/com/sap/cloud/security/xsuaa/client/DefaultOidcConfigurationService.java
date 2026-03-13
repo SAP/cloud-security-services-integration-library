@@ -6,7 +6,8 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import com.sap.cloud.security.client.ApacheHttpClient4Adapter;
+import com.sap.cloud.security.client.ApacheHttpClient4Executor;
+import com.sap.cloud.security.client.CustomHttpClientAdapter;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.client.SecurityHttpClient;
@@ -55,7 +56,7 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
    */
   @Deprecated(since = "4.0.0", forRemoval = true)
   public DefaultOidcConfigurationService(final CloseableHttpClient httpClient) {
-    this(new ApacheHttpClient4Adapter(httpClient));
+    this(new CustomHttpClientAdapter(new ApacheHttpClient4Executor(httpClient), httpClient::close));
   }
 
   public static URI getDiscoveryEndpointUri(@Nonnull final String issuerUri) {

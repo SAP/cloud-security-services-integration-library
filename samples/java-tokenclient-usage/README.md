@@ -17,7 +17,7 @@ The approach used in this sample relies on deprecated constructors that will be 
 - `DefaultOAuth2TokenService(CloseableHttpClient)`
 - `DefaultOAuth2TokenKeyService(CloseableHttpClient)`
 - `DefaultOidcConfigurationService(CloseableHttpClient)`
-- `ApacheHttpClient4Adapter` class
+- `ApacheHttpClient4Executor` class
 
 ### 📖 Migration Guidance
 
@@ -29,7 +29,18 @@ For production applications, we recommend migrating to one of these approaches:
 DefaultOAuth2TokenService tokenService = new DefaultOAuth2TokenService();
 ```
 
-**Option 2: Custom HttpRequestExecutor (Future-Proof)**
+**Option 2: Use ApacheHttpClient4Executor (Temporary - demonstrates HttpRequestExecutor pattern)**
+```java
+// This shows the HttpRequestExecutor pattern the library uses internally
+CloseableHttpClient apacheClient = HttpClients.createDefault();
+SecurityHttpClient client = new CustomHttpClientAdapter(
+    new ApacheHttpClient4Executor(apacheClient),
+    apacheClient::close
+);
+DefaultOAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
+```
+
+**Option 3: Custom HttpRequestExecutor (Future-Proof)**
 See the [Apache HttpClient Migration Guide](../../token-client/APACHE_HTTPCLIENT_MIGRATION.md) for implementing custom HTTP clients with any library.
 
 ## Code Highlights

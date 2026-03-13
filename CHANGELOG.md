@@ -21,12 +21,12 @@ This is a major release with breaking changes. The library has been upgraded to 
 - `DefaultOAuth2TokenService(CloseableHttpClient)`
 - `DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
 - `DefaultOidcConfigurationService(CloseableHttpClient)`
-- `ApacheHttpClient4Adapter` class
+- `ApacheHttpClient4Executor` class
 
 **Migration Path:**
 - **Option 1 (Recommended):** Use default constructors - no custom HTTP client needed
 - **Option 2 (Temporary):** Continue using deprecated constructors with Apache HttpClient 4
-- **Option 3 (Future-proof):** Implement `HttpRequestExecutor` interface for custom HTTP client needs
+- **Option 3 (Future-proof):** Implement `HttpRequestExecutor` interface for custom HTTP client needs (see `ApacheHttpClient4Executor` as reference implementation)
 
 See the comprehensive [Apache HttpClient Migration Guide](token-client/APACHE_HTTPCLIENT_MIGRATION.md) for detailed migration instructions.
 

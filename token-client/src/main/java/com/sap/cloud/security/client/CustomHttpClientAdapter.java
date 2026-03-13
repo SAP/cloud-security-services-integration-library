@@ -7,6 +7,8 @@ package com.sap.cloud.security.client;
 
 import java.io.IOException;
 
+import javax.annotation.Nullable;
+
 /**
  * Adapter that wraps a user-provided {@link HttpRequestExecutor} to implement {@link SecurityHttpClient}.
  * This allows users to use any HTTP client library without needing library-specific adapter modules.
@@ -14,13 +16,14 @@ import java.io.IOException;
  * <p>Example usage:
  * <pre>{@code
  * // User provides their own HTTP client executor
+ * CloseableHttpClient apacheClient = HttpClients.createDefault();
  * HttpRequestExecutor executor = (uri, method, headers, body) -> {
  *     // Use any HTTP client library here (Apache, OkHttp, etc.)
  *     return new HttpRequestExecutor.HttpResponse(statusCode, headers, body);
  * };
  *
- * // Wrap it in a SecurityHttpClient
- * SecurityHttpClient client = new CustomHttpClientAdapter(executor);
+ * // Wrap it in a SecurityHttpClient with close handler
+ * SecurityHttpClient client = new CustomHttpClientAdapter(executor, apacheClient::close);
  *
  * // Use with token services
  * OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
@@ -29,17 +32,52 @@ import java.io.IOException;
 public class CustomHttpClientAdapter implements SecurityHttpClient {
 
 	private final HttpRequestExecutor executor;
+	@Nullable
+	private final CloseHandler closeHandler;
+
+	/**
+	 * Functional interface for resource cleanup.
+	 * Used to close underlying HTTP client resources when the adapter is closed.
+	 */
+	@FunctionalInterface
+	public interface CloseHandler {
+		/**
+		 * Called when the adapter is closed.
+		 *
+		 * @throws IOException if closing fails
+		 */
+		void close() throws IOException;
+	}
 
 	/**
 	 * Creates a new adapter with the given executor.
+	 * The adapter's {@link #close()} method will be a no-op.
 	 *
 	 * @param executor the HTTP request executor implementation
 	 */
 	public CustomHttpClientAdapter(HttpRequestExecutor executor) {
+		this(executor, null);
+	}
+
+	/**
+	 * Creates a new adapter with the given executor and close handler.
+	 *
+	 * <p>Example usage:
+	 * <pre>{@code
+	 * CloseableHttpClient apacheClient = HttpClients.createDefault();
+	 * HttpRequestExecutor executor = (uri, method, headers, body) -> { ... };
+	 * SecurityHttpClient client = new CustomHttpClientAdapter(executor, apacheClient::close);
+	 * }</pre>
+	 *
+	 * @param executor     the HTTP request executor implementation
+	 * @param closeHandler called when {@link #close()} is invoked, may be null
+	 */
+	public CustomHttpClientAdapter(HttpRequestExecutor executor, @Nullable CloseHandler closeHandler) {
 		if (executor == null) {
 			throw new IllegalArgumentException("HttpRequestExecutor cannot be null");
 		}
 		this.executor = executor;
+		this.closeHandler = closeHandler;
 	}
 
 	@Override
@@ -89,6 +127,8 @@ public class CustomHttpClientAdapter implements SecurityHttpClient {
 
 	@Override
 	public void close() throws IOException {
-		// Custom executors are responsible for their own resource management
+		if (closeHandler != null) {
+			closeHandler.close();
+		}
 	}
 }

@@ -8,7 +8,8 @@ package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
 
-import com.sap.cloud.security.client.ApacheHttpClient4Adapter;
+import com.sap.cloud.security.client.ApacheHttpClient4Executor;
+import com.sap.cloud.security.client.CustomHttpClientAdapter;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.client.SecurityHttpClient;
@@ -54,7 +55,7 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
    */
   @Deprecated(since = "4.0.0", forRemoval = true)
   public DefaultOAuth2TokenKeyService(@Nonnull final CloseableHttpClient httpClient) {
-    this(new ApacheHttpClient4Adapter(httpClient));
+    this(new CustomHttpClientAdapter(new ApacheHttpClient4Executor(httpClient), httpClient::close));
   }
 
   @Override

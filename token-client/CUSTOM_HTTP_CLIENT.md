@@ -30,6 +30,37 @@ public interface HttpRequestExecutor {
 
 ### Apache HttpClient 4.x
 
+For Apache HttpClient 4.x, we provide a ready-to-use `HttpRequestExecutor` implementation called `ApacheHttpClient4Executor`.
+This is the same implementation the library uses internally for backward compatibility.
+
+**Using the built-in executor (simplest approach):**
+
+```java
+import com.sap.cloud.security.client.*;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+// Configure your Apache HttpClient
+CloseableHttpClient apacheClient = HttpClients.custom()
+    .setMaxConnTotal(100)
+    .setMaxConnPerRoute(20)
+    .build();
+
+// Use the built-in ApacheHttpClient4Executor
+SecurityHttpClient client = new CustomHttpClientAdapter(
+    new ApacheHttpClient4Executor(apacheClient),
+    apacheClient::close
+);
+
+// Use with token services
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
+```
+
+> **Note:** `ApacheHttpClient4Executor` is deprecated and will be removed in version 5.0.0.
+> Consider migrating to Java 11 HttpClient (default) or Apache HttpClient 5.
+
+**Custom executor (for advanced configuration):**
+
 ```java
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
@@ -237,18 +268,35 @@ The autoconfigured token services will automatically use your custom bean.
 
 ## Resource Management
 
-If your HTTP client needs cleanup (closing connections, etc.), make sure to manage that lifecycle yourself. The `CustomHttpClientAdapter.close()` method is a no-op since the user is responsible for managing their HTTP client lifecycle:
+If your HTTP client needs cleanup (closing connections, etc.), you can pass a close handler to `CustomHttpClientAdapter`:
 
 ```java
 CloseableHttpClient apacheClient = HttpClients.createDefault();
-HttpRequestExecutor executor = ...;
+HttpRequestExecutor executor = new ApacheHttpClient4Executor(apacheClient);
+
+// Pass close handler as second parameter
+SecurityHttpClient client = new CustomHttpClientAdapter(executor, apacheClient::close);
+
+try {
+    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
+    // Use the service
+} finally {
+    client.close(); // This will call apacheClient.close()
+}
+```
+
+Without a close handler, the `close()` method is a no-op and you must manage the lifecycle yourself:
+
+```java
+CloseableHttpClient apacheClient = HttpClients.createDefault();
+HttpRequestExecutor executor = (uri, method, headers, body) -> { ... };
 SecurityHttpClient client = new CustomHttpClientAdapter(executor);
 
 try {
     OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
     // Use the service
 } finally {
-    apacheClient.close(); // Clean up your client
+    apacheClient.close(); // Clean up your client manually
 }
 ```
 

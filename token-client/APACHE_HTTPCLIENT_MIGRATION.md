@@ -32,7 +32,7 @@ To ensure a smooth migration, the `HttpClientFactory` and `DefaultHttpClientFact
 ### Step 2: Version 5.0.0
 - `HttpClientFactory.create()` will return `SecurityHttpClient` instead of `CloseableHttpClient`
 - **Breaking change** - code using `HttpClientFactory` will need updates
-- Apache HttpClient 4 adapter (`ApacheHttpClient4Adapter`) will be removed
+- `ApacheHttpClient4Executor` will be removed
 
 ### Step 3: Version 6.0.0
 - `HttpClientFactory` and `DefaultHttpClientFactory` will be **removed entirely**
@@ -119,7 +119,7 @@ OidcConfigurationService oidcService = new DefaultOidcConfigurationService(httpC
 - ⚠️ **Deprecated in 4.0.0** - These constructors are marked for removal
 - ⚠️ **Will be removed in 5.0.0** - Plan to migrate before then
 - ℹ️ Apache HttpClient 4 is included transitively via `token-client`
-- ℹ️ The library internally uses `ApacheHttpClient4Adapter` (also deprecated)
+- ℹ️ The library internally uses `ApacheHttpClient4Executor` (also deprecated)
 
 ---
 
@@ -127,10 +127,14 @@ OidcConfigurationService oidcService = new DefaultOidcConfigurationService(httpC
 
 **Best for:** Applications that need custom HTTP client configuration and want to migrate away from deprecated constructors.
 
-**Option 3a: Use the ApacheHttpClient4Adapter directly (Deprecated)**
+**Option 3a: Use the ApacheHttpClient4Executor (Deprecated)**
+
+The library provides `ApacheHttpClient4Executor`, an `HttpRequestExecutor` implementation for Apache HttpClient 4.
+This is the same approach the library uses internally for backward compatibility.
 
 ```java
-import com.sap.cloud.security.client.ApacheHttpClient4Adapter;
+import com.sap.cloud.security.client.ApacheHttpClient4Executor;
+import com.sap.cloud.security.client.CustomHttpClientAdapter;
 import com.sap.cloud.security.client.SecurityHttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -140,8 +144,11 @@ CloseableHttpClient apacheClient = HttpClients.custom()
     .setMaxConnPerRoute(20)
     .build();
 
-// Wrap Apache HttpClient 4 with the adapter
-SecurityHttpClient securityClient = new ApacheHttpClient4Adapter(apacheClient);
+// Use the HttpRequestExecutor pattern (recommended)
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(
+    new ApacheHttpClient4Executor(apacheClient),
+    apacheClient::close
+);
 
 // Use with token services
 OAuth2TokenKeyService tokenKeyService = new DefaultOAuth2TokenKeyService(securityClient);
@@ -150,8 +157,8 @@ OidcConfigurationService oidcService = new DefaultOidcConfigurationService(secur
 ```
 
 **Notes:**
-- ⚠️ `ApacheHttpClient4Adapter` is also deprecated and will be removed in version 5.0.0
-- This is a stepping stone toward Path 4 (Custom Executor)
+- ⚠️ `ApacheHttpClient4Executor` is deprecated and will be removed in version 5.0.0
+- This demonstrates the `HttpRequestExecutor` pattern that the library uses internally
 
 **Option 3b: Migrate to Apache HttpClient 5 (Not Deprecated)**
 
@@ -283,7 +290,7 @@ See [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md) for complete examples with Ap
 |----------|--------------|--------------|------------|--------------|
 | Path 1: Default Java HttpClient | None | None (built-in) | ❌ No | ✅ Yes |
 | Path 2: Deprecated Constructors | None | Apache HttpClient 4 | ⚠️ Yes (4.0.0) | ❌ Removed in 5.0.0 |
-| Path 3a: ApacheHttpClient4Adapter | Minimal | Apache HttpClient 4 | ⚠️ Yes (4.0.0) | ❌ Removed in 5.0.0 |
+| Path 3a: ApacheHttpClient4Executor | Minimal | Apache HttpClient 4 | ⚠️ Yes (4.0.0) | ❌ Removed in 5.0.0 |
 | Path 3b: Apache HttpClient 5 | Moderate | Apache HttpClient 5 | ❌ No | ✅ Yes |
 | Path 4: Custom Executor | Moderate | Any HTTP client | ❌ No | ✅ Yes |
 
@@ -295,7 +302,7 @@ See [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md) for complete examples with Ap
 |---------|--------|
 | **3.x** | Apache HttpClient 4 is the default and only option |
 | **4.x** | Apache HttpClient 4 constructors deprecated; `HttpClientFactory` still returns `CloseableHttpClient` for compatibility |
-| **5.0.0** | `HttpClientFactory` will return `SecurityHttpClient`; `ApacheHttpClient4Adapter` will be removed |
+| **5.0.0** | `HttpClientFactory` will return `SecurityHttpClient`; `ApacheHttpClient4Executor` will be removed |
 | **6.0.0** | `HttpClientFactory` and `DefaultHttpClientFactory` will be **removed entirely** |
 
 **Recommendation:** Migrate to **Path 1** (default Java HttpClient) or **Path 4** (custom executor) before version 5.0.0.
@@ -329,10 +336,10 @@ public DefaultOAuth2TokenService(
 public DefaultOidcConfigurationService(org.apache.http.impl.client.CloseableHttpClient httpClient)
 ```
 
-### ApacheHttpClient4Adapter
+### ApacheHttpClient4Executor
 ```java
 @Deprecated(since = "4.0.0", forRemoval = true)
-public class ApacheHttpClient4Adapter implements SecurityHttpClient
+public class ApacheHttpClient4Executor implements HttpRequestExecutor
 ```
 
 ---
@@ -343,10 +350,10 @@ public class ApacheHttpClient4Adapter implements SecurityHttpClient
 **A:** To eliminate external dependencies and modernize the library. Java 11's HttpClient is built into the JDK, performs well, and covers most use cases.
 
 ### Q: Can I still use Apache HttpClient 4?
-**A:** Yes, temporarily. Use the deprecated constructors (Path 2) or the deprecated adapter (Path 3a). However, these will be removed in version 5.0.0.
+**A:** Yes, temporarily. Use the deprecated constructors (Path 2) or the `ApacheHttpClient4Executor` (Path 3a). However, these will be removed in version 5.0.0.
 
 ### Q: What if I need custom HTTP client features?
-**A:** Implement the `HttpRequestExecutor` interface (Path 4). This works with any HTTP client library and is future-proof.
+**A:** Implement the `HttpRequestExecutor` interface (Path 4). This works with any HTTP client library and is future-proof. See `ApacheHttpClient4Executor` as a reference implementation.
 
 ### Q: Do I need to change my code if I'm using the default constructor?
 **A:** No! The default constructors (no parameters) automatically use Java 11's HttpClient.
