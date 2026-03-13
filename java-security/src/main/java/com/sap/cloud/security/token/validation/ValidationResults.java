@@ -5,11 +5,12 @@
  */
 package com.sap.cloud.security.token.validation;
 
+import com.sap.cloud.security.util.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * This is a factory class to easily create {@link ValidationResult} objects.
@@ -30,7 +31,7 @@ public class ValidationResults {
 	 * @return an invalid {@link ValidationResult} containing an error description.
 	 */
 	public static ValidationResult createInvalid(String errorDescription) {
-		logger.warn(errorDescription);
+		logger.warn(LogSanitizer.sanitize(errorDescription));
 		return new ValidationResultImpl(errorDescription);
 	}
 

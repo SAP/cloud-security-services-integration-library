@@ -11,13 +11,17 @@ import com.sap.cloud.security.spring.config.XsuaaServiceConfiguration;
 import com.sap.cloud.security.spring.token.authentication.AuthenticationToken;
 import com.sap.cloud.security.spring.token.authentication.JwtDecoderBuilder;
 import com.sap.cloud.security.token.TokenClaims;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,15 +30,12 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 @Configuration
-@EnableWebSecurity
 @PropertySource(factory = IdentityServicesPropertySourceFactory.class, ignoreResourceNotFound = true, value = { "" })
 // might be auto-configured in a future release
 public class SecurityConfiguration {
+
+	private static final Logger logger = LoggerFactory.getLogger(SecurityConfiguration.class);
 
 	@Autowired
 	Converter<Jwt, AbstractAuthenticationToken> authConverter;
@@ -50,11 +51,12 @@ public class SecurityConfiguration {
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http.authorizeExchange((exchanges) ->
 						exchanges
-								.pathMatchers("v1/sayHello").hasAuthority("Read"))
+								.pathMatchers("v1/sayHello").hasAuthority("Read")
+								.anyExchange().authenticated())
 				.securityContextRepository(sessionConfig)
 				.oauth2ResourceServer(oauth2 -> oauth2
-						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwt2 ->
-										new MyCustomHybridTokenAuthenticationConverter().convert(jwt2))
+						.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtToken ->
+											new MyCustomHybridTokenAuthenticationConverter().convert(jwtToken))
 								.jwtDecoder(new JwtDecoderBuilder()
 										.withXsuaaServiceConfiguration(xsuaaServiceConfiguration)
 										.withIasServiceConfiguration(iasServiceConfiguration)
@@ -77,9 +79,19 @@ public class SecurityConfiguration {
 		private Collection<GrantedAuthority> deriveAuthoritiesFromGroup(Jwt jwt) {
 			Collection<GrantedAuthority> groupAuthorities = new ArrayList<>();
 			if (jwt.hasClaim(TokenClaims.GROUPS)) {
-				List<String> groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+				Object groupsClaim = jwt.getClaim(TokenClaims.GROUPS);
+				List<String> groups = new ArrayList<>();
+
+				// Handle both String and List<String>
+				if (groupsClaim instanceof String) {
+					groups.add((String) groupsClaim);
+				} else if (groupsClaim instanceof List) {
+					groups = jwt.getClaimAsStringList(TokenClaims.GROUPS);
+				}
+
 				for (String group : groups) {
-					groupAuthorities.add(new SimpleGrantedAuthority(group.replace("IASAUTHZ_", "")));
+					String authority = group.replace("IASAUTHZ_", "");
+					groupAuthorities.add(new SimpleGrantedAuthority(authority));
 				}
 			}
 			return groupAuthorities;

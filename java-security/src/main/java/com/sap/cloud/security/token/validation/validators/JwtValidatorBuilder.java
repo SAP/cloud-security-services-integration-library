@@ -17,11 +17,11 @@ import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
-import org.apache.http.impl.client.CloseableHttpClient;
+import com.sap.cloud.security.client.SecurityHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -142,7 +142,7 @@ public class JwtValidatorBuilder {
 	 * 		your own http client
 	 * @return this builder
 	 */
-	public JwtValidatorBuilder withHttpClient(CloseableHttpClient httpClient) {
+	public JwtValidatorBuilder withHttpClient(SecurityHttpClient httpClient) {
 		if (httpClient != null) {
 			this.oidcConfigurationService = new DefaultOidcConfigurationService(httpClient);
 			this.tokenKeyService = new DefaultOAuth2TokenKeyService(httpClient);

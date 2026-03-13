@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.config;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Constants denoting the credential types of identity OAuth2 configuration

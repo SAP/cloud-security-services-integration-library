@@ -5,34 +5,6 @@
  */
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.json.DefaultJsonObject;
-import com.sap.cloud.security.json.JsonObject;
-import com.sap.cloud.security.json.JsonParsingException;
-import com.sap.cloud.security.token.AbstractToken;
-import com.sap.cloud.security.token.Token;
-import com.sap.cloud.security.token.TokenClaims;
-import com.sap.cloud.security.token.TokenHeader;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
-import java.security.interfaces.RSAPublicKey;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
-import java.util.Base64;
-import java.util.List;
-
 import static com.sap.cloud.security.config.Service.IAS;
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.test.JwtGenerator.*;
@@ -45,22 +17,47 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.sap.cloud.security.json.DefaultJsonObject;
+import com.sap.cloud.security.json.JsonObject;
+import com.sap.cloud.security.json.JsonParsingException;
+import com.sap.cloud.security.token.AbstractToken;
+import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
+import com.sap.cloud.security.token.TokenHeader;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.Base64;
+import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.Mockito;
+
 public class JwtGeneratorTest {
 
 	private static RSAKeys keys;
 	private JwtGenerator cut;
 
-	private static final Path RESOURCES_PATH = Paths.get(JwtGeneratorTest.class.getResource("/").getPath());
+	private static final Path RESOURCES_PATH = Path.of(JwtGeneratorTest.class.getResource("/").getPath());
 
-	@ClassRule
-	public static TemporaryFolder temporaryFolder = new TemporaryFolder(RESOURCES_PATH.toFile());
+	@TempDir
+	public static File temporaryFolder = RESOURCES_PATH.toFile();
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() throws Exception {
 		keys = RSAKeys.fromKeyFiles("/publicKey.txt", "/privateKey.txt");
 	}
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		cut = JwtGenerator.getInstance(XSUAA, DEFAULT_CLIENT_ID)
 				.withPrivateKey(keys.getPrivate());
@@ -292,12 +289,8 @@ public class JwtGeneratorTest {
 	}
 
 	@Test
-	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() throws IOException {
-		File emptyFile = temporaryFolder.newFile("empty");
-		String temporaryFolderName = emptyFile.getParentFile().getName();
-		String resourcePath = "/" + temporaryFolderName + "/empty";
-
-		assertThatThrownBy(() -> cut.withClaimsFromFile(resourcePath).createToken())
+	public void loadClaimsFromFile_doesNotContainValidJson_throwsException() {
+		assertThatThrownBy(() -> cut.withClaimsFromFile("/invalid.json").createToken())
 				.isInstanceOf(JsonParsingException.class);
 	}
 

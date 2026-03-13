@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -51,7 +51,7 @@ public class SpringOidcConfigurationServiceTest {
         IOUtils.resourceToString("/oidcConfiguration.json", StandardCharsets.UTF_8);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     restOperationsMock = mock(RestOperations.class);
     cut = new SpringOidcConfigurationService(restOperationsMock);

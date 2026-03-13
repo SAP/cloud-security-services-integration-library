@@ -5,15 +5,15 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import org.hamcrest.number.OrderingComparison;
-import org.junit.Test;
-
 import java.time.Instant;
+import org.junit.jupiter.api.Test;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
 
 public class OAuth2TokenResponseTest {
 
@@ -27,8 +27,9 @@ public class OAuth2TokenResponseTest {
 		Instant maxExpireDate = Instant
 				.ofEpochMilli(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(expireInSeconds));
 
-		assertThat(accessToken.getExpiredAt(), allOf(OrderingComparison.greaterThanOrEqualTo(minExpireDate),
-				OrderingComparison.lessThanOrEqualTo(maxExpireDate)));
+		assertThat(accessToken.getExpiredAt())
+				.isAfterOrEqualTo(minExpireDate)
+				.isBeforeOrEqualTo(maxExpireDate);
 	}
 
 	@Test
@@ -40,8 +41,9 @@ public class OAuth2TokenResponseTest {
 
 		Instant maxExpireDate = getCurrentInstant().plusSeconds(expireInSeconds);
 
-		assertThat(accessToken.getExpiredAt(), allOf(OrderingComparison.greaterThanOrEqualTo(minExpireDate),
-				OrderingComparison.lessThanOrEqualTo(maxExpireDate)));
+		assertThat(accessToken.getExpiredAt())
+				.isAfterOrEqualTo(minExpireDate)
+				.isBeforeOrEqualTo(maxExpireDate);
 	}
 
 	@Test

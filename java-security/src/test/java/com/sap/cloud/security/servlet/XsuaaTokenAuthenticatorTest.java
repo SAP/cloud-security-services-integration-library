@@ -5,6 +5,10 @@
  */
 package com.sap.cloud.security.servlet;
 
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpRequest;
+import com.sap.cloud.security.client.SecurityHttpResponse;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -12,15 +16,10 @@ import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.util.HttpClientTestFactory;
+import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -28,8 +27,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.logging.log4j.ThreadContext.isEmpty;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -42,7 +40,7 @@ class XsuaaTokenAuthenticatorTest {
 	private final XsuaaToken xsuaaToken;
 	private final XsuaaToken invalidToken;
 	private final XsuaaToken uaaToken;
-	private static CloseableHttpClient mockHttpClient;
+	private static SecurityHttpClient mockHttpClient;
 	private static final ValidationListener validationListener2 = Mockito.mock(ValidationListener.class);
 	private static final ValidationListener validationListener1 = Mockito.mock(ValidationListener.class);
 	private static OAuth2ServiceConfigurationBuilder oAuth2ServiceConfigBuilder;
@@ -57,21 +55,18 @@ class XsuaaTokenAuthenticatorTest {
 
 	@BeforeAll
 	static void setUp() throws IOException {
-		mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+		mockHttpClient = Mockito.mock(SecurityHttpClient.class);
 
-		CloseableHttpResponse xsuaaTokenKeysResponse = HttpClientTestFactory
+		SecurityHttpResponse xsuaaTokenKeysResponse = HttpClientTestFactory
 				.createHttpResponse(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
-		when(mockHttpClient.execute(any(HttpGet.class), any(ResponseHandler.class)))
-				.thenAnswer(invocation -> {
-					ResponseHandler responseHandler = invocation.getArgument(1);
-					return responseHandler.handleResponse(xsuaaTokenKeysResponse);
-				});
-
-		CloseableHttpResponse xsuaaTokenResponse = HttpClientTestFactory
+		SecurityHttpResponse xsuaaTokenResponse = HttpClientTestFactory
 				.createHttpResponse(
 						"{ \"access_token\": \"" + IOUtils.resourceToString("/xsuaaJwtBearerTokenRSA256.txt", UTF_8)
 								+ "\", \"expires_in\" : 43199}");
-		when(mockHttpClient.execute(any(HttpPost.class))).thenReturn(xsuaaTokenResponse);
+		when(mockHttpClient.execute(any(SecurityHttpRequest.class)))
+				.thenReturn(xsuaaTokenKeysResponse, xsuaaTokenKeysResponse, xsuaaTokenKeysResponse,
+						xsuaaTokenKeysResponse, xsuaaTokenKeysResponse, xsuaaTokenKeysResponse,
+						xsuaaTokenResponse, xsuaaTokenResponse, xsuaaTokenResponse);
 
 		oAuth2ServiceConfigBuilder = OAuth2ServiceConfigurationBuilder
 				.forService(Service.XSUAA)
@@ -110,7 +105,7 @@ class XsuaaTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason(), isEmpty());
+		assertThat(response.getUnauthenticatedReason()).isEmpty();
 		assertTrue(response.isAuthenticated());
 		assertSame(response.getToken(), SecurityContext.getToken());
 		assertEquals(Service.XSUAA, response.getToken().getService());
@@ -143,7 +138,7 @@ class XsuaaTokenAuthenticatorTest {
 
 		TokenAuthenticationResult response = cut.validateRequest(httpRequest, HTTP_RESPONSE);
 
-		assertThat(response.getUnauthenticatedReason(), isEmpty());
+		assertThat(response.getUnauthenticatedReason()).isEmpty();
 		assertTrue(response.isAuthenticated());
 		assertSame(response.getToken(), SecurityContext.getToken());
 		assertEquals(Service.XSUAA, response.getToken().getService());

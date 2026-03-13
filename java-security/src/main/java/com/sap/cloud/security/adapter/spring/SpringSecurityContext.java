@@ -6,6 +6,12 @@
 package com.sap.cloud.security.adapter.spring;
 
 import com.sap.cloud.security.token.*;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -13,13 +19,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Objects;
 
 /**
  * This is an alternative way of accessing jwt tokens of type {@link Token} or {@link AccessToken} in context of an
@@ -124,7 +123,7 @@ public class SpringSecurityContext {
 	@Nullable
 	public static AccessToken getAccessToken() {
 		Token token = getToken();
-		return token instanceof AccessToken ? (AccessToken) token : null;
+		return token instanceof AccessToken accessToken ? accessToken : null;
 	}
 
 	/**

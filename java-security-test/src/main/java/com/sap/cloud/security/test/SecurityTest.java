@@ -37,7 +37,7 @@ import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -217,7 +217,7 @@ public class SecurityTest
 	@Nullable
 	public String getApplicationServerUri() {
 		if (useApplicationServer) {
-			return String.format(LOCALHOST_PATTERN, applicationServer.getURI().getPort());
+			return LOCALHOST_PATTERN.formatted(applicationServer.getURI().getPort());
 		}
 		return null;
 	}
@@ -291,7 +291,7 @@ public class SecurityTest
 		}
 		// TODO return JSON Media type
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
-				String.format(LOCALHOST_PATTERN, wireMockServer.port()), null);
+				LOCALHOST_PATTERN.formatted(wireMockServer.port()), null);
 		wireMockServer.stubFor(get(urlPathEqualTo(endpointsProvider.getJwksUri().getPath()))
 				.willReturn(aResponse().withBody(createDefaultTokenKeyResponse())
 						.withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON.value())));

@@ -5,17 +5,17 @@
  */
 package com.sap.cloud.security.json;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DefaultJsonObjectTest {
 
@@ -31,7 +31,7 @@ public class DefaultJsonObjectTest {
 
 	private DefaultJsonObject cut;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		cut = createJsonParser(KEY_1, STRING_VALUE);
 	}
@@ -239,7 +239,7 @@ public class DefaultJsonObjectTest {
 		try {
 			new DefaultJsonObject(deeplyNestedJsonObject);
 		} catch (StackOverflowError e) {
-			Assert.fail("Encountered StackoverflowError.");
+			Assertions.fail("Encountered StackoverflowError.");
 		} catch (Exception ignored) {
 		}
 	}
@@ -255,12 +255,12 @@ public class DefaultJsonObjectTest {
 				"}";
 	}
 
-	private DefaultJsonObject createJsonParser(String key, Object value) {
+	private static DefaultJsonObject createJsonParser(String key, Object value) {
 		String jsonString = createJsonObjectString(key, value);
 		return new DefaultJsonObject(jsonString);
 	}
 
-	private String createJsonObjectString(String key, Object value) {
-		return String.format("{%s : %s}", key, value);
+	private static String createJsonObjectString(String key, Object value) {
+		return "{%s : %s}".formatted(key, value);
 	}
 }

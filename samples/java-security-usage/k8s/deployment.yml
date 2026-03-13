@@ -120,8 +120,7 @@ spec:
   host: java-security-api
   rules:
     - accessStrategies:
-        - config: {}
-          handler: allow
+        - handler: allow
       methods:
         - GET
         - POST

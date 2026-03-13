@@ -27,8 +27,8 @@ public class ReactiveSecurityContext {
 				.map(SecurityContext::getAuthentication)
 				.map(Authentication::getPrincipal)
 				.flatMap(principal -> {
-					if (principal instanceof Token) {
-						return Mono.just((Token) principal);
+					if (principal instanceof Token token) {
+						return Mono.just(token);
 					} else {
 						return Mono.error(new AccessDeniedException(
 								"Access forbidden: SecurityContextHolder does not contain a principal of type 'Token'. Found instead a principal of type "

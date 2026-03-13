@@ -25,7 +25,7 @@ public class HttpHeadersFactory {
 	public static HttpHeaders createWithAuthorizationBearerHeader(String token) {
 		Map<String, String> headers = createDefaultHeaders();
 		final String AUTHORIZATION_BEARER_TOKEN_FORMAT = "Bearer %s";
-		headers.put(HttpHeaders.AUTHORIZATION, String.format(AUTHORIZATION_BEARER_TOKEN_FORMAT, token));
+		headers.put(HttpHeaders.AUTHORIZATION, AUTHORIZATION_BEARER_TOKEN_FORMAT.formatted(token));
 		return createFromHeaders(headers);
 	}
 

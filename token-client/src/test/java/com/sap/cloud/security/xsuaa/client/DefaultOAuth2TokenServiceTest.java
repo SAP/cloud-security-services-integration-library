@@ -18,6 +18,9 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpRequest;
+import com.sap.cloud.security.client.SecurityHttpResponse;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -25,23 +28,15 @@ import com.sap.cloud.security.xsuaa.http.HttpHeadersFactory;
 import com.sap.cloud.security.xsuaa.util.HttpClientTestFactory;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.assertj.core.util.Maps;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
@@ -55,24 +50,23 @@ public class DefaultOAuth2TokenServiceTest {
   private static final String ERROR_MESSAGE = "Error message";
   private static final Map<String, String> PARAMS = Map.of("param1", "value1");
   private static final String VALID_JSON_RESPONSE =
-      String.format(
-          "{expires_in: 10000, access_token: %s, refresh_token: %s, token_type: %s}",
-          ACCESS_TOKEN, REFRESH_TOKEN, TOKEN_TYPE);
+			"{expires_in: 10000, access_token: %s, refresh_token: %s, token_type: %s}".formatted(
+					ACCESS_TOKEN, REFRESH_TOKEN, TOKEN_TYPE);
   private static final URI TOKEN_URI =
       URI.create("https://subdomain.myauth.server.com/oauth/token");
 
-  private CloseableHttpClient mockHttpClient;
+  private SecurityHttpClient mockHttpClient;
   private DefaultOAuth2TokenService cut;
 
-  @Before
+  @BeforeEach
   public void setup() {
-    mockHttpClient = Mockito.mock(CloseableHttpClient.class);
+    mockHttpClient = Mockito.mock(SecurityHttpClient.class);
     cut = new DefaultOAuth2TokenService(mockHttpClient);
   }
 
   @Test
   public void requestAccessToken_httpClientIsNull_throwsException() {
-    assertThatThrownBy(() -> new DefaultOAuth2TokenService(null))
+    assertThatThrownBy(() -> new DefaultOAuth2TokenService((SecurityHttpClient) null))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -84,7 +78,7 @@ public class DefaultOAuth2TokenServiceTest {
 
   @Test
   public void requestAccessToken_responseNotOk_throwsException() {
-    mockResponse(ERROR_MESSAGE, HttpStatus.SC_BAD_REQUEST);
+    mockResponse(ERROR_MESSAGE, 400);
 
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, PARAMS))
         .isInstanceOf(OAuth2ServiceException.class)
@@ -97,7 +91,7 @@ public class DefaultOAuth2TokenServiceTest {
 
   @Test
   public void requestAccessToken_errorOccurs_throwsServiceException() throws IOException {
-    when(mockHttpClient.execute(any(), any(ResponseHandler.class)))
+    when(mockHttpClient.execute(any(SecurityHttpRequest.class)))
         .thenThrow(new IOException(ERROR_MESSAGE));
 
     assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, PARAMS))
@@ -128,7 +122,7 @@ public class DefaultOAuth2TokenServiceTest {
     final OAuth2TokenResponse result = requestAccessToken(TOKEN_URI, emptyParams);
 
     assertThat(result).isNotNull();
-    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -137,7 +131,7 @@ public class DefaultOAuth2TokenServiceTest {
 
     requestAccessToken(TOKEN_URI, PARAMS);
 
-    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -177,14 +171,13 @@ public class DefaultOAuth2TokenServiceTest {
   public void requestAccessToken_executeWithAdditionalParameters_putsParametersIntoPostBody()
       throws IOException {
     mockResponse(VALID_JSON_RESPONSE, 200);
-    final ArgumentCaptor<HttpPost> httpPostCaptor = ArgumentCaptor.forClass(HttpPost.class);
+    final ArgumentCaptor<SecurityHttpRequest> requestCaptor = ArgumentCaptor.forClass(SecurityHttpRequest.class);
     requestAccessToken(TOKEN_URI, Maps.newHashMap("myKey", "myValue"));
 
-    verify(mockHttpClient, times(1)).execute(httpPostCaptor.capture(), any(ResponseHandler.class));
-    final HttpPost httpPost = httpPostCaptor.getValue();
-    final HttpEntity httpEntity = httpPost.getEntity();
-    assertThat(httpEntity).isNotNull();
-    final String postBody = IOUtils.toString(httpEntity.getContent(), StandardCharsets.UTF_8);
+    verify(mockHttpClient, times(1)).execute(requestCaptor.capture());
+    final SecurityHttpRequest request = requestCaptor.getValue();
+    assertThat(request).isNotNull();
+    final String postBody = new String(request.getBody());
     assertThat(postBody).contains("myKey=myValue");
   }
 
@@ -201,7 +194,7 @@ public class DefaultOAuth2TokenServiceTest {
         .hasMessageContaining("Response Headers [")
         .extracting(OAuth2ServiceException.class::cast)
         .extracting(OAuth2ServiceException::getHttpStatusCode)
-        .isEqualTo(HttpStatus.SC_UNAUTHORIZED);
+        .isEqualTo(401);
   }
 
   @Test
@@ -212,7 +205,7 @@ public class DefaultOAuth2TokenServiceTest {
     cut.retrieveAccessTokenViaClientCredentialsGrant(
         TOKEN_URI, new ClientCredentials("myClientId", "mySecret"), null, null, emptyMap(), false);
 
-    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -223,7 +216,7 @@ public class DefaultOAuth2TokenServiceTest {
 
     final OAuth2TokenResponse result = requestAccessToken(TOKEN_URI, emptyMap());
 
-    verify(mockHttpClient, times(2)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(2)).execute(any(SecurityHttpRequest.class));
     assertThat(result.getAccessToken()).isEqualTo(ACCESS_TOKEN);
   }
 
@@ -240,7 +233,7 @@ public class DefaultOAuth2TokenServiceTest {
         .hasMessageContaining("Request Headers [")
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 400");
-    verify(mockHttpClient, times(7)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(7)).execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -255,7 +248,7 @@ public class DefaultOAuth2TokenServiceTest {
         .hasMessageContaining("Request Headers [")
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Http status code 500");
-    verify(mockHttpClient, times(1)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(1)).execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -270,7 +263,7 @@ public class DefaultOAuth2TokenServiceTest {
         .hasMessageContaining("Request Headers [")
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining(TOKEN_URI.toString());
-    verify(mockHttpClient, times(3)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(3)).execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -294,7 +287,7 @@ public class DefaultOAuth2TokenServiceTest {
         .extracting(ILoggingEvent::getFormattedMessage)
         .contains("Thread.sleep has been interrupted. Retry starts now.");
     logger.detachAppender(listAppender);
-    verify(mockHttpClient, times(2)).execute(any(HttpPost.class), any(ResponseHandler.class));
+    verify(mockHttpClient, times(2)).execute(any(SecurityHttpRequest.class));
   }
 
   private OAuth2TokenResponse requestAccessToken(
@@ -305,7 +298,7 @@ public class DefaultOAuth2TokenServiceTest {
   }
 
   private void mockResponse(final String responseAsString, final Integer... statusCodes) {
-    final List<CloseableHttpResponse> responses =
+    final List<SecurityHttpResponse> responses =
         Arrays.stream(statusCodes)
             .map(
                 statusCode ->
@@ -314,12 +307,11 @@ public class DefaultOAuth2TokenServiceTest {
 
     final AtomicInteger index = new AtomicInteger(0);
     try {
-      when(mockHttpClient.execute(any(HttpPost.class), any(ResponseHandler.class)))
+      when(mockHttpClient.execute(any(SecurityHttpRequest.class)))
           .thenAnswer(
               invocation -> {
-                final ResponseHandler responseHandler = invocation.getArgument(1);
-                final CloseableHttpResponse response = responses.get(index.getAndIncrement());
-                return responseHandler.handleResponse(response);
+                final SecurityHttpResponse response = responses.get(index.getAndIncrement());
+                return response;
               });
     } catch (final IOException ignored) {
     }

@@ -14,9 +14,9 @@ import com.sap.cloud.security.servlet.MDCHelper;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
+import jakarta.annotation.Nonnull;
 import java.net.URI;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -132,11 +132,12 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
 
   private static String[] getHeadersAsStringArray(
       final org.springframework.http.HttpHeaders headers) {
-    return headers != null
-        ? headers.entrySet().stream()
-            .map(e -> e.getKey() + ": " + String.join(",", e.getValue()))
-            .toArray(String[]::new)
-        : new String[0];
+    if (headers == null) {
+      return new String[0];
+    }
+    return headers.toSingleValueMap().entrySet().stream()
+        .map(e -> e.getKey() + ": " + e.getValue())
+        .toArray(String[]::new);
   }
 
   /**

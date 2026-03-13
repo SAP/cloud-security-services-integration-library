@@ -5,36 +5,35 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JsonWebKeyTest {
 	private JsonWebKey cut;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		cut = JsonWebKeyTestFactory.create();
 	}
 
 	@Test
 	public void equalsByInstance() {
-		assertThat(cut.equals(cut), equalTo(true));
+		assertThat(cut.equals(cut)).isTrue();
 	}
 
 	@Test
 	public void equalsByFields() {
-		assertThat(cut.equals(JsonWebKeyTestFactory.create()), equalTo(true));
-		assertThat(cut.hashCode(), equalTo(JsonWebKeyTestFactory.create().hashCode()));
+		assertThat(cut.equals(JsonWebKeyTestFactory.create())).isTrue();
+		assertThat(cut.hashCode()).isEqualTo(JsonWebKeyTestFactory.create().hashCode());
 	}
 
 	@Test
 	public void notEqualsByFields() {
-		assertThat(cut.equals(JsonWebKeyTestFactory.createDefault()), equalTo(false));
-		assertThat(cut.hashCode(), not(equalTo(JsonWebKeyTestFactory.createDefault().hashCode())));
+		assertThat(cut.equals(JsonWebKeyTestFactory.createDefault())).isFalse();
+		assertThat(cut.hashCode()).isNotEqualTo(JsonWebKeyTestFactory.createDefault().hashCode());
 	}
 
 }

@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.sap.cloud.security.xsuaa</groupId>
         <artifactId>parent</artifactId>
-        <version>3.6.8</version>
+        <version>4.0.0</version>
     </parent>
 
     <groupId>com.sap.cloud.security</groupId>
@@ -78,6 +78,11 @@
             <artifactId>json</artifactId>
             <version>${org.json.version}</version>
         </dependency>
+		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -89,20 +94,6 @@
             <artifactId>spotbugs-annotations</artifactId>
             <optional>true</optional>
             <version>${spotbugs.annotations.version}</version>
-        </dependency>
-
-        <!-- test utilities -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-            <version>${junit.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <scope>test</scope>
-            <version>${junit-jupiter.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

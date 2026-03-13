@@ -6,25 +6,35 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.config.ClientCredentials;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.config.ClientIdentity;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.client.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.Test;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.TOKEN_ENDPOINT_URI;
+import org.junit.jupiter.api.Test;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.XSUAA_BASE_URI;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.Test;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RefreshTokenFlowTest {
 
 	@Mock
@@ -37,7 +47,7 @@ public class RefreshTokenFlowTest {
 	private static final String REFRESH_TOKEN = "99e2cecfa54f4957a782f07168915b69-r";
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		OAuth2ServiceConfiguration oAuth2ServiceConfiguration = Mockito.mock(OAuth2ServiceConfiguration.class);
 		Mockito.when(oAuth2ServiceConfiguration.getUrl()).thenReturn(XSUAA_BASE_URI);
@@ -72,7 +82,7 @@ public class RefreshTokenFlowTest {
 
 		OAuth2TokenResponse response = cut.refreshToken(REFRESH_TOKEN).execute();
 
-		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
+		assertThat(response.getAccessToken()).isEqualTo(accessToken.getAccessToken());
 		verifyRetrieveAccessTokenCalledWith(REFRESH_TOKEN, false);
 	}
 
@@ -82,7 +92,7 @@ public class RefreshTokenFlowTest {
 
 		OAuth2TokenResponse response = cut.refreshToken(REFRESH_TOKEN).disableCache(true).execute();
 
-		assertThat(response.getAccessToken(), is(accessToken.getAccessToken()));
+		assertThat(response.getAccessToken()).isEqualTo(accessToken.getAccessToken());
 		verifyRetrieveAccessTokenCalledWith(REFRESH_TOKEN, true);
 	}
 

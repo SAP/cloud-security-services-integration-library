@@ -18,4 +18,16 @@ public class HttpClientException extends RuntimeException {
 	public HttpClientException(String message) {
 		super(message);
 	}
+
+	/**
+	 * Instantiates a new Service client exception with a cause.
+	 *
+	 * @param message
+	 * 		the message
+	 * @param cause
+	 * 		the cause
+	 */
+	public HttpClientException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

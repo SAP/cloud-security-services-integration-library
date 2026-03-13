@@ -5,6 +5,9 @@
  */
 package com.sap.cloud.security.servlet;
 
+import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+
+import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
@@ -15,29 +18,27 @@ import com.sap.cloud.security.token.validation.ValidationListener;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
+import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-
-import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	private Validator<Token> tokenValidator;
-	protected CloseableHttpClient httpClient;
+	protected SecurityHttpClient httpClient;
 	protected OAuth2ServiceConfiguration serviceConfiguration;
 	private CacheConfiguration tokenKeyCacheConfiguration;
 
@@ -78,7 +79,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 * 		the HttpClient
 	 * @return this authenticator
 	 */
-	public AbstractTokenAuthenticator withHttpClient(CloseableHttpClient httpClient) {
+	public AbstractTokenAuthenticator withHttpClient(SecurityHttpClient httpClient) {
 		this.httpClient = httpClient;
 		return this;
 	}
@@ -98,7 +99,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private void setupTokenFactory() {
 		if (serviceConfiguration.getService() == Service.XSUAA) {
-			HybridTokenFactory.withXsuaaAppId(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
+			HybridTokenFactory.withXsuaaAppId(Objects.requireNonNull(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID)));
 		}
 	}
 
@@ -154,7 +155,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	TokenAuthenticationResult unauthenticated(String message) {
-		logger.warn("Request could not be authenticated: {}.", message);
+		logger.warn("Request could not be authenticated: {}.", LogSanitizer.sanitize(message));
 		return TokenAuthenticatorResult.createUnauthenticated(message);
 	}
 
