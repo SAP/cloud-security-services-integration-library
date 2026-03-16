@@ -51,7 +51,6 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
 		<sap.cloud.security.version>4.0.0</sap.cloud.security.version>
-		<spring.boot.version>3.5.3</spring.boot.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 	</properties>
 
@@ -71,27 +70,23 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>${spring.boot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-			<version>${spring.boot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-cache</artifactId>
-			<version>${spring.boot.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>resourceserver-security-spring-boot-starter</artifactId>
+			<artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
 			<version>${sap.cloud.security.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<version>${spring.boot.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -103,7 +98,6 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
-			<version>6.0.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
