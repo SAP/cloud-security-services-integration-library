@@ -68,6 +68,12 @@
 			<version>${spring.boot.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+			<version>${jakarta.annotation.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security</artifactId>
 			<version>${project.parent.version}</version>

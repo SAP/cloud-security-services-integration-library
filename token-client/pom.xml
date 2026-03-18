@@ -53,10 +53,6 @@
 			<version>${slf4j.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-restclient</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>jakarta.annotation</groupId>
 			<artifactId>jakarta.annotation-api</artifactId>
 			<scope>provided</scope>
@@ -71,6 +67,11 @@
 			<artifactId>spring-web</artifactId>
 			<scope>provided</scope>
 			<version>${spring.core.version}</version>
+		</dependency>
+		<!-- Jackson for JSON processing - minimal dependency without Spring Boot bloat -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.json</groupId>
