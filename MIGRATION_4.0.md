@@ -204,7 +204,7 @@ import com.sap.cloud.security.test.JwtGenerator;
 **Before:**
 ```xml
 <dependency>
-    <groupId>com.sap.cloud.security</groupId>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>spring-security-compatibility</artifactId>
     <version>3.6.8</version>
 </dependency>
