@@ -14,7 +14,7 @@
 
     <groupId>com.sap.cloud.security.samples</groupId>
     <artifactId>spring-webflux-security-hybrid-usage</artifactId>
-    <version>4.0.0-RC2</version>
+    <version>4.0.0</version>
     <name>spring-webflux-security-hybrid-usage</name>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
