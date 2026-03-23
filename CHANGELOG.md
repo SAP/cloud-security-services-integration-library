@@ -45,7 +45,7 @@ The following deprecated modules have been removed. Migrate to the recommended a
 | `spring-xsuaa` | `spring-security` | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
 | `spring-xsuaa-it` | `spring-security` + `java-security-test` | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
 | `spring-xsuaa-test` | `java-security-test` | Use JwtGenerator from java-security-test |
-| `spring-security-compatibility` | `spring-security-legacy` | See below |
+| `spring-security-compatibility` | `spring-security-3` | See below |
 | `token-client` with Apache HttpClient | `token-client` with Java HttpClient | [Custom HTTP Client Guide](token-client/CUSTOM_HTTP_CLIENT.md) |
 
 #### Sample Removals
@@ -56,16 +56,16 @@ The following deprecated modules have been removed. Migrate to the recommended a
 #### Spring Boot 3.x Compatibility Layer
 For applications that cannot immediately upgrade to Spring Boot 4.x, two new modules provide backward compatibility:
 
-**1. spring-security-legacy** (`com.sap.cloud.security:spring-security-legacy`)
+**1. spring-security-3** (`com.sap.cloud.security:spring-security-3`)
 - Core security module compatible with Spring Boot 3.5.9, Spring Framework 6.2.15, Spring Security 6.5.7
 - Contains all AutoConfiguration classes and token validation logic
 - Direct drop-in replacement for the removed `spring-xsuaa` module
 
-**2. resourceserver-security-spring-boot-starter-legacy** (`com.sap.cloud.security:resourceserver-security-spring-boot-starter-legacy`)
+**2. resourceserver-security-spring-boot-starter-3** (`com.sap.cloud.security:resourceserver-security-spring-boot-starter-3`)
 - Spring Boot starter for Spring Boot 3.x applications
 - Auto-configures security beans and token validation
 - Provides the same developer experience as the main starter but with Spring Boot 3.x compatibility
-- See [spring-security-legacy README](spring-security-legacy/README.md) for usage
+- See [spring-security-3 README](spring-security-3/README.md) for usage
 
 **Migration Path:**
 ```xml
@@ -79,13 +79,13 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 <!-- For Spring Boot 3.x (compatibility layer) -->
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
 
 **Sample Application:**
-- `samples/spring-webflux-security-hybrid-usage` now demonstrates the legacy starter usage for Spring Boot 3.x applications
+- `samples/spring-webflux-security-hybrid-usage` now demonstrates the Spring Boot 3 starter usage for Spring Boot 3.x applications
 
 #### Token Client HTTP Client Changes
 - Replaced internal Apache HttpClient implementation with pluggable `HttpRequestExecutor` interface
@@ -104,9 +104,9 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 - Added comprehensive guide for custom HTTP client implementations
 
 #### Spring Security Module Reorganization
-- Moved Spring Boot 3.x compatibility code to dedicated `spring-security-legacy` module
+- Moved Spring Boot 3.x compatibility code to dedicated `spring-security-3` module
 - Main `spring-security` module now targets Spring Boot 4.x exclusively
-- Clear separation between current (4.x) and legacy (3.x) implementations
+- Clear separation between current (4.x) and Spring Boot 3.x (3.x) implementations
 
 ### :lock: Security
 
@@ -118,8 +118,8 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 ### :bug: Bug Fixes
 
 - Fixed hybrid authentication issue where IAS Configuration was incorrectly used for XSUAA token exchange
-- Fixed Spring Boot 4.x dependency conflicts in legacy module by adding explicit exclusions
-- Fixed AutoConfiguration discovery in legacy starter by adding proper META-INF configuration
+- Fixed Spring Boot 4.x dependency conflicts in Spring Boot 3 module by adding explicit exclusions
+- Fixed AutoConfiguration discovery in Spring Boot 3 starter by adding proper META-INF configuration
 - Fixed WebFlux sample to use AutoConfiguration instead of manual bean definitions
 - Resolved build failures after spring-xsuaa module removal
 - Fixed Javadoc cross-module references
@@ -136,8 +136,8 @@ See version 3.6.8 and earlier for incremental dependency updates. Major version 
 
 ### :books: Documentation
 
-- Added comprehensive [spring-security-legacy README](spring-security-legacy/README.md) with full API documentation
-- Added [Migration Guide](spring-security-legacy/Migration_SpringXsuaaProjects.md) for spring-xsuaa users
+- Added comprehensive [spring-security-3 README](spring-security-3/README.md) with full API documentation
+- Added [Migration Guide](spring-security-3/Migration_SpringXsuaaProjects.md) for spring-xsuaa users
 - Added [Custom HTTP Client Guide](token-client/CUSTOM_HTTP_CLIENT.md) with examples for multiple HTTP client libraries
 - Updated root README to clarify two-starter approach (standard vs legacy)
 - Updated samples to reflect new module structure
@@ -147,8 +147,8 @@ See version 3.6.8 and earlier for incremental dependency updates. Major version 
 - Removed 108 spring-xsuaa module files
 - Removed spring-security-compatibility module (12 files)
 - Removed deprecated spring-security-xsuaa-usage sample (21 files)
-- Added spring-security-legacy module with complete test coverage
-- Added spring-security-starter-legacy module
+- Added spring-security-3 module with complete test coverage
+- Added spring-security-starter-3 module
 - Updated CI/CD workflows to reflect new module structure
 
 ## 3.6.8

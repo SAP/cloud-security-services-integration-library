@@ -16,15 +16,15 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>4.0.0</version>
+		<version>4.0.0-RC2</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
-	<artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
-	<description>SAP Starter for integrating Spring Boot 3.x applications with IAS and/or XSUAA service (Legacy compatibility)</description>
+	<artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+	<description>SAP Starter for integrating Spring Boot 3.x applications with IAS and/or XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<packaging>jar</packaging>
-	<name>resourceserver-security-spring-boot-starter-legacy</name>
+	<name>resourceserver-security-spring-boot-starter-3</name>
 
 	<organization>
 		<name>SAP SE</name>
@@ -66,7 +66,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>spring-security-legacy</artifactId>
+			<artifactId>spring-security-3</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency> <!-- includes spring-security-oauth2-->

@@ -33,10 +33,10 @@ Version 4.0.0 is a major release that upgrades to Spring Boot 4.x and Jakarta EE
 
 The following modules have been removed:
 
-- `spring-xsuaa` → migrate to `spring-security` or `spring-security-legacy`
+- `spring-xsuaa` → migrate to `spring-security` or `spring-security-3`
 - `spring-xsuaa-test` → migrate to `java-security-test`
 - `spring-xsuaa-it` → migrate to `java-security-test` + `spring-security`
-- `spring-security-compatibility` → migrate to `spring-security-legacy`
+- `spring-security-compatibility` → migrate to `spring-security-3`
 - Apache HttpClient in token-client → migrate to Java 11 HttpClient (default) or custom implementation
 
 ### HTTP Client Changes
@@ -96,7 +96,7 @@ mvn clean test
 
 ## Migration Path 2: Stay on Spring Boot 3.x
 
-If you cannot immediately upgrade to Spring Boot 4.x, use the legacy compatibility modules.
+If you cannot immediately upgrade to Spring Boot 4.x, use the Spring Boot 3 compatibility modules.
 
 ### Step 1: Keep Spring Boot 3.x Parent
 
@@ -109,9 +109,9 @@ If you cannot immediately upgrade to Spring Boot 4.x, use the legacy compatibili
 </parent>
 ```
 
-### Step 2: Use Legacy Starter
+### Step 2: Use Spring Boot 3 Starter
 
-Replace the standard starter with the legacy starter:
+Replace the standard starter with the Spring Boot 3 starter:
 
 **Before (3.x):**
 ```xml
@@ -126,7 +126,7 @@ Replace the standard starter with the legacy starter:
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
@@ -149,11 +149,11 @@ mvn clean test
 
 ### When to Upgrade to Spring Boot 4.x
 
-The legacy modules are intended as a **temporary migration path**. Plan to upgrade to Spring Boot 4.x within your next major release cycle.
+The Spring Boot 3 modules are intended as a **temporary migration path**. Plan to upgrade to Spring Boot 4.x within your next major release cycle.
 
 ## Removed Modules
 
-### spring-xsuaa → spring-security / spring-security-legacy
+### spring-xsuaa → spring-security / spring-security-3
 
 The `spring-xsuaa` module has been removed. Migrate to either:
 
@@ -163,9 +163,9 @@ The `spring-xsuaa` module has been removed. Migrate to either:
 - [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md)
 
 **For Spring Boot 3.x:**
-- Module: `spring-security-legacy`
-- Starter: `resourceserver-security-spring-boot-starter-legacy`
-- [Migration Guide](spring-security-legacy/Migration_SpringXsuaaProjects.md)
+- Module: `spring-security-3`
+- Starter: `resourceserver-security-spring-boot-starter-3`
+- [Migration Guide](spring-security-3/Migration_SpringXsuaaProjects.md)
 
 ### spring-xsuaa-test → java-security-test
 
@@ -199,7 +199,7 @@ import com.sap.cloud.security.xsuaa.test.JwtGenerator;
 import com.sap.cloud.security.test.JwtGenerator;
 ```
 
-### spring-security-compatibility → spring-security-legacy
+### spring-security-compatibility → spring-security-3
 
 **Before:**
 ```xml
@@ -214,7 +214,7 @@ import com.sap.cloud.security.test.JwtGenerator;
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>spring-security-legacy</artifactId>
+    <artifactId>spring-security-3</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
@@ -366,5 +366,5 @@ com.example.ApacheHttpClient5Factory
 
 - [CHANGELOG.md](CHANGELOG.md) - Complete list of changes
 - [spring-security Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) - Detailed spring-xsuaa migration
-- [spring-security-legacy README](spring-security-legacy/README.md) - Legacy module documentation
+- [spring-security-3 README](spring-security-3/README.md) - Spring Boot 3 module documentation
 - [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) - Custom HTTP client guide

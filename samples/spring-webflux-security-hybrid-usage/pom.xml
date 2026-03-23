@@ -14,7 +14,7 @@
 
     <groupId>com.sap.cloud.security.samples</groupId>
     <artifactId>spring-webflux-security-hybrid-usage</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.0-RC2</version>
     <name>spring-webflux-security-hybrid-usage</name>
 
     <url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
@@ -73,10 +73,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        <!-- SAP Security Library Legacy Starter for Spring Boot 3.x -->
+        <!-- SAP Security Library Spring Boot 3 Starter -->
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
-            <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+            <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
             <version>${sap.cloud.security.version}</version>
         </dependency>
         <!-- Test Dependencies -->

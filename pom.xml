@@ -7,7 +7,7 @@
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>parent</artifactId>
-	<version>4.0.0</version>
+	<version>4.0.0-RC2</version>
 	<packaging>pom</packaging>
 
 	<name>parent</name>
@@ -81,9 +81,9 @@
 		<module>token-client</module>
 		<module>java-security</module>
 		<module>spring-security</module>
-		<module>spring-security-legacy</module>
+		<module>spring-security-3</module>
 		<module>spring-security-starter</module>
-		<module>spring-security-starter-legacy</module>
+		<module>spring-security-starter-3</module>
 		<module>java-security-test</module>
 		<module>bom</module>
     </modules>

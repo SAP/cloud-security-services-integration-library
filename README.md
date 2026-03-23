@@ -104,9 +104,9 @@ This library streamlines the process of handling token validation for tokens iss
 | Your Spring Boot Version | Recommended Module | Description |
 |---|---|---|
 | **Spring Boot 4.x** | [spring-security](/spring-security) with `resourceserver-security-spring-boot-starter` | Current version targeting Spring Boot 4.0.3, Spring Security 7.0.3 |
-| **Spring Boot 3.x** | [spring-security-legacy](/spring-security-legacy) with `resourceserver-security-spring-boot-starter-legacy` | Compatibility layer for Spring Boot 3.5.9, Spring Security 6.5.7 |
+| **Spring Boot 3.x** | [spring-security-3](/spring-security-3) with `resourceserver-security-spring-boot-starter-3` | Compatibility layer for Spring Boot 3.5.9, Spring Security 6.5.7 |
 
-:bulb: **New in 4.0.0**: The legacy starter provides a seamless migration path for applications that cannot immediately upgrade to Spring Boot 4.x. Both starters provide the same features and APIs.
+:bulb: **New in 4.0.0**: The Spring Boot 3 compatible starter provides a seamless migration path for applications that cannot immediately upgrade to Spring Boot 4.x. Both starters provide the same features and APIs.
 
 ##### Spring Boot 3.x Compatibility
 
@@ -119,19 +119,19 @@ If your application uses Spring Boot 3.x and you cannot immediately upgrade to S
 </dependency>
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
 
-See [spring-security-legacy README](/spring-security-legacy/README.md) for complete documentation.
+See [spring-security-3 README](/spring-security-3/README.md) for complete documentation.
 
 ##### Migrating from spring-xsuaa
 
 :warning: **Deprecated**: The `spring-xsuaa` module has been removed in version 4.0.0.
 
 If you're using the deprecated `spring-xsuaa` module:
-- Migrate to [spring-security](/spring-security) (Spring Boot 4.x) or [spring-security-legacy](/spring-security-legacy) (Spring Boot 3.x)
+- Migrate to [spring-security](/spring-security) (Spring Boot 4.x) or [spring-security-3](/spring-security-3) (Spring Boot 3.x)
 - Follow the [migration guide](/spring-security/Migration_SpringXsuaaProjects.md) for step-by-step instructions
 
 In the table below you'll find links to detailed information.
@@ -139,7 +139,7 @@ In the table below you'll find links to detailed information.
 | Library                                   | Spring Boot Version | Usage Examples                                                                                                                                                                                                                                           |
 |-------------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [spring-security](/spring-security)       | 4.x | [spring-security-hybrid-usage](samples/spring-security-hybrid-usage) demonstrates usage of xsuaa and Identity service token validation                                                                                                                   |
-| [spring-security-legacy](/spring-security-legacy) | 3.x | [spring-webflux-security-hybrid-usage](samples/spring-webflux-security-hybrid-usage) demonstrates WebFlux usage with the legacy starter for Spring Boot 3.x |
+| [spring-security-3](/spring-security-3) | 3.x | [spring-webflux-security-hybrid-usage](samples/spring-webflux-security-hybrid-usage) demonstrates WebFlux usage with the Spring Boot 3 starter |
 | [spring-security-basic-auth](/samples/spring-security-basic-auth) | 4.x | Demonstrates how a user can access Rest API via basic authentication (user/password)  |
 
 ### 2.2. Token Flows for token retrievals

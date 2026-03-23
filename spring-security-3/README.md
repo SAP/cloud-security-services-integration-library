@@ -69,13 +69,13 @@ These (spring) dependencies need to be provided:
 </dependency>
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
 
 ### Autoconfiguration
-By using `resourceserver-security-spring-boot-starter`, beans that are required to initialize the Spring Boot application as OAuth resource server are autoconfigured.
+By using `resourceserver-security-spring-boot-starter-3`, beans that are required to initialize the Spring Boot application as OAuth resource server are autoconfigured.
 
 The integration into Spring Security is done by providing a bean of type [JwtDecoder](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/oauth2/jwt/JwtDecoder.html) that overrides the default of the Spring framework.
 Depending on the service bindings in the environment, a different implementation is used to support both SAP Identity Service and XSUAA.\
@@ -538,6 +538,6 @@ found [here](../samples/spring-security-hybrid-usage/src/main/java/sample/spring
 - [Hybrid Usage](../samples/spring-security-hybrid-usage)
 Demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with tokens issued by SAP Identity service or XSUAA. Furthermore, it documents how to implement Spring WebMvcTests using `java-security-test` library.
 - [Basic Auth Usage](../samples/spring-security-basic-auth)
-Legacy example that demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with username/password provided via Basic Auth header. Furthermore, it documents how to implement Spring WebMvcTests using `java-security-test` library.
+Example that demonstrates how to leverage ``spring-security`` library to secure a Spring Boot web application with username/password provided via Basic Auth header. Furthermore, it documents how to implement Spring WebMvcTests using `java-security-test` library.
 - [Webflux Hybrid Usage](../samples/spring-webflux-security-hybrid-usage)\
 Shows how to use ``spring-security`` library with both tokens issued by XSUAA and SAP Identity service in an reactive environment.

@@ -1,12 +1,12 @@
-# SAP BTP Spring Security Client Library Webflux sample application (Legacy Starter)
+# SAP BTP Spring Security Client Library Webflux sample application (Spring Boot 3)
 This Spring Boot sample application is built with the `spring-webflux` framework and is protected by the
 `spring-security-oauth2-resource-server`.
 
-**This sample showcases the `resourceserver-security-spring-boot-starter-legacy`**, which provides backward compatibility for applications still using **Spring Boot 3.x** while the main library has moved to Spring Boot 4.x.
+**This sample showcases the `resourceserver-security-spring-boot-starter-3`**, which provides backward compatibility for applications still using **Spring Boot 3.x** while the main library has moved to Spring Boot 4.x.
 
-## About the Legacy Starter
+## About the Spring Boot 3 Starter
 
-The `resourceserver-security-spring-boot-starter-legacy` is designed for customers who:
+The `resourceserver-security-spring-boot-starter-3` is designed for customers who:
 - Cannot immediately upgrade to Spring Boot 4.x
 - Want to use the latest security fixes from version 4.0.0
 - Need time to plan their Spring Boot 4.x migration
@@ -18,7 +18,7 @@ This starter uses the same core security features but is compatible with:
 
 ## Key Differences from Main Starter
 
-| Aspect | Main Starter (`resourceserver-security-spring-boot-starter`) | Legacy Starter (`resourceserver-security-spring-boot-starter-legacy`) |
+| Aspect | Main Starter (`resourceserver-security-spring-boot-starter`) | Spring Boot 3 Starter (`resourceserver-security-spring-boot-starter-3`) |
 |--------|--------------------------------|------------------------------------------------|
 | Spring Boot | 4.0.3 | 3.5.9 |
 | Spring Framework | 7.0.5 | 6.2.15 |
@@ -27,7 +27,7 @@ This starter uses the same core security features but is compatible with:
 
 ## Usage
 
-This sample uses the `resourceserver-security-spring-boot-starter-legacy` to validate JWT tokens issued by either the `xsuaa` or the `identity` service.
+This sample uses the `resourceserver-security-spring-boot-starter-3` to validate JWT tokens issued by either the `xsuaa` or the `identity` service.
 The `xsuaa` service provides an OAuth access token, while the `identity` service provides an OIDC token.
 The tokens differ in the details they provide through token claims.
 In both instances, the validated token is accessible as a [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) via the `ReactiveSecurityContext`.

@@ -19,8 +19,8 @@ This PR represents **Major Release 4.0.0** of the SAP BTP Security Services Inte
 
 ### 2. Spring Boot 3.x Compatibility Layer ✅
 Created two new modules for Spring Boot 3.x users:
-- **`spring-security-legacy`**: Core security module compatible with Spring Boot 3.5.9
-- **`resourceserver-security-spring-boot-starter-legacy`**: Full-featured Spring Boot starter for 3.x
+- **`spring-security-3`**: Core security module compatible with Spring Boot 3.5.9
+- **`resourceserver-security-spring-boot-starter-3`**: Full-featured Spring Boot starter for 3.x
 
 This allows users to:
 - Get version 4.0.0 features without upgrading to Spring Boot 4.x
@@ -38,10 +38,10 @@ Successfully removed 5 deprecated modules:
 
 | Module | Files Removed | Replacement |
 |---|---|---|
-| `spring-xsuaa` | 108 | `spring-security` / `spring-security-legacy` |
+| `spring-xsuaa` | 108 | `spring-security` / `spring-security-3` |
 | `spring-xsuaa-test` | 27 | `java-security-test` |
 | `spring-xsuaa-it` | 25 | `spring-security` + `java-security-test` |
-| `spring-security-compatibility` | 12 | `spring-security-legacy` |
+| `spring-security-compatibility` | 12 | `spring-security-3` |
 | Apache HttpClient in token-client | - | Java 11 HttpClient (default) or custom implementation |
 | `samples/spring-security-xsuaa-usage` | 21 | `samples/spring-security-hybrid-usage` |
 
@@ -58,8 +58,8 @@ Successfully removed 5 deprecated modules:
 - **README.md**: Updated with version support table, migration guidance, new features
 - **MIGRATION_4.0.md**: Complete migration guide with two paths (upgrade vs compatibility)
 - **CUSTOM_HTTP_CLIENT.md**: New guide for custom HTTP client integration
-- **spring-security-legacy/README.md**: Full API documentation for legacy module
-- **spring-security-legacy/Migration_SpringXsuaaProjects.md**: spring-xsuaa migration guide
+- **spring-security-3/README.md**: Full API documentation for Spring Boot 3 module
+- **spring-security-3/Migration_SpringXsuaaProjects.md**: spring-xsuaa migration guide
 
 ## :package: Module Structure After Changes
 
@@ -74,8 +74,8 @@ Successfully removed 5 deprecated modules:
 - ✅ `bom` - Bill of materials
 
 ### New Compatibility Modules (Spring Boot 3.x)
-- ✅ `spring-security-legacy` - Spring Boot 3.x core module
-- ✅ `spring-security-starter-legacy` - Spring Boot 3.x starter
+- ✅ `spring-security-3` - Spring Boot 3.x core module
+- ✅ `spring-security-starter-3` - Spring Boot 3.x starter
 
 ### Removed (Deprecated)
 - ❌ `spring-xsuaa`
@@ -92,12 +92,12 @@ All module tests passing:
 - ✅ `java-security-test`: All tests pass
 - ✅ `token-client`: All tests pass
 - ✅ `spring-security`: All tests pass
-- ✅ `spring-security-legacy`: All tests pass
-- ✅ `spring-security-starter-legacy`: AutoConfiguration working
+- ✅ `spring-security-3`: All tests pass
+- ✅ `spring-security-starter-3`: AutoConfiguration working
 
 ### Sample Applications
 - ✅ `samples/spring-security-hybrid-usage`: Works with Spring Boot 4.x starter
-- ✅ `samples/spring-webflux-security-hybrid-usage`: Works with Spring Boot 3.x legacy starter (4 tests pass)
+- ✅ `samples/spring-webflux-security-hybrid-usage`: Works with Spring Boot 3.x starter (4 tests pass)
 - ✅ `samples/java-security-usage`: Tested with Java 17
 - ✅ `samples/spring-security-basic-auth`: Basic auth flow working
 
@@ -136,10 +136,10 @@ All module tests passing:
     <version>3.5.9</version>
 </parent>
 
-<!-- Use legacy starter -->
+<!-- Use Spring Boot 3 starter -->
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
@@ -149,9 +149,9 @@ All module tests passing:
 ## :memo: Breaking Changes
 
 ### 1. Spring Version Requirements
-- Spring Boot 4.0.3+ (or use legacy modules for 3.5.9)
-- Spring Framework 7.0.5+ (or 6.2.15 with legacy)
-- Spring Security 7.0.3+ (or 6.5.7 with legacy)
+- Spring Boot 4.0.3+ (or use Spring Boot 3 modules for 3.5.9)
+- Spring Framework 7.0.5+ (or 6.2.15 with Spring Boot 3)
+- Spring Security 7.0.3+ (or 6.5.7 with Spring Boot 3)
 
 ### 2. Removed Modules
 Must migrate to replacements (see [MIGRATION_4.0.md](MIGRATION_4.0.md))
@@ -168,8 +168,8 @@ Upgraded from 6.0.0 to 6.1.0
 - ✅ CHANGELOG.md - Complete version history
 - ✅ README.md - Updated with 4.0.0 information
 - ✅ MIGRATION_4.0.md - Comprehensive migration guide
-- ✅ spring-security-legacy/README.md - Full API docs
-- ✅ spring-security-legacy/Migration_SpringXsuaaProjects.md - spring-xsuaa migration
+- ✅ spring-security-3/README.md - Full API docs
+- ✅ spring-security-3/Migration_SpringXsuaaProjects.md - spring-xsuaa migration
 - ✅ token-client/CUSTOM_HTTP_CLIENT.md - HTTP client integration examples
 
 ### Developer Documentation
@@ -189,14 +189,14 @@ Upgraded from 6.0.0 to 6.1.0
 - [CHANGELOG.md](CHANGELOG.md) - Version 4.0.0 detailed changes
 - [MIGRATION_4.0.md](MIGRATION_4.0.md) - Migration guide
 - [README.md](README.md) - Updated main documentation
-- [spring-security-legacy/README.md](spring-security-legacy/README.md) - Legacy module docs
+- [spring-security-3/README.md](spring-security-3/README.md) - Spring Boot 3 module docs
 - [token-client/CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) - Custom HTTP client guide
 
 ## :construction: Commits Summary
 
 Major commit categories:
 1. **Spring Boot 4.x upgrade** - Core version bumps
-2. **Legacy module creation** - Spring Boot 3.x compatibility layer
+2. **Spring Boot 3 module creation** - Spring Boot 3.x compatibility layer
 3. **Module removal** - Deprecated module cleanup
 4. **HTTP client refactoring** - Token-client modernization
 5. **Security fixes** - SSRF and log injection vulnerabilities
@@ -214,7 +214,7 @@ Major commit categories:
 - ✅ Sample applications working
 - ✅ No merge conflicts with main
 - ✅ Security vulnerabilities addressed
-- ✅ Backward compatibility provided (legacy modules)
+- ✅ Backward compatibility provided (Spring Boot 3 modules)
 
 ## :question: Review Focus Areas
 
@@ -223,7 +223,7 @@ Please pay special attention to:
 1. **CHANGELOG.md** - Ensure all changes are accurately described
 2. **MIGRATION_4.0.md** - Verify migration paths are clear and complete
 3. **README.md** - Check that version support table and guidance are accurate
-4. **spring-security-legacy module** - Verify Spring Boot 3.x compatibility works as intended
+4. **spring-security-3 module** - Verify Spring Boot 3.x compatibility works as intended
 5. **HTTP client abstraction** - Ensure custom client integration is well-documented
 
 ## :tada: Conclusion

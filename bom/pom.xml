@@ -8,7 +8,7 @@
 
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-bom</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.0-RC2</version>
     <packaging>pom</packaging>
     <name>java-bom</name>
 
@@ -88,12 +88,12 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>resourceserver-security-spring-boot-starter-legacy</artifactId>
+                <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>spring-security-legacy</artifactId>
+                <artifactId>spring-security-3</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
