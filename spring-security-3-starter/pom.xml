@@ -20,11 +20,11 @@
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
-	<artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+	<artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
 	<description>SAP Starter for integrating Spring Boot 3.x applications with IAS and/or XSUAA service</description>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<packaging>jar</packaging>
-	<name>resourceserver-security-spring-boot-starter-3</name>
+	<name>resourceserver-security-spring-boot-3-starter</name>
 
 	<organization>
 		<name>SAP SE</name>

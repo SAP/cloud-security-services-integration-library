@@ -61,7 +61,7 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 - Contains all AutoConfiguration classes and token validation logic
 - Direct drop-in replacement for the removed `spring-xsuaa` module
 
-**2. resourceserver-security-spring-boot-starter-3** (`com.sap.cloud.security:resourceserver-security-spring-boot-starter-3`)
+**2. resourceserver-security-spring-boot-3-starter** (`com.sap.cloud.security:resourceserver-security-spring-boot-3-starter`)
 - Spring Boot starter for Spring Boot 3.x applications
 - Auto-configures security beans and token validation
 - Provides the same developer experience as the main starter but with Spring Boot 3.x compatibility
@@ -79,7 +79,7 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 <!-- For Spring Boot 3.x (compatibility layer) -->
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+    <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
@@ -148,7 +148,7 @@ See version 3.6.8 and earlier for incremental dependency updates. Major version 
 - Removed spring-security-compatibility module (12 files)
 - Removed deprecated spring-security-xsuaa-usage sample (21 files)
 - Added spring-security-3 module with complete test coverage
-- Added spring-security-starter-3 module
+- Added spring-security-3-starter module
 - Updated CI/CD workflows to reflect new module structure
 
 ## 3.6.8

@@ -76,7 +76,7 @@
         <!-- SAP Security Library Spring Boot 3 Starter -->
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
-            <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+            <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
             <version>${sap.cloud.security.version}</version>
         </dependency>
         <!-- Test Dependencies -->

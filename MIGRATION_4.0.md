@@ -126,7 +126,7 @@ Replace the standard starter with the Spring Boot 3 starter:
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+    <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
@@ -164,7 +164,7 @@ The `spring-xsuaa` module has been removed. Migrate to either:
 
 **For Spring Boot 3.x:**
 - Module: `spring-security-3`
-- Starter: `resourceserver-security-spring-boot-starter-3`
+- Starter: `resourceserver-security-spring-boot-3-starter`
 - [Migration Guide](spring-security-3/Migration_SpringXsuaaProjects.md)
 
 ### spring-xsuaa-test → java-security-test

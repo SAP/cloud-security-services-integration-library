@@ -88,7 +88,7 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+                <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

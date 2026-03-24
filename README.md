@@ -104,7 +104,7 @@ This library streamlines the process of handling token validation for tokens iss
 | Your Spring Boot Version | Recommended Module | Description |
 |---|---|---|
 | **Spring Boot 4.x** | [spring-security](/spring-security) with `resourceserver-security-spring-boot-starter` | Current version targeting Spring Boot 4.0.3, Spring Security 7.0.3 |
-| **Spring Boot 3.x** | [spring-security-3](/spring-security-3) with `resourceserver-security-spring-boot-starter-3` | Compatibility layer for Spring Boot 3.5.9, Spring Security 6.5.7 |
+| **Spring Boot 3.x** | [spring-security-3](/spring-security-3) with `resourceserver-security-spring-boot-3-starter` | Compatibility layer for Spring Boot 3.5.9, Spring Security 6.5.7 |
 
 :bulb: **New in 4.0.0**: The Spring Boot 3 compatible starter provides a seamless migration path for applications that cannot immediately upgrade to Spring Boot 4.x. Both starters provide the same features and APIs.
 
@@ -119,7 +119,7 @@ If your application uses Spring Boot 3.x and you cannot immediately upgrade to S
 </dependency>
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+    <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```

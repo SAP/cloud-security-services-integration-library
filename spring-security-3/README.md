@@ -69,13 +69,13 @@ These (spring) dependencies need to be provided:
 </dependency>
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+    <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
 
 ### Autoconfiguration
-By using `resourceserver-security-spring-boot-starter-3`, beans that are required to initialize the Spring Boot application as OAuth resource server are autoconfigured.
+By using `resourceserver-security-spring-boot-3-starter`, beans that are required to initialize the Spring Boot application as OAuth resource server are autoconfigured.
 
 The integration into Spring Security is done by providing a bean of type [JwtDecoder](https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/oauth2/jwt/JwtDecoder.html) that overrides the default of the Spring framework.
 Depending on the service bindings in the environment, a different implementation is used to support both SAP Identity Service and XSUAA.\

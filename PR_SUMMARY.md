@@ -20,7 +20,7 @@ This PR represents **Major Release 4.0.0** of the SAP BTP Security Services Inte
 ### 2. Spring Boot 3.x Compatibility Layer ✅
 Created two new modules for Spring Boot 3.x users:
 - **`spring-security-3`**: Core security module compatible with Spring Boot 3.5.9
-- **`resourceserver-security-spring-boot-starter-3`**: Full-featured Spring Boot starter for 3.x
+- **`resourceserver-security-spring-boot-3-starter`**: Full-featured Spring Boot starter for 3.x
 
 This allows users to:
 - Get version 4.0.0 features without upgrading to Spring Boot 4.x
@@ -75,7 +75,7 @@ Successfully removed 5 deprecated modules:
 
 ### New Compatibility Modules (Spring Boot 3.x)
 - ✅ `spring-security-3` - Spring Boot 3.x core module
-- ✅ `spring-security-starter-3` - Spring Boot 3.x starter
+- ✅ `spring-security-3-starter` - Spring Boot 3.x starter
 
 ### Removed (Deprecated)
 - ❌ `spring-xsuaa`
@@ -93,7 +93,7 @@ All module tests passing:
 - ✅ `token-client`: All tests pass
 - ✅ `spring-security`: All tests pass
 - ✅ `spring-security-3`: All tests pass
-- ✅ `spring-security-starter-3`: AutoConfiguration working
+- ✅ `spring-security-3-starter`: AutoConfiguration working
 
 ### Sample Applications
 - ✅ `samples/spring-security-hybrid-usage`: Works with Spring Boot 4.x starter
@@ -139,7 +139,7 @@ All module tests passing:
 <!-- Use Spring Boot 3 starter -->
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
-    <artifactId>resourceserver-security-spring-boot-starter-3</artifactId>
+    <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
     <version>4.0.0</version>
 </dependency>
 ```
