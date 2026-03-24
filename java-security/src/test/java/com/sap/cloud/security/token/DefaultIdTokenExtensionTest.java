@@ -58,7 +58,7 @@ public class DefaultIdTokenExtensionTest {
     String audience = "audience";
     when(idToken.getClaimAsStringList("aud")).thenReturn(List.of(audience, clientId));
     when(idToken.getClientId()).thenReturn(clientId);
-    when(accessToken.getClaimAsStringList("aud")).thenReturn(List.of(clientId));
+    when(accessToken.getClaimAsStringList("aud")).thenReturn(List.of(audience));
     when(accessToken.getClientId()).thenReturn(clientId);
     when(technicalUserToken.getClaimAsString("sub")).thenReturn(clientId);
     when(technicalUserToken.getClientId()).thenReturn(clientId);

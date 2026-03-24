@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.9
+
+- Fix token exchange logic in `DefaultIdTokenExtension` to correctly identify App2App tokens that require exchange (where `aud` contains a single audience different from `azp`)
+
 ## 3.6.8
 
 - Fix hybrid authentication issue where IAS Configuration was incorrectly used for XSUAA token exchange instead of XSUAA Configuration in `HybridIdentityServicesAutoConfiguration`
