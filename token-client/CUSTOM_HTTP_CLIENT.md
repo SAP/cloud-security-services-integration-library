@@ -26,6 +26,39 @@ public interface HttpRequestExecutor {
 
 ## Examples
 
+### Apache HttpClient 4
+
+> **Note:** The library provides `ApacheHttpClient4Executor`, a ready-to-use implementation for Apache HttpClient 4. This class is deprecated and will be removed in version 5.0.0.
+
+**Using the built-in `ApacheHttpClient4Executor` (Deprecated):**
+
+```java
+import com.sap.cloud.security.client.*;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+
+// Configure your Apache HttpClient 4
+CloseableHttpClient apacheClient = HttpClients.custom()
+    .setDefaultRequestConfig(RequestConfig.custom()
+        .setConnectTimeout(10000)
+        .setSocketTimeout(30000)
+        .build())
+    .setMaxConnTotal(100)
+    .setMaxConnPerRoute(20)
+    .build();
+
+// Use the built-in ApacheHttpClient4Executor (deprecated)
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(
+    new ApacheHttpClient4Executor(apacheClient),
+    apacheClient::close
+);
+
+// Use with token services
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
+```
+
+**For long-term support:** Copy the implementation of `ApacheHttpClient4Executor` into your own codebase and maintain it as a custom implementation. The source code can be found in the library and serves as a reference for implementing the `HttpRequestExecutor` interface with Apache HttpClient 4.
+
 ### Apache HttpClient 5
 
 ```java
@@ -68,51 +101,6 @@ HttpRequestExecutor executor = (uri, method, headers, body) -> {
 
 // 3. Wrap in SecurityHttpClient
 SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor, client5::close);
-
-// 4. Use with token services
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
-```
-
-### OkHttp
-
-```java
-import com.sap.cloud.security.client.*;
-import okhttp3.*;
-
-// 1. Configure OkHttp
-OkHttpClient okHttpClient = new OkHttpClient.Builder()
-    .connectTimeout(10, TimeUnit.SECONDS)
-    .readTimeout(30, TimeUnit.SECONDS)
-    .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.company.com", 8080)))
-    .build();
-
-// 2. Implement HttpRequestExecutor
-HttpRequestExecutor executor = (uri, method, headers, body) -> {
-    Request.Builder builder = new Request.Builder().url(uri.toURL());
-    headers.forEach(builder::addHeader);
-
-    RequestBody requestBody = body != null
-        ? RequestBody.create(body, MediaType.parse("application/x-www-form-urlencoded"))
-        : null;
-    builder.method(method, requestBody);
-
-    try (Response response = okHttpClient.newCall(builder.build()).execute()) {
-        Map<String, String> responseHeaders = new HashMap<>();
-        response.headers().forEach(pair ->
-            responseHeaders.put(pair.getFirst(), pair.getSecond()));
-
-        String responseBody = response.body() != null ? response.body().string() : "";
-
-        return new HttpRequestExecutor.HttpResponse(
-            response.code(),
-            responseHeaders,
-            responseBody
-        );
-    }
-};
-
-// 3. Wrap in SecurityHttpClient
-SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor);
 
 // 4. Use with token services
 OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
@@ -219,52 +207,6 @@ try {
 ```
 
 Without a close handler, `close()` is a no-op and you must manage lifecycle yourself.
-
-## Apache HttpClient 4 Support
-
-> **Deprecated:** Apache HttpClient 4 support via deprecated constructors will be removed in version 5.0.0.
-
-Apache HttpClient 4 can still be used via custom `HttpRequestExecutor` implementation:
-
-```java
-import com.sap.cloud.security.client.*;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
-CloseableHttpClient apacheClient = HttpClients.custom()
-    .setDefaultRequestConfig(RequestConfig.custom()
-        .setConnectTimeout(10000)
-        .setSocketTimeout(30000)
-        .build())
-    .build();
-
-HttpRequestExecutor executor = (uri, method, headers, body) -> {
-    HttpPost request = new HttpPost(uri);
-    headers.forEach(request::addHeader);
-    if (body != null) {
-        request.setEntity(new ByteArrayEntity(body));
-    }
-
-    return apacheClient.execute(request, response -> {
-        String responseBody = EntityUtils.toString(response.getEntity());
-        Map<String, String> responseHeaders = new HashMap<>();
-        for (var header : response.getAllHeaders()) {
-            responseHeaders.put(header.getName(), header.getValue());
-        }
-        return new HttpRequestExecutor.HttpResponse(
-            response.getStatusLine().getStatusCode(),
-            responseHeaders,
-            responseBody
-        );
-    });
-};
-
-SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor, apacheClient::close);
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
-```
 
 ## FAQ
 

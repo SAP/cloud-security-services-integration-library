@@ -13,15 +13,7 @@ In version **4.0.0**, the token-client library migrated from **Apache HttpClient
 
 ### Option 1: Use Default Java HttpClient (Recommended)
 
-No code changes needed! The token-client automatically uses Java 11 HttpClient:
-
-```xml
-<dependency>
-    <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>token-client</artifactId>
-    <version>4.0.0</version>
-</dependency>
-```
+**If you're using default constructors**, no code changes needed:
 
 ```java
 // Automatically uses Java 11 HttpClient
@@ -30,10 +22,28 @@ OAuth2TokenService tokenService = new DefaultOAuth2TokenService();
 OidcConfigurationService oidcService = new DefaultOidcConfigurationService();
 ```
 
+**If you're using `HttpClientFactory` or `DefaultHttpClientFactory`**, migrate to `SecurityHttpClientProvider`:
+
+**Before (Version 3.x):**
+```java
+import com.sap.cloud.security.client.HttpClientFactory;
+
+CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+```
+
+**After (Version 4.0.0):**
+```java
+import com.sap.cloud.security.client.SecurityHttpClientProvider;
+
+SecurityHttpClient httpClient = SecurityHttpClientProvider.createClient(clientIdentity);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+```
+
 **Benefits:**
-- ✅ Zero code changes
 - ✅ No external dependencies
 - ✅ Built into Java 11+
+- ✅ Future-proof API
 
 ---
 
@@ -41,6 +51,17 @@ OidcConfigurationService oidcService = new DefaultOidcConfigurationService();
 
 For applications that need more time to migrate:
 
+**Using `HttpClientFactory` (Deprecated):**
+```java
+import com.sap.cloud.security.client.HttpClientFactory;
+import org.apache.http.impl.client.CloseableHttpClient;
+
+// HttpClientFactory.create() is deprecated and will be removed in 5.0.0
+CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+```
+
+**Using direct Apache HttpClient constructors (Deprecated):**
 ```java
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -62,18 +83,18 @@ OidcConfigurationService oidcService = new DefaultOidcConfigurationService(httpC
 
 ---
 
-### Option 3: Custom HTTP Client Implementation (Future-Proof)
+### Option 3: Custom HTTP Client Implementation (Recommended for Custom Configurations)
 
 If you need custom HTTP client features (proxy, connection pooling, mTLS), implement the `HttpRequestExecutor` interface.
 
-This approach works with **any** HTTP client library (Apache HttpClient 4, Apache HttpClient 5, OkHttp, etc.) and is **not deprecated**.
+This approach is **future-proof** and works with any HTTP client library (Apache HttpClient 4, Apache HttpClient 5, etc.).
 
 **Benefits:**
-- ✅ Future-proof - Not deprecated
-- ✅ Works with any HTTP client library (Apache 4, Apache 5, OkHttp, etc.)
+- ✅ Future-proof
+- ✅ Works with any HTTP client library (Apache 4, Apache 5, etc.)
 - ✅ Full control over HTTP client configuration
 
-**For complete examples with Apache HttpClient 5, OkHttp, and Java HttpClient, see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).**
+**For complete examples with Apache HttpClient 4 and 5, see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).**
 
 ---
 
