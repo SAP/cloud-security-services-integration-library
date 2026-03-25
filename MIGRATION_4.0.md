@@ -221,61 +221,6 @@ import com.sap.cloud.security.test.JwtGenerator;
 
 **Note:** For Spring Boot 4.x, use `spring-security` module directly.
 
-### Token Client: Apache HttpClient → Java 11 HttpClient
-
-The token-client module now uses Java 11 HttpClient as the default. Apache HttpClient 4 is still included as a transitive dependency for backward compatibility.
-
-**Option 1: Use default Java 11 HttpClient (Recommended)**
-
-The `token-client` module now uses Java 11 HttpClient by default - no additional dependencies or code changes required.
-
-**Before (Version 3.x with Apache HttpClient):**
-```xml
-<dependency>
-    <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>token-client</artifactId>
-    <version>3.6.8</version>
-</dependency>
-```
-
-**After (Version 4.0.0 with Java HttpClient):**
-```xml
-<dependency>
-    <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>token-client</artifactId>
-    <version>4.0.0</version>
-</dependency>
-```
-
-No code changes required - the HTTP client change is transparent.
-
-**Option 2: Continue using deprecated Apache HttpClient constructors**
-
-If you have existing code using Apache HttpClient 4, it will continue to work:
-
-```java
-// This code still works in 4.x (deprecated, will be removed in 5.0.0)
-CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
-```
-
-Apache HttpClient 4 is included transitively - no additional dependency needed.
-
-**Option 3: Provide custom Apache HttpClient 5**
-
-If you need Apache HttpClient 5 for specific features (e.g., connection pooling, proxy support):
-
-1. Add Apache HttpClient 5 dependency:
-```xml
-<dependency>
-    <groupId>org.apache.httpcomponents.client5</groupId>
-    <artifactId>httpclient5</artifactId>
-    <version>5.6</version>
-</dependency>
-```
-
-2. Implement `SecurityHttpClientFactory` - see [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) for examples
-
 ## Token Client HTTP Client Changes
 
 ### Default HTTP Client
