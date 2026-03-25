@@ -41,10 +41,15 @@ The following deprecated modules have been removed from the repository:
 
 | Removed Module | Replacement | Migration Guide |
 |---|---|---|
-| `spring-xsuaa` | `spring-security` or `spring-security-3` | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
-| `spring-xsuaa-starter` | `spring-security-starter` or `spring-security-3-starter` | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
+| `spring-xsuaa` | `spring-security` (Spring Boot 4.x) or `spring-security-3` (Spring Boot 3.x) | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
+| `spring-xsuaa-starter` | `spring-security-starter` (Spring Boot 4.x) or `spring-security-3-starter` (Spring Boot 3.x) | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
 | `spring-xsuaa-test` | `java-security-test` | Use JwtGenerator from java-security-test |
 | `spring-security-compatibility` | `spring-security-3` | No changes needed, just switch artifact |
+
+**Migration Notes:**
+- `spring-security` and `spring-security-3` provide identical APIs to the removed `spring-xsuaa` module
+- Choose `spring-security` for Spring Boot 4.x or `spring-security-3` for Spring Boot 3.x
+- No application code changes required when migrating from `spring-xsuaa`
 
 #### Sample Removals
 - `samples/spring-security-xsuaa-usage` - Use `samples/spring-security-hybrid-usage` instead
@@ -57,7 +62,7 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 **1. spring-security-3** (`com.sap.cloud.security:spring-security-3`)
 - Core security module compatible with Spring Boot 3.5.9, Spring Framework 6.2.15, Spring Security 6.5.7
 - Contains all AutoConfiguration classes and token validation logic
-- Direct replacement for `spring-xsuaa` module with identical APIs
+- Provides Spring Boot 3.x compatibility for applications not yet ready to upgrade to Spring Boot 4.x
 
 **2. resourceserver-security-spring-boot-3-starter** (`com.sap.cloud.security:resourceserver-security-spring-boot-3-starter`)
 - Spring Boot starter for Spring Boot 3.x applications
