@@ -37,12 +37,12 @@ The following modules have been removed:
 - `spring-xsuaa-test` → migrate to `java-security-test`
 - `spring-xsuaa-it` → migrate to `java-security-test` + `spring-security`
 - `spring-security-compatibility` → migrate to `spring-security-3`
-- Apache HttpClient in token-client → migrate to Java 11 HttpClient (default) or custom implementation
 
 ### HTTP Client Changes
 
 - Token-client now uses Java 11 HttpClient by default (no external dependencies)
-- Apache HttpClient support available via custom integration (see [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md))
+- Apache HttpClient 4 support maintained via deprecated constructors (removed in 5.0.0)
+- Custom HTTP client implementations supported (Apache HttpClient 5, OkHttp, etc.) - see [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md)
 
 ## Migration Path 1: Upgrade to Spring Boot 4.x (Recommended)
 
@@ -149,7 +149,7 @@ mvn clean test
 
 ### When to Upgrade to Spring Boot 4.x
 
-The Spring Boot 3 modules are intended as a **temporary migration path**. Plan to upgrade to Spring Boot 4.x within your next major release cycle.
+The Spring Boot 3 modules are intended as a **temporary migration path**. Plan to upgrade to Spring Boot 4.x as soon as possible.
 
 ## Removed Modules
 
