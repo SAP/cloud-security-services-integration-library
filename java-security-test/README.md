@@ -1,6 +1,6 @@
 # SAP BTP Java Security Test Library
 
-The project `java-security-test` offers utility to write JUnit tests of applications secured with [java-security](../java-security), [spring-security](../spring-security) or [spring-xsuaa](../spring-xsuaa) without access to a real identity service instance.
+The project `java-security-test` offers utility to write JUnit tests of applications secured with [java-security](../java-security), [spring-security](../spring-security) or [spring-security-3](../spring-security-3) without access to a real identity service instance.
 To this end, it starts a [WireMock](https://wiremock.org/) server running on `localhost` that is pre-configured with stubbed responses, e.g. for the JWKS or OIDC endpoints.
 This server can be used as a mocked Identity or Xsuaa service instead of an actual service instance. It can be used to test both Spring (Boot) and Java EE applications.
 
@@ -40,7 +40,7 @@ It is pre-configured with a security filter that only accepts valid tokens. Furt
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
    <artifactId>java-security-test</artifactId>
-      <version>3.6.8</version>
+      <version>4.0.0</version>
    <scope>test</scope>
 </dependency>
 ```

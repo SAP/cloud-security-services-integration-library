@@ -16,7 +16,7 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
 
 :white_check_mark: **Migrating from 3.x?** We've got you covered:
 - **Spring Boot 4.x** users: Update to `resourceserver-security-spring-boot-starter` 4.0.0
-- **Spring Boot 3.x** users: Use new `resourceserver-security-spring-boot-starter-legacy` 4.0.0 - same features, full compatibility
+- **Spring Boot 3.x** users: Use new `resourceserver-security-spring-boot-3-starter` 4.0.0 - same features, full compatibility
 - **spring-xsuaa** users: Module removed - follow our [migration guide](spring-security/Migration_SpringXsuaaProjects.md)
 
 **Key Changes:**

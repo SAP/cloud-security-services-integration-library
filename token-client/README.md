@@ -46,7 +46,7 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
 5. [Samples](#samples)
 
 ## Setup 
-For Spring Boot applications `TokenFlows` come autoconfigured with our `spring-security` or `spring-xsuaa` libraries and can be easily consumed by autowiring the `XsuaaTokenFlows` Bean. For more details see [1.1. Configuration for Spring Applications](#11-configuration-for-spring-applications) section.
+For Spring Boot applications `TokenFlows` come autoconfigured with our `spring-security` or `spring-security-3` libraries and can be easily consumed by autowiring the `XsuaaTokenFlows` Bean. For more details see [1.1. Configuration for Spring Applications](#11-configuration-for-spring-applications) section.
 
 For a **Java EE application** you will need to provide
 [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) and [HttpClientFactory](#httpclientfactory) to set up `XsuaaTokenFlows`. See [1.2. Configuration for Java EE Applications](#12-configuration-for-java-ee-applications) section for more details.
@@ -62,7 +62,7 @@ In context of a Spring Boot application you can leverage autoconfiguration provi
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.6.8</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 In context of Spring Applications you will need the following dependencies:
@@ -195,7 +195,7 @@ For custom HTTP client configuration (e.g., Apache HttpClient with connection po
 `OAuth2ServiceConfiguration` holds the information from the respective Identity service binding and is used in `XsuaaTokenFlows` initialization.
 
 #### Autoconfigured OAuth2ServiceConfiguration Bean
-When using `spring-xsuaa` or `spring-security` client libraries, a readily configured OAuth2ServiceConfiguration is accessible via `XsuaaServiceConfiguration` Bean.
+When using `spring-security` or `spring-security-3` client libraries, a readily configured OAuth2ServiceConfiguration is accessible via `XsuaaServiceConfiguration` Bean.
 
 #### Default OAuth2ServiceConfiguration
 Alternatively, the `env` library provides a convenient way to obtain bound Identity service configurations by reading information from the `VCAP_SERVICES` environment variable or K8s secrets and mapping it to an instance of the `OAuth2ServiceConfiguration` class. You can use it as follows:
@@ -233,8 +233,7 @@ To utilize an **externally managed certificate** in
             SpringApplication application = new SpringApplication(Application.class);
             Properties properties = new Properties();
           
-            properties.put("xsuaa.key", "-----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----"); // when using spring-xsuaa
-            properties.put("sap.security.services.xsuaa.key", "-----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----"); // when using spring-security
+            properties.put("sap.security.services.xsuaa.key", "-----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----"); // when using spring-security or spring-security-3
           
             application.setDefaultProperties(properties);
             application.run(args);
@@ -245,16 +244,13 @@ To utilize an **externally managed certificate** in
 
   :information_source: For **testing purposes only** `key` can be overwritten in `application.yml` properties file.
    ```yaml
-      # spring-xsuaa
-      xsuaa:
-        key: -----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----
-      # spring-security
+      # spring-security or spring-security-3
       sap.security.services.xsuaa:
         key: -----BEGIN RSA PRIVATE KEY ... END RSA PRIVATE KEY-----
     ```
     :exclamation: **DO NOT** disclose your key or secret in publicly available places e.g. repository in GitHub.com
 
-:bulb: Note that if you are only using the `token-client` library without the [java-security](../java-security/README.md) or [spring-security](../spring-security/README.md), you will need to define the `env` dependency in your pom.xml:
+:bulb: Note that if you are only using the `token-client` library without the [java-security](../java-security/README.md), [spring-security](../spring-security/README.md), or [spring-security-3](../spring-security-3/README.md), you will need to define the `env` dependency in your pom.xml:
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
