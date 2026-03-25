@@ -233,35 +233,62 @@ Version 4.0.0 uses Java 11 HttpClient by default. No external dependencies requi
 
 **Migration:** No code changes needed! The HTTP client is an internal implementation detail.
 
+### Migration Options
+
+**Option 1: Use default Java 11 HttpClient (Recommended)**
+
+The `token-client` module now uses Java 11 HttpClient by default - no additional dependencies or code changes required.
+
+**Before (Version 3.x with Apache HttpClient):**
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+    <version>3.6.8</version>
+</dependency>
+```
+
+**After (Version 4.0.0 with Java HttpClient):**
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+    <version>4.0.0</version>
+</dependency>
+```
+
+No code changes required - the HTTP client change is transparent.
+
+**Option 2: Continue using deprecated Apache HttpClient constructors**
+
+If you have existing code using Apache HttpClient 4, it will continue to work:
+
+```java
+// This code still works in 4.x (deprecated, will be removed in 5.0.0)
+CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+```
+
+Apache HttpClient 4 is included transitively - no additional dependency needed.
+
+**Option 3: Provide custom Apache HttpClient 5**
+
+If you need Apache HttpClient 5 for specific features (e.g., connection pooling, proxy support):
+
+1. Add Apache HttpClient 5 dependency:
+```xml
+<dependency>
+    <groupId>org.apache.httpcomponents.client5</groupId>
+    <artifactId>httpclient5</artifactId>
+    <version>5.6</version>
+</dependency>
+```
+
+2. Implement `SecurityHttpClientFactory` - see [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) for examples
+
 ### Timeout and Connection Pooling
 
 The timeout settings (5s connect, 30s socket) have been preserved. Connection pooling behavior differs slightly - see the [token-client README](token-client/README.md#connection-pooling) for details and configuration options.
-
-### Custom HTTP Client Integration
-
-To use a different HTTP client (Apache HttpClient 4.x/5.x, OkHttp):
-
-1. Implement the `HttpRequestExecutor` interface
-2. Register via `SecurityHttpClientFactory` service loader
-
-See comprehensive guide: [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md)
-
-Example for Apache HttpClient 5:
-
-```java
-public class ApacheHttpClient5Factory implements SecurityHttpClientFactory {
-    @Override
-    public SecurityHttpClient create() {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        return new ApacheHttpClient5Adapter(httpClient);
-    }
-}
-```
-
-Register in `META-INF/services/com.sap.cloud.security.client.SecurityHttpClientFactory`:
-```
-com.example.ApacheHttpClient5Factory
-```
 
 ## Troubleshooting
 
