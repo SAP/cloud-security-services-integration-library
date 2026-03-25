@@ -13,6 +13,7 @@ This is a major release with breaking changes. The library has been upgraded to 
 - **Spring Security**: Upgraded from 6.x to **7.0.3**
 - **Jakarta Servlet API**: Upgraded from 6.0.0 to **6.1.0**
 - **Java**: Minimum version remains **Java 17**
+- **JUnit Jupiter**: Upgraded from 5.12.2 to **6.0.3**
 
 #### HTTP Client Default Changed
 **Token-client module** now uses **Java 11's HttpClient** as the default implementation. Apache HttpClient 4 remains available as a dependency for backward compatibility.
@@ -46,13 +47,6 @@ The following deprecated modules have been removed from the repository:
 | `spring-xsuaa-test` | `java-security-test` | Use JwtGenerator from java-security-test |
 | `spring-security-compatibility` | `spring-security-3` | No changes needed, just switch artifact |
 
-**Migration Notes:**
-- `spring-security` and `spring-security-3` provide identical APIs to the removed `spring-xsuaa` module
-- Choose `spring-security` for Spring Boot 4.x or `spring-security-3` for Spring Boot 3.x
-- No application code changes required when migrating from `spring-xsuaa`
-
-#### Sample Removals
-- `samples/spring-security-xsuaa-usage` - Use `samples/spring-security-hybrid-usage` instead
 
 ### :sparkles: New Features
 
@@ -98,39 +92,6 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 - Custom HTTP client implementations can be provided via `SecurityHttpClientFactory` ServiceLoader
 - See [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) for integration examples (Apache HttpClient 4.x, 5.x, OkHttp, SAP Cloud SDK)
 
-### :hammer: Refactoring
-
-#### Token Client Modernization
-- Migrated from Apache HttpClient 4.x to Java 11 HttpClient as default
-- Apache HttpClient 4.5.14 remains available as dependency for backward compatibility
-- Introduced `SecurityHttpClient` abstraction for easier HTTP client customization
-- Added `SecurityHttpClientFactory` ServiceLoader mechanism for custom implementations
-- Added comprehensive guides for custom HTTP client implementations
-
-#### Spring Security Module Reorganization
-- Moved Spring Boot 3.x compatibility code to dedicated `spring-security-3` module
-- Main `spring-security` module now targets Spring Boot 4.x exclusively
-- Clear separation between current (4.x) and compatibility (3.x) implementations
-
-### :lock: Security
-
-- Fixed SSRF (Server-Side Request Forgery) vulnerabilities in multiple components
-- Fixed log injection vulnerabilities by introducing `LogSanitizer` utility
-- Improved input validation and error handling across token validation flows
-- Properly close HttpClient resources using try-with-resources blocks
-
-### :bug: Bug Fixes
-
-- Fixed token exchange logic in `DefaultIdTokenExtension` to correctly identify App2App tokens that require exchange (version 3.6.9)
-- Fixed hybrid authentication issue where IAS Configuration was incorrectly used for XSUAA token exchange (version 3.6.8)
-- Fixed Spring Boot 4.x dependency conflicts in Spring Boot 3 modules by adding explicit exclusions
-- Fixed AutoConfiguration discovery in Spring Boot 3 starter by adding proper META-INF configuration
-- Fixed WebFlux sample to use AutoConfiguration instead of manual bean definitions
-- Resolved build failures after spring-xsuaa module removal
-- Fixed Javadoc cross-module references
-- Fixed null app_tid handling in X-zid header for Java 21+ compatibility
-- Removed deprecated HttpClientFactory usage in java-security-usage sample
-
 ### :package: Dependency Upgrades
 
 Major version bumps:
@@ -142,27 +103,6 @@ Major version bumps:
 - Apache HttpComponents Client: 4.5.14 (unchanged, kept for backward compatibility)
 
 See versions 3.6.x for incremental dependency updates.
-
-### :books: Documentation
-
-- Added comprehensive [spring-security-3 README](spring-security-3/README.md) with full API documentation
-- Added [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) for spring-xsuaa users
-- Added [Apache HttpClient Migration Guide](token-client/APACHE_HTTPCLIENT_MIGRATION.md)
-- Added [Custom HTTP Client Guide](token-client/CUSTOM_HTTP_CLIENT.md) with examples for multiple HTTP client libraries
-- Added [4.0 Migration Guide](MIGRATION_4.0.md) with comprehensive upgrade instructions
-- Updated root README to clarify two-starter approach (standard vs Spring Boot 3)
-- Updated all module READMEs to reflect Spring Boot 4.x changes
-- Updated samples to reflect new module structure
-
-### :construction: For Maintainers
-
-- Removed spring-xsuaa, spring-xsuaa-starter, spring-xsuaa-test, spring-security-compatibility modules from repository
-- Added spring-security-3 module with complete test coverage
-- Added spring-security-3-starter module
-- Renamed spring-security-starter-3 to spring-security-3-starter for consistency
-- Restored and fixed HttpClientFactory tests
-- Added SecurityHttpClientFactory tests
-- Updated CI/CD workflows to reflect new module structure
 
 ## 3.6.9
 
