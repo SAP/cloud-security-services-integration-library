@@ -2,11 +2,11 @@
 
 ## Overview
 
-Starting with version 4.0.0, the token-client library uses **Java 11's HttpClient** as the default HTTP client implementation. If you need to use a different HTTP client library (Apache HttpClient, OkHttp, etc.), you can provide your own implementation using the simple `HttpRequestExecutor` interface.
+The token-client library uses **Java 11 HttpClient** as the default. If you need custom HTTP client features (proxy, connection pooling, mTLS, etc.), you can provide your own implementation using the `HttpRequestExecutor` interface.
 
-## Why Use a Custom HTTP Client?
+## When to Use Custom HTTP Client
 
-You might want to use a custom HTTP client if you need:
+Use a custom HTTP client if you need:
 - Specific proxy configurations
 - Custom connection pooling settings
 - Corporate SSL certificates or mTLS
@@ -14,9 +14,7 @@ You might want to use a custom HTTP client if you need:
 - Request/response logging
 - Integration with existing HTTP client infrastructure
 
-## The Simple Approach: HttpRequestExecutor Interface
-
-Instead of maintaining separate adapter modules for each HTTP client library, we provide a simple functional interface that you can implement:
+## The HttpRequestExecutor Interface
 
 ```java
 @FunctionalInterface
@@ -28,95 +26,17 @@ public interface HttpRequestExecutor {
 
 ## Examples
 
-### Apache HttpClient 4.x
-
-For Apache HttpClient 4.x, we provide a ready-to-use `HttpRequestExecutor` implementation called `ApacheHttpClient4Executor`.
-This is the same implementation the library uses internally for backward compatibility.
-
-**Using the built-in executor (simplest approach):**
+### Apache HttpClient 5
 
 ```java
 import com.sap.cloud.security.client.*;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-
-// Configure your Apache HttpClient
-CloseableHttpClient apacheClient = HttpClients.custom()
-    .setMaxConnTotal(100)
-    .setMaxConnPerRoute(20)
-    .build();
-
-// Use the built-in ApacheHttpClient4Executor
-SecurityHttpClient client = new CustomHttpClientAdapter(
-    new ApacheHttpClient4Executor(apacheClient),
-    apacheClient::close
-);
-
-// Use with token services
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
-```
-
-> **Note:** `ApacheHttpClient4Executor` is deprecated and will be removed in version 5.0.0.
-> Consider migrating to Java 11 HttpClient (default) or Apache HttpClient 5.
-
-**Custom executor (for advanced configuration):**
-
-```java
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-import com.sap.cloud.security.client.*;
-
-// Configure your Apache HttpClient
-CloseableHttpClient apacheClient = HttpClients.custom()
-    .setDefaultRequestConfig(RequestConfig.custom()
-        .setProxy(new HttpHost("proxy.company.com", 8080))
-        .setConnectTimeout(10000)
-        .setSocketTimeout(60000)
-        .build())
-    .setRetryHandler(new DefaultHttpRequestRetryHandler(3, true))
-    .build();
-
-// Create executor
-HttpRequestExecutor executor = (uri, method, headers, body) -> {
-    HttpPost request = new HttpPost(uri);
-    headers.forEach(request::addHeader);
-    if (body != null) {
-        request.setEntity(new ByteArrayEntity(body));
-    }
-
-    return apacheClient.execute(request, response -> {
-        String responseBody = EntityUtils.toString(response.getEntity());
-        Map<String, String> responseHeaders = new HashMap<>();
-        for (Header header : response.getAllHeaders()) {
-            responseHeaders.put(header.getName(), header.getValue());
-        }
-        return new HttpRequestExecutor.HttpResponse(
-            response.getStatusLine().getStatusCode(),
-            responseHeaders,
-            responseBody
-        );
-    });
-};
-
-// Wrap in SecurityHttpClient
-SecurityHttpClient client = new CustomHttpClientAdapter(executor);
-
-// Use with token services
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
-```
-
-### Apache HttpClient 5.x
-
-```java
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 
+// 1. Configure your HTTP client
 CloseableHttpClient client5 = HttpClients.custom()
     .setDefaultRequestConfig(RequestConfig.custom()
         .setConnectionRequestTimeout(Timeout.ofSeconds(5))
@@ -124,8 +44,9 @@ CloseableHttpClient client5 = HttpClients.custom()
         .build())
     .build();
 
+// 2. Implement HttpRequestExecutor
 HttpRequestExecutor executor = (uri, method, headers, body) -> {
-    ClassicHttpRequest request = new HttpPost(uri);
+    HttpPost request = new HttpPost(uri);
     headers.forEach(request::addHeader);
     if (body != null) {
         request.setEntity(new ByteArrayEntity(body, ContentType.APPLICATION_FORM_URLENCODED));
@@ -134,7 +55,7 @@ HttpRequestExecutor executor = (uri, method, headers, body) -> {
     return client5.execute(request, response -> {
         String responseBody = EntityUtils.toString(response.getEntity());
         Map<String, String> responseHeaders = new HashMap<>();
-        for (Header header : response.getAllHeaders()) {
+        for (var header : response.getAllHeaders()) {
             responseHeaders.put(header.getName(), header.getValue());
         }
         return new HttpRequestExecutor.HttpResponse(
@@ -145,29 +66,33 @@ HttpRequestExecutor executor = (uri, method, headers, body) -> {
     });
 };
 
-SecurityHttpClient client = new CustomHttpClientAdapter(executor);
+// 3. Wrap in SecurityHttpClient
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor, client5::close);
+
+// 4. Use with token services
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
 ```
 
 ### OkHttp
 
 ```java
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import com.sap.cloud.security.client.*;
+import okhttp3.*;
 
+// 1. Configure OkHttp
 OkHttpClient okHttpClient = new OkHttpClient.Builder()
     .connectTimeout(10, TimeUnit.SECONDS)
     .readTimeout(30, TimeUnit.SECONDS)
     .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.company.com", 8080)))
     .build();
 
+// 2. Implement HttpRequestExecutor
 HttpRequestExecutor executor = (uri, method, headers, body) -> {
     Request.Builder builder = new Request.Builder().url(uri.toURL());
     headers.forEach(builder::addHeader);
 
     RequestBody requestBody = body != null
-        ? RequestBody.create(body, okhttp3.MediaType.parse("application/x-www-form-urlencoded"))
+        ? RequestBody.create(body, MediaType.parse("application/x-www-form-urlencoded"))
         : null;
     builder.method(method, requestBody);
 
@@ -186,25 +111,28 @@ HttpRequestExecutor executor = (uri, method, headers, body) -> {
     }
 };
 
-SecurityHttpClient client = new CustomHttpClientAdapter(executor);
+// 3. Wrap in SecurityHttpClient
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor);
+
+// 4. Use with token services
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
 ```
 
 ### Java 11 HttpClient with Custom Configuration
 
-Even if you want to stick with Java 11's HttpClient but need custom configuration:
-
 ```java
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import com.sap.cloud.security.client.*;
+import java.net.http.*;
 import java.time.Duration;
 
+// 1. Configure Java HttpClient
 HttpClient javaClient = HttpClient.newBuilder()
     .connectTimeout(Duration.ofSeconds(10))
     .proxy(ProxySelector.of(new InetSocketAddress("proxy.company.com", 8080)))
     .sslContext(customSSLContext)
     .build();
 
+// 2. Implement HttpRequestExecutor
 HttpRequestExecutor executor = (uri, method, headers, body) -> {
     HttpRequest.Builder builder = HttpRequest.newBuilder()
         .uri(uri)
@@ -237,12 +165,16 @@ HttpRequestExecutor executor = (uri, method, headers, body) -> {
     );
 };
 
-SecurityHttpClient client = new CustomHttpClientAdapter(executor);
+// 3. Wrap in SecurityHttpClient
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor);
+
+// 4. Use with token services
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
 ```
 
 ## Spring Boot Integration
 
-For Spring Boot applications, you can provide your custom HTTP client as a bean:
+Provide your custom HTTP client as a Spring bean:
 
 ```java
 @Configuration
@@ -250,16 +182,17 @@ public class HttpClientConfig {
 
     @Bean
     public SecurityHttpClient securityHttpClient() {
-        // Your custom HTTP client setup
-        CloseableHttpClient apacheClient = HttpClients.custom()
+        // Configure your HTTP client
+        CloseableHttpClient client5 = HttpClients.custom()
             .setDefaultRequestConfig(...)
             .build();
 
+        // Implement executor
         HttpRequestExecutor executor = (uri, method, headers, body) -> {
-            // Your executor implementation
+            // Your implementation
         };
 
-        return new CustomHttpClientAdapter(executor);
+        return new CustomHttpClientAdapter(executor, client5::close);
     }
 }
 ```
@@ -268,168 +201,91 @@ The autoconfigured token services will automatically use your custom bean.
 
 ## Resource Management
 
-If your HTTP client needs cleanup (closing connections, etc.), you can pass a close handler to `CustomHttpClientAdapter`:
+If your HTTP client needs cleanup, pass a close handler to `CustomHttpClientAdapter`:
 
 ```java
-CloseableHttpClient apacheClient = HttpClients.createDefault();
-HttpRequestExecutor executor = new ApacheHttpClient4Executor(apacheClient);
+CloseableHttpClient client = HttpClients.createDefault();
+HttpRequestExecutor executor = /* your implementation */;
 
 // Pass close handler as second parameter
-SecurityHttpClient client = new CustomHttpClientAdapter(executor, apacheClient::close);
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor, client::close);
 
 try {
-    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
+    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
     // Use the service
 } finally {
-    client.close(); // This will call apacheClient.close()
+    securityClient.close(); // Calls client.close()
 }
 ```
 
-Without a close handler, the `close()` method is a no-op and you must manage the lifecycle yourself:
+Without a close handler, `close()` is a no-op and you must manage lifecycle yourself.
+
+## Apache HttpClient 4 Support
+
+> **Deprecated:** Apache HttpClient 4 support via deprecated constructors will be removed in version 5.0.0.
+
+Apache HttpClient 4 can still be used via custom `HttpRequestExecutor` implementation:
 
 ```java
-CloseableHttpClient apacheClient = HttpClients.createDefault();
-HttpRequestExecutor executor = (uri, method, headers, body) -> { ... };
-SecurityHttpClient client = new CustomHttpClientAdapter(executor);
-
-try {
-    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
-    // Use the service
-} finally {
-    apacheClient.close(); // Clean up your client manually
-}
-```
-
-## Migration from Previous Versions
-
-If you were previously using version < 4.0.0:
-
-**Before (< 4.0.0):**
-```java
-// Apache HttpClient 4.x was the only option
-CloseableHttpClient client = HttpClients.createDefault();
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
-```
-
-**After (4.0.0+ with default):**
-```java
-// Java 11 HttpClient is now the default - no configuration needed
-SecurityHttpClient client = SecurityHttpClientProvider.createClient(null);
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
-```
-
-**After (4.0.0+ with custom executor):**
-```java
-// Explicit custom configuration for any HTTP client library
-CloseableHttpClient apacheClient = HttpClients.custom()...build();
-HttpRequestExecutor executor = (uri, method, headers, body) -> { ... };
-SecurityHttpClient client = new CustomHttpClientAdapter(executor);
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client);
-```
-
-**Benefits:**
-- ✅ Works with any HTTP client library (4.x, 5.x, OkHttp, etc.)
-- ✅ No need for separate adapter modules
-- ✅ Full control over HTTP client configuration
-- ✅ Future-proof - no breaking changes when HTTP client libraries update
-
-## FAQ
-
-**Q: Should I use the default Java 11 HttpClient or a custom one?**
-
-A: Use the default unless you have specific requirements (proxy, mTLS, custom pooling, etc.). The default is zero-configuration and works for most cases.
-
-**Q: What happened to Apache HttpClient support?**
-
-A: In version 4.0.0, we switched from Apache HttpClient 4.x to Java 11's HttpClient as the default. If you need to use Apache HttpClient (any version) or any other HTTP client library, you can easily integrate it using the `HttpRequestExecutor` interface shown in the examples above.
-
-**Q: Can I still use Apache HttpClient 4.x?**
-
-A: Yes! See the example above. You just need to implement the simple executor interface.
-
-**Q: Does this work with Apache HttpClient 5.x?**
-
-A: Yes! The executor interface is agnostic to the HTTP client library version.
-
-**Q: How do I handle connection pooling?**
-
-A: Configure it in your HTTP client before passing it to the executor. The library doesn't manage pooling - that's up to your HTTP client configuration.
-
-## Special Use Cases
-
-### Using with SAP Cloud SDK's HttpClientAccessor
-
-If you're using SAP Cloud SDK and want to leverage its `HttpClientAccessor` for destination management, you can integrate it like this:
-
-**Version 4.0.0+ with HttpClientAccessor:**
-```java
-import com.sap.cloud.sdk.cloudplatform.connectivity.HttpClientAccessor;
 import com.sap.cloud.security.client.*;
-import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
-import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-// Get HttpClient from Cloud SDK's HttpClientAccessor
-CloseableHttpClient apacheClient = (CloseableHttpClient) HttpClientAccessor.getHttpClient(destination);
+CloseableHttpClient apacheClient = HttpClients.custom()
+    .setDefaultRequestConfig(RequestConfig.custom()
+        .setConnectTimeout(10000)
+        .setSocketTimeout(30000)
+        .build())
+    .build();
 
-// Create executor that wraps the Cloud SDK's HttpClient
 HttpRequestExecutor executor = (uri, method, headers, body) -> {
     HttpPost request = new HttpPost(uri);
-
-    // Add headers
     headers.forEach(request::addHeader);
-
-    // Add body if present
     if (body != null) {
         request.setEntity(new ByteArrayEntity(body));
     }
 
-    // Execute with Cloud SDK's HttpClient
-    try (CloseableHttpResponse response = apacheClient.execute(request)) {
+    return apacheClient.execute(request, response -> {
         String responseBody = EntityUtils.toString(response.getEntity());
-
         Map<String, String> responseHeaders = new HashMap<>();
-        for (org.apache.http.Header header : response.getAllHeaders()) {
+        for (var header : response.getAllHeaders()) {
             responseHeaders.put(header.getName(), header.getValue());
         }
-
         return new HttpRequestExecutor.HttpResponse(
             response.getStatusLine().getStatusCode(),
             responseHeaders,
             responseBody
         );
-    }
+    });
 };
 
-// Wrap in SecurityHttpClient
-SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor);
-
-// Create token service with your custom client
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(
-    securityClient,
-    TokenCacheConfiguration.defaultConfiguration()
-);
+SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor, apacheClient::close);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
 ```
 
-**Migration from 3.x:**
-```java
-// Before (Version < 4.0.0):
-CloseableHttpClient client = (CloseableHttpClient) HttpClientAccessor.getHttpClient(destination);
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(client, tokenCacheConfiguration);
+## FAQ
 
-// After (Version 4.0.0+):
-CloseableHttpClient client = (CloseableHttpClient) HttpClientAccessor.getHttpClient(destination);
-HttpRequestExecutor executor = (uri, method, headers, body) -> { /* implementation above */ };
-SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor);
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient, tokenCacheConfiguration);
-```
+**Q: Should I use the default Java 11 HttpClient or a custom one?**
 
-**Benefits of this approach:**
-- ✅ Leverages Cloud SDK's destination management
-- ✅ Inherits proxy, authentication, and connection pooling from destination configuration
-- ✅ Compatible with both on-premise and cloud destinations
-- ✅ Maintains full Cloud SDK feature compatibility
+A: Use the default unless you have specific requirements (proxy, mTLS, custom pooling). The default is zero-configuration and works for most cases.
+
+**Q: What happened to native Apache HttpClient support?**
+
+A: In version 4.0.0, we switched to Java 11 HttpClient as the default. Apache HttpClient (any version) can be used via the `HttpRequestExecutor` interface shown above.
+
+**Q: Does this work with Apache HttpClient 4 and 5?**
+
+A: Yes! The executor interface works with any HTTP client library.
+
+**Q: How do I handle connection pooling?**
+
+A: Configure it in your HTTP client before passing it to the executor. The library doesn't manage pooling - that's up to your HTTP client configuration.
+
+## See Also
+
+- [APACHE_HTTPCLIENT_MIGRATION.md](APACHE_HTTPCLIENT_MIGRATION.md) - Migration guide from Apache HttpClient 4
+- [MIGRATION_4.0.md](../MIGRATION_4.0.md) - General migration guide
+- [token-client README](README.md) - Token client documentation
