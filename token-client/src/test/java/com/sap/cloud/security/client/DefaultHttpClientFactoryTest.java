@@ -1,5 +1,4 @@
 /**
-import org.junit.jupiter.api.Disabled;
  * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * <p>
  * SPDX-License-Identifier: Apache-2.0
@@ -10,6 +9,8 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,10 +22,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@Disabled("Testing deprecated HttpClientFactory - tests need migration to SecurityHttpClient")
 class DefaultHttpClientFactoryTest {
 
-	private static final HttpClientResponseHandler<Integer> STATUS_CODE_EXTRACTOR = response -> response.getCode();
 	private static final ClientIdentity config = Mockito.mock(ClientIdentity.class);
 	private static final ClientIdentity config2 = Mockito.mock(ClientIdentity.class);
 	private final DefaultHttpClientFactory cut = new DefaultHttpClientFactory();
@@ -50,18 +49,20 @@ class DefaultHttpClientFactoryTest {
 	void disableRedirects() throws IOException {
 		WireMockServer wireMockServer = new WireMockServer(8000);
 		wireMockServer.stubFor(get(urlEqualTo("/redirect"))
-				.willReturn(aResponse().withHeader(HttpHeaders.LOCATION, "https://sap.com")
-						.withStatus(HttpStatus.SC_MOVED_PERMANENTLY)));
+				.willReturn(aResponse().withHeader("Location", "https://sap.com")
+						.withStatus(301)));
 		wireMockServer.start();
 		try {
 			CloseableHttpClient client = cut.createClient(config);
 
-			int statusCode = client.execute(new HttpGet("http://localhost:8000/redirect"), STATUS_CODE_EXTRACTOR);
-			assertEquals(HttpStatus.SC_MOVED_PERMANENTLY, statusCode);
+			int statusCode = client.execute(new HttpGet("http://localhost:8000/redirect"),
+				response -> response.getStatusLine().getStatusCode());
+			assertEquals(301, statusCode);
 
 			CloseableHttpClient client2 = cut.createClient(new ClientCredentials("client", "secret"));
-			statusCode = client2.execute(new HttpGet("http://localhost:8000/redirect"), STATUS_CODE_EXTRACTOR);
-			assertEquals(HttpStatus.SC_MOVED_PERMANENTLY, statusCode);
+			statusCode = client2.execute(new HttpGet("http://localhost:8000/redirect"),
+				response -> response.getStatusLine().getStatusCode());
+			assertEquals(301, statusCode);
 		} finally {
 			wireMockServer.stop();
 		}

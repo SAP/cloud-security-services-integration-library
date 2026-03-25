@@ -1,5 +1,4 @@
 /**
-import org.junit.jupiter.api.Disabled;
  * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * <p>
  * SPDX-License-Identifier: Apache-2.0
@@ -7,6 +6,7 @@ import org.junit.jupiter.api.Disabled;
 package com.sap.cloud.security.client;
 
 import com.sap.cloud.security.config.ClientIdentity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.mockito.Mockito;
 
 public class TestHttpClientFactory implements HttpClientFactory {
