@@ -68,56 +68,12 @@ If you need custom HTTP client features (proxy, connection pooling, mTLS), imple
 
 This approach works with **any** HTTP client library (Apache HttpClient 4, Apache HttpClient 5, OkHttp, etc.) and is **not deprecated**.
 
-**Example with Apache HttpClient 5:**
-
-```java
-import com.sap.cloud.security.client.*;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-
-// 1. Configure your HTTP client
-CloseableHttpClient client5 = HttpClients.custom()
-    .setDefaultRequestConfig(...)
-    .build();
-
-// 2. Implement HttpRequestExecutor
-HttpRequestExecutor executor = (uri, method, headers, body) -> {
-    HttpPost request = new HttpPost(uri);
-    headers.forEach(request::addHeader);
-    if (body != null) {
-        request.setEntity(new ByteArrayEntity(body, ContentType.APPLICATION_FORM_URLENCODED));
-    }
-
-    return client5.execute(request, response -> {
-        String responseBody = EntityUtils.toString(response.getEntity());
-        Map<String, String> responseHeaders = new HashMap<>();
-        for (var header : response.getAllHeaders()) {
-            responseHeaders.put(header.getName(), header.getValue());
-        }
-        return new HttpRequestExecutor.HttpResponse(
-            response.getCode(),
-            responseHeaders,
-            responseBody
-        );
-    });
-};
-
-// 3. Wrap in SecurityHttpClient
-SecurityHttpClient securityClient = new CustomHttpClientAdapter(executor, client5::close);
-
-// 4. Use with token services
-OAuth2TokenService tokenService = new DefaultOAuth2TokenService(securityClient);
-```
-
 **Benefits:**
 - ✅ Future-proof - Not deprecated
 - ✅ Works with any HTTP client library (Apache 4, Apache 5, OkHttp, etc.)
 - ✅ Full control over HTTP client configuration
 
-For complete examples, see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).
+**For complete examples with Apache HttpClient 5, OkHttp, and Java HttpClient, see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).**
 
 ---
 
