@@ -111,7 +111,7 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
    */
   private boolean isAccessToken(Token token) {
     final List<String> audiences = token.getClaimAsStringList("aud");
-    return audiences.size() == 1 && audiences.get(0).equals(token.getClientId());
+    return audiences.size() == 1 && !audiences.get(0).equals(token.getClientId());
   }
 
   /**
