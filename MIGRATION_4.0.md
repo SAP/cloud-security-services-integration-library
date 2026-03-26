@@ -42,7 +42,7 @@ The following modules have been removed:
 
 - Token-client now uses Java 11 HttpClient by default (no external dependencies)
 - Apache HttpClient 4 support maintained via deprecated constructors (removed in 5.0.0)
-- Custom HTTP client implementations supported (Apache HttpClient 5, OkHttp, etc.) - see [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md)
+- Custom HTTP client implementations supported (Apache HttpClient 5, OkHttp, etc.) - see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md)
 
 ## Migration Path 1: Upgrade to Spring Boot 4.x (Recommended)
 
@@ -284,7 +284,7 @@ If you need Apache HttpClient 5 for specific features (e.g., connection pooling,
 </dependency>
 ```
 
-2. Implement `SecurityHttpClientFactory` - see [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) for examples
+2. Implement `SecurityHttpClientFactory` - see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md) for examples
 
 ### Timeout and Connection Pooling
 
@@ -339,4 +339,4 @@ The timeout settings (5s connect, 30s socket) have been preserved. Connection po
 - [CHANGELOG.md](CHANGELOG.md) - Complete list of changes
 - [spring-security Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) - Detailed spring-xsuaa migration
 - [spring-security-3 README](spring-security-3/README.md) - Spring Boot 3 module documentation
-- [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) - Custom HTTP client guide
+- [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md) - Custom HTTP client guide

@@ -149,7 +149,7 @@ Typical use cases:
 * technical user / system tokens for service to service communication
 * user token exchange for principal propagation in service to service communication
 
-:bulb: **New in 4.0.0**: Token-client now uses Java 11 HttpClient by default. For custom HTTP client implementations (Apache HttpClient 4.x/5.x, OkHttp), see [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md).
+:bulb: **New in 4.0.0**: Token-client now uses Java 11 HttpClient by default. For custom HTTP client implementations (Apache HttpClient 4.x/5.x, OkHttp), see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md).
 
 In the table below you'll find links to detailed information.
 

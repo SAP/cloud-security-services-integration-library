@@ -94,7 +94,7 @@ This approach is **future-proof** and works with any HTTP client library (Apache
 - ✅ Works with any HTTP client library (Apache 4, Apache 5, etc.)
 - ✅ Full control over HTTP client configuration
 
-**For complete examples with Apache HttpClient 4 and 5, see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).**
+**For complete examples with Apache HttpClient 4 and 5, see [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md).**
 
 ---
 
@@ -147,6 +147,6 @@ A: In version 5.0.0. You have the entire 4.x series to migrate.
 
 ## Need Help?
 
-- **Custom HTTP client examples:** [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md)
+- **Custom HTTP client examples:** [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md)
 - **Migration guide:** [MIGRATION_4.0.md](../MIGRATION_4.0.md)
 - **Issues:** https://github.com/SAP/cloud-security-services-integration-library/issues

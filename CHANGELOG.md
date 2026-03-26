@@ -34,7 +34,7 @@ Please check the [4.0 Migration Guide](MIGRATION_4.0.md) for comprehensive upgra
 **Migration Path:**
 - **Option 1 (Recommended):** Use default constructors - Java 11 HttpClient is used automatically
 - **Option 2 (Temporary):** Continue using deprecated constructors with Apache HttpClient 4
-- **Option 3 (Custom):** Implement `SecurityHttpClientFactory` interface for custom HTTP clients (see [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md))
+- **Option 3 (Custom):** Implement `SecurityHttpClientFactory` interface for custom HTTP clients (see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md))
 
 See the comprehensive [Apache HttpClient Migration Guide](token-client/APACHE_HTTPCLIENT_MIGRATION.md) for detailed migration instructions.
 
@@ -91,7 +91,7 @@ For applications that cannot immediately upgrade to Spring Boot 4.x, two new mod
 - Apache HttpClient 4.5.14 remains as a dependency for backward compatibility
 - `HttpClientFactory` and `DefaultHttpClientFactory` are deprecated but still functional
 - Custom HTTP client implementations can be provided via `SecurityHttpClientFactory` ServiceLoader
-- See [CUSTOM_HTTP_CLIENT.md](token-client/CUSTOM_HTTP_CLIENT.md) for integration examples (Apache HttpClient 4.x, 5.x, OkHttp, SAP Cloud SDK)
+- See [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md) for integration examples (Apache HttpClient 4.x, 5.x, OkHttp, SAP Cloud SDK)
 
 ### :package: Dependency Upgrades
 

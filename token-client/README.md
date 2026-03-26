@@ -25,7 +25,7 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
 - ✅ **No action required** if you use the default (parameterless) constructors - the library automatically uses Java 11's HttpClient
 - ⚠️ **Deprecated constructors available** for temporary backward compatibility with Apache HttpClient 4
 - 📖 **See [Apache HttpClient Migration Guide](APACHE_HTTPCLIENT_MIGRATION.md)** for detailed migration instructions
-- 🔧 **Need custom HTTP client?** See [Custom HTTP Client Integration](CUSTOM_HTTP_CLIENT.md) for implementing custom HTTP clients with any library
+- 🔧 **Need custom HTTP client?** See [Custom HTTP Client Integration](CUSTOM_HTTPCLIENT.md) for implementing custom HTTP clients with any library
 
 ## Table of Contents
 1. [Setup](#setup)
@@ -175,7 +175,7 @@ See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [H
 </dependency>
 ```
 
-**Note:** As of version 4.0.0, token-client uses Java 11 HttpClient by default (no external HTTP client dependency required). If you need Apache HttpClient for specific features, see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).
+**Note:** As of version 4.0.0, token-client uses Java 11 HttpClient by default (no external HTTP client dependency required). If you need Apache HttpClient for specific features, see [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md).
 
 #### XsuaaTokenFlows Initialization
 ```java
@@ -189,7 +189,7 @@ The `XsuaaTokenFlows` needs to be instantiated with a `DefaultOAuth2TokenService
 
 - `OAuth2ServiceConfiguration` is placeholder for the Identity service configuration, see [here](#oauth2serviceconfiguration) how to initialize it
 
-For custom HTTP client configuration (e.g., Apache HttpClient with connection pooling), see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).
+For custom HTTP client configuration (e.g., Apache HttpClient with connection pooling), see [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md).
 
 ### OAuth2ServiceConfiguration
 `OAuth2ServiceConfiguration` holds the information from the respective Identity service binding and is used in `XsuaaTokenFlows` initialization.
@@ -295,9 +295,9 @@ If you need explicit connection pool limits (e.g., for high-load scenarios), you
 -Djdk.httpclient.keepalive.timeout=1200
 ```
 
-Alternatively, implement a custom `SecurityHttpClientFactory` with Apache HttpClient 5 for full control over connection pooling - see [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md).
+Alternatively, implement a custom `SecurityHttpClientFactory` with Apache HttpClient 5 for full control over connection pooling - see [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md).
 
-:information_source: These values are intended as an initial configuration. If you need custom HTTP client configuration (proxy, custom timeouts, connection pooling, etc.), refer to the [Custom HTTP Client Integration](CUSTOM_HTTP_CLIENT.md) guide.
+:information_source: These values are intended as an initial configuration. If you need custom HTTP client configuration (proxy, custom timeouts, connection pooling, etc.), refer to the [Custom HTTP Client Integration](CUSTOM_HTTPCLIENT.md) guide.
 
 ### Cache Configuration
 
@@ -454,7 +454,7 @@ Have a look at the [Logging](/java-security/README.md#logging) section for more 
 
 For HTTP client-specific logging (Java HttpClient or custom implementations), refer to:
 - [Java HttpClient logging documentation](https://docs.oracle.com/en/java/javase/17/docs/api/java.net.http/java/net/http/HttpClient.html)
-- [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md) for Apache HttpClient logging configuration
+- [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md) for Apache HttpClient logging configuration
 
 :exclamation:Note that HTTP client logging might leak encoded tokens into your logs. Use with caution!
 
@@ -466,7 +466,7 @@ If you observe performance degradation for token validation or token flows, HTTP
 The default Java HttpClient is configured with reasonable defaults. For advanced configuration, see [Java HttpClient documentation](https://docs.oracle.com/en/java/javase/17/docs/api/java.net.http/java/net/http/HttpClient.html).
 
 **For Apache HttpClient (custom implementation):**
-You may need to configure timeouts, connection pooling, and SSL handshake optimization. See [CUSTOM_HTTP_CLIENT.md](CUSTOM_HTTP_CLIENT.md) for detailed examples of:
+You may need to configure timeouts, connection pooling, and SSL handshake optimization. See [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md) for detailed examples of:
 - Connection pool configuration
 - Timeout settings
 - SSL/TLS optimization
@@ -474,7 +474,7 @@ You may need to configure timeouts, connection pooling, and SSL handshake optimi
 
 Example with connection pooling:
 ```java
-// See CUSTOM_HTTP_CLIENT.md for complete implementation
+// See CUSTOM_HTTPCLIENT.md for complete implementation
 public class ApacheHttpClient5Factory implements SecurityHttpClientFactory {
     @Override
     public SecurityHttpClient create() {
