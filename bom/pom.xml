@@ -67,17 +67,7 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>spring-xsuaa</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>xsuaa-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>spring-security</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -99,11 +89,6 @@
             <dependency>
                 <groupId>${xsuaa-groupId}</groupId>
                 <artifactId>token-client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>spring-security-compatibility</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
