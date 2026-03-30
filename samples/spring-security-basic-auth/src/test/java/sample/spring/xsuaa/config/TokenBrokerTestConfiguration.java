@@ -7,13 +7,24 @@ import com.sap.cloud.security.xsuaa.client.XsuaaDefaultEndpoints;
 import com.sap.cloud.security.xsuaa.client.XsuaaOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlows;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import sample.spring.xsuaa.TokenBrokerResolver;
+
+import static org.mockito.Mockito.mock;
 
 public class TokenBrokerTestConfiguration {
 
 	/**
-	 * Makes {@link TokenBrokerResolver} use the stubbed XsuaaOAuth2TokenService prepared in
-	 * {@link sample.spring.xsuaa.SecurityConfigurationTest} for testing.
+	 * Creates a mock XsuaaOAuth2TokenService for testing.
+	 */
+	@Bean
+	@Primary
+	public XsuaaOAuth2TokenService mockTokenService() {
+		return mock(XsuaaOAuth2TokenService.class);
+	}
+
+	/**
+	 * Makes {@link TokenBrokerResolver} use the mocked XsuaaOAuth2TokenService for testing.
 	 */
 	@Bean
 	public XsuaaTokenFlows tokenFlows(XsuaaServiceConfiguration xsuaaConfig, XsuaaOAuth2TokenService tokenService) {

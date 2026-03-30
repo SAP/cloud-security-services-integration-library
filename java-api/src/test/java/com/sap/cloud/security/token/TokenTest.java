@@ -5,24 +5,23 @@
  */
 package com.sap.cloud.security.token;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TokenTest {
 
 	@Test
 	public void create() {
 		Token cut = Token.create("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
-		assertNotNull(cut);
+		assertThat(cut).isNotNull();
 
 		cut = Token.create("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
-		assertNotNull(cut);
+		assertThat(cut).isNotNull();
 
 		// Assert that custom Token factory has a priority over default
 		// com.sap.cloud.security.servlet.HybridTokenFactory
-		assertFalse(cut.getClass().getName().contains("AccessToken"));
+		assertThat(cut.getClass().getName()).doesNotContain("AccessToken");
 	}
 
 }

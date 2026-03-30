@@ -10,9 +10,27 @@ This repository offers a comprehensive set of libraries designed to simplify the
 Tailored to support Jakarta EE and Spring Boot applications running on Cloud Foundry or Kubernetes environments.
 The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token validation for tokens issued by XSUAA and Identity Services. In addition, it offers a token-client library to easily fetch tokens without cumbersome setup for http requests. Finally, it offers testing utility that mocks Xsuaa and Identity service behaviour and makes it easy to write integration and unit tests.
 
+## :mega: What's New in 4.0.0
+
+**Major version upgrade** with breaking changes - upgraded to Spring Boot 4.x and Jakarta EE 10!
+
+:white_check_mark: **Migrating from 3.x?** We've got you covered:
+- **Spring Boot 4.x** users: Update to `resourceserver-security-spring-boot-starter` 4.0.0
+- **Spring Boot 3.x** users: Use new `resourceserver-security-spring-boot-3-starter` 4.0.0 - same features, full compatibility
+- **spring-xsuaa** users: Module removed - follow our [migration guide](spring-security/Migration_SpringXsuaaProjects.md)
+
+**Key Changes:**
+- :rocket: Spring Boot 4.0.3, Spring Framework 7.0.5, Spring Security 7.0.3
+- :package: New Spring Boot 3.x compatibility layer via legacy modules
+- :zap: Token-client now uses Java 11 HttpClient by default (Apache HttpClient support via custom integration)
+- :x: Removed deprecated modules: `spring-xsuaa`, `spring-xsuaa-test`, `spring-xsuaa-it`, `spring-security-compatibility`
+
+See [CHANGELOG.md](CHANGELOG.md) for complete details.
+
 ## Table of Contents
-1. [Prerequisites](#prerequisites)
-2. [Usage](#usage)
+1. [What's New in 4.0.0](#mega-whats-new-in-400)
+2. [Prerequisites](#prerequisites)
+3. [Usage](#usage)
    - [2.1 Token Validation](#21-token-validation)
      - [2.1.1 Jakarta EE web applications](#211-Jakarta-EE-web-applications)
      - [2.1.2 Spring Boot applications](#212-spring-boot-web-applications)
@@ -21,12 +39,13 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
    - [2.4 Token Exchange for Hybrid Authentication](#24-token-exchange-for-hybrid-authentication)
        - [2.4.1 Jakarta Example](#241-jakarta-example-using-hybridtokenauthenticator)
        - [2.4.2 Spring Boot Example](#242-spring-boot-example-using-hybridjwtdecoder)
-3. [Installation](#installation)
-4. [Troubleshooting](#troubleshooting)
-5. [Common Pitfalls](#common-pitfalls)
-6. [Contributing](#contributing)
-7. [How to get support](#how-to-get-support)
-8. [License](#license)
+4. [Installation](#installation)
+5. [Migration Guide](#migration-guide)
+6. [Troubleshooting](#troubleshooting)
+7. [Common Pitfalls](#common-pitfalls)
+8. [Contributing](#contributing)
+9. [How to get support](#how-to-get-support)
+10. [License](#license)
 
 ## Prerequisites
 Before you can use the SAP Cloud Security Services Integration libraries, you must fulfil the following requirements:
@@ -36,7 +55,8 @@ Before you can use the SAP Cloud Security Services Integration libraries, you mu
 3. Familiarity with OAuth 2.0 and JWT (JSON Web Tokens).
 4. Java 17
 5. Maven 3.9.0 or later
-6. (Optional) Spring Boot 3.0.0 or later, Spring Security 6.0.0 or later if using the Spring integration
+6. (Optional) Spring Boot 4.0.0 or later, Spring Security 7.0.0 or later if using the Spring integration
+   - **Spring Boot 3.x users**: Use the legacy compatibility modules (see [Spring Boot 3.x Compatibility](#spring-boot-3x-compatibility))
 
 :exclamation: For Java 8 and 11 please use [2.x release](https://github.com/SAP/cloud-security-services-integration-library/tree/main-2.x) of this library.
 
@@ -64,9 +84,9 @@ This library is also integrated in SAP Java Buildpack.
 
 In the table below you'll find links to detailed information.
 
-| Library                                   | Usage Examples                                                                                                                                                                                                                                                                                                                                                                      | 
+| Library                                   | Usage Examples                                                                                                                                                                                                                                                                                                                                                                      |
 |-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [java-security](/java-security)           | [java-security-xsuaa-usage](/samples/java-security-usage) demonstrates java-security usage with Xsuaa service <br/> [java-security-identity-usage](/samples/java-security-usage-ias) demonstrates java-security usage with Identity service  <br/>    [sap-java-builpack-api-usage](/samples/sap-java-buildpack-api-usage) demonstrates java-security usage with SAP Java Buildpack |
+| [java-security](/java-security)           | [java-security-usage](/samples/java-security-usage) demonstrates java-security usage with Xsuaa service <br/> [java-security-usage-ias](/samples/java-security-usage-ias) demonstrates java-security usage with Identity service  <br/>    [sap-java-buildpack-api-usage](/samples/sap-java-buildpack-api-usage) demonstrates java-security usage with SAP Java Buildpack |
 
 :bulb: Changes with SAP Java Buildpack 1.26.0
 The former SAP Java Buildpack versions have used deprecated (Spring) Security libraries and had to be updated. As of version 1.26.0 SAP Java Buildpack uses the [`java-security`](/java-security) library. Please consider these (migration) guides:
@@ -76,20 +96,51 @@ The former SAP Java Buildpack versions have used deprecated (Spring) Security li
 
 
 #### 2.1.2. Spring Boot web applications
-Developers seeking OAuth2 token validation and access to token information for their Spring Boot applications can benefit from the [spring-security](/spring-security) library. 
+Developers seeking OAuth2 token validation and access to token information for their Spring Boot applications can benefit from the [spring-security](/spring-security) library.
 This library streamlines the process of handling token validation for tokens issued by Xsuaa or Identity services and obtaining token details, such as principal and audiences from the security context.
 
-:exclamation: For backward compatibility there is [spring-xsuaa](/spring-xsuaa) library available that supports only Xsuaa service integration, but with the next major release it will be removed. 
-- If you're already using [spring-xsuaa](/spring-xsuaa) in your project you should plan the time to migrate to the [spring-security](/spring-security), see [migration guide](/spring-xsuaa/Migration_JavaContainerSecurityProjects.md). 
-- If you're just setting up your project you should use [spring-security](/spring-security) library.
+##### Spring Boot Version Support
 
+| Your Spring Boot Version | Recommended Module | Description |
+|---|---|---|
+| **Spring Boot 4.x** | [spring-security](/spring-security) with `resourceserver-security-spring-boot-starter` | Current version targeting Spring Boot 4.0.3, Spring Security 7.0.3 |
+| **Spring Boot 3.x** | [spring-security-3](/spring-security-3) with `resourceserver-security-spring-boot-3-starter` | Compatibility layer for Spring Boot 3.5.9, Spring Security 6.5.7 |
+
+:bulb: **New in 4.0.0**: The Spring Boot 3 compatible starter provides a seamless migration path for applications that cannot immediately upgrade to Spring Boot 4.x. Both starters provide the same features and APIs.
+
+##### Spring Boot 3.x Compatibility
+
+If your application uses Spring Boot 3.x and you cannot immediately upgrade to Spring Boot 4.x:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.sap.cloud.security</groupId>
+    <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
+    <version>4.0.0</version>
+</dependency>
+```
+
+See [spring-security-3 README](/spring-security-3/README.md) for complete documentation.
+
+##### Migrating from spring-xsuaa
+
+:warning: **Deprecated**: The `spring-xsuaa` module has been removed in version 4.0.0.
+
+If you're using the deprecated `spring-xsuaa` module:
+- Migrate to [spring-security](/spring-security) (Spring Boot 4.x) or [spring-security-3](/spring-security-3) (Spring Boot 3.x)
+- Follow the [migration guide](/spring-security/Migration_SpringXsuaaProjects.md) for step-by-step instructions
 
 In the table below you'll find links to detailed information.
 
-| Library                                   | Usage Examples                                                                                                                                                                                                                                           | 
-|-------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [spring-security](/spring-security)       | [spring-security-hybrid-usage](samples/spring-security-hybrid-usage) demonstrates usage of xsuaa and Identity service token validation                                                                                                                   |
-| [spring-xsuaa](/spring-xsuaa)             | [spring-security-basic-auth](/samples/spring-security-basic-auth) demonstrates how a user can access Rest API via basic authentication (user/password)  <br/>   [spring-xsuaa-usage](/samples/spring-security-xsuaa-usage) demonstrates xsuaa only setup |
+| Library                                   | Spring Boot Version | Usage Examples                                                                                                                                                                                                                                           |
+|-------------------------------------------|---------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [spring-security](/spring-security)       | 4.x | [spring-security-hybrid-usage](samples/spring-security-hybrid-usage) demonstrates usage of xsuaa and Identity service token validation                                                                                                                   |
+| [spring-security-3](/spring-security-3) | 3.x | [spring-webflux-security-hybrid-usage](samples/spring-webflux-security-hybrid-usage) demonstrates WebFlux usage with the Spring Boot 3 starter |
+| [spring-security-basic-auth](/samples/spring-security-basic-auth) | 4.x | Demonstrates how a user can access Rest API via basic authentication (user/password)  |
 
 ### 2.2. Token Flows for token retrievals
 Java applications that require access tokens (JWT) from Xsuaa or Identity services can utilize the Token Flows API from the [token-client](./token-client) library, to fetch JWT tokens for their clients (applications) or users.
@@ -98,11 +149,14 @@ Typical use cases:
 * technical user / system tokens for service to service communication
 * user token exchange for principal propagation in service to service communication
 
+:bulb: **New in 4.0.0**: Token-client now uses Java 11 HttpClient by default. Spring-based implementations have been moved to [token-client-spring](./token-client-spring). For custom HTTP client implementations (Apache HttpClient 4.x/5.x), see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md).
+
 In the table below you'll find links to detailed information.
 
-| Library                                   | Usage Examples                                                                                                                                                                                                                                         | 
+| Library                                   | Usage Examples                                                                                                                                                                                                                                         |
 |-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [token-client](/token-client)             | [java-tokenclient-usage](samples/java-tokenclient-usage) demonstrates usage of token client library in Jakarta EE application<br/>   [spring-security-xsuaa-usage](samples/spring-security-xsuaa-usage) demonstrates usage in Spring Boot application     |              
+| [token-client](/token-client)             | [java-tokenclient-usage](samples/java-tokenclient-usage) demonstrates usage of token client library in Jakarta EE application<br/>[spring-security-hybrid-usage](samples/spring-security-hybrid-usage) demonstrates usage in Spring Boot application     |
+| [token-client-spring](/token-client-spring) | Spring-based implementations of OAuth2 token services. Required if you use `XsuaaOAuth2TokenService`, `SpringOAuth2TokenKeyService`, or `SpringOidcConfigurationService`.     |              
 
 ### 2.3 Testing utilities
 For authentication/authorization flow testing purposes there is [java-security-test](/java-security-test) library at your disposal that can be used for unit and integration tests to test the Xsuaa or Identity service client functionality in the application. 
@@ -220,7 +274,7 @@ The SAP Cloud Security Services Integration is published to maven central: https
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-bom</artifactId>
-            <version>3.6.9</version>
+            <version>4.0.0</version>
             <scope>import</scope>
             <type>pom</type>
         </dependency>
@@ -237,6 +291,22 @@ along with libraries that you intend to use e.g. `java-security`
 </dependencies>
 ```
 :bulb: Please refer to the Maven Dependencies section in the README.md of the library you intend to use for detailed information on which dependencies need to be added to the `pom.xml`.
+
+## Migration Guide
+
+Upgrading from version 3.x? See our comprehensive [Migration Guide to 4.0.0](MIGRATION_4.0.md) for:
+
+- **Spring Boot 4.x migration** - Step-by-step upgrade guide
+- **Spring Boot 3.x compatibility** - Using legacy modules for gradual migration
+- **Removed modules** - Migration paths for deprecated modules
+- **HTTP client changes** - Switching from Apache HttpClient to Java 11 HttpClient
+- **Troubleshooting** - Common issues and solutions
+
+**Quick Links:**
+- [Spring Boot 4.x Migration Path](MIGRATION_4.0.md#migration-path-1-upgrade-to-spring-boot-4x-recommended)
+- [Spring Boot 3.x Compatibility](MIGRATION_4.0.md#migration-path-2-stay-on-spring-boot-3x)
+- [spring-xsuaa Migration](spring-security/Migration_SpringXsuaaProjects.md)
+- [CHANGELOG](CHANGELOG.md)
 
 
 If you intend to extend this library you can clone this repository and install this project with `mvn` as follows:

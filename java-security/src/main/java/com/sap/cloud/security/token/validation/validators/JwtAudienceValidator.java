@@ -11,6 +11,7 @@ import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
+import com.sap.cloud.security.util.LogSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +114,7 @@ public class JwtAudienceValidator implements Validator<Token> {
 				}
 			}
 		}
-		logger.debug("The audiences that are derived from the token: {}.", audiences);
+		logger.debug("The audiences that are derived from the token: {}.", LogSanitizer.sanitize(audiences));
 		return audiences;
 	}
 

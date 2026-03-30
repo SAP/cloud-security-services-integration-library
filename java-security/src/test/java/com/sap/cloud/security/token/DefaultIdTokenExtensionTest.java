@@ -1,7 +1,8 @@
 package com.sap.cloud.security.token;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -19,8 +20,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -43,7 +44,7 @@ public class DefaultIdTokenExtensionTest {
   private final OAuth2ServiceConfiguration serviceConfiguration =
       Mockito.mock(OAuth2ServiceConfiguration.class);
 
-  @Before
+  @BeforeEach
   public void setUp() throws IOException {
     SecurityContext.clearContext();
     when(serviceConfiguration.getUrl()).thenReturn(tokenUri);
@@ -78,16 +79,18 @@ public class DefaultIdTokenExtensionTest {
     cut = new DefaultIdTokenExtension(tokenService, serviceConfiguration);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void resolveToken_noTokenInContext_throwsIllegalArgumentException() {
-    cut.resolveIdToken(null);
+    assertThatThrownBy(() -> cut.resolveIdToken(null))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void resolveToken_tokenIsTechnicalUser_throwsIllegalArgumentException() {
     SecurityContext.setToken(technicalUserToken);
 
-    cut.resolveIdToken(null);
+    assertThatThrownBy(() -> cut.resolveIdToken(null))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
@@ -96,7 +99,7 @@ public class DefaultIdTokenExtensionTest {
 
     final Token result = cut.resolveIdToken(idToken);
 
-    assertEquals(idToken, result);
+    assertThat(result).isEqualTo(idToken);
   }
 
   @Test
@@ -106,7 +109,7 @@ public class DefaultIdTokenExtensionTest {
 
     final Token result = cut.resolveIdToken(idToken);
 
-    assertNotEquals(idToken, result);
+    assertThat(result).isNotEqualTo(idToken);
     verify(tokenService)
         .retrieveAccessTokenViaJwtBearerTokenGrant(
             eq(completeCertUri), any(), any(), any(), any(), eq(false));
@@ -129,14 +132,14 @@ public class DefaultIdTokenExtensionTest {
             any(),
             paramCaptor.capture(),
             eq(false));
-    assertEquals(tokenCaptor.getValue(), accessToken.getTokenValue());
+    assertThat(tokenCaptor.getValue()).isEqualTo(accessToken.getTokenValue());
     Map<String, String> params = paramCaptor.getValue();
-    assertEquals("urn:ietf:params:oauth:grant-type:jwt-bearer", params.get("grant_type"));
-    assertEquals(accessToken.getTokenValue(), params.get("assertion"));
-    assertEquals("jwt", params.get("token_format"));
-    assertEquals("0", params.get("refresh_expiry"));
-    assertEquals(clientId, params.get("client_id"));
-    assertEquals(certTokenResponse.getAccessToken(), result.getTokenValue());
+    assertThat(params.get("grant_type")).isEqualTo("urn:ietf:params:oauth:grant-type:jwt-bearer");
+    assertThat(params.get("assertion")).isEqualTo(accessToken.getTokenValue());
+    assertThat(params.get("token_format")).isEqualTo("jwt");
+    assertThat(params.get("refresh_expiry")).isEqualTo("0");
+    assertThat(params.get("client_id")).isEqualTo(clientId);
+    assertThat(result.getTokenValue()).isEqualTo(certTokenResponse.getAccessToken());
   }
 
   @Test
@@ -161,13 +164,13 @@ public class DefaultIdTokenExtensionTest {
             eq(false));
 
     Map<String, String> params = paramCaptor.getValue();
-    assertEquals(accessToken.getTokenValue(), tokenCaptor.getValue());
-    assertEquals("urn:ietf:params:oauth:grant-type:jwt-bearer", params.get("grant_type"));
-    assertEquals(accessToken.getTokenValue(), params.get("assertion"));
-    assertEquals("jwt", params.get("token_format"));
-    assertEquals("0", params.get("refresh_expiry"));
-    assertEquals(clientId, params.get("client_id"));
-    assertEquals(tokenResponse.getAccessToken(), result.getTokenValue());
+    assertThat(tokenCaptor.getValue()).isEqualTo(accessToken.getTokenValue());
+    assertThat(params.get("grant_type")).isEqualTo("urn:ietf:params:oauth:grant-type:jwt-bearer");
+    assertThat(params.get("assertion")).isEqualTo(accessToken.getTokenValue());
+    assertThat(params.get("token_format")).isEqualTo("jwt");
+    assertThat(params.get("refresh_expiry")).isEqualTo("0");
+    assertThat(params.get("client_id")).isEqualTo(clientId);
+    assertThat(result.getTokenValue()).isEqualTo(tokenResponse.getAccessToken());
   }
 
   @Test
@@ -176,7 +179,7 @@ public class DefaultIdTokenExtensionTest {
 
     final Token result = cut.resolveIdToken(null);
 
-    assertSame(idToken, result);
+    assertThat(result).isSameAs(idToken);
     verifyNoInteractions(tokenService);
   }
 
@@ -189,7 +192,7 @@ public class DefaultIdTokenExtensionTest {
 
     final Token result = cut.resolveIdToken(null);
 
-    assertNull(result);
+    assertThat(result).isNull();
   }
 
   @Test
@@ -201,7 +204,7 @@ public class DefaultIdTokenExtensionTest {
 
     final Token result = cut.resolveIdToken(null);
 
-    assertSame(t, result);
+    assertThat(result).isSameAs(t);
     verifyNoInteractions(tokenService);
   }
 }

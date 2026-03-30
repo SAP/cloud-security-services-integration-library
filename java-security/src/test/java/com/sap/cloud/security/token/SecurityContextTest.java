@@ -8,9 +8,6 @@ package com.sap.cloud.security.token;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -25,15 +22,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SecurityContextTest {
 
   private static Token TOKEN;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-  @Before
+  @BeforeEach
   public void setUp() {
     SecurityContext.clearContext();
     SecurityContext.registerIdTokenExtension(null);
@@ -143,7 +140,7 @@ public class SecurityContextTest {
 
   @Test
   public void getIdToken_withoutExtension_returnsNull() {
-    assertNull(SecurityContext.getIdToken());
+    assertThat(SecurityContext.getIdToken()).isNull();
   }
 
   @Test
@@ -155,8 +152,8 @@ public class SecurityContextTest {
 
     Token result = SecurityContext.getIdToken();
 
-    assertEquals("valid-id-token", result.getTokenValue());
-    assertSame(TOKEN, getIdTokenStorage());
+    assertThat(result.getTokenValue()).isEqualTo("valid-id-token");
+    assertThat(getIdTokenStorage()).isSameAs(TOKEN);
   }
 
   @Test
@@ -173,9 +170,9 @@ public class SecurityContextTest {
 
     Token result = SecurityContext.getIdToken();
 
-    assertEquals(
-        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8), result.getTokenValue());
-    assertEquals(result, getIdTokenStorage());
+    assertThat(result.getTokenValue()).isEqualTo(
+        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
+    assertThat(getIdTokenStorage()).isEqualTo(result);
   }
 
   @Test
@@ -187,18 +184,17 @@ public class SecurityContextTest {
 
     Token result = SecurityContext.getIdToken();
 
-    assertEquals(
-        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8), result.getTokenValue());
+    assertThat(result.getTokenValue()).isEqualTo(
+        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
     verify(extension, times(1)).resolveIdToken(null);
     assertNotNull(getIdTokenStorage(), "Resolved token should be stored in ThreadLocal");
-    assertEquals(
-        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8),
-        getIdTokenStorage().getTokenValue());
+    assertThat(getIdTokenStorage().getTokenValue()).isEqualTo(
+        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
   }
 
   @Test
   public void getXsuaaToken_withoutExtension_returnsNull() {
-    assertNull(SecurityContext.getXsuaaToken());
+    assertThat(SecurityContext.getXsuaaToken()).isNull();
   }
 
     @Test
@@ -216,8 +212,8 @@ public class SecurityContextTest {
 
     Token result = SecurityContext.getXsuaaToken();
 
-    assertEquals("valid-xsuaa-token", result.getTokenValue());
-    assertSame(TOKEN, getXsuaaTokenStorage());
+    assertThat(result.getTokenValue()).isEqualTo("valid-xsuaa-token");
+    assertThat(getXsuaaTokenStorage()).isSameAs(TOKEN);
   }
 
   @Test
@@ -234,9 +230,9 @@ public class SecurityContextTest {
 
     Token result = SecurityContext.getXsuaaToken();
 
-    assertEquals(
-        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8), result.getTokenValue());
-    assertEquals(result, getXsuaaTokenStorage());
+    assertThat(result.getTokenValue()).isEqualTo(
+        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
+    assertThat(getXsuaaTokenStorage()).isEqualTo(result);
   }
 
   @Test
@@ -248,13 +244,12 @@ public class SecurityContextTest {
 
     Token result = SecurityContext.getXsuaaToken();
 
-    assertEquals(
-        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8), result.getTokenValue());
+    assertThat(result.getTokenValue()).isEqualTo(
+        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
     verify(extension, times(1)).resolveXsuaaToken(null);
     assertNotNull(getXsuaaTokenStorage(), "Resolved token should be stored in ThreadLocal");
-    assertEquals(
-        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8),
-        getXsuaaTokenStorage().getTokenValue());
+    assertThat(getXsuaaTokenStorage().getTokenValue()).isEqualTo(
+        IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
   }
 
   private static void setIdTokenStorage() {

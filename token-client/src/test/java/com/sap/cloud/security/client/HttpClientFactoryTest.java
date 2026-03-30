@@ -7,21 +7,18 @@ package com.sap.cloud.security.client;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HttpClientFactoryTest {
 
 	@Test
 	public void create() {
 		CloseableHttpClient cut = HttpClientFactory.create(new ClientCredentials("clientId", "secret"));
-		assertNotNull(cut);
-
-		// Assert that custom HttpClientFactory factory has a priority over default
-		// com.sap.cloud.security.client.DefaultHttpClientFactory
-		assertFalse(cut.getClass().getName().contains("InternalHttpClient"));
-		assertTrue(cut.getClass().getName().contains("CloseableHttpClient$MockitoMock"));
+		assertThat(cut).isNotNull();
+		// HttpClientFactory is deprecated and uses DefaultHttpClientFactory
+		assertThat(cut.getClass().getName()).contains("InternalHttpClient");
 	}
 
 }

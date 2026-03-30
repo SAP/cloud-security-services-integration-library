@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.config;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;

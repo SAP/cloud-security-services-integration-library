@@ -7,18 +7,14 @@ package com.sap.cloud.security.test.extension;
 
 import com.sap.cloud.security.test.ApplicationServerOptions;
 import com.sap.cloud.security.test.api.SecurityTestContext;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.sap.cloud.security.config.Service.XSUAA;
@@ -29,6 +25,7 @@ class SecurityTestExtensionTest {
 
 	static final int PORT = 4242;
 	static final int APPLICATION_SERVER_PORT = 2424;
+	private static final HttpClient httpClient = HttpClient.newHttpClient();
 
 	@RegisterExtension
 	static SecurityTestExtension securityTestExtension = SecurityTestExtension.forService(XSUAA)
@@ -54,23 +51,22 @@ class SecurityTestExtensionTest {
 	}
 
 	@Test
-	public void addingStubIsPossibleAfterSetup(SecurityTestContext context) throws IOException {
+	@SuppressWarnings("deprecation")
+	public void addingStubIsPossibleAfterSetup(SecurityTestContext context) throws IOException, InterruptedException {
 		String url = context.getWireMockServer().baseUrl() + "/testing";
-		CloseableHttpClient httpClient = HttpClients.createDefault();
 
 		context.getWireMockServer()
 				.stubFor(get(urlEqualTo("/testing"))
 						.willReturn(aResponse().withBody("OK")));
 
-		try (CloseableHttpResponse response = httpClient.execute(new HttpGet(url))) {
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
-			String responseBody = readBody(response);
-			assertThat(responseBody).isEqualTo("OK");
-		}
-	}
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create(url))
+				.GET()
+				.build();
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-	private String readBody(CloseableHttpResponse response) throws IOException {
-		return IOUtils.toString(response.getEntity().getContent(), Charset.defaultCharset());
+		assertThat(response.statusCode()).isEqualTo(200);
+		assertThat(response.body()).isEqualTo("OK");
 	}
 
 }

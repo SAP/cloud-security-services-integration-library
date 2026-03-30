@@ -5,10 +5,11 @@
  */
 package com.sap.cloud.security.token;
 
+import org.junit.jupiter.api.Test;
+
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;

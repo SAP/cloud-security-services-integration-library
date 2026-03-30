@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.6.9</version>
+		<version>4.0.0</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
@@ -53,11 +53,6 @@
             <artifactId>java-security</artifactId>
 			<version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
@@ -85,18 +80,15 @@
 			<version>${wiremock.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.github.spotbugs</groupId>
 			<artifactId>spotbugs-annotations</artifactId>
 			<optional>true</optional>
 			<version>${spotbugs.annotations.version}</version>
-		</dependency>
-
-		<!-- test dependencies -->
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<scope>test</scope>
-			<version>${apache.httpclient.version}</version>
 		</dependency>
         <dependency>
             <groupId>org.mockito</groupId>

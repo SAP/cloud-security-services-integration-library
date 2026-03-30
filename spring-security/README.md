@@ -25,9 +25,10 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
 
 ## Requirements
 - Java 17
-- Spring Boot 3
-- Spring Framework 6
-- [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
+- Spring Boot 4
+- Spring Framework 7
+
+> **Note:** For Spring Boot 3.x compatibility, use the [`spring-security-3`](../spring-security-3) module instead.
 
 ## Table of Contents
 * [Setup](#setup)
@@ -68,7 +69,7 @@ These (spring) dependencies need to be provided:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.6.9</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 
@@ -93,7 +94,7 @@ In addition, a bean of type [XsuaaTokenFlows](../token-client/src/main/java/com/
 | sap.spring.security.hybrid.auto         | true        | This enables all auto-configurations that setup your project for hybrid IAS and/or XSUAA token validation.              |
 | sap.spring.security.xsuaa.flows.auto    | true        | This enables all auto-configurations required for XSUAA token exchange using [`token-client`](../token-client) library. |
 | sap.spring.security.identity.prooftoken | true        | This creates a `JwtDecoder` for identity service with enabled prooftoken check                                          |
-| sap.spring.security.hybrid.token.exchange.mode | disabled | Token exchange mode: `disabled`, `provide_xsuaa`, `force_xsuaa` |
+| sap.spring.security.hybrid.token.exchange.mode | disabled | Token exchange mode: `disabled`, `providexsuaa`, `forcexsuaa` |
 
 You can gradually replace auto-configurations as explained [here](https://docs.spring.io/spring-boot/docs/current/reference/html/using-boot-auto-configuration.html).
 
@@ -281,7 +282,7 @@ sap:
       hybrid:
         token:
           exchange:
-            mode: provide_xsuaa  # Options: disabled, provide_xsuaa, force_xsuaa (default: disabled)
+            mode: providexsuaa  # Options: disabled, providexsuaa, forcexsuaa (default: disabled)
 ```
 
 **Spring Security Configuration**:

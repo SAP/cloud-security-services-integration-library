@@ -1,6 +1,110 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.0.0 - Major Release
+
+This is a major release with breaking changes. The library has been upgraded to Spring Boot 4.x and Jakarta EE 10. For applications still on Spring Boot 3.x, compatibility modules are provided.
+Please check the [4.0 Migration Guide](MIGRATION_4.0.md) for comprehensive upgrade instructions
+
+### :warning: BREAKING CHANGES
+
+#### Spring Boot and Jakarta EE Version Upgrades
+- **Spring Boot**: Upgraded from 3.x to **4.0.3**
+- **Spring Framework**: Upgraded from 6.x to **7.0.5**
+- **Spring Security**: Upgraded from 6.x to **7.0.3**
+- **Jakarta Servlet API**: Upgraded from 6.0.0 to **6.1.0**
+- **Java**: Minimum version remains **Java 17**
+- **JUnit Jupiter**: Upgraded from 5.12.2 to **6.0.3**
+
+#### HTTP Client Default Changed
+**Token-client module** now uses **Java 11's HttpClient** as the default implementation. Apache HttpClient 4 remains available as a dependency for backward compatibility.
+
+**Impact:**
+- ✅ **No code changes required** if you use the default (parameterless) constructors
+- ⚠️ **Deprecated constructors** added for backward compatibility with Apache HttpClient 4
+- ❌ **Will be removed in version 5.0.0** - Plan to migrate to Java HttpClient or custom implementation
+
+**Deprecated in 4.0.0 (Removed in 5.0.0):**
+- `DefaultOAuth2TokenKeyService(CloseableHttpClient)`
+- `DefaultOAuth2TokenService(CloseableHttpClient)`
+- `DefaultOAuth2TokenService(CloseableHttpClient, TokenCacheConfiguration)`
+- `DefaultOidcConfigurationService(CloseableHttpClient)`
+- `HttpClientFactory` interface and `DefaultHttpClientFactory` implementation
+
+**Migration Path:**
+- **Option 1 (Recommended):** Use default constructors - Java 11 HttpClient is used automatically
+- **Option 2 (Temporary):** Continue using deprecated constructors with Apache HttpClient 4
+- **Option 3 (Custom):** Implement `SecurityHttpClientFactory` interface for custom HTTP clients (see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md))
+
+See the comprehensive [Apache HttpClient Migration Guide](token-client/APACHE_HTTPCLIENT_MIGRATION.md) for detailed migration instructions.
+
+#### Removed Modules
+The following deprecated modules have been removed from the repository:
+
+| Removed Module | Replacement | Migration Guide |
+|---|---|---|
+| `spring-xsuaa` | `spring-security` (Spring Boot 4.x) or `spring-security-3` (Spring Boot 3.x) | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
+| `spring-xsuaa-starter` | `spring-security-starter` (Spring Boot 4.x) or `spring-security-3-starter` (Spring Boot 3.x) | [Migration Guide](spring-security/Migration_SpringXsuaaProjects.md) |
+| `spring-xsuaa-test` | `java-security-test` | Use JwtGenerator from java-security-test |
+| `spring-security-compatibility` | `spring-security-3` | No changes needed, just switch artifact |
+
+
+### :sparkles: New Features
+
+#### Spring Boot 3.x Compatibility Modules
+For applications that cannot immediately upgrade to Spring Boot 4.x, two new modules provide full compatibility:
+
+**1. spring-security-3** (`com.sap.cloud.security:spring-security-3`)
+- Core security module compatible with Spring Boot 3.5.9, Spring Framework 6.2.15, Spring Security 6.5.7
+- Contains all AutoConfiguration classes and token validation logic
+- Provides Spring Boot 3.x compatibility for applications not yet ready to upgrade to Spring Boot 4.x
+
+**2. resourceserver-security-spring-boot-3-starter** (`com.sap.cloud.security:resourceserver-security-spring-boot-3-starter`)
+- Spring Boot starter for Spring Boot 3.x applications
+- Auto-configures security beans and token validation
+- Same developer experience as the main starter but with Spring Boot 3.x compatibility
+- See [spring-security-3 README](spring-security-3/README.md) for usage
+
+**Migration Path:**
+```xml
+<!-- For Spring Boot 4.x (recommended) -->
+<dependency>
+    <groupId>com.sap.cloud.security</groupId>
+    <artifactId>resourceserver-security-spring-boot-starter</artifactId>
+    <version>4.0.0</version>
+</dependency>
+
+<!-- For Spring Boot 3.x (compatibility layer) -->
+<dependency>
+    <groupId>com.sap.cloud.security</groupId>
+    <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
+    <version>4.0.0</version>
+</dependency>
+```
+
+**Sample Application:**
+- `samples/spring-webflux-security-hybrid-usage` demonstrates the Spring Boot 3 starter usage
+
+#### Token Client HTTP Client Changes
+- Replaced internal Apache HttpClient implementation with pluggable `SecurityHttpClient` abstraction
+- Default implementation uses Java 11 HttpClient (no external HTTP client library needed)
+- Apache HttpClient 4.5.14 remains as a dependency for backward compatibility
+- `HttpClientFactory` and `DefaultHttpClientFactory` are deprecated but still functional
+- Custom HTTP client implementations can be provided via `SecurityHttpClientFactory` ServiceLoader
+- See [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md) for integration examples (Apache HttpClient 4.x, 5.x, OkHttp, SAP Cloud SDK)
+
+### :package: Dependency Upgrades
+
+Major version bumps:
+- Spring Boot: 3.5.9 → 4.0.3
+- Spring Framework: 6.2.15 → 7.0.5
+- Spring Security: 6.5.7 → 7.0.3
+- Jakarta Servlet API: 6.0.0 → 6.1.0
+- JUnit Jupiter: 5.12.2 → 6.0.3
+- Apache HttpComponents Client: 4.5.14 (unchanged, kept for backward compatibility)
+
+See versions 3.6.x for incremental dependency updates.
+
 ## 3.6.9
 
 - Fix token exchange logic in `DefaultIdTokenExtension` to correctly identify App2App tokens that require exchange (where `aud` contains a single audience different from `azp`)

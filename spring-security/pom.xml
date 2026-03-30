@@ -9,14 +9,14 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.6.9</version>
+		<version>4.0.0</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
 	<artifactId>spring-security</artifactId>
 	<name>spring-security</name>
 	<packaging>jar</packaging>
-	<version>3.6.9</version>
+	<version>4.0.0</version>
 
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<description>Java Spring security library</description>
@@ -68,6 +68,12 @@
 			<version>${spring.boot.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+			<version>${jakarta.annotation.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security</artifactId>
 			<version>${project.parent.version}</version>
@@ -77,11 +83,6 @@
 			<artifactId>jakarta.servlet-api</artifactId>
 			<scope>provided</scope>
 			<version>${jakarta.servlet.api.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>${apache.httpclient.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.spotbugs</groupId>
@@ -111,6 +112,10 @@
 				<exclusion>
 					<groupId>com.sap.cloud.security</groupId>
 					<artifactId>java-security</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

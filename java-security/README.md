@@ -69,7 +69,7 @@ Since it requires the Tomcat 10 runtime, it needs to be deployed using the [SAP 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>3.6.9</version>
+    <version>4.0.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -142,8 +142,8 @@ The `HybridTokenAuthenticator` is designed for hybrid scenarios where an applica
 
 - IAS and XSUAA service configurations ([
   `OAuth2ServiceConfiguration`](java-api/src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java))
-- HTTP client for token exchange (`CloseableHttpClient` via [
-  `HttpClientFactory`](token-client/src/main/java/com/sap/cloud/security/client/HttpClientFactory.java))
+- HTTP client for token exchange (`SecurityHttpClient` via [
+  `SecurityHttpClientProvider`](token-client/src/main/java/com/sap/cloud/security/client/SecurityHttpClientProvider.java))
 - Chosen [`TokenExchangeMode`](java-security/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)
 
 **Configuration Example**:
@@ -156,9 +156,9 @@ The `HybridTokenAuthenticator` is designed for hybrid scenarios where an applica
 // 2. Choose token exchange mode
 TokenExchangeMode exchangeMode = TokenExchangeMode.FORCE_XSUAA;
 
-// 3. Create authenticator
+// 3. Create authenticator (using recommended SecurityHttpClientProvider)
 HybridTokenAuthenticator authenticator =
-        new HybridTokenAuthenticator(iasConfig, HttpClientFactory.create(iasConfig.getClientIdentity()), xsuaaConfig, exchangeMode);
+        new HybridTokenAuthenticator(iasConfig, SecurityHttpClientProvider.createClient(iasConfig.getClientIdentity()), xsuaaConfig, exchangeMode);
 
 // 4. Use in servlet filter
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -171,7 +171,7 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
         //                       SecurityContext.getXsuaaToken() returns XSUAA token
         // In PROVIDE_XSUAA mode: SecurityContext.getToken() returns incoming (IAS or XSUAA) token
         //                       SecurityContext.getXsuaaToken() returns XSUAA token
-        
+
         chain.doFilter(request, response);
     } else {
         ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED);

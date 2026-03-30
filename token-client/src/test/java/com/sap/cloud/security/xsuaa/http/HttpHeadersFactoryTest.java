@@ -5,12 +5,14 @@
  */
 package com.sap.cloud.security.xsuaa.http;
 
-import org.junit.Test;
-
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.*;
+import org.junit.jupiter.api.Test;
 import static com.sap.cloud.security.xsuaa.http.MediaType.APPLICATION_FORM_URLENCODED;
+import org.junit.jupiter.api.Test;
 import static com.sap.cloud.security.xsuaa.http.MediaType.APPLICATION_JSON;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class HttpHeadersFactoryTest {
 
