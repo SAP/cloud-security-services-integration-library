@@ -12,12 +12,12 @@
 		<version>4.0.0</version>
 	</parent>
 
-	<artifactId>token-client</artifactId>
-	<name>token-client</name>
+	<artifactId>token-client-spring</artifactId>
+	<name>token-client-spring</name>
 	<packaging>jar</packaging>
 
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
-	<description>Java Token Client library</description>
+	<description>Spring-based Token Client implementations for OAuth2 token services</description>
 
 	<organization>
 		<name>SAP SE</name>
@@ -47,48 +47,25 @@
 	</scm>
 
 	<dependencies>
+		<!-- Depends on token-client for interfaces and base classes -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.api.version}</version>
+			<groupId>com.sap.cloud.security.xsuaa</groupId>
+			<artifactId>token-client</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.annotation</groupId>
 			<artifactId>jakarta.annotation-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- Spring Web - provided scope (consistent with other library modules) -->
 		<dependency>
-			<groupId>com.sap.cloud.security</groupId>
-			<artifactId>java-api</artifactId>
-			<version>${project.parent.version}</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<scope>provided</scope>
+			<version>${spring.core.version}</version>
 		</dependency>
-		<!-- Jackson for JSON processing - minimal dependency without Spring Boot bloat -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>${org.json.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.spotbugs</groupId>
-			<artifactId>spotbugs-annotations</artifactId>
-			<optional>true</optional>
-			<version>${spotbugs.annotations.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.ben-manes.caffeine</groupId>
-			<artifactId>caffeine</artifactId>
-			<version>${caffeine.version}</version>
-		</dependency>
-		<!-- Apache HttpClient 4 for backward compatibility (deprecated constructors) -->
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.5.14</version>
-		</dependency>
+		<!-- Test dependencies -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
@@ -141,37 +118,21 @@
 			<version>1.5.25</version>
 			<scope>test</scope>
 		</dependency>
-        <dependency>
-            <groupId>org.wiremock</groupId>
-            <artifactId>wiremock-standalone</artifactId>
-            <scope>test</scope>
+		<dependency>
+			<groupId>org.wiremock</groupId>
+			<artifactId>wiremock-standalone</artifactId>
+			<scope>test</scope>
 			<version>${wiremock.version}</version>
-        </dependency>
-	<dependency>
-		<groupId>commons-io</groupId>
-		<artifactId>commons-io</artifactId>
-		<version>${commons.io.version}</version>
-		<scope>test</scope>
-	</dependency>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons.io.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>**/token-client.properties</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
-				<excludes>
-					<exclude>**/token-client.properties</exclude>
-				</excludes>
-			</resource>
-		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

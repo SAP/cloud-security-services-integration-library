@@ -149,13 +149,14 @@ Typical use cases:
 * technical user / system tokens for service to service communication
 * user token exchange for principal propagation in service to service communication
 
-:bulb: **New in 4.0.0**: Token-client now uses Java 11 HttpClient by default. For custom HTTP client implementations (Apache HttpClient 4.x/5.x, OkHttp), see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md).
+:bulb: **New in 4.0.0**: Token-client now uses Java 11 HttpClient by default. Spring-based implementations have been moved to [token-client-spring](./token-client-spring). For custom HTTP client implementations (Apache HttpClient 4.x/5.x, OkHttp), see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md).
 
 In the table below you'll find links to detailed information.
 
 | Library                                   | Usage Examples                                                                                                                                                                                                                                         |
 |-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [token-client](/token-client)             | [java-tokenclient-usage](samples/java-tokenclient-usage) demonstrates usage of token client library in Jakarta EE application<br/>[spring-security-hybrid-usage](samples/spring-security-hybrid-usage) demonstrates usage in Spring Boot application     |              
+| [token-client](/token-client)             | [java-tokenclient-usage](samples/java-tokenclient-usage) demonstrates usage of token client library in Jakarta EE application<br/>[spring-security-hybrid-usage](samples/spring-security-hybrid-usage) demonstrates usage in Spring Boot application     |
+| [token-client-spring](/token-client-spring) | Spring-based implementations of OAuth2 token services. Required if you use `XsuaaOAuth2TokenService`, `SpringOAuth2TokenKeyService`, or `SpringOidcConfigurationService`.     |              
 
 ### 2.3 Testing utilities
 For authentication/authorization flow testing purposes there is [java-security-test](/java-security-test) library at your disposal that can be used for unit and integration tests to test the Xsuaa or Identity service client functionality in the application. 

@@ -35,7 +35,6 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 
 public class DefaultOAuth2TokenKeyServiceTest {
 

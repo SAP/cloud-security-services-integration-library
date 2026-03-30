@@ -15,7 +15,9 @@ Version 4.0.0 is a major release that upgrades to Spring Boot 4.x and Jakarta EE
 2. [Migration Path 1: Upgrade to Spring Boot 4.x](#migration-path-1-upgrade-to-spring-boot-4x-recommended)
 3. [Migration Path 2: Stay on Spring Boot 3.x](#migration-path-2-stay-on-spring-boot-3x)
 4. [Removed Modules](#removed-modules)
-5. [Token Client HTTP Client Changes](#token-client-http-client-changes)
+5. [Token Client Changes](#token-client-http-client-changes)
+   - [HTTP Client Changes](#default-http-client)
+   - [Spring Token Service Classes](#spring-token-service-classes-moved-to-token-client-spring)
 6. [Troubleshooting](#troubleshooting)
 
 ## Breaking Changes Summary
@@ -43,6 +45,23 @@ The following modules have been removed:
 - Token-client now uses Java 11 HttpClient by default (no external dependencies)
 - Apache HttpClient 4 support maintained via deprecated constructors (removed in 5.0.0)
 - Custom HTTP client implementations supported (Apache HttpClient 5, OkHttp, etc.) - see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md)
+
+### Spring Token Service Classes Moved
+
+The following Spring-based classes have been moved from `token-client` to the new `token-client-spring` module:
+- `XsuaaOAuth2TokenService`
+- `SpringOAuth2TokenKeyService`
+- `SpringOidcConfigurationService`
+
+If you use these classes, add the new dependency:
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client-spring</artifactId>
+    <version>4.0.0</version>
+</dependency>
+```
+No code changes required - the classes remain in the same package.
 
 ## Migration Path 1: Upgrade to Spring Boot 4.x (Recommended)
 
@@ -289,6 +308,31 @@ If you need Apache HttpClient 5 for specific features (e.g., connection pooling,
 ### Timeout and Connection Pooling
 
 The timeout settings (5s connect, 30s socket) have been preserved. Connection pooling behavior differs slightly - see the [token-client README](token-client/README.md#connection-pooling) for details and configuration options.
+
+### Spring Token Service Classes Moved to token-client-spring
+
+The Spring-based token service implementations have been moved to a separate module to avoid classloader issues in environments where Spring is not available (e.g., SAP Java Buildpack's Tomcat lib folder).
+
+**Affected Classes:**
+- `XsuaaOAuth2TokenService`
+- `SpringOAuth2TokenKeyService`
+- `SpringOidcConfigurationService`
+
+**Migration:**
+
+If you use any of these classes, add the new dependency:
+
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client-spring</artifactId>
+    <version>4.0.0</version>
+</dependency>
+```
+
+**No code changes required** - the classes remain in the same package (`com.sap.cloud.security.xsuaa.client`).
+
+**Note:** Most applications using Spring Boot with `resourceserver-security-spring-boot-starter` use `DefaultOAuth2TokenService` (via auto-configuration) and are **not affected** by this change.
 
 ## Troubleshooting
 

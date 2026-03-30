@@ -91,6 +91,11 @@
                 <artifactId>token-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>${xsuaa-groupId}</groupId>
+                <artifactId>token-client-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <profiles>

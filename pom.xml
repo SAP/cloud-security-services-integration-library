@@ -79,6 +79,7 @@
 		<module>java-api</module>
 		<module>env</module>
 		<module>token-client</module>
+		<module>token-client-spring</module>
 		<module>java-security</module>
 		<module>spring-security</module>
 		<module>spring-security-3</module>

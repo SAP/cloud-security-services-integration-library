@@ -1,31 +1,41 @@
 # XSUAA Token Client and Token Flow API
 
-This library provides a lightweight HTTP client for Xsuaa `/oauth/token` and `/token_keys` endpoints, as specified [here](https://docs.cloudfoundry.org/api/uaa/version/76.9.0/#token). 
+This library provides a lightweight HTTP client for Xsuaa `/oauth/token` and `/token_keys` endpoints, as specified [here](https://docs.cloudfoundry.org/api/uaa/version/76.9.0/#token).
 Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) class to support the following token flows:
 
-* **[Jwt Bearer Token Flow](#jwt-bearer-token-flow)**.  
+* **[Jwt Bearer Token Flow](#jwt-bearer-token-flow)**.
   The token exchange concept aims to segregate service-specific access scopes into separate tokens. For instance, if Service A and Service B have different scopes, the goal is to avoid having a single Jwt token containing all scopes. To achieve principal propagation in that scenario, Service A could use a Jwt Bearer Token Flow before making requests to Service B on behalf of the user. To do so, he would exchange the user's access token for Service A for an access token of the same user for Service B.
-* **[Client Credentials Flow](#client-credentials-token-flow)**.  
+* **[Client Credentials Flow](#client-credentials-token-flow)**.
   The Client Credentials ([RFC 6749, section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4)) are employed by clients to acquire an access token without a user context. This is useful for non-interactive applications (e.g., CLI, batch job, or service-2-service communication) where the token is issued to the application itself, instead of an end-user for accessing resources without principal propagation.
-* **[Refresh Token Flow](#refresh-token-flow)**.  
+* **[Refresh Token Flow](#refresh-token-flow)**.
   A Refresh Token ([RFC 6749, section 1.5](https://tools.ietf.org/html/rfc6749#section-1.5)) flow enables obtaining a new access token if the current one becomes invalid or expires.
-* **[Password Token Flow](#password-token-flow)**.  
+* **[Password Token Flow](#password-token-flow)**.
   Resource owner password credentials (i.e., username and password) can be used directly as an authorization grant to obtain an access token ([RFC 6749, section 1.3.3](https://tools.ietf.org/html/rfc6749#section-1.3.3)). These credentials should be employed only when there is a high degree of trust between the resource owner and the client.
 
 > Note: The **Authorization Code Grant Flow** requires a browser and is typically initiated by an API gateway, such as an Application Router. However, other flows might need to be triggered programmatically, such as swapping one token for another or refreshing a token prior to its expiration. When creating an Xsuaa service instance, an OAuth client is generated, and the client Identity (client ID and secret or client certificate and key) are supplied when you bind your application to the Xsuaa service instance. With these elements in place, you can leverage the token flows in your Java application.
 
 ## Requirements
-- Java 11 or higher
+- Java 17 or higher
 - **HTTP Client**: Starting with version 4.0.0, the library uses Java 11's built-in `HttpClient` as the default implementation (no external dependencies required)
 
-### HTTP Client Changes in Version 4.0.0
+### Changes in Version 4.0.0
 
-:warning: **Important:** The library no longer uses Apache HttpClient 4 as the default. If you're upgrading from version 3.x:
+:warning: **Important changes in version 4.0.0:**
 
-- ✅ **No action required** if you use the default (parameterless) constructors - the library automatically uses Java 11's HttpClient
-- ⚠️ **Deprecated constructors available** for temporary backward compatibility with Apache HttpClient 4
-- 📖 **See [Apache HttpClient Migration Guide](APACHE_HTTPCLIENT_MIGRATION.md)** for detailed migration instructions
-- 🔧 **Need custom HTTP client?** See [Custom HTTP Client Integration](CUSTOM_HTTPCLIENT.md) for implementing custom HTTP clients with any library
+1. **HTTP Client**: The library no longer uses Apache HttpClient 4 as the default. If you're upgrading from version 3.x:
+   - ✅ **No action required** if you use the default (parameterless) constructors - the library automatically uses Java 11's HttpClient
+   - ⚠️ **Deprecated constructors available** for temporary backward compatibility with Apache HttpClient 4
+   - 📖 **See [Apache HttpClient Migration Guide](APACHE_HTTPCLIENT_MIGRATION.md)** for detailed migration instructions
+   - 🔧 **Need custom HTTP client?** See [Custom HTTP Client Integration](CUSTOM_HTTPCLIENT.md) for implementing custom HTTP clients with any library
+
+2. **Spring implementations moved**: The Spring-based implementations (`XsuaaOAuth2TokenService`, `SpringOAuth2TokenKeyService`, `SpringOidcConfigurationService`) have been moved to the separate [`token-client-spring`](../token-client-spring) module. If you use these classes, add the new dependency:
+   ```xml
+   <dependency>
+       <groupId>com.sap.cloud.security.xsuaa</groupId>
+       <artifactId>token-client-spring</artifactId>
+       <version>4.0.0</version>
+   </dependency>
+   ```
 
 ## Table of Contents
 1. [Setup](#setup)
@@ -301,9 +311,9 @@ Alternatively, implement a custom `SecurityHttpClientFactory` with Apache HttpCl
 
 ### Cache Configuration
 
-By default, the `OAuth2TokenService` implementations (`DefaultOAuth2TokenService` and `XsuaaOAuth2TokenService`) are caching tokens internally.
+By default, the `OAuth2TokenService` implementations (`DefaultOAuth2TokenService` and `XsuaaOAuth2TokenService` from [token-client-spring](../token-client-spring)) are caching tokens internally.
 By default up to 1000 tokens are cached for 10 minutes and the statistics are disabled.
-The Cache can be individually configured by configuring `TokenCacheConfiguration` class. `XsuaaTokenFlows` need to be then initialized with the `DefaultOAuth2TokenService` or `XsuaaOAuth2TokenService` that takes `TokenCacheConfiguration` as a constructor parameter.
+The Cache can be individually configured by configuring `TokenCacheConfiguration` class. `XsuaaTokenFlows` need to be then initialized with the `DefaultOAuth2TokenService` (or `XsuaaOAuth2TokenService` if using Spring) that takes `TokenCacheConfiguration` as a constructor parameter.
 
 #### Cache configuration options:
 ```java
