@@ -5,6 +5,9 @@
  */
 package com.sap.cloud.security.test.integration.ssrf;
 
+import com.sap.cloud.security.client.ApacheHttpClient4Executor;
+import com.sap.cloud.security.client.CustomHttpClientAdapter;
+import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.test.RSAKeys;
@@ -14,7 +17,6 @@ import com.sap.cloud.security.token.TokenHeader;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -29,6 +31,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 
 /**
@@ -36,8 +39,6 @@ import static org.mockito.Mockito.times;
  * Request Forgery)</a> attacks.
  */
 class JavaSSRFAttackTest {
-
-	private final CloseableHttpClient httpClient = Mockito.spy(HttpClients.createDefault());
 
 	@RegisterExtension
 	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA).setPort(4242);
@@ -62,6 +63,13 @@ class JavaSSRFAttackTest {
 		OAuth2ServiceConfigurationBuilder configuration =
 				extension.getContext().getOAuth2ServiceConfigurationBuilderFromFile("/xsuaa/vcap_services-single.json");
 
+		// Create a spy on a real HttpClient to capture requests while allowing them to execute
+		CloseableHttpClient realHttpClient = HttpClients.createDefault();
+		CloseableHttpClient spyHttpClient = Mockito.spy(realHttpClient);
+		SecurityHttpClient httpClient = new CustomHttpClientAdapter(
+				new ApacheHttpClient4Executor(spyHttpClient),
+				() -> {});
+
 		Token token;
 		if (isValid) {
 			token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
@@ -81,12 +89,13 @@ class JavaSSRFAttackTest {
 		ValidationResult result = tokenValidator.validate(token);
 
 		assertThat(result.isValid()).isEqualTo(isValid);
-		ArgumentCaptor<HttpUriRequest> httpUriRequestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
-		ArgumentCaptor<ResponseHandler> responseHandlerCaptor = ArgumentCaptor.forClass(ResponseHandler.class);
+		ArgumentCaptor<HttpUriRequest> requestCaptor = ArgumentCaptor.forClass(HttpUriRequest.class);
 
-		Mockito.verify(httpClient, times(1)).execute(httpUriRequestCaptor.capture(), responseHandlerCaptor.capture());
-		HttpUriRequest request = httpUriRequestCaptor.getValue();
+		Mockito.verify(spyHttpClient, times(1)).execute(requestCaptor.capture());
+		HttpUriRequest request = requestCaptor.getValue();
 		assertThat(request.getURI().getHost()).isEqualTo("localhost"); // ensure request was sent to trusted host
+
+		realHttpClient.close();
 	}
 
 }
