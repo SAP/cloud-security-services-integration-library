@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.10
+
+- Fix IAS token exchange to use `getUrl()` instead of `getCertUrl()` in `DefaultIdTokenExtension`
+
 ## 3.6.9
 
 - Fix token exchange logic in `DefaultIdTokenExtension` to correctly identify App2App tokens that require exchange (where `aud` contains a single audience different from `azp`)
@@ -238,7 +242,7 @@ All notable changes to this project will be documented in this file.
 ### Dependency upgrades
 
 - Bump spring.core.version from 6.2.0 to 6.2.1
-- Bump io.projectreactor:reactor-core from 3.6.9 to 3.7.1
+- Bump io.projectreactor:reactor-core from 3.6.10 to 3.7.1
 - Bump io.projectreactor:reactor-test from 3.7.0 to 3.7.1
 
 ## 3.5.5
@@ -248,7 +252,7 @@ All notable changes to this project will be documented in this file.
 ### Dependency upgrades
 
 - Bump org.apache.httpcomponents.client5:httpclient5 from 5.3.1 to 5.4.1
-- Bump io.projectreactor:reactor-test from 3.6.9 to 3.7.0
+- Bump io.projectreactor:reactor-test from 3.6.10 to 3.7.0
 - Update spring versions
   - core to 6.2.0
   - boot to 3.4.0
@@ -289,7 +293,7 @@ All notable changes to this project will be documented in this file.
 ### Dependency upgrades
 
 - Bump spring.security.version from 6.3.1 to 6.3.3
-- Bump io.projectreactor:reactor-core from 3.6.7 to 3.6.9
+- Bump io.projectreactor:reactor-core from 3.6.7 to 3.6.10
 - Bump slf4j.api.version from 2.0.13 to 2.0.16
 - Bump org.eclipse.jetty.version from 12.0.7 to 12.0.12
 - Bump spring.core.version from 6.1.10 to 6.1.12
