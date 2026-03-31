@@ -8,7 +8,7 @@ This Spring Boot sample application is built with the `spring-webflux` framework
 
 The `resourceserver-security-spring-boot-3-starter` is designed for customers who:
 - Cannot immediately upgrade to Spring Boot 4.x
-- Want to use the latest security fixes from version 4.0.0
+- Want to use the latest security fixes from version 4.0.1
 - Need time to plan their Spring Boot 4.x migration
 
 This starter uses the same core security features but is compatible with:

@@ -23,7 +23,7 @@ Use the Spring Boot 3.x starter instead:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 
@@ -50,4 +50,4 @@ See [MIGRATION_4.0.md](../MIGRATION_4.0.md) for migration instructions.
 
 For complete documentation on usage, configuration, testing, and troubleshooting, see:
 - [`spring-security` README](../spring-security/README.md) - All documentation applies unless noted above
-- [MIGRATION_4.0.md](../MIGRATION_4.0.md) - Migration guide from version 3.x to 4.0.0
+- [MIGRATION_4.0.md](../MIGRATION_4.0.md) - Migration guide from version 3.x to 4.0.1

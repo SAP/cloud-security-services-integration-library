@@ -1,10 +1,10 @@
-# Migration Guide: Version 3.x to 4.0.0
+# Migration Guide: Version 3.x to 4.0.1
 
-This guide helps you migrate your application from version 3.x to 4.0.0 of the SAP BTP Security Services Integration Library.
+This guide helps you migrate your application from version 3.x to 4.0.1 of the SAP BTP Security Services Integration Library.
 
 ## Overview
 
-Version 4.0.0 is a major release that upgrades to Spring Boot 4.x and Jakarta EE 10. We provide two migration paths:
+Version 4.0.1 is a major release that upgrades to Spring Boot 4.x and Jakarta EE 10. We provide two migration paths:
 
 1. **Recommended**: Upgrade to Spring Boot 4.x
 2. **Alternative**: Stay on Spring Boot 3.x using our legacy compatibility modules
@@ -24,7 +24,7 @@ Version 4.0.0 is a major release that upgrades to Spring Boot 4.x and Jakarta EE
 
 ### Version Updates
 
-| Component | Version 3.x | Version 4.0.0 |
+| Component | Version 3.x | Version 4.0.1 |
 |---|---|---|
 | Spring Boot | 3.x | 4.0.3 |
 | Spring Framework | 6.x | 7.0.5 |
@@ -58,7 +58,7 @@ If you use these classes, add the new dependency:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 No code changes required - the classes remain in the same package.
@@ -68,7 +68,7 @@ No code changes required - the classes remain in the same package.
 ### Prerequisites
 
 - Java 17 or later
-- Spring Boot 4.0.0 or later
+- Spring Boot 4.0.1 or later
 - Spring Security 7.0.0 or later
 
 ### Step 1: Update Spring Boot Parent
@@ -88,7 +88,7 @@ No code changes required - the classes remain in the same package.
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 
@@ -141,12 +141,12 @@ Replace the standard starter with the Spring Boot 3 starter:
 </dependency>
 ```
 
-**After (4.0.0 with Spring Boot 3.x compatibility):**
+**After (4.0.1 with Spring Boot 3.x compatibility):**
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 
@@ -203,7 +203,7 @@ The `spring-xsuaa` module has been removed. Migrate to either:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -234,7 +234,7 @@ import com.sap.cloud.security.test.JwtGenerator;
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>spring-security-3</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 
@@ -244,11 +244,11 @@ import com.sap.cloud.security.test.JwtGenerator;
 
 ### Default HTTP Client
 
-Version 4.0.0 uses Java 11 HttpClient by default. No external dependencies required.
+Version 4.0.1 uses Java 11 HttpClient by default. No external dependencies required.
 
 **What Changed:**
 - **Version 3.x**: Used Apache HttpClient 4.x internally
-- **Version 4.0.0**: Uses Java 11 HttpClient (built into JDK)
+- **Version 4.0.1**: Uses Java 11 HttpClient (built into JDK)
 
 **Migration:** No code changes needed! The HTTP client is an internal implementation detail.
 
@@ -267,12 +267,12 @@ The `token-client` module now uses Java 11 HttpClient by default - no additional
 </dependency>
 ```
 
-**After (Version 4.0.0 with Java HttpClient):**
+**After (Version 4.0.1 with Java HttpClient):**
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 
@@ -326,7 +326,7 @@ If you use any of these classes, add the new dependency:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 

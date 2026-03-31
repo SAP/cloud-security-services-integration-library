@@ -2,7 +2,7 @@
 
 ## Overview
 
-In version **4.0.0**, the token-client library migrated from **Apache HttpClient 4** to **Java 11 HttpClient** as the default implementation.
+In version **4.0.1**, the token-client library migrated from **Apache HttpClient 4** to **Java 11 HttpClient** as the default implementation.
 
 **Key Points:**
 - Java 11 HttpClient is now the default (no external dependencies required)
@@ -32,7 +32,7 @@ CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
 OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
 ```
 
-**After (Version 4.0.0):**
+**After (Version 4.0.1):**
 ```java
 import com.sap.cloud.security.client.SecurityHttpClientProvider;
 
@@ -78,7 +78,7 @@ OidcConfigurationService oidcService = new DefaultOidcConfigurationService(httpC
 ```
 
 **Important:**
-- ⚠️ **Deprecated in 4.0.0** - Will be removed in 5.0.0
+- ⚠️ **Deprecated in 4.0.1** - Will be removed in 5.0.0
 - Apache HttpClient 4 is included as a transitive dependency for backward compatibility
 
 ---
@@ -110,20 +110,20 @@ This approach is **future-proof** and works with any HTTP client library (Apache
 
 ## Affected Classes
 
-The following constructors are deprecated in version 4.0.0 and will be removed in 5.0.0:
+The following constructors are deprecated in version 4.0.1 and will be removed in 5.0.0:
 
 ```java
 // DefaultOAuth2TokenKeyService
-@Deprecated(since = "4.0.0", forRemoval = true)
+@Deprecated(since = "4.0.1", forRemoval = true)
 public DefaultOAuth2TokenKeyService(CloseableHttpClient httpClient)
 
 // DefaultOAuth2TokenService
-@Deprecated(since = "4.0.0", forRemoval = true)
+@Deprecated(since = "4.0.1", forRemoval = true)
 public DefaultOAuth2TokenService(CloseableHttpClient httpClient)
 public DefaultOAuth2TokenService(CloseableHttpClient httpClient, TokenCacheConfiguration config)
 
 // DefaultOidcConfigurationService
-@Deprecated(since = "4.0.0", forRemoval = true)
+@Deprecated(since = "4.0.1", forRemoval = true)
 public DefaultOidcConfigurationService(CloseableHttpClient httpClient)
 ```
 

@@ -4,7 +4,7 @@ This module provides Spring-based implementations of the OAuth2 token service in
 
 ## Overview
 
-Starting with version 4.0.0, Spring-specific implementations have been moved to this separate module to avoid classloader issues when `token-client` is used in environments where Spring is not available (e.g., SAP Java Buildpack's Tomcat lib folder).
+Starting with version 4.0.1, Spring-specific implementations have been moved to this separate module to avoid classloader issues when `token-client` is used in environments where Spring is not available (e.g., SAP Java Buildpack's Tomcat lib folder).
 
 ## Classes
 
@@ -20,7 +20,7 @@ Starting with version 4.0.0, Spring-specific implementations have been moved to 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 
@@ -55,7 +55,7 @@ If you were using `XsuaaOAuth2TokenService`, `SpringOAuth2TokenKeyService`, or `
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 

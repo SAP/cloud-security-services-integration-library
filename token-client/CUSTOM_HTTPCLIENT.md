@@ -216,7 +216,7 @@ A: Use the default unless you have specific requirements (proxy, mTLS, custom po
 
 **Q: What happened to native Apache HttpClient support?**
 
-A: In version 4.0.0, we switched to Java 11 HttpClient as the default. Apache HttpClient (any version) can be used via the `HttpRequestExecutor` interface shown above.
+A: In version 4.0.1, we switched to Java 11 HttpClient as the default. Apache HttpClient (any version) can be used via the `HttpRequestExecutor` interface shown above.
 
 **Q: Does this work with Apache HttpClient 4 and 5?**
 
