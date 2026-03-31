@@ -145,6 +145,7 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
     final String certPem = iasConfig.getProperty("certificate");
     final String keyPem = iasConfig.getProperty("key");
     final String clientId = iasConfig.getClientId();
+    final URI tokenEndpoint = URI.create(iasConfig.getUrl().toString() + "/oauth2/token");
 
     final Map<String, String> params = new HashMap<>();
     params.put("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
@@ -153,19 +154,17 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
     params.put("refresh_expiry", "0");
     params.put("client_id", clientId);
 
-    if (certPem != null && keyPem != null && nonNull(iasConfig.getCertUrl())) {
-      final URI certUrlEndpoint = URI.create(iasConfig.getCertUrl().toString() + "/oauth2/token");
+    if (certPem != null && keyPem != null) {
       return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-          certUrlEndpoint,
+          tokenEndpoint,
           new ClientCertificate(clientId, certPem, keyPem),
           accessToken.getTokenValue(),
           null,
           params,
           false);
     } else {
-      final URI tokenUrlEndpoint = URI.create(iasConfig.getUrl().toString() + "/oauth2/token");
       return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-          tokenUrlEndpoint,
+          tokenEndpoint,
           new ClientCredentials(clientId, iasConfig.getClientSecret()),
           accessToken.getTokenValue(),
           null,

@@ -29,14 +29,10 @@ public class DefaultIdTokenExtensionTest {
   private final String clientId = "clientId";
   private final URI tokenUri = URI.create("http://localhost:8080");
   private final URI completeTokenUri = URI.create("http://localhost:8080/oauth2/token");
-  private final URI certUri = URI.create("http://localhost:8080/cert");
-  private final URI completeCertUri = URI.create("http://localhost:8080/cert/oauth2/token");
 
   private static final Token idToken = new MockTokenBuilder().build();
   private static final Token accessToken = new MockTokenBuilder().build();
   private static final Token technicalUserToken = new MockTokenBuilder().build();
-  private static final OAuth2TokenResponse certTokenResponse =
-      Mockito.mock(OAuth2TokenResponse.class);
   private static final OAuth2TokenResponse tokenResponse = Mockito.mock(OAuth2TokenResponse.class);
   private DefaultIdTokenExtension cut;
   private final OAuth2TokenService tokenService = Mockito.mock(OAuth2TokenService.class);
@@ -50,7 +46,6 @@ public class DefaultIdTokenExtensionTest {
     when(serviceConfiguration.getClientId()).thenReturn(clientId);
     String clientSecret = "clientSecret";
     when(serviceConfiguration.getClientSecret()).thenReturn(clientSecret);
-    when(serviceConfiguration.getCertUrl()).thenReturn(certUri);
     String certPem = "certPem";
     when(serviceConfiguration.getProperty("certificate")).thenReturn(certPem);
     String keyPem = "keyPem";
@@ -63,16 +58,11 @@ public class DefaultIdTokenExtensionTest {
     when(technicalUserToken.getClaimAsString("sub")).thenReturn(clientId);
     when(technicalUserToken.getClientId()).thenReturn(clientId);
     when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-            eq(completeCertUri), any(), any(), any(), anyMap(), anyBoolean()))
-        .thenReturn(certTokenResponse);
-    when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
             eq(completeTokenUri), any(), any(), any(), anyMap(), anyBoolean()))
         .thenReturn(tokenResponse);
     when(accessToken.getTokenValue())
         .thenReturn(IOUtils.resourceToString("/iasTokenWithCnfRSA256.txt", UTF_8));
     when(tokenResponse.getAccessToken())
-        .thenReturn(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
-    when(certTokenResponse.getAccessToken())
         .thenReturn(IOUtils.resourceToString("/iasOidcTokenRSA256.txt", UTF_8));
 
     cut = new DefaultIdTokenExtension(tokenService, serviceConfiguration);
@@ -109,7 +99,7 @@ public class DefaultIdTokenExtensionTest {
     assertNotEquals(idToken, result);
     verify(tokenService)
         .retrieveAccessTokenViaJwtBearerTokenGrant(
-            eq(completeCertUri), any(), any(), any(), any(), eq(false));
+            eq(completeTokenUri), any(), any(), any(), any(), eq(false));
   }
 
   @Test
@@ -123,7 +113,7 @@ public class DefaultIdTokenExtensionTest {
 
     verify(tokenService)
         .retrieveAccessTokenViaJwtBearerTokenGrant(
-            eq(completeCertUri),
+            eq(completeTokenUri),
             any(),
             tokenCaptor.capture(),
             any(),
@@ -136,7 +126,7 @@ public class DefaultIdTokenExtensionTest {
     assertEquals("jwt", params.get("token_format"));
     assertEquals("0", params.get("refresh_expiry"));
     assertEquals(clientId, params.get("client_id"));
-    assertEquals(certTokenResponse.getAccessToken(), result.getTokenValue());
+    assertEquals(tokenResponse.getAccessToken(), result.getTokenValue());
   }
 
   @Test
@@ -184,7 +174,7 @@ public class DefaultIdTokenExtensionTest {
   public void resolveToken_exchangeFails_returnsNull() throws OAuth2ServiceException {
     SecurityContext.setToken(accessToken);
     when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-            eq(completeCertUri), any(), any(), any(), anyMap(), anyBoolean()))
+            eq(completeTokenUri), any(), any(), any(), anyMap(), anyBoolean()))
         .thenThrow(new OAuth2ServiceException("boom", null));
 
     final Token result = cut.resolveIdToken(null);
