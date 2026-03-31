@@ -6,7 +6,7 @@ This Java backend application uses the [token-client](/token-client/) module to 
 
 ## About This Sample
 
-This sample showcases how existing applications using Apache HttpClient 4 can continue to work with version 4.0.0+ of the library through deprecated constructors. It serves two purposes:
+This sample showcases how existing applications using Apache HttpClient 4 can continue to work with version 4.0.1+ of the library through deprecated constructors. It serves two purposes:
 
 1. **Testing**: Validates that the backward compatibility layer works correctly
 2. **Migration Example**: Shows customers how to temporarily maintain their existing Apache HttpClient 4 integration

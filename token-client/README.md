@@ -16,11 +16,11 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
 
 ## Requirements
 - Java 17 or higher
-- **HTTP Client**: Starting with version 4.0.0, the library uses Java 11's built-in `HttpClient` as the default implementation (no external dependencies required)
+- **HTTP Client**: Starting with version 4.0.1, the library uses Java 11's built-in `HttpClient` as the default implementation (no external dependencies required)
 
-### Changes in Version 4.0.0
+### Changes in Version 4.0.1
 
-:warning: **Important changes in version 4.0.0:**
+:warning: **Important changes in version 4.0.1:**
 
 1. **HTTP Client**: The library no longer uses Apache HttpClient 4 as the default. If you're upgrading from version 3.x:
    - ✅ **No action required** if you use the default (parameterless) constructors - the library automatically uses Java 11's HttpClient
@@ -33,7 +33,7 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
    <dependency>
        <groupId>com.sap.cloud.security.xsuaa</groupId>
        <artifactId>token-client-spring</artifactId>
-       <version>4.0.0</version>
+       <version>4.0.1</version>
    </dependency>
    ```
 
@@ -72,7 +72,7 @@ In context of a Spring Boot application you can leverage autoconfiguration provi
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 In context of Spring Applications you will need the following dependencies:
@@ -80,7 +80,7 @@ In context of Spring Applications you will need the following dependencies:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 <!-- No additional HTTP client dependency needed - Java 11 HttpClient is used by default -->
 <!-- Apache HttpClient 4 is included transitively for backward compatibility (deprecated constructors) -->
@@ -181,11 +181,11 @@ See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [H
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1</version>
 </dependency>
 ```
 
-**Note:** As of version 4.0.0, token-client uses Java 11 HttpClient by default (no external HTTP client dependency required). If you need Apache HttpClient for specific features, see [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md).
+**Note:** As of version 4.0.1, token-client uses Java 11 HttpClient by default (no external HTTP client dependency required). If you need Apache HttpClient for specific features, see [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md).
 
 #### XsuaaTokenFlows Initialization
 ```java
@@ -269,7 +269,7 @@ To utilize an **externally managed certificate** in
 ```
 
 ### HttpClientFactory
-> **⚠️ Deprecated:** `HttpClientFactory` is deprecated since version 4.0.0 and will be removed in version 6.0.0.
+> **⚠️ Deprecated:** `HttpClientFactory` is deprecated since version 4.0.1 and will be removed in version 6.0.0.
 > Use `SecurityHttpClientProvider.createClient()` instead (see below).
 
 `HttpClientFactory` creates an Apache HttpClient 4 instance. It is kept for backward compatibility with existing code.

@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.0.1
+
+- Fix IAS token exchange to use `getUrl()` instead of `getCertUrl()` in `DefaultIdTokenExtension`
+
 ## 4.0.0 - Major Release
 
 This is a major release with breaking changes. The library has been upgraded to Spring Boot 4.x and Jakarta EE 10. For applications still on Spring Boot 3.x, compatibility modules are provided.
