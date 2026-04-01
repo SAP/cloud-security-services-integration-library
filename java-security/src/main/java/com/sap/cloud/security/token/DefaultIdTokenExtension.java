@@ -153,19 +153,19 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
     params.put("refresh_expiry", "0");
     params.put("client_id", clientId);
 
-    if (certPem != null && keyPem != null && nonNull(iasConfig.getCertUrl())) {
-      final URI certUrlEndpoint = URI.create(iasConfig.getCertUrl().toString() + "/oauth2/token");
+    final URI tokenEndpoint = URI.create(iasConfig.getUrl().toString() + "/oauth2/token");
+
+    if (certPem != null && keyPem != null) {
       return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-          certUrlEndpoint,
-          new ClientCertificate(clientId, certPem, keyPem),
+          tokenEndpoint,
+          new ClientCertificate(certPem, keyPem, clientId),
           accessToken.getTokenValue(),
           null,
           params,
           false);
     } else {
-      final URI tokenUrlEndpoint = URI.create(iasConfig.getUrl().toString() + "/oauth2/token");
       return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-          tokenUrlEndpoint,
+          tokenEndpoint,
           new ClientCredentials(clientId, iasConfig.getClientSecret()),
           accessToken.getTokenValue(),
           null,
