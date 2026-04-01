@@ -51,6 +51,12 @@
 		<spring.security.version>7.0.3</spring.security.version>
 		<spring.security.oauth2.version>7.0.3</spring.security.oauth2.version>
 		<spring.security.jwt.version>1.1.1.RELEASE</spring.security.jwt.version>
+		<!-- Spring Boot 3.x / Spring Framework 6.x compatibility versions for legacy modules -->
+		<legacy3.spring.boot.version>3.5.9</legacy3.spring.boot.version>
+		<legacy3.spring.core.version>6.2.15</legacy3.spring.core.version>
+		<legacy3.spring.security.version>6.5.7</legacy3.spring.security.version>
+		<legacy3.spring.security.oauth2.version>6.5.7</legacy3.spring.security.oauth2.version>
+		<legacy3.reactor.version>3.8.2</legacy3.reactor.version>
 		<org.eclipse.jetty.version>12.1.7</org.eclipse.jetty.version>
 		<reactor.version>3.8.3</reactor.version>
 		<log4j2.version>2.25.3</log4j2.version>
