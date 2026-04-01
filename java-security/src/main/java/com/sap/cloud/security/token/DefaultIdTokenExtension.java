@@ -157,7 +157,7 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
     if (certPem != null && keyPem != null) {
       return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
           tokenEndpoint,
-          new ClientCertificate(clientId, certPem, keyPem),
+          new ClientCertificate(certPem, keyPem, clientId),
           accessToken.getTokenValue(),
           null,
           params,
