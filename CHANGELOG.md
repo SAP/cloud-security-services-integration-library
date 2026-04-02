@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.11
+
+- Fix token exchange credential handling to use `getClientIdentity()` instead of manually checking for certificate vs client secret
+- Add IAS certificate properties (`certificate`, `key`, `credential-type`, `certurl`) to `IdentityServicesPropertySourceFactory` to properly map X.509 credentials for IAS service bindings
+
 ## 3.6.10
 
 - Fix IAS token exchange to use `getUrl()` instead of `getCertUrl()` in `DefaultIdTokenExtension`
