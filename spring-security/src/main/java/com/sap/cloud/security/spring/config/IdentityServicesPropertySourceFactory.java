@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.spring.config;
 
+import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
+
 import com.sap.cloud.security.config.Environment;
 import com.sap.cloud.security.config.Environments;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -22,8 +24,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-
-import static com.sap.cloud.security.config.ServiceConstants.IAS.DOMAINS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.support.EncodedResource;
+import org.springframework.core.io.support.PropertySourceFactory;
 
 /**
  * Part of Auto Configuration {@code HybridIdentityServicesAutoConfiguration}
@@ -55,7 +61,8 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 					"key", "credential-type", "certurl", "name", "plan", "app_identifier"));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList("clientid", "clientsecret", "domains", "url", "name", "plan"));
+			.asList("clientid", "clientsecret", "domains", "url", "name", "plan",
+					"certificate", "key", "credential-type", "certurl"));
 
 	private Properties properties;
 

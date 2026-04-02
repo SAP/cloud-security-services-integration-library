@@ -2,8 +2,6 @@ package com.sap.cloud.security.token;
 
 import static java.util.Objects.nonNull;
 
-import com.sap.cloud.security.config.ClientCertificate;
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -142,9 +140,6 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
   private OAuth2TokenResponse exchangeAccessToIDToken(Token accessToken)
       throws OAuth2ServiceException {
 
-    final String certPem = iasConfig.getProperty("certificate");
-    final String keyPem = iasConfig.getProperty("key");
-    final String clientId = iasConfig.getClientId();
     final URI tokenEndpoint = URI.create(iasConfig.getUrl().toString() + "/oauth2/token");
 
     final Map<String, String> params = new HashMap<>();
@@ -152,24 +147,14 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
     params.put("assertion", accessToken.getTokenValue());
     params.put("token_format", "jwt");
     params.put("refresh_expiry", "0");
-    params.put("client_id", clientId);
+    params.put("client_id", iasConfig.getClientId());
 
-    if (certPem != null && keyPem != null) {
-      return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-          tokenEndpoint,
-          new ClientCertificate(certPem, keyPem, clientId),
-          accessToken.getTokenValue(),
-          null,
-          params,
-          false);
-    } else {
-      return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-          tokenEndpoint,
-          new ClientCredentials(clientId, iasConfig.getClientSecret()),
-          accessToken.getTokenValue(),
-          null,
-          params,
-          false);
-    }
+    return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+        tokenEndpoint,
+        iasConfig.getClientIdentity(),
+        accessToken.getTokenValue(),
+        null,
+        params,
+        false);
   }
 }
