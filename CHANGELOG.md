@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.6.12
+
+- Fix multi-tenant IAS token exchange to use token issuer URL instead of provider IAS URL from configuration in `DefaultIdTokenExtension`
+
 ## 3.6.11
 
 - Fix token exchange credential handling to use `getClientIdentity()` instead of manually checking for certificate vs client secret
