@@ -57,6 +57,7 @@ public class DefaultIdTokenExtensionTest {
     when(idToken.getClientId()).thenReturn(clientId);
     when(accessToken.getClaimAsStringList("aud")).thenReturn(List.of(audience));
     when(accessToken.getClientId()).thenReturn(clientId);
+    when(accessToken.getIssuer()).thenReturn(tokenUri.toString()); // Mock issuer for multi-tenant support
     when(technicalUserToken.getClaimAsString("sub")).thenReturn(clientId);
     when(technicalUserToken.getClientId()).thenReturn(clientId);
     when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
