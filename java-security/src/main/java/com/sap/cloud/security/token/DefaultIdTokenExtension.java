@@ -140,7 +140,7 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
   private OAuth2TokenResponse exchangeAccessToIDToken(Token accessToken)
       throws OAuth2ServiceException {
 
-    final URI tokenEndpoint = URI.create(iasConfig.getUrl().toString() + "/oauth2/token");
+    final URI tokenEndpoint = URI.create(accessToken.getIssuer() + "/oauth2/token");
 
     final Map<String, String> params = new HashMap<>();
     params.put("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
