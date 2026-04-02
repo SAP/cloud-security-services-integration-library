@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,12 +43,12 @@ public class DefaultXsuaaTokenExtensionTest {
 
     // Mock getClientIdentity() to return appropriate ClientIdentity
     ClientCertificate clientCert = new ClientCertificate("CERT", "KEY", "CLIENT_ID");
-    when(xsuaaConfig.getClientIdentity()).thenReturn(clientCert); // default to cert
+    lenient().when(xsuaaConfig.getClientIdentity()).thenReturn(clientCert); // default to cert
 
-    when(xsuaaConfig.getClientId()).thenReturn("CLIENT_ID");
-    when(idToken.getTokenValue()).thenReturn("TOKEN");
-    when(idToken.getClaimAsString("app_tid")).thenReturn("APP_TID");
-    when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+    lenient().when(xsuaaConfig.getClientId()).thenReturn("CLIENT_ID");
+    lenient().when(idToken.getTokenValue()).thenReturn("TOKEN");
+    lenient().when(idToken.getClaimAsString("app_tid")).thenReturn("APP_TID");
+    lenient().when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
             any(), any(), any(), any(), any(Boolean.class), any()))
         .thenReturn(response);
   }
