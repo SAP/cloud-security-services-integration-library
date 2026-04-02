@@ -58,7 +58,7 @@ If you use these classes, add the new dependency:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 No code changes required - the classes remain in the same package.
@@ -88,7 +88,7 @@ No code changes required - the classes remain in the same package.
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 
@@ -146,7 +146,7 @@ Replace the standard starter with the Spring Boot 3 starter:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 
@@ -203,7 +203,7 @@ The `spring-xsuaa` module has been removed. Migrate to either:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-test</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
     <scope>test</scope>
 </dependency>
 ```
@@ -234,7 +234,7 @@ import com.sap.cloud.security.test.JwtGenerator;
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>spring-security-3</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 
@@ -272,7 +272,7 @@ The `token-client` module now uses Java 11 HttpClient by default - no additional
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 
@@ -326,7 +326,7 @@ If you use any of these classes, add the new dependency:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 

@@ -25,7 +25,7 @@ This module is the Spring Boot 3.x compatible version of [token-client-spring](.
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring-3</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 

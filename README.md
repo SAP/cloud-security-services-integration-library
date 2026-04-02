@@ -120,7 +120,7 @@ If your application uses Spring Boot 3.x and you cannot immediately upgrade to S
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 </dependency>
 ```
 
@@ -275,7 +275,7 @@ The SAP Cloud Security Services Integration is published to maven central: https
         <dependency>
             <groupId>com.sap.cloud.security</groupId>
             <artifactId>java-bom</artifactId>
-            <version>4.0.1</version>
+            <version>4.0.2</version>
             <scope>import</scope>
             <type>pom</type>
         </dependency>
