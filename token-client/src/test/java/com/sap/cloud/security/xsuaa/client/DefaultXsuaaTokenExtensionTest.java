@@ -42,7 +42,6 @@ public class DefaultXsuaaTokenExtensionTest {
 
     // Mock getClientIdentity() to return appropriate ClientIdentity
     ClientCertificate clientCert = new ClientCertificate("CERT", "KEY", "CLIENT_ID");
-    ClientCredentials clientCreds = new ClientCredentials("CLIENT_ID", "SECRET");
     when(xsuaaConfig.getClientIdentity()).thenReturn(clientCert); // default to cert
 
     when(xsuaaConfig.getClientId()).thenReturn("CLIENT_ID");
