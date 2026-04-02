@@ -55,7 +55,8 @@ public class IdentityServicesPropertySourceFactory implements PropertySourceFact
 					"key", "credential-type", "certurl", "name", "plan", "app_identifier"));
 
 	private static final List<String> IAS_ATTRIBUTES = Collections.unmodifiableList(Arrays
-			.asList("clientid", "clientsecret", "domains", "url", "name", "plan"));
+			.asList("clientid", "clientsecret", "domains", "url", "name", "plan",
+					"certificate", "key", "credential-type", "certurl"));
 
 	private Properties properties;
 

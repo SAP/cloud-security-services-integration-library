@@ -11,6 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.sap.cloud.security.config.ClientCertificate;
+import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
@@ -45,12 +47,11 @@ public class DefaultIdTokenExtensionTest {
     SecurityContext.clearContext();
     when(serviceConfiguration.getUrl()).thenReturn(tokenUri);
     when(serviceConfiguration.getClientId()).thenReturn(clientId);
-    String clientSecret = "clientSecret";
-    when(serviceConfiguration.getClientSecret()).thenReturn(clientSecret);
-    String certPem = "certPem";
-    when(serviceConfiguration.getProperty("certificate")).thenReturn(certPem);
-    String keyPem = "keyPem";
-    when(serviceConfiguration.getProperty("key")).thenReturn(keyPem);
+
+    // Mock getClientIdentity() to return appropriate ClientIdentity based on config
+    ClientCertificate clientCert = new ClientCertificate("certPem", "keyPem", clientId);
+    when(serviceConfiguration.getClientIdentity()).thenReturn(clientCert); // default to cert
+
     String audience = "audience";
     when(idToken.getClaimAsStringList("aud")).thenReturn(List.of(audience, clientId));
     when(idToken.getClientId()).thenReturn(clientId);
@@ -137,8 +138,7 @@ public class DefaultIdTokenExtensionTest {
       resolveIdToken_tokenIsAccessTokenWithClientCredentials_exchangeTokenForTokenWithClientSecret()
           throws OAuth2ServiceException {
     SecurityContext.setToken(accessToken);
-    when(serviceConfiguration.getProperty("certificate")).thenReturn(null);
-    when(serviceConfiguration.getProperty("key")).thenReturn(null);
+    when(serviceConfiguration.getClientIdentity()).thenReturn(new ClientCredentials(clientId, "clientSecret"));
     ArgumentCaptor<String> tokenCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<Map<String, String>> paramCaptor = ArgumentCaptor.forClass(Map.class);
 

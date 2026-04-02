@@ -18,7 +18,11 @@
         "clientid": "client-id-ias",
         "clientsecret": "client-secret-ias",
         "url": "http://domain.iasdomain",
-        "domains": ["iasdomain"]
+        "domains": ["iasdomain"],
+        "certificate": "-----BEGIN CERTIFICATE-----\ntest-cert\n-----END CERTIFICATE-----",
+        "key": "-----BEGIN RSA PRIVATE KEY-----\ntest-key\n-----END RSA PRIVATE KEY-----",
+        "credential-type": "X509_GENERATED",
+        "certurl": "https://cert.iasdomain"
       },
       "name": "identityInstance0",
       "plan": "broker"

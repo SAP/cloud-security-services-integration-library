@@ -39,6 +39,12 @@ class IdentityServicesPropertySourceFactoryTest {
 		assertEquals("iasdomain", configuration.identityDomains.get(0));
 		assertEquals("identityInstance0", configuration.identityName);
 		assertEquals("broker", configuration.identityPlan);
+
+		// Certificate-based authentication properties for IAS
+		assertEquals("-----BEGIN CERTIFICATE-----\ntest-cert\n-----END CERTIFICATE-----", configuration.identityCertificate);
+		assertEquals("-----BEGIN RSA PRIVATE KEY-----\ntest-key\n-----END RSA PRIVATE KEY-----", configuration.identityKey);
+		assertEquals("X509_GENERATED", configuration.identityCredentialType);
+		assertEquals("https://cert.iasdomain", configuration.identityCertUrl);
 	}
 }
 
@@ -85,4 +91,16 @@ class TestConfigurationFromFile {
 
 	@Value("${sap.security.services.identity.plan:}")
 	public String identityPlan;
+
+	@Value("${sap.security.services.identity.certificate:}")
+	public String identityCertificate;
+
+	@Value("${sap.security.services.identity.key:}")
+	public String identityKey;
+
+	@Value("${sap.security.services.identity.credential-type:}")
+	public String identityCredentialType;
+
+	@Value("${sap.security.services.identity.certurl:}")
+	public String identityCertUrl;
 }
