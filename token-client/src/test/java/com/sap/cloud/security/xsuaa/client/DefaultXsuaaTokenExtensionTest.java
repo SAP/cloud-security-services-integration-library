@@ -39,8 +39,12 @@ public class DefaultXsuaaTokenExtensionTest {
   @Before
   public void setUp() throws Exception {
     cut = new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig);
-    when(xsuaaConfig.getProperty("certificate")).thenReturn("CERT");
-    when(xsuaaConfig.getProperty("key")).thenReturn("KEY");
+
+    // Mock getClientIdentity() to return appropriate ClientIdentity
+    ClientCertificate clientCert = new ClientCertificate("CERT", "KEY", "CLIENT_ID");
+    ClientCredentials clientCreds = new ClientCredentials("CLIENT_ID", "SECRET");
+    when(xsuaaConfig.getClientIdentity()).thenReturn(clientCert); // default to cert
+
     when(xsuaaConfig.getClientId()).thenReturn("CLIENT_ID");
     when(idToken.getTokenValue()).thenReturn("TOKEN");
     when(idToken.getClaimAsString("app_tid")).thenReturn("APP_TID");
@@ -137,8 +141,9 @@ public class DefaultXsuaaTokenExtensionTest {
       try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
         securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
         token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
-      when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.BINDING_SECRET);
-      when(xsuaaConfig.getUrl()).thenReturn(baseUri);
+        when(xsuaaConfig.getClientIdentity()).thenReturn(new ClientCredentials("CLIENT_ID", "SECRET"));
+        when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.BINDING_SECRET);
+        when(xsuaaConfig.getUrl()).thenReturn(baseUri);
 
         cut.resolveXsuaaToken(null);
 
