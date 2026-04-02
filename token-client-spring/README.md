@@ -1,10 +1,17 @@
 # Token Client Spring
 
-This module provides Spring-based implementations of the OAuth2 token service interfaces from the [token-client](../token-client) module.
+This module provides Spring-based implementations of the OAuth2 token service interfaces from the [token-client](../token-client) module, compiled against **Spring Framework 7.x** for **Spring Boot 4.x**.
 
 ## Overview
 
-Starting with version 4.0.1, Spring-specific implementations have been moved to this separate module to avoid classloader issues when `token-client` is used in environments where Spring is not available (e.g., SAP Java Buildpack's Tomcat lib folder).
+Starting with version 4.0.0, Spring-specific implementations have been moved to this separate module to avoid classloader issues when `token-client` is used in environments where Spring is not available (e.g., SAP Java Buildpack's Tomcat lib folder).
+
+**Important:** This module is compiled against Spring Framework 7.x (Spring Boot 4.x). For Spring Boot 3.x compatibility, use [token-client-spring-3](../token-client-spring-3) instead.
+
+| Module | Spring Boot | Spring Framework |
+|--------|-------------|------------------|
+| `token-client-spring` | 4.x | 7.x |
+| `token-client-spring-3` | 3.x | 6.x |
 
 ## Classes
 
@@ -41,8 +48,11 @@ XsuaaOAuth2TokenService tokenService = new XsuaaOAuth2TokenService(restTemplate)
 ## When to Use
 
 Use this module if:
+- Your application uses **Spring Boot 4.x** (Spring Framework 7.x)
 - You need Spring RestOperations integration for token flows
 - Your application already uses Spring and you want to reuse existing `RestTemplate` configuration
+
+For Spring Boot 3.x applications, use [token-client-spring-3](../token-client-spring-3) instead.
 
 For most use cases, the default `DefaultOAuth2TokenService` from `token-client` (using Java 11 HttpClient) is recommended as it has no external dependencies.
 

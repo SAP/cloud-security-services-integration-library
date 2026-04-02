@@ -156,7 +156,8 @@ In the table below you'll find links to detailed information.
 | Library                                   | Usage Examples                                                                                                                                                                                                                                         |
 |-------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [token-client](/token-client)             | [java-tokenclient-usage](samples/java-tokenclient-usage) demonstrates usage of token client library in Jakarta EE application<br/>[spring-security-hybrid-usage](samples/spring-security-hybrid-usage) demonstrates usage in Spring Boot application     |
-| [token-client-spring](/token-client-spring) | Spring-based implementations of OAuth2 token services. Required if you use `XsuaaOAuth2TokenService`, `SpringOAuth2TokenKeyService`, or `SpringOidcConfigurationService`.     |              
+| [token-client-spring](/token-client-spring) | Spring-based implementations of OAuth2 token services for **Spring Boot 4.x**. Required if you use `XsuaaOAuth2TokenService`, `SpringOAuth2TokenKeyService`, or `SpringOidcConfigurationService`.     |
+| [token-client-spring-3](/token-client-spring-3) | Spring-based implementations of OAuth2 token services for **Spring Boot 3.x**. Use this instead of `token-client-spring` if your application uses Spring Boot 3.x.     |              
 
 ### 2.3 Testing utilities
 For authentication/authorization flow testing purposes there is [java-security-test](/java-security-test) library at your disposal that can be used for unit and integration tests to test the Xsuaa or Identity service client functionality in the application. 

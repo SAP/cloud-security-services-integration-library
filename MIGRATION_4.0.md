@@ -344,7 +344,7 @@ If you use any of these classes, add the new dependency:
 
 **Solution:** Ensure all Spring Boot dependencies match your chosen version:
 - For Spring Boot 4.x: Use `resourceserver-security-spring-boot-starter`
-- For Spring Boot 3.x: Use `resourceserver-security-spring-boot-starter-legacy`
+- For Spring Boot 3.x: Use `resourceserver-security-spring-boot-3-starter`
 
 ### Test Failures After Migration
 
@@ -361,7 +361,7 @@ If you use any of these classes, add the new dependency:
 
 **Solution:** Ensure you're using the correct starter:
 - Spring Boot 4.x: `resourceserver-security-spring-boot-starter`
-- Spring Boot 3.x: `resourceserver-security-spring-boot-starter-legacy`
+- Spring Boot 3.x: `resourceserver-security-spring-boot-3-starter`
 
 ### Custom HTTP Client Not Used
 
