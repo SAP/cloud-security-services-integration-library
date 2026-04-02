@@ -47,12 +47,9 @@ public class DefaultIdTokenExtensionTest {
     SecurityContext.clearContext();
     when(serviceConfiguration.getUrl()).thenReturn(tokenUri);
     when(serviceConfiguration.getClientId()).thenReturn(clientId);
-    String clientSecret = "clientSecret";
-    when(serviceConfiguration.getClientSecret()).thenReturn(clientSecret);
 
     // Mock getClientIdentity() to return appropriate ClientIdentity based on config
     ClientCertificate clientCert = new ClientCertificate("certPem", "keyPem", clientId);
-    ClientCredentials clientCreds = new ClientCredentials(clientId, clientSecret);
     when(serviceConfiguration.getClientIdentity()).thenReturn(clientCert); // default to cert
 
     String audience = "audience";
