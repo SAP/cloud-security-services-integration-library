@@ -33,7 +33,7 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
    <dependency>
        <groupId>com.sap.cloud.security.xsuaa</groupId>
        <artifactId>token-client-spring</artifactId>
-       <version>4.0.2</version>
+       <version>4.0.3</version>
    </dependency>
    ```
 
@@ -72,7 +72,7 @@ In context of a Spring Boot application you can leverage autoconfiguration provi
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>4.0.2</version>
+    <version>4.0.3</version>
 </dependency>
 ```
 In context of Spring Applications you will need the following dependencies:
@@ -80,7 +80,7 @@ In context of Spring Applications you will need the following dependencies:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>4.0.2</version>
+    <version>4.0.3</version>
 </dependency>
 <!-- No additional HTTP client dependency needed - Java 11 HttpClient is used by default -->
 <!-- Apache HttpClient 4 is included transitively for backward compatibility (deprecated constructors) -->
@@ -181,7 +181,7 @@ See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [H
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>4.0.2</version>
+    <version>4.0.3</version>
 </dependency>
 ```
 
