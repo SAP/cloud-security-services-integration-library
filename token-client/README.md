@@ -1,7 +1,11 @@
 # XSUAA Token Client and Token Flow API
 
+> **Note:** Starting from version 3.6.13, this module is a convenience wrapper that includes both `token-client-core` and `token-client-spring`. 
+> - For applications **with Spring dependencies**, continue using this module for full functionality.
+> - For applications **without Spring**, use `token-client-core` instead to avoid unnecessary Spring dependencies.
+
 This library provides a lightweight HTTP client for Xsuaa `/oauth/token` and `/token_keys` endpoints, as specified [here](https://docs.cloudfoundry.org/api/uaa/version/76.9.0/#token). 
-Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) class to support the following token flows:
+Additionally, it offers an API with the [XsuaaTokenFlows](../token-client-core/src/main/java/com/sap/cloud/security/xsuaa/tokenflows/XsuaaTokenFlows.java) class to support the following token flows:
 
 * **[Jwt Bearer Token Flow](#jwt-bearer-token-flow)**.  
   The token exchange concept aims to segregate service-specific access scopes into separate tokens. For instance, if Service A and Service B have different scopes, the goal is to avoid having a single Jwt token containing all scopes. To achieve principal propagation in that scenario, Service A could use a Jwt Bearer Token Flow before making requests to Service B on behalf of the user. To do so, he would exchange the user's access token for Service A for an access token of the same user for Service B.
@@ -16,6 +20,64 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
 
 ## Requirements
 - [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
+
+## Module Structure
+
+This library has been split into three modules for better dependency management:
+
+### 1. `token-client-core` (Plain Java)
+Contains all core functionality without Spring dependencies:
+- Token flow implementations (JWT Bearer, Client Credentials, Refresh Token, Password)
+- HTTP client factory and configuration
+- OAuth2 token services
+- Cache configuration
+- Retry mechanism
+
+**Use this module if:**
+- You're building a Java EE application
+- You want to avoid Spring dependencies
+- You only need the core token client functionality
+
+**Maven dependency:**
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client-core</artifactId>
+    <version>3.6.13</version>
+</dependency>
+```
+
+### 2. `token-client-spring` (Spring Support)
+Contains Spring-specific implementations:
+- `SpringOAuth2TokenKeyService` - Spring RestTemplate-based token key service
+- `SpringOidcConfigurationService` - Spring-based OIDC configuration service  
+- `XsuaaOAuth2TokenService` - Spring RestTemplate-based token service
+
+**Maven dependency:**
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client-spring</artifactId>
+    <version>3.6.13</version>
+</dependency>
+```
+
+### 3. `token-client` (Wrapper - This Module)
+A convenience module that includes both `token-client-core` and `token-client-spring` for backward compatibility.
+
+**Use this module if:**
+- You're migrating from an older version and want to keep compatibility
+- You're using Spring and want all token client features
+- You want a single dependency that includes everything
+
+**Maven dependency:**
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client</artifactId>
+    <version>3.6.13</version>
+</dependency>
+```
 
 ## Table of Contents
 1. [Setup](#setup)
@@ -52,16 +114,31 @@ In context of a Spring Boot application you can leverage autoconfiguration provi
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.6.12</version>
+    <version>3.6.13</version>
 </dependency>
 ```
 In context of Spring Applications you will need the following dependencies:
 ```xml
+<!-- Option 1: Use token-client (includes both core and Spring support) -->
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.6.12</version>
+    <version>3.6.13</version>
 </dependency>
+
+<!-- Option 2: Use only what you need -->
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client-core</artifactId>
+    <version>3.6.13</version>
+</dependency>
+<dependency>
+    <groupId>com.sap.cloud.security.xsuaa</groupId>
+    <artifactId>token-client-spring</artifactId>
+    <version>3.6.13</version>
+</dependency>
+
+<!-- Apache HttpClient is still required -->
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpclient</artifactId>
@@ -124,10 +201,11 @@ See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [H
 ### 1.2. Configuration for Java EE Applications
 #### Maven Dependencies
 ```xml
+<!-- For Java EE applications without Spring, use token-client-core -->
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
-    <artifactId>token-client</artifactId>
-    <version>3.6.12</version>
+    <artifactId>token-client-core</artifactId>
+    <version>3.6.13</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
@@ -226,7 +304,7 @@ To utilize an **externally managed certificate** in
 When using `resourceserver-security-spring-boot-starter` Spring Boot Starter client library, a readily configured `CloseableHttpClient` is accessible via `tokenFlowHttpClient` Bean that uses the `HttpClientFactory` internally to set up the HTTP Client for token flows.
 
 #### Default HttpClientFactory
-The Token Client library includes a default implementation [DefaultHttpClientFactory](./src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java), of the [HttpClientFactory](./src/main/java/com/sap/cloud/security/client/HttpClientFactory.java) interface. 
+The Token Client library includes a default implementation [DefaultHttpClientFactory](../token-client-core/src/main/java/com/sap/cloud/security/client/DefaultHttpClientFactory.java), of the [HttpClientFactory](../token-client-core/src/main/java/com/sap/cloud/security/client/HttpClientFactory.java) interface. 
 It creates a preconfigured [Apache HttpClient 4](https://hc.apache.org/httpcomponents-client-4.5.x/index.html) with the given [ClientIdentity](../java-api/src/main/java/com/sap/cloud/security/config/ClientIdentity.java) for the Identity service instance.
 
 To acquire the HTTP client, use the following code:
@@ -331,7 +409,7 @@ OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
 ## Retry mechanism
 
 The retry feature (supported since version 3.6.0) uses
-the [DefaultTokenClientConfiguration](./src/main/java/com/sap/cloud/security/client/DefaultTokenClientConfiguration.java)
+the [DefaultTokenClientConfiguration](../token-client-core/src/main/java/com/sap/cloud/security/client/DefaultTokenClientConfiguration.java)
 class to handle its properties and overall activation.
 The Retry mechanism is designed to automatically retry requests that fail due to specific HTTP status codes or network
 issues, such as timeouts or connection errors.
@@ -343,7 +421,7 @@ requirements.
 ### Java EE applications
 
 For Java EE applications you will need to overwrite the values of
-the [DefaultTokenClientConfiguration](./src/main/java/com/sap/cloud/security/client/DefaultTokenClientConfiguration.java)
+the [DefaultTokenClientConfiguration](../token-client-core/src/main/java/com/sap/cloud/security/client/DefaultTokenClientConfiguration.java)
 class as
 follows:
 ```java
