@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 3.6.13
+## 3.7.0
 
 - Split `token-client` module into three modules for improved dependency management:
   - `token-client-core`: Plain Java implementation without Spring dependencies

@@ -16,7 +16,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-hybrid-usage</artifactId>
-	<version>3.6.13</version>
+	<version>3.7.0</version>
 
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<description>Java Spring security hybrid usage sample</description>

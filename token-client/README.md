@@ -1,6 +1,6 @@
 # XSUAA Token Client and Token Flow API
 
-> **Note:** Starting from version 3.6.13, this module is a convenience wrapper that includes both `token-client-core` and `token-client-spring`. 
+> **Note:** Starting from version 3.7.0, this module is a convenience wrapper that includes both `token-client-core` and `token-client-spring`. 
 > - For applications **with Spring dependencies**, continue using this module for full functionality.
 > - For applications **without Spring**, use `token-client-core` instead to avoid unnecessary Spring dependencies.
 
@@ -43,7 +43,7 @@ Contains all core functionality without Spring dependencies:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-core</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 ```
 
@@ -58,7 +58,7 @@ Contains Spring-specific implementations:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 ```
 
@@ -75,7 +75,7 @@ A convenience module that includes both `token-client-core` and `token-client-sp
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 ```
 
@@ -114,7 +114,7 @@ In context of a Spring Boot application you can leverage autoconfiguration provi
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 ```
 In context of Spring Applications you will need the following dependencies:
@@ -123,19 +123,19 @@ In context of Spring Applications you will need the following dependencies:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 
 <!-- Option 2: Use only what you need -->
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-core</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 
 <!-- Apache HttpClient is still required -->
@@ -205,7 +205,7 @@ See the [OAuth2ServiceConfiguration](#oauth2serviceconfiguration) section and [H
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-core</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>

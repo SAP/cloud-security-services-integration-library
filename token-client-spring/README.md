@@ -25,7 +25,7 @@ Use `token-client-spring` if:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 <dependency>
     <groupId>org.springframework</groupId>
@@ -51,7 +51,7 @@ For Spring Boot applications, it's recommended to use the autoconfiguration prov
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-starter</artifactId>
-    <version>3.6.13</version>
+    <version>3.7.0</version>
 </dependency>
 ```
 

@@ -16,7 +16,7 @@
 
 	<groupId>com.sap.cloud.security.samples</groupId>
 	<artifactId>spring-security-xsuaa-usage</artifactId>
-	<version>3.6.13</version>
+	<version>3.7.0</version>
 	<name>spring-security-xsuaa-usage</name>
 
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
