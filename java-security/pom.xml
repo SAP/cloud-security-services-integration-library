@@ -80,7 +80,7 @@
 		<!-- for call to tokenKeyService -->
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
-			<artifactId>token-client</artifactId>
+			<artifactId>token-client-core</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>

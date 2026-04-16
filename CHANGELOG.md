@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
   - `token-client`: Wrapper module including both for backward compatibility
 - Applications without Spring can now use `token-client-core` to avoid unnecessary Spring dependencies
 - Existing applications using `token-client` continue to work without changes
+- `java-security` module now depends on `token-client-core` instead of `token-client` (removing unnecessary Spring transitive dependencies)
 
 ## 3.6.12
 
