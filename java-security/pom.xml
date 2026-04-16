@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.6.12</version>
+		<version>3.7.0</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
@@ -80,7 +80,7 @@
 		<!-- for call to tokenKeyService -->
 		<dependency>
 			<groupId>com.sap.cloud.security.xsuaa</groupId>
-			<artifactId>token-client</artifactId>
+			<artifactId>token-client-core</artifactId>
 			<version>${project.version}</version>
 			<scope>compile</scope>
 		</dependency>

@@ -7,7 +7,7 @@
 
 	<groupId>com.sap.cloud.security.xsuaa</groupId>
 	<artifactId>parent</artifactId>
-	<version>3.6.12</version>
+	<version>3.7.0</version>
 	<packaging>pom</packaging>
 
 	<name>parent</name>
@@ -80,6 +80,8 @@
 	<modules>
 		<module>java-api</module>
 		<module>env</module>
+		<module>token-client-core</module>
+		<module>token-client-spring</module>
 		<module>token-client</module>
 		<module>java-security</module>
 		<module>spring-security</module>

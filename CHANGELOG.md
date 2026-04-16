@@ -1,6 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.0
+
+- Split `token-client` module into three modules for improved dependency management:
+  - `token-client-core`: Plain Java implementation without Spring dependencies
+  - `token-client-spring`: Spring-specific implementations (SpringOAuth2TokenKeyService, SpringOidcConfigurationService, XsuaaOAuth2TokenService)
+  - `token-client`: Wrapper module including both for backward compatibility
+- Applications without Spring can now use `token-client-core` to avoid unnecessary Spring dependencies
+- Existing applications using `token-client` continue to work without changes
+- `java-security` module now depends on `token-client-core` instead of `token-client` (removing unnecessary Spring transitive dependencies)
+
 ## 3.6.12
 
 - Fix multi-tenant IAS token exchange to use token issuer URL instead of provider IAS URL from configuration in `DefaultIdTokenExtension`
