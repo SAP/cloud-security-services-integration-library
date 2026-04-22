@@ -14,7 +14,7 @@
 
 	<artifactId>spring-xsuaa-it</artifactId>
 	<name>spring-xsuaa-it</name>
-	<version>3.7.0</version>
+	<version>3.7.1</version>
 	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
 	<description>Java Spring XSUAA IT library</description>
 
