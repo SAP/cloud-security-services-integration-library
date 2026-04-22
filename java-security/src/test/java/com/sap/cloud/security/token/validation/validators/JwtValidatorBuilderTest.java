@@ -203,4 +203,32 @@ public class JwtValidatorBuilderTest {
 		fail("No JwtAudienceValidator found that contains all clientIds!"); // should never be called
 	}
 
+	@Test
+	public void buildIas_withoutDomains_issuerValidatorIsIncluded() {
+		OAuth2ServiceConfigurationBuilder iasConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(IAS)
+				.withClientId("T0123456");
+
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(iasConfigBuilder.build())
+				.build()
+				.getValidators();
+
+		assertThat(validators)
+				.hasSize(4)
+				.hasAtLeastOneElementOfType(JwtIssuerValidator.class);
+	}
+
+	@Test
+	public void buildIas_withEmptyDomains_issuerValidatorIsIncluded() {
+		OAuth2ServiceConfigurationBuilder iasConfigBuilder = OAuth2ServiceConfigurationBuilder.forService(IAS)
+				.withDomains()
+				.withClientId("T0123456");
+
+		List<Validator<Token>> validators = JwtValidatorBuilder.getInstance(iasConfigBuilder.build())
+				.build()
+				.getValidators();
+
+		assertThat(validators)
+				.hasSize(4)
+				.hasAtLeastOneElementOfType(JwtIssuerValidator.class);
+	}
 }
