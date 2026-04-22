@@ -1,6 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.1
+
+### Security Fixes
+
+- **[CRITICAL]** Fix issuer validation bypass vulnerability in `JwtValidatorBuilder` for IAS tokens
+  - Previously, when `domains` configuration was null or empty, the `JwtIssuerValidator` was not added to the validation chain
+  - This allowed attackers to forge tokens with arbitrary issuers that would bypass validation
+  - The `JwtIssuerValidator` is now always included and explicitly rejects tokens when no trusted domains are configured
+  - **Impact**: Applications using IAS authentication with missing or empty domain configuration were vulnerable to token forgery attacks
+  - **Recommendation**: Upgrade immediately if using IAS token validation
+
 ## 3.7.0
 
 - Split `token-client` module into three modules for improved dependency management:

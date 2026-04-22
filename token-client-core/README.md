@@ -26,7 +26,7 @@ Use `token-client-core` if:
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-core</artifactId>
-    <version>3.7.0</version>
+    <version>3.7.1</version>
 </dependency>
 <dependency>
     <groupId>org.apache.httpcomponents</groupId>
