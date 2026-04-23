@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import static com.sap.cloud.security.token.validation.ValidationResults.createInvalid;
 import static com.sap.cloud.security.token.validation.ValidationResults.createValid;
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotEmpty;
 
 /**
  * Validates that the jwt token is issued by a trust worthy identity provider.
@@ -85,7 +84,6 @@ class JwtIssuerValidator implements Validator<Token> {
 	 * 		the list of domains of the identity provider {@link OAuth2ServiceConfiguration#getDomains()}
 	 */
 	JwtIssuerValidator(List<String> domains) {
-		assertNotEmpty(domains, "JwtIssuerValidator requires a domain(s).");
 		this.domains = domains;
 	}
 
@@ -103,6 +101,12 @@ class JwtIssuerValidator implements Validator<Token> {
 		if (issuer == null || issuer.isBlank()) {
 			return createInvalid(
 					"Issuer validation can not be performed because token does not contain an issuer claim.");
+		}
+
+		if (domains == null || domains.isEmpty()) {
+			return createInvalid(
+					"Issuer validation failed: No trusted domains configured. Rejecting token with issuer {}.",
+					issuer);
 		}
 
 		// Check for invisible characters (tabs, newlines, etc.) or URL-encoded characters

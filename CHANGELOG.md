@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.0.4
+
+- Improve domain validation handling in `JwtValidatorBuilder` for IAS tokens
+
 ## 4.0.3
 
 - Fix multi-tenant IAS token exchange to use token issuer URL instead of provider IAS URL from configuration in `DefaultIdTokenExtension`

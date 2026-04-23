@@ -27,7 +27,7 @@ Starting with version 4.0.0, Spring-specific implementations have been moved to 
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>4.0.3</version>
+    <version>4.0.4</version>
 </dependency>
 ```
 
@@ -65,7 +65,7 @@ If you were using `XsuaaOAuth2TokenService`, `SpringOAuth2TokenKeyService`, or `
 <dependency>
     <groupId>com.sap.cloud.security.xsuaa</groupId>
     <artifactId>token-client-spring</artifactId>
-    <version>4.0.3</version>
+    <version>4.0.4</version>
 </dependency>
 ```
 

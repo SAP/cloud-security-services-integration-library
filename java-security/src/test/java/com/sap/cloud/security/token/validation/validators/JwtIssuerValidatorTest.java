@@ -40,12 +40,25 @@ class JwtIssuerValidatorTest {
 	}
 
 	@Test
-	void constructor_throwsOnNullValues() {
-		assertThatThrownBy(() -> new JwtIssuerValidator(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContainingAll("JwtIssuerValidator", "domain(s)");
+	void validationFails_whenDomainsListIsEmpty() {
+		cut = new JwtIssuerValidator(new ArrayList<>());
+		when(token.getIssuer()).thenReturn("https://accounts400.ondemand.com");
 
-		assertThatThrownBy(() -> new JwtIssuerValidator(new ArrayList<>())).isInstanceOf(IllegalArgumentException.class)
-				.hasMessageContainingAll("JwtIssuerValidator", "domain(s)");
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription()).contains("No trusted domains configured");
+	}
+
+	@Test
+	void validationFails_whenDomainsListIsNull() {
+		cut = new JwtIssuerValidator(null);
+		when(token.getIssuer()).thenReturn("https://accounts400.ondemand.com");
+
+		ValidationResult validationResult = cut.validate(token);
+		assertThat(validationResult.isValid()).isFalse();
+		assertThat(validationResult.isErroneous()).isTrue();
+		assertThat(validationResult.getErrorDescription()).contains("No trusted domains configured");
 	}
 
 	@ParameterizedTest
