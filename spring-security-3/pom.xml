@@ -53,7 +53,7 @@
 		<spring.boot.version>${legacy3.spring.boot.version}</spring.boot.version>
 		<spring.core.version>${legacy3.spring.core.version}</spring.core.version>
 		<spring.security.version>${legacy3.spring.security.version}</spring.security.version>
-		<spring.security.oauth2.version>${legacy3.spring.security.oauth2.version}</spring.security.oauth2.version>
+		<spring.security.oauth2.version>7.0.4</spring.security.oauth2.version>
 		<reactor.version>${legacy3.reactor.version}</reactor.version>
 		<reactor.test.version>${legacy3.reactor.version}</reactor.test.version>
 	</properties>
