@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.1
+
+- Improve domain validation handling in `JwtValidatorBuilder` for IAS tokens
+
 ## 3.7.0
 
 - Split `token-client` module into three modules for improved dependency management:

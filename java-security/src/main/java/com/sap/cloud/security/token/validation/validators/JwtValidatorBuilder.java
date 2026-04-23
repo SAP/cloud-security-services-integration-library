@@ -226,9 +226,7 @@ public class JwtValidatorBuilder {
 			signatureValidator = new XsuaaJwtSignatureValidator(configuration, tokenKeyServiceWithCache,
 					getOidcConfigurationServiceWithCache());
 		} else if (configuration.getService() == IAS) {
-			if (configuration.getDomains() != null && !configuration.getDomains().isEmpty()) {
-				defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
-			}
+			defaultValidators.add(new JwtIssuerValidator(configuration.getDomains()));
 
 			signatureValidator = new SapIdJwtSignatureValidator(configuration, tokenKeyServiceWithCache,
 					getOidcConfigurationServiceWithCache());
