@@ -149,6 +149,11 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
     params.put("refresh_expiry", "0");
     params.put("client_id", iasConfig.getClientId());
 
+    String appTid = accessToken.getClaimAsString("app_tid");
+    if (appTid != null && !appTid.isBlank()) {
+      params.put("app_tid", appTid);
+    }
+
     return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
         tokenEndpoint,
         iasConfig.getClientIdentity(),
