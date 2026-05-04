@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.0.5
+
+- Restore deprecated `HttpClientFactory.services` field and ServiceLoader-based factory discovery for backward compatibility
+  - Custom `HttpClientFactory` implementations registered via `META-INF/services` are discovered again
+  - A deprecation warning is logged when a custom factory is used, guiding users to migrate to `SecurityHttpClientFactory` with `SecurityHttpClientProvider`
+  - Token services with default (no-arg) constructors continue to use the new `SecurityHttpClientProvider` internally
+
 ## 4.0.4
 
 - Improve domain validation handling in `JwtValidatorBuilder` for IAS tokens
