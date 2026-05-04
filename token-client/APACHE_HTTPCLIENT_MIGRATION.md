@@ -61,6 +61,26 @@ CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
 OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
 ```
 
+**Using `HttpClientFactory` with custom ServiceLoader registration (Deprecated):**
+
+If you previously registered a custom `HttpClientFactory` implementation via `META-INF/services`, this mechanism still works in 4.x. The `HttpClientFactory.create()` method discovers your custom factory via ServiceLoader and prioritizes it over the `DefaultHttpClientFactory`.
+
+```java
+// Your custom factory is registered in:
+// META-INF/services/com.sap.cloud.security.client.HttpClientFactory
+
+// HttpClientFactory.create() automatically discovers and uses your custom factory
+CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
+
+// You must explicitly pass the client to the token services,
+// since default constructors now use the new SecurityHttpClientProvider internally
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+OAuth2TokenKeyService tokenKeyService = new DefaultOAuth2TokenKeyService(httpClient);
+OidcConfigurationService oidcService = new DefaultOidcConfigurationService(httpClient);
+```
+
+> **Note:** Token services instantiated with the default (no-arg) constructor use the new `SecurityHttpClientProvider` implementation and will **not** pick up your custom `HttpClientFactory`. You must call `HttpClientFactory.create(...)` yourself and pass the resulting client to the token service constructors.
+
 **Using direct Apache HttpClient constructors (Deprecated):**
 ```java
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -80,6 +100,7 @@ OidcConfigurationService oidcService = new DefaultOidcConfigurationService(httpC
 **Important:**
 - ⚠️ **Deprecated in 4.0.1** - Will be removed in 5.0.0
 - Apache HttpClient 4 is included as a transitive dependency for backward compatibility
+- The ServiceLoader-based discovery via `HttpClientFactory.services` is deprecated — migrate to `SecurityHttpClientFactory` with `SecurityHttpClientProvider` (see Option 3)
 
 ---
 
@@ -93,6 +114,10 @@ This approach is **future-proof** and works with any HTTP client library (Apache
 - ✅ Future-proof
 - ✅ Works with any HTTP client library (Apache 4, Apache 5, etc.)
 - ✅ Full control over HTTP client configuration
+
+**Migrating from the old ServiceLoader approach:**
+
+If you previously provided a custom `HttpClientFactory` via `META-INF/services`, you should migrate to implementing `SecurityHttpClientFactory` instead. Register your implementation via `META-INF/services/com.sap.cloud.security.client.SecurityHttpClientFactory` — the `SecurityHttpClientProvider` will discover it automatically and token services with the default constructor will use it without any manual wiring.
 
 **For complete examples with Apache HttpClient 4 and 5, see [CUSTOM_HTTPCLIENT.md](CUSTOM_HTTPCLIENT.md).**
 
