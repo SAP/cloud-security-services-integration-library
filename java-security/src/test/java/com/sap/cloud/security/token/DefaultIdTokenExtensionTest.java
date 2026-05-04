@@ -198,4 +198,37 @@ public class DefaultIdTokenExtensionTest {
     assertThat(result).isSameAs(t);
     verifyNoInteractions(tokenService);
   }
+
+  @Test
+  public void resolveIdToken_multiTenantToken_includesAppTidInRequest()
+      throws OAuth2ServiceException {
+    String appTid = "2b731a14-0860-4a8e-bf03-7b65d3a2e20c";
+    when(accessToken.getClaimAsString("app_tid")).thenReturn(appTid);
+    SecurityContext.setToken(accessToken);
+    ArgumentCaptor<Map<String, String>> paramCaptor = ArgumentCaptor.forClass(Map.class);
+
+    cut.resolveIdToken(null);
+
+    verify(tokenService)
+        .retrieveAccessTokenViaJwtBearerTokenGrant(
+            eq(completeTokenUri), any(), any(), any(), paramCaptor.capture(), eq(false));
+    Map<String, String> params = paramCaptor.getValue();
+    assertThat(params.get("app_tid")).isEqualTo(appTid);
+  }
+
+  @Test
+  public void resolveIdToken_singleTenantToken_doesNotIncludeAppTid()
+      throws OAuth2ServiceException {
+    when(accessToken.getClaimAsString("app_tid")).thenReturn(null);
+    SecurityContext.setToken(accessToken);
+    ArgumentCaptor<Map<String, String>> paramCaptor = ArgumentCaptor.forClass(Map.class);
+
+    cut.resolveIdToken(null);
+
+    verify(tokenService)
+        .retrieveAccessTokenViaJwtBearerTokenGrant(
+            eq(completeTokenUri), any(), any(), any(), paramCaptor.capture(), eq(false));
+    Map<String, String> params = paramCaptor.getValue();
+    assertThat(params.get("app_tid")).isNull();
+  }
 }
