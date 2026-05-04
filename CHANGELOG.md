@@ -1,6 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.0.5
+
+- Restore deprecated `HttpClientFactory.services` field and ServiceLoader-based factory discovery for backward compatibility
+  - Custom `HttpClientFactory` implementations registered via `META-INF/services` are discovered again
+  - A deprecation warning is logged when a custom factory is used, guiding users to migrate to `SecurityHttpClientFactory` with `SecurityHttpClientProvider`
+  - Token services with default (no-arg) constructors continue to use the new `SecurityHttpClientProvider` internally
+ 
+- Fix multi-tenant IAS token exchange by adding `app_tid` parameter to the token exchange request in `DefaultIdTokenExtension`
+  - In multi-tenant applications, IAS requires `app_tid` in addition to `client_id` to uniquely identify the application
+  - The `app_tid` is extracted from the incoming access token and included when present
+
 ## 4.0.4
 
 - Improve domain validation handling in `JwtValidatorBuilder` for IAS tokens

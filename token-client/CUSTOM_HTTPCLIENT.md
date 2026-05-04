@@ -4,6 +4,35 @@
 
 The token-client library uses **Java 11 HttpClient** as the default. If you need custom HTTP client features (proxy, connection pooling, mTLS, etc.), you can provide your own implementation using the `HttpRequestExecutor` interface.
 
+## Migrating from the ServiceLoader-based `HttpClientFactory`
+
+In version 3.x, custom HTTP clients were provided by implementing `HttpClientFactory` and registering the implementation via `META-INF/services/com.sap.cloud.security.client.HttpClientFactory`. This mechanism still works in 4.x for backward compatibility, but is deprecated and will be removed in 5.0.0.
+
+**Important behavior change in 4.x:**
+- Token services instantiated with the **default (no-arg) constructor** now use the new `SecurityHttpClientProvider` internally. They do **not** automatically pick up custom `HttpClientFactory` implementations via ServiceLoader.
+- If you still rely on the old ServiceLoader mechanism, you must explicitly call `HttpClientFactory.create(clientIdentity)` and pass the resulting `CloseableHttpClient` to the token service constructors.
+- For a future-proof approach, implement `SecurityHttpClientFactory` and register it via `META-INF/services/com.sap.cloud.security.client.SecurityHttpClientFactory`. The `SecurityHttpClientProvider` will discover it, and token services with the default constructor will use it automatically.
+
+**Before (3.x — implicit via ServiceLoader):**
+```java
+// Custom factory automatically discovered by token services
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(); // used your custom HttpClientFactory
+```
+
+**After (4.x — explicit wiring required for old mechanism):**
+```java
+// Old ServiceLoader mechanism still works, but you must pass the client explicitly
+CloseableHttpClient httpClient = HttpClientFactory.create(clientIdentity);
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+```
+
+**Recommended (4.x — new ServiceLoader mechanism):**
+```java
+// Implement SecurityHttpClientFactory, register via META-INF/services
+// Then the default constructor picks it up automatically
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService();
+```
+
 ## When to Use Custom HTTP Client
 
 Use a custom HTTP client if you need:

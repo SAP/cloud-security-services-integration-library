@@ -8,6 +8,12 @@ package com.sap.cloud.security.client;
 import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientIdentity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * Factory interface for creating Apache {@link CloseableHttpClient} instances.
@@ -32,6 +38,23 @@ import org.apache.http.impl.client.CloseableHttpClient;
 @Deprecated(since = "4.0.0", forRemoval = true)
 public interface HttpClientFactory {
 
+	Logger LOGGER = LoggerFactory.getLogger(HttpClientFactory.class);
+
+	String DEFAULT_HTTP_CLIENT_FACTORY = "com.sap.cloud.security.client.DefaultHttpClientFactory";
+
+	/**
+	 * @deprecated Since 4.0.0. Use {@link SecurityHttpClientFactory} with {@link SecurityHttpClientProvider} instead.
+	 *             This field will be removed in version 6.0.0.
+	 */
+	@Deprecated(since = "4.0.0", forRemoval = true)
+	@SuppressWarnings("unchecked")
+	List<HttpClientFactory> services = new ArrayList() {
+		{
+			ServiceLoader.load(HttpClientFactory.class).forEach(this::add);
+			LOGGER.info("loaded HttpClientFactory service providers: {}", this);
+		}
+	};
+
 	/**
 	 * Creates a {@link CloseableHttpClient} based on the provided ClientIdentity.
 	 * For certificate-based ClientIdentity, an HTTPS client with mTLS support is created.
@@ -49,7 +72,9 @@ public interface HttpClientFactory {
 	CloseableHttpClient createClient(ClientIdentity clientIdentity) throws HttpClientException;
 
 	/**
-	 * Creates a {@link CloseableHttpClient} using the default factory implementation.
+	 * Creates a {@link CloseableHttpClient} using the discovered factory implementation.
+	 * If a custom {@link HttpClientFactory} is registered via {@code META-INF/services},
+	 * it will be used (with a deprecation warning). Otherwise, the {@link DefaultHttpClientFactory} is used.
 	 *
 	 * <p><strong>Important:</strong> Don't close the returned HttpClient when you've provided it to
 	 * {@code TokenAuthenticator} or {@code XsuaaTokenFlows} - they manage its lifecycle.
@@ -64,6 +89,25 @@ public interface HttpClientFactory {
 	 */
 	@Deprecated(since = "4.0.0", forRemoval = true)
 	static CloseableHttpClient create(ClientIdentity clientIdentity) throws HttpClientException {
-		return new DefaultHttpClientFactory().createClient(clientIdentity);
+		if (services.isEmpty()) {
+			throw new HttpClientException(
+					"No HttpClientFactory service could be found in the classpath. "
+							+ "Ensure that token-client or token-client-apache is on the classpath.");
+		}
+		if (services.size() > 2) {
+			throw new HttpClientException(
+					"More than 1 custom HttpClientFactory service provider found. There should be only one.");
+		}
+		if (services.size() == 2) {
+			HttpClientFactory customFactory = services.stream()
+					.filter(f -> !f.getClass().getName().equals(DEFAULT_HTTP_CLIENT_FACTORY))
+					.findFirst()
+					.orElse(services.get(0));
+			LOGGER.warn("Using deprecated custom HttpClientFactory '{}'. "
+					+ "Migrate to SecurityHttpClientFactory with SecurityHttpClientProvider.",
+					customFactory.getClass().getName());
+			return customFactory.createClient(clientIdentity);
+		}
+		return services.get(0).createClient(clientIdentity);
 	}
 }
