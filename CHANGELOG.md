@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.2
+
+- Fix multi-tenant IAS token exchange by adding `app_tid` parameter to the token exchange request in `DefaultIdTokenExtension`
+  - In multi-tenant applications, IAS requires `app_tid` in addition to `client_id` to uniquely identify the application
+  - The `app_tid` is extracted from the incoming access token and included when present
+
 ## 3.7.1
 
 - Improve domain validation handling in `JwtValidatorBuilder` for IAS tokens
