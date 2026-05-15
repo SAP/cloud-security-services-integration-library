@@ -43,6 +43,6 @@ jobs:
         if: ${{ matrix.language == 'java' }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v4.35.5
         with:
           category: "/language:${{ matrix.language }}"
