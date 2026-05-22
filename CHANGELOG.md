@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.0.6
+
+- Update dependencies to address known vulnerabilities:
+  - Spring Boot (legacy 3.x modules): 3.5.9 → 3.5.14
+  - Spring Framework (legacy 3.x modules): 6.2.15 → 6.2.18
+  - Spring Security (legacy 3.x modules): 6.5.7 → 6.5.10
+  - Caffeine: 3.2.0 → 3.2.4
+  - SpotBugs Maven Plugin: 4.9.8.2 → 4.9.8.3
+
 ## 4.0.5
 
 - Restore deprecated `HttpClientFactory.services` field and ServiceLoader-based factory discovery for backward compatibility
