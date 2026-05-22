@@ -5,8 +5,8 @@
  */
 package com.sap.cloud.security.token;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.Optional;
 import java.util.Set;
 

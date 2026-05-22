@@ -5,13 +5,14 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import org.junit.jupiter.api.Test;
+
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import org.assertj.core.util.Sets;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class JwtAudienceValidatorTest {
 	private Token token;
 	private String XSUAA_BROKER_XSAPPNAME = "brokerplanmasterapp!b123";
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		token = Mockito.mock(Token.class);
 		Mockito.when(token.getAudiences()).thenReturn(

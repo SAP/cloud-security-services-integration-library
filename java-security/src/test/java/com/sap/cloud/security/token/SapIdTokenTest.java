@@ -5,9 +5,10 @@
  */
 package com.sap.cloud.security.token;
 
+import org.junit.jupiter.api.Test;
+
 import com.sap.cloud.security.config.Service;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

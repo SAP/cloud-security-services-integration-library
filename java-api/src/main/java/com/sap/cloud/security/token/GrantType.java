@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.token;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Constants denoting the grant type of a Jwt access token as specified here:

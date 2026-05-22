@@ -1,9 +1,10 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,14 +17,14 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import java.net.URI;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultXsuaaTokenExtensionTest {
 
   @Mock private OAuth2TokenService tokenService;
@@ -36,31 +37,35 @@ public class DefaultXsuaaTokenExtensionTest {
 
   private DefaultXsuaaTokenExtension cut;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     cut = new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig);
-    when(xsuaaConfig.getProperty("certificate")).thenReturn("CERT");
-    when(xsuaaConfig.getProperty("key")).thenReturn("KEY");
-    when(xsuaaConfig.getClientId()).thenReturn("CLIENT_ID");
-    when(idToken.getTokenValue()).thenReturn("TOKEN");
-    when(idToken.getClaimAsString("app_tid")).thenReturn("APP_TID");
-    when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+
+    // Mock getClientIdentity() to return appropriate ClientIdentity
+    ClientCertificate clientCert = new ClientCertificate("CERT", "KEY", "CLIENT_ID");
+    lenient().when(xsuaaConfig.getClientIdentity()).thenReturn(clientCert); // default to cert
+
+    lenient().when(xsuaaConfig.getClientId()).thenReturn("CLIENT_ID");
+    lenient().when(idToken.getTokenValue()).thenReturn("TOKEN");
+    lenient().when(idToken.getClaimAsString("app_tid")).thenReturn("APP_TID");
+    lenient().when(tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
             any(), any(), any(), any(), any(Boolean.class), any()))
         .thenReturn(response);
   }
 
   @Test
   public void exchangeToXsuaa_noIDTokenPresent_returnsNull() {
-    assertNull(cut.resolveXsuaaToken(null));
+    assertThat(cut.resolveXsuaaToken(null)).isNull();
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test
   public void exchangeToXsuaa_noAPP_TIDPresent_throwsIllegalStateException() {
     try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
       securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
       when(idToken.getClaimAsString("app_tid")).thenReturn(null);
 
-      cut.resolveXsuaaToken(null);
+      assertThatThrownBy(() -> cut.resolveXsuaaToken(null))
+          .isInstanceOf(IllegalStateException.class);
     }
   }
 
@@ -76,7 +81,7 @@ public class DefaultXsuaaTokenExtensionTest {
               any(), any(), any(), any(), any(Boolean.class), any()))
           .thenThrow(OAuth2ServiceException.class);
 
-      assertNull(cut.resolveXsuaaToken(null));
+      assertThat(cut.resolveXsuaaToken(null)).isNull();
     }
   }
 
@@ -86,7 +91,7 @@ public class DefaultXsuaaTokenExtensionTest {
 
     Token result = cut.resolveXsuaaToken(xsuaaToken);
 
-      assertEquals(xsuaaToken, result);
+    assertThat(result).isEqualTo(xsuaaToken);
   }
 
   @Test
@@ -137,8 +142,9 @@ public class DefaultXsuaaTokenExtensionTest {
       try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
         securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
         token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
-      when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.BINDING_SECRET);
-      when(xsuaaConfig.getUrl()).thenReturn(baseUri);
+        when(xsuaaConfig.getClientIdentity()).thenReturn(new ClientCredentials("CLIENT_ID", "SECRET"));
+        when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.BINDING_SECRET);
+        when(xsuaaConfig.getUrl()).thenReturn(baseUri);
 
         cut.resolveXsuaaToken(null);
 
@@ -163,7 +169,7 @@ public class DefaultXsuaaTokenExtensionTest {
 
       Token result = cut.resolveXsuaaToken(xsuaaToken);
 
-      assertNull(result);
+      assertThat(result).isNull();
     }
   }
 }

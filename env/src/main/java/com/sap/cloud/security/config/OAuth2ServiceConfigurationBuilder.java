@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.config;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.net.URI;
 import java.util.*;
 

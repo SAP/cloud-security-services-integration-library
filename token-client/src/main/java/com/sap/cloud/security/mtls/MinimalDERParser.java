@@ -77,7 +77,7 @@ class MinimalDERParser {
 	private void ensureTag(int tag) throws IOException {
 		int next = nextByte();
 		if (next != tag) {
-			throw new IOException(String.format("Expected tag 0x%2x but 0x%2x found", tag, next));
+			throw new IOException("Expected tag 0x%2x but 0x%2x found".formatted(tag, next));
 		}
 	}
 

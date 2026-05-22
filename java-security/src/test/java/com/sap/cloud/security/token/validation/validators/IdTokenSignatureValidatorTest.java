@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import org.junit.jupiter.api.Test;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
@@ -16,8 +18,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -25,9 +26,7 @@ import java.net.URI;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doReturn;
@@ -52,7 +51,7 @@ public class IdTokenSignatureValidatorTest {
 			HttpHeaders.X_CLIENT_ID, CLIENT_ID,
 			HttpHeaders.X_AZP, AZP);
 
-	@Before
+	@BeforeEach
 	public void setup() throws IOException {
 		/**
 		 * Header -------- { "alg": "RS256" } Payload -------- { "iss":
@@ -84,7 +83,7 @@ public class IdTokenSignatureValidatorTest {
 
 	@Test
 	public void validates_RSASignatureMatchesJWKS() {
-		assertThat(cut.validate(iasToken).isValid(), is(true));
+		assertThat(cut.validate(iasToken).isValid()).isTrue();
 	}
 
 	@Test
@@ -92,8 +91,8 @@ public class IdTokenSignatureValidatorTest {
 		when(endpointsProviderMock.getJwksUri()).thenReturn(null);
 
 		ValidationResult result = cut.validate(iasToken);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("OIDC .well-known response did not contain JWKS URI"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("OIDC .well-known response did not contain JWKS URI");
 	}
 
 	@Test
@@ -102,8 +101,8 @@ public class IdTokenSignatureValidatorTest {
 				.retrieveEndpoints(any())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("JWKS could not be fetched");
 	}
 
 	@Test
@@ -111,8 +110,8 @@ public class IdTokenSignatureValidatorTest {
 		when(tokenKeyServiceMock.retrieveTokenKeys(any(), anyMap())).thenThrow(OAuth2ServiceException.class);
 
 		ValidationResult result = cut.validate(iasToken);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("JWKS could not be fetched");
 	}
 
 	@Test
@@ -122,8 +121,8 @@ public class IdTokenSignatureValidatorTest {
 		doReturn(otherKid).when(tokenSpy).getHeaderParameterAsString(JsonWebKeyConstants.KID_PARAMETER_NAME);
 
 		ValidationResult result = cut.validate(tokenSpy);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("Key with kid " + otherKid + " not found in JWKS"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("Key with kid " + otherKid + " not found in JWKS");
 	}
 
 }

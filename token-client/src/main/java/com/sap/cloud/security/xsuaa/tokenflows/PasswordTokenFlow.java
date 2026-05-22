@@ -9,7 +9,7 @@ import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.*;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.util.Map;
 
 public class PasswordTokenFlow {
@@ -51,7 +51,7 @@ public class PasswordTokenFlow {
 							username, password, subdomain, optionalParameters, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting user token with grant_type '%s': %s",
+					"Error requesting user token with grant_type '%s': %s".formatted(
 							OAuth2TokenServiceConstants.GRANT_TYPE_PASSWORD, e.getMessage()),
 					e);
 		}

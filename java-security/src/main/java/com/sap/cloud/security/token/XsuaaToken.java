@@ -11,8 +11,8 @@ import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.io.Serial;
 import java.security.Principal;
 import java.util.LinkedHashSet;
@@ -80,7 +80,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 					"Illegal '/' character detected in origin claim of JWT. Cannot create unique user name. Returning null.");
 			return null;
 		}
-		return String.format(UNIQUE_USER_NAME_FORMAT, origin, userName);
+		return UNIQUE_USER_NAME_FORMAT.formatted(origin, userName);
 	}
 
 	private static boolean isNullOrEmpty(String string) {
@@ -111,7 +111,7 @@ public class XsuaaToken extends AbstractToken implements AccessToken {
 
 		if (grantType != null
 				&& (grantType.equals(GrantType.CLIENT_CREDENTIALS) || grantType.equals(GrantType.CLIENT_X509))) {
-			principalName = String.format(UNIQUE_CLIENT_NAME_FORMAT, getClientId());
+			principalName = UNIQUE_CLIENT_NAME_FORMAT.formatted(getClientId());
 		} else {
 			principalName = getUniquePrincipalName(getClaimAsString(ORIGIN), getClaimAsString(USER_NAME));
 		}

@@ -5,21 +5,20 @@
  */
 package com.sap.cloud.security.config;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import java.net.URI;
-import java.util.Collections;
-
 import static com.sap.cloud.security.config.ServiceConstants.URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.net.URI;
+import java.util.Collections;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class OAuth2ServiceConfigurationBuilderTest {
 
 	private OAuth2ServiceConfigurationBuilder cut;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		cut = OAuth2ServiceConfigurationBuilder.forService(Service.XSUAA);
 	}

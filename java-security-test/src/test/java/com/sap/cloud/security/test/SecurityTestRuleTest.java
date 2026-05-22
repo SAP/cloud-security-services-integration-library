@@ -5,6 +5,13 @@
  */
 package com.sap.cloud.security.test;
 
+import static com.sap.cloud.security.config.Service.IAS;
+import static com.sap.cloud.security.config.Service.XSUAA;
+import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.json.DefaultJsonObject;
 import com.sap.cloud.security.json.JsonObject;
@@ -16,42 +23,30 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.sap.cloud.security.config.Service.IAS;
-import static com.sap.cloud.security.config.Service.XSUAA;
-import static com.sap.cloud.security.test.ApplicationServerOptions.forService;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.Mockito;
 
 public class SecurityTestRuleTest {
 
 	private static final int PORT = 8484;
 	private static final int APPLICATION_SERVER_PORT = 8383;
-	private static final String UTF_8 = StandardCharsets.UTF_8.displayName();
 	private static final String PUBLIC_KEY_PATH = "/publicKey.txt";
 	private static final String PRIVATE_KEY_PATH = "/privateKey.txt";
+	private static final HttpClient httpClient = HttpClient.newHttpClient();
 
-	@ClassRule
+	@RegisterExtension
 	public static SecurityTestRule cut = SecurityTestRule.getInstance(XSUAA)
 			.setPort(PORT)
 			.setKeys(PUBLIC_KEY_PATH, PRIVATE_KEY_PATH)
@@ -59,27 +54,31 @@ public class SecurityTestRuleTest {
 			.addApplicationServlet(TestServlet.class, "/hi");
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void getTokenKeysRequest_responseContainsExpectedTokenKeys()
-			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+			throws IOException, InvalidKeySpecException, NoSuchAlgorithmException, InterruptedException {
 
-		HttpGet httpGet = new HttpGet("http://localhost:" + PORT + "/token_keys");
-		try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-			String expEncodedKey = Base64.getEncoder()
-					.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
+		HttpRequest request = HttpRequest.newBuilder()
+				.uri(URI.create("http://localhost:" + PORT + "/token_keys"))
+				.GET()
+				.build();
+		HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
-			assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
+		String expEncodedKey = Base64.getEncoder()
+				.encodeToString(RSAKeys.loadPublicKey(PUBLIC_KEY_PATH).getEncoded());
 
-			List<JsonObject> tokenKeys = new DefaultJsonObject(readContent(response)).getJsonObjects("keys");
-			assertThat(tokenKeys).hasSize(4);
-			String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
-			assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
-			assertThat(publicKeyFromTokenKeys)
-					.contains("d5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbW");
+		assertThat(response.statusCode()).isEqualTo(200);
 
-			String modulusFromTokenKeys = tokenKeys.get(0).getAsString("n"); // public key modulus
-			assertThat(modulusFromTokenKeys).contains(
-					"9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2y");
-		}
+		List<JsonObject> tokenKeys = new DefaultJsonObject(response.body()).getJsonObjects("keys");
+		assertThat(tokenKeys).hasSize(4);
+		String publicKeyFromTokenKeys = tokenKeys.get(0).getAsString("value");
+		assertThat(publicKeyFromTokenKeys).isEqualTo(expEncodedKey);
+		assertThat(publicKeyFromTokenKeys)
+				.contains("d5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/2vGhyU9IbbW");
+
+		String modulusFromTokenKeys = tokenKeys.get(0).getAsString("n"); // public key modulus
+		assertThat(modulusFromTokenKeys).contains(
+				"9mK_tc-vOXojlJcMm0VRvYvMLIDlIfj1BrkC_IYLpS2Vl1OTG8AS0xAgBDEG3EUzVU6JZKuIuuxD-iXrBySBQA2y");
 	}
 
 	@Test
@@ -152,29 +151,34 @@ public class SecurityTestRuleTest {
 		assertThat(cut.getContext()).isNotNull();
 	}
 
-	public static class SecurityTestRuleWithMockServlet {
+	@Nested
+    class SecurityTestRuleWithMockServlet {
 
 		private HttpServlet mockServlet = Mockito.mock(HttpServlet.class);
 
-		@Rule
+		@RegisterExtension
 		public SecurityTestRule mockServletRule = SecurityTestRule.getInstance(XSUAA)
 				.useApplicationServer()
 				.addApplicationServlet(new ServletHolder(mockServlet), "/");
 
 		@Test
-		public void testThatServletMethodIsNotCalled() throws ServletException, IOException {
-			HttpGet httpGet = new HttpGet(mockServletRule.getApplicationServerUri());
-			try (CloseableHttpResponse response = HttpClients.createDefault().execute(httpGet)) {
-				assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_UNAUTHORIZED); // 401
-			}
+		@SuppressWarnings("deprecation")
+		public void testThatServletMethodIsNotCalled() throws ServletException, IOException, InterruptedException {
+			HttpRequest request = HttpRequest.newBuilder()
+					.uri(URI.create(mockServletRule.getApplicationServerUri()))
+					.GET()
+					.build();
+			HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+			assertThat(response.statusCode()).isEqualTo(401); // UNAUTHORIZED
 			Mockito.verify(mockServlet, Mockito.times(0)).service(any(), any());
 		}
 
 	}
 
-	public static class SecurityTestRuleWithoutApplicationServer {
+	@Nested
+    class SecurityTestRuleWithoutApplicationServer {
 
-		@Rule
+		@RegisterExtension
 		public SecurityTestRule rule = SecurityTestRule.getInstance(XSUAA);
 
 		@Test
@@ -184,9 +188,10 @@ public class SecurityTestRuleTest {
 		}
 	}
 
-	public static class SecurityTestRuleApplicationServer_IAS {
+	@Nested
+    class SecurityTestRuleApplicationServer_IAS {
 
-		@Rule
+		@RegisterExtension
 		public SecurityTestRule rule = SecurityTestRule.getInstance(IAS);
 
 		@Test
@@ -202,14 +207,9 @@ public class SecurityTestRuleTest {
 		protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 			response.setStatus(HttpServletResponse.SC_OK);
 			response.setContentType("text/plain");
-			response.setCharacterEncoding(UTF_8);
+			response.setCharacterEncoding("UTF-8");
 			response.getWriter().print("Hi!");
 		}
-	}
-
-	private static String readContent(CloseableHttpResponse response) throws IOException {
-		return IOUtils.readLines(response.getEntity().getContent(), UTF_8).stream()
-				.collect(Collectors.joining());
 	}
 
 }

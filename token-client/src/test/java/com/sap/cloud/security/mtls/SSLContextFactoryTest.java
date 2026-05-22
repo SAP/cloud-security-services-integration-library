@@ -6,19 +6,25 @@
 package com.sap.cloud.security.mtls;
 
 import com.sap.cloud.security.config.ClientCertificate;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.config.ClientCredentials;
+import org.junit.jupiter.api.Test;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Test;
 import java.security.GeneralSecurityException;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class SSLContextFactoryTest {
 	SSLContextFactory cut;
@@ -28,11 +34,11 @@ public class SSLContextFactoryTest {
 	String certificates;
 	String eccCertificate;
 
-	@Before
+	@BeforeEach
 	public void setup() throws IOException {
 		cut = SSLContextFactory.getInstance();
 
-		assertThat(cut, is(SSLContextFactory.getInstance())); // singleton
+		assertThat(cut).isEqualTo(SSLContextFactory.getInstance()); // singleton
 
 		rsaPrivateKey = readFromFile("/privateRSAKey.txt");
 		rsaPrivateKeyCorrupt = readFromFile("/privateRSAKeyCorrupt.txt");
@@ -68,14 +74,14 @@ public class SSLContextFactoryTest {
 
 	@Test
 	public void create() throws GeneralSecurityException, IOException {
-		assertThat(cut.create(certificates, rsaPrivateKey), is(notNullValue()));
-		assertThat(cut.create(eccCertificate, eccPrivateKey), is(notNullValue()));
+		assertThat(cut.create(certificates, rsaPrivateKey)).isNotNull();
+		assertThat(cut.create(eccCertificate, eccPrivateKey)).isNotNull();
 	}
 
 	@Test
 	public void createKeyStore() throws GeneralSecurityException, IOException {
-		assertThat(cut.createKeyStore(new ClientCertificate(certificates, rsaPrivateKey, null)), is(notNullValue()));
-		assertThat(cut.createKeyStore(new ClientCertificate(eccCertificate, eccPrivateKey, null)), is(notNullValue()));
+		assertThat(cut.createKeyStore(new ClientCertificate(certificates, rsaPrivateKey, null))).isNotNull();
+		assertThat(cut.createKeyStore(new ClientCertificate(eccCertificate, eccPrivateKey, null))).isNotNull();
 	}
 
 	@Test

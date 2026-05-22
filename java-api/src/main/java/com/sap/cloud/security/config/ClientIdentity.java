@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.config;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
 

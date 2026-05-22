@@ -93,7 +93,7 @@ public class SSLContextFactory {
 	 */
 	public SSLContext create(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
 		KeyStore keystore = createKeyStore(clientIdentity);
-		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("SunX509");
+		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 		keyManagerFactory.init(keystore, noPassword);
 		SSLContext sslContext = createDefaultSSLContext();
 		sslContext.init(keyManagerFactory.getKeyManagers(), null, null);

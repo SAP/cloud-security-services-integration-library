@@ -16,7 +16,7 @@ import com.sap.cloud.security.token.validation.Validator;
 import com.sap.cloud.security.x509.Certificate;
 import com.sap.cloud.security.xsuaa.Assertions;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Validates if the jwt access token is intended for the OAuth2 client of this application, in certificate based

@@ -108,7 +108,7 @@ public class RefreshTokenFlow {
 					subdomain, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error refreshing token with grant_type 'refresh_token': %s", e.getMessage()), e);
+					"Error refreshing token with grant_type 'refresh_token': %s".formatted(e.getMessage()), e);
 		}
 	}
 }

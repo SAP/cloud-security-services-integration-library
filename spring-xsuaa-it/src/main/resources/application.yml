@@ -1,8 +1,0 @@
-# SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
-# SPDX-License-Identifier: Apache-2.0
----
-server:
-  port: 9999
-xsuaa:
-  xsappname: 'java-hello-world'
-  clientid: 'sb-java-hello-world'

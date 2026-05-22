@@ -5,12 +5,13 @@
  */
 package com.sap.cloud.security.xsuaa;
 
-import org.junit.Test;
-
 import java.util.ArrayList;
+import org.junit.jupiter.api.Test;
 import java.util.Collections;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.junit.jupiter.api.Test;
 
 public class AssertionsTest {
 

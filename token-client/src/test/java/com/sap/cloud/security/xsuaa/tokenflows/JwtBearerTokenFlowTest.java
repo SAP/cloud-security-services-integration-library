@@ -6,38 +6,51 @@
 package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.token.Token;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
+import org.junit.jupiter.api.Test;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
+import org.junit.jupiter.api.Test;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
+import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import org.junit.jupiter.api.Test;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JwtBearerTokenFlowTest {
 
 	private OAuth2TokenService tokenService;
 	private OAuth2ServiceEndpointsProvider endpointsProvider;
 	private JwtBearerTokenFlow cut;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		tokenService = mock(OAuth2TokenService.class);
 		endpointsProvider = mock(OAuth2ServiceEndpointsProvider.class);
 
-		when(endpointsProvider.getTokenEndpoint()).thenReturn(TOKEN_ENDPOINT_URI);
+		lenient().when(endpointsProvider.getTokenEndpoint()).thenReturn(TOKEN_ENDPOINT_URI);
 
 		cut = new JwtBearerTokenFlow(tokenService, endpointsProvider, CLIENT_CREDENTIALS).token(ACCESS_TOKEN);
 	}

@@ -5,10 +5,9 @@
  */
 package com.sap.cloud.security.xsuaa.tokenflows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TokenFlowExceptionTest {
 
@@ -19,20 +18,20 @@ public class TokenFlowExceptionTest {
 	public void constructors() {
 
 		TokenFlowException ex = new TokenFlowException();
-		assertNull("Exception should not have any message.", ex.getMessage());
-		assertNull("Exception should not have any cause.", ex.getCause());
+		assertThat(ex.getMessage()).isNull();
+		assertThat(ex.getCause()).isNull();
 
 		ex = new TokenFlowException(MESSAGE);
-		assertNotNull("Exception should have a message.", ex.getMessage());
-		assertNull("Exception should not have any cause.", ex.getCause());
+		assertThat(ex.getMessage()).isNotNull();
+		assertThat(ex.getCause()).isNull();
 
 		ex = new TokenFlowException(CAUSE);
-		assertNotNull("Exception should not have a default message.", ex.getMessage());
-		assertNotNull("Exception should have a cause.", ex.getCause());
+		assertThat(ex.getMessage()).isNotNull();
+		assertThat(ex.getCause()).isNotNull();
 
 		ex = new TokenFlowException(MESSAGE, CAUSE);
-		assertNotNull("Exception should have a message.", ex.getMessage());
-		assertNotNull("Exception should have a cause.", ex.getCause());
+		assertThat(ex.getMessage()).isNotNull();
+		assertThat(ex.getCause()).isNotNull();
 	}
 
 }

@@ -70,8 +70,8 @@ public class JavaSecurityContextHolderStrategy implements SecurityContextHolderS
 		Authentication authentication = context.getAuthentication();
 		if (authentication != null) {
 			Object principal = authentication.getPrincipal();
-			if (principal instanceof Token) {
-				com.sap.cloud.security.token.SecurityContext.setToken((Token) principal);
+			if (principal instanceof Token token) {
+				com.sap.cloud.security.token.SecurityContext.setToken(token);
 			}
 		}
 	}

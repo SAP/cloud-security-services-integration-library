@@ -7,8 +7,8 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 
 import com.sap.cloud.security.config.CacheConfiguration;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 
 /**
  * Interface for components that manage a cache configured with {@link CacheConfiguration}.

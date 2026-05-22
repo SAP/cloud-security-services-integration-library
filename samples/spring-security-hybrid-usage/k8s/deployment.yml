@@ -170,8 +170,7 @@ spec:
   host: spring-security-hybrid-api
   rules:
     - accessStrategies:
-        - config: {}
-          handler: allow
+        - handler: allow
       methods:
         - GET
         - POST
