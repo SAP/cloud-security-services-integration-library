@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.3
+
+### Dependency upgrades
+
+- Bump org.springframework.boot:spring-boot from 3.5.9 to 3.5.14
+- Bump org.springframework:spring-core from 6.2.15 to 6.2.18
+- Bump org.springframework.security from 6.5.7 to 6.5.10
+- Bump org.eclipse.jetty:jetty-bom from 12.1.7 to 12.1.9
+- Bump io.projectreactor:reactor-core from 3.8.3 to 3.8.5
+- Bump org.apache.logging.log4j from 2.25.3 to 2.25.4
+- Bump org.slf4j:slf4j-api from 2.0.17 to 2.0.18
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.6 to 5.6.1
+- Bump com.github.ben-manes.caffeine:caffeine from 3.2.0 to 3.2.4
+- Bump commons-io:commons-io from 2.21.0 to 2.22.0
+- Bump org.mockito:mockito-core from 5.22.0 to 5.23.0
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.8.1 to 4.9.8.3
+- Bump com.sap.cloud.environment.servicebinding:java-bom from 0.21.0 to 0.31.0
+
 ## 3.7.2
 
 - Fix multi-tenant IAS token exchange by adding `app_tid` parameter to the token exchange request in `DefaultIdTokenExtension`
