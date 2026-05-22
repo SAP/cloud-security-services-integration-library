@@ -12,8 +12,8 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.util.*;
 
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
@@ -148,7 +148,7 @@ public class ClientCredentialsTokenFlow {
 							zoneId, subdomain, requestParameter, disableCache);
 		} catch (OAuth2ServiceException e) {
 			throw new TokenFlowException(
-					String.format("Error requesting technical user token with grant_type 'client_credentials': %s",
+					"Error requesting technical user token with grant_type 'client_credentials': %s".formatted(
 							e.getMessage()),
 					e);
 		}

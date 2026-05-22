@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -62,16 +62,6 @@ class TestControllerXsuaaTest {
 
 		assertTrue(response.contains("sb-clientId!b04711"));
 		assertTrue(response.contains("xsapp!b04711.Read"));
-	}
-
-	@Test
-	void sayHello_compatibility() throws Exception {
-		String response = mvc.perform(get("/comp/sayHello").with(bearerToken(jwt)))
-				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-
-		assertTrue(response.contains("sb-clientId!t0815"));
-		assertTrue(response.contains("xsapp!t0815.Read"));
 	}
 
 	@Test

@@ -1,4 +1,7 @@
 package com.sap.cloud.security.xsuaa.client;
+import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpRequest;
+import com.sap.cloud.security.client.SecurityHttpResponse;
 
 import static com.sap.cloud.security.xsuaa.http.HttpHeaders.X_OSB_PLAN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,19 +29,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicHeader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 
 public class DefaultOAuth2TokenKeyServiceTest {
 
@@ -57,22 +53,22 @@ public class DefaultOAuth2TokenKeyServiceTest {
           AZP);
   private final String jsonWebKeysAsString;
   private DefaultOAuth2TokenKeyService cut;
-  private CloseableHttpClient httpClient;
+  private SecurityHttpClient httpClient;
 
   public DefaultOAuth2TokenKeyServiceTest() throws IOException {
     jsonWebKeysAsString =
         IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
-    httpClient = Mockito.mock(CloseableHttpClient.class);
+    httpClient = Mockito.mock(SecurityHttpClient.class);
     cut = new DefaultOAuth2TokenKeyService(httpClient);
   }
 
   @Test
   public void retrieveTokenKeys_httpClientIsNull_throwsException() {
-    assertThatThrownBy(() -> new DefaultOAuth2TokenKeyService(null))
+    assertThatThrownBy(() -> new DefaultOAuth2TokenKeyService((SecurityHttpClient) null))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
@@ -84,7 +80,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
   @Test
   public void retrieveTokenKeys_errorOccurs_throwsServiceException() throws IOException {
-    when(httpClient.execute(any(), any(ResponseHandler.class)))
+    when(httpClient.execute(any(SecurityHttpRequest.class)))
         .thenThrow(new IOException(ERROR_MESSAGE));
 
     assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
@@ -131,7 +127,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .hasMessageContaining("Error retrieving token keys")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(httpClient, times(2))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -143,7 +139,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
     assertThat(result).isNotEmpty();
     Mockito.verify(httpClient, times(1))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -153,7 +149,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
     cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
     Mockito.verify(httpClient, times(1))
-        .execute(argThat(isCorrectHttpGetRequest()), any(ResponseHandler.class));
+        .execute(argThat(isCorrectHttpGetRequest()));
   }
 
   @Test
@@ -165,7 +161,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
     final String result = cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
 
     Mockito.verify(httpClient, times(2))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(SecurityHttpRequest.class));
     assertThat(result).isNotEmpty();
   }
 
@@ -187,7 +183,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .hasMessageContaining("Error retrieving token keys")
         .hasMessageContaining("Http status code 400");
     Mockito.verify(httpClient, times(7))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -207,7 +203,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .hasMessageContaining("Error retrieving token keys")
         .hasMessageContaining("Http status code 500");
     Mockito.verify(httpClient, times(1))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -223,7 +219,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .hasMessageContaining("Response Headers [")
         .hasMessageContaining("Error retrieving token keys");
     Mockito.verify(httpClient, times(3))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(SecurityHttpRequest.class));
   }
 
   @Test
@@ -248,23 +244,23 @@ public class DefaultOAuth2TokenKeyServiceTest {
         .contains("Thread.sleep has been interrupted. Retry starts now.");
     logger.detachAppender(listAppender);
     Mockito.verify(httpClient, times(2))
-        .execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+        .execute(any(SecurityHttpRequest.class));
   }
 
   @Test
   public void retrieveTokenKeys_successfulResponse_setsServicePlan() throws IOException {
-    final HttpResponse response =
-        HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString, 200);
-    when(response.containsHeader(X_OSB_PLAN)).thenReturn(true);
-    when(response.getFirstHeader(X_OSB_PLAN)).thenReturn(new BasicHeader(X_OSB_PLAN, "test-plan"));
+    Map<String, String> headers = new java.util.HashMap<>();
+    headers.put(X_OSB_PLAN, "test-plan");
+    final SecurityHttpResponse response =
+        HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString, 200, headers);
 
     try (final MockedStatic<SecurityContext> mockedSecurityContext =
         mockStatic(SecurityContext.class)) {
-      when(httpClient.execute(any(HttpUriRequest.class), any(ResponseHandler.class)))
+      when(httpClient.execute(any(SecurityHttpRequest.class)))
           .thenAnswer(
               invocation -> {
-                final ResponseHandler responseHandler = invocation.getArgument(1);
-                return responseHandler.handleResponse(response);
+                // Response handler no longer needed
+                return response;
               });
 
       cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
@@ -274,7 +270,7 @@ public class DefaultOAuth2TokenKeyServiceTest {
   }
 
   private void mockResponse(final String responseAsString, final Integer... statusCodes) {
-    final List<CloseableHttpResponse> responses =
+    final List<SecurityHttpResponse> responses =
         Arrays.stream(statusCodes)
             .map(
                 statusCode ->
@@ -283,12 +279,12 @@ public class DefaultOAuth2TokenKeyServiceTest {
 
     final AtomicInteger index = new AtomicInteger(0);
     try {
-      when(httpClient.execute(any(), any(ResponseHandler.class)))
+      when(httpClient.execute(any(SecurityHttpRequest.class)))
           .thenAnswer(
               invocation -> {
-                final ResponseHandler responseHandler = invocation.getArgument(1);
-                final CloseableHttpResponse response = responses.get(index.getAndIncrement());
-                return responseHandler.handleResponse(response);
+                // Response handler no longer needed
+                final SecurityHttpResponse response = responses.get(index.getAndIncrement());
+                return response;
               });
     } catch (final IOException ignored) {
     }
@@ -303,16 +299,20 @@ public class DefaultOAuth2TokenKeyServiceTest {
     config.setRetryDelayTime(0L);
   }
 
-  private ArgumentMatcher<HttpUriRequest> isCorrectHttpGetRequest() {
-    return (httpGet) -> {
-      final boolean hasCorrectURI = httpGet.getURI().equals(TOKEN_KEYS_ENDPOINT_URI);
-      final boolean correctMethod = httpGet.getMethod().equals(HttpMethod.GET.toString());
-      final boolean correctTenantHeader =
-          httpGet.getFirstHeader(HttpHeaders.X_APP_TID).getValue().equals(APP_TID);
-      final boolean correctClientId =
-          httpGet.getFirstHeader(HttpHeaders.X_CLIENT_ID).getValue().equals(CLIENT_ID);
-      final boolean correctAzp = httpGet.getFirstHeader(HttpHeaders.X_AZP).getValue().equals(AZP);
-      return hasCorrectURI && correctMethod && correctTenantHeader && correctClientId && correctAzp;
+  private ArgumentMatcher<SecurityHttpRequest> isCorrectHttpGetRequest() {
+    return (request) -> {
+      try {
+        final boolean hasCorrectURI = request.getUri().equals(TOKEN_KEYS_ENDPOINT_URI);
+        final boolean correctMethod = request.getMethod().equals("GET");
+        final boolean correctTenantHeader =
+            request.getHeaders().get(HttpHeaders.X_APP_TID).equals(APP_TID);
+        final boolean correctClientId =
+            request.getHeaders().get(HttpHeaders.X_CLIENT_ID).equals(CLIENT_ID);
+        final boolean correctAzp = request.getHeaders().get(HttpHeaders.X_AZP).equals(AZP);
+        return hasCorrectURI && correctMethod && correctTenantHeader && correctClientId && correctAzp;
+      } catch (Exception e) {
+        return false;
+      }
     };
   }
 }

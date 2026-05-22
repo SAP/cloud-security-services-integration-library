@@ -9,6 +9,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.config.CacheConfiguration;
+import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
@@ -18,7 +19,7 @@ import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -167,7 +168,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		}
 
 		if (jwks.getAll().isEmpty()) {
-			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", keyParameters.keyUri);
+			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", LogSanitizer.sanitize(keyParameters.keyUri));
 			return null;
 		}
 
@@ -266,7 +267,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 					.collect(Collectors.joining("|"));
 
 			// e.g. url:<url>|app_tid:<app_tid>|client_id:<client_id>|azp:<azp>
-			return String.format("url:%s|%s", keyUri, paramString);
+			return "url:%s|%s".formatted(keyUri, paramString);
 		}
 	}
 

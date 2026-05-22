@@ -8,8 +8,8 @@ package com.sap.cloud.security.token;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import java.security.Principal;
 
 import static com.sap.cloud.security.token.TokenClaims.SAP_GLOBAL_USER_ID;

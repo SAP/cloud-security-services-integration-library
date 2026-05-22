@@ -5,14 +5,15 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import org.junit.jupiter.api.Test;
+
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.net.URI;
@@ -47,7 +48,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 			HttpHeaders.X_CLIENT_ID, CLIENT_ID,
 			HttpHeaders.X_AZP, AZP);
 
-	@Before
+	@BeforeEach
 	public void setup() throws IOException {
 		tokenKeyServiceMock = mock(OAuth2TokenKeyService.class);
 		when(tokenKeyServiceMock.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))

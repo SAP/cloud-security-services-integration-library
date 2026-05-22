@@ -29,8 +29,8 @@ public class XsuaaSecurityFilter implements Filter {
 	private final AbstractTokenAuthenticator xsuaaTokenAuthenticator;
 
 	public XsuaaSecurityFilter() {
-		// in productive usage never use a default rest client!
-		xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator().withHttpClient(HttpClientFactory.create(null));
+		// Use default HTTP client
+		xsuaaTokenAuthenticator = new XsuaaTokenAuthenticator();
 	}
 
 	@Override

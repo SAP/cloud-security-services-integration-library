@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.xsuaa.client;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.net.URI;
 
 @SuppressWarnings("squid:S1214")

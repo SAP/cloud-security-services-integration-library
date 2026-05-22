@@ -14,7 +14,7 @@ import com.sap.cloud.security.x509.X509Certificate;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 public class IasTokenAuthenticator extends AbstractTokenAuthenticator {
 

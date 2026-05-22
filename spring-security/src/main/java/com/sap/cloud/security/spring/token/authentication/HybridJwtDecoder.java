@@ -19,7 +19,7 @@ import com.sap.cloud.security.x509.X509Certificate;
 import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import jakarta.servlet.http.HttpServletRequest;
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.jwt.BadJwtException;

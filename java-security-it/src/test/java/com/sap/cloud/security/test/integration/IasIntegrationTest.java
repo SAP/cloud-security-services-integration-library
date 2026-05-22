@@ -7,13 +7,13 @@ package com.sap.cloud.security.test.integration;
 
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
-import com.sap.cloud.security.test.SecurityTestRule;
+import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.validation.CombiningValidator;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
 
@@ -24,17 +24,17 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class IasIntegrationTest {
 
-	@ClassRule
-	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.IAS)
+	@RegisterExtension
+	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.IAS)
 			.setKeys("/publicKey.txt", "/privateKey.txt");
 
 	@Test
 	public void iasTokenValidationSucceeds_withIasCombiningValidator() throws IOException {
-		OAuth2ServiceConfiguration configuration = rule
+		OAuth2ServiceConfiguration configuration = extension.getContext()
 				.getOAuth2ServiceConfigurationBuilderFromFile("/ias-simple/vcap_services-single.json")
 				.build();
 
-		Token iasToken = rule.getJwtGeneratorFromFile("/ias-simple/token.json")
+		Token iasToken = extension.getContext().getJwtGeneratorFromFile("/ias-simple/token.json")
 				//.withClaimValue("iss", "https://application.myauth.com") // required for java-security/src/test/resources/iasOidcTokenRSA256.txt
 				.createToken();
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();

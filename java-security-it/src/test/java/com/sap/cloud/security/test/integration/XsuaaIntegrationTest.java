@@ -9,7 +9,7 @@ import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.config.ServiceConstants;
-import com.sap.cloud.security.test.SecurityTestRule;
+import com.sap.cloud.security.test.extension.SecurityTestExtension;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.CombiningValidator;
@@ -18,8 +18,8 @@ import com.sap.cloud.security.token.validation.validators.JwtValidatorBuilder;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import org.apache.commons.io.IOUtils;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -28,8 +28,8 @@ import java.util.Map;
 
 import static com.sap.cloud.security.config.Service.XSUAA;
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.VERIFICATION_KEY;
-import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_CLIENT_ID;
-import static com.sap.cloud.security.test.SecurityTestRule.DEFAULT_UAA_DOMAIN;
+import static com.sap.cloud.security.test.SecurityTest.DEFAULT_CLIENT_ID;
+import static com.sap.cloud.security.test.SecurityTest.DEFAULT_UAA_DOMAIN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -39,15 +39,15 @@ import static org.mockito.Mockito.when;
  */
 public class XsuaaIntegrationTest {
 
-	@ClassRule
-	public static SecurityTestRule rule = SecurityTestRule.getInstance(Service.XSUAA)
+	@RegisterExtension
+	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA)
 			.setKeys("/publicKey.txt", "/privateKey.txt");
 
 	@Test
 	public void xsuaaTokenValidationSucceeds_withXsuaaCombiningValidator() {
-		OAuth2ServiceConfigurationBuilder configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
+		OAuth2ServiceConfigurationBuilder configuration = extension.getContext().getOAuth2ServiceConfigurationBuilderFromFile(
 				"/xsuaa/vcap_services-single.json");
-		Token token = rule.getJwtGeneratorFromFile("/xsuaa/token.json").createToken();
+		Token token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json").createToken();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration.build()).build();
 		ValidationResult result = tokenValidator.validate(token);
@@ -56,14 +56,14 @@ public class XsuaaIntegrationTest {
 
 	@Test
 	public void xsaTokenValidationSucceeds_withXsuaaCombiningValidator() {
-		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
+		OAuth2ServiceConfiguration configuration = extension.getContext().getOAuth2ServiceConfigurationBuilderFromFile(
 						"/xsa-simple/vcap_services-single.json")
 				.runInLegacyMode(true)
 				.build();
 
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration).build();
 
-		Token token = rule.getJwtGeneratorFromFile("/xsa-simple/token.json").createToken();
+		Token token = extension.getContext().getJwtGeneratorFromFile("/xsa-simple/token.json").createToken();
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();
@@ -71,7 +71,7 @@ public class XsuaaIntegrationTest {
 
 	@Test
 	public void xsuaaTokenValidationFails_withIasCombiningValidator() {
-		OAuth2ServiceConfiguration configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
+		OAuth2ServiceConfiguration configuration = extension.getContext().getOAuth2ServiceConfigurationBuilderFromFile(
 						"/ias-simple/vcap_services-single.json")
 				.withDomains("myauth.com")
 				.build();
@@ -79,7 +79,7 @@ public class XsuaaIntegrationTest {
 		CombiningValidator<Token> tokenValidator = JwtValidatorBuilder.getInstance(configuration)
 				.build();
 
-		Token token = rule.getJwtGeneratorFromFile("/xsuaa/token.json")
+		Token token = extension.getContext().getJwtGeneratorFromFile("/xsuaa/token.json")
 				.withClaimValue(TokenClaims.XSUAA.CLIENT_ID, "T000310")
 				.withClaimValue(TokenClaims.ISSUER, "http://auth.com")
 				.createToken();
@@ -92,9 +92,9 @@ public class XsuaaIntegrationTest {
 
 	@Test
 	public void uaaTokenValidationSucceeds_withXsuaaCombiningValidator() {
-		OAuth2ServiceConfigurationBuilder configuration = rule.getOAuth2ServiceConfigurationBuilderFromFile(
+		OAuth2ServiceConfigurationBuilder configuration = extension.getContext().getOAuth2ServiceConfigurationBuilderFromFile(
 				"/uaa/vcap_services.json");
-		Token token = rule.getJwtGeneratorFromFile("/uaa/token.json")
+		Token token = extension.getContext().getJwtGeneratorFromFile("/uaa/token.json")
 				//.withHeaderParameter("jku", "http://auth.com/token_keys")  // required to create uaaAccessTokenRSA.txt
 				//.withHeaderParameter("kid", "key-id-0")
 				.createToken();
@@ -122,7 +122,7 @@ public class XsuaaIntegrationTest {
 				.withOAuth2TokenKeyService(tokenKeyServiceMock)
 				.build();
 
-		Token token = rule.getPreconfiguredJwtGenerator().createToken();
+		Token token = extension.getContext().getPreconfiguredJwtGenerator().createToken();
 
 		ValidationResult result = tokenValidator.validate(token);
 		assertThat(result.isValid()).isTrue();

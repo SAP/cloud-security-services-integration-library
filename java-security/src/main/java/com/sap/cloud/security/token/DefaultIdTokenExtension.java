@@ -2,18 +2,16 @@ package com.sap.cloud.security.token;
 
 import static java.util.Objects.nonNull;
 
-import com.sap.cloud.security.config.ClientCertificate;
-import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import jakarta.annotation.Nullable;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +109,7 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
    */
   private boolean isAccessToken(Token token) {
     final List<String> audiences = token.getClaimAsStringList("aud");
-    return audiences.size() == 1 && audiences.get(0).equals(token.getClientId());
+    return audiences.size() == 1 && !audiences.get(0).equals(token.getClientId());
   }
 
   /**
@@ -142,35 +140,26 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
   private OAuth2TokenResponse exchangeAccessToIDToken(Token accessToken)
       throws OAuth2ServiceException {
 
-    final String certPem = iasConfig.getProperty("certificate");
-    final String keyPem = iasConfig.getProperty("key");
-    final String clientId = iasConfig.getClientId();
+    final URI tokenEndpoint = URI.create(accessToken.getIssuer() + "/oauth2/token");
 
     final Map<String, String> params = new HashMap<>();
     params.put("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
     params.put("assertion", accessToken.getTokenValue());
     params.put("token_format", "jwt");
     params.put("refresh_expiry", "0");
-    params.put("client_id", clientId);
+    params.put("client_id", iasConfig.getClientId());
 
-    if (certPem != null && keyPem != null && nonNull(iasConfig.getCertUrl())) {
-      final URI certUrlEndpoint = URI.create(iasConfig.getCertUrl().toString() + "/oauth2/token");
-      return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-          certUrlEndpoint,
-          new ClientCertificate(clientId, certPem, keyPem),
-          accessToken.getTokenValue(),
-          null,
-          params,
-          false);
-    } else {
-      final URI tokenUrlEndpoint = URI.create(iasConfig.getUrl().toString() + "/oauth2/token");
-      return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
-          tokenUrlEndpoint,
-          new ClientCredentials(clientId, iasConfig.getClientSecret()),
-          accessToken.getTokenValue(),
-          null,
-          params,
-          false);
+    String appTid = accessToken.getClaimAsString("app_tid");
+    if (appTid != null && !appTid.isBlank()) {
+      params.put("app_tid", appTid);
     }
+
+    return tokenService.retrieveAccessTokenViaJwtBearerTokenGrant(
+        tokenEndpoint,
+        iasConfig.getClientIdentity(),
+        accessToken.getTokenValue(),
+        null,
+        params,
+        false);
   }
 }

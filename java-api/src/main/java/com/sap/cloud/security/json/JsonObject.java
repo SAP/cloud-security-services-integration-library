@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.json;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;

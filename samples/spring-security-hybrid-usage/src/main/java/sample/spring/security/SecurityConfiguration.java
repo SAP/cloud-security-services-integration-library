@@ -46,7 +46,6 @@ public class SecurityConfiguration {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz ->
                         authz.requestMatchers("/sayHello").hasAuthority("Read")
-                                .requestMatchers("/comp/sayHello").hasAuthority("Read")
                                 .requestMatchers("/*").authenticated()
                                 .anyRequest().denyAll())
                 .oauth2ResourceServer(oauth2 -> oauth2

@@ -5,6 +5,8 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import org.junit.jupiter.api.Test;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
@@ -15,8 +17,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -25,9 +26,7 @@ import java.util.Map;
 
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -38,7 +37,7 @@ public class XsuaaJwtSignatureValidatorTest {
 	private OAuth2TokenKeyService tokenKeyServiceMock;
 	private OAuth2ServiceConfiguration mockConfiguration;
 
-	@Before
+	@BeforeEach
 	public void setup() throws IOException {
 		/**
 		 * Header -------- { "alg": "RS256", "jku":
@@ -74,7 +73,7 @@ public class XsuaaJwtSignatureValidatorTest {
 
 	@Test
 	public void xsuaa_RSASignatureMatchesJWKS() {
-		assertThat(cut.validate(xsuaaToken).isValid(), is(true));
+		assertThat(cut.validate(xsuaaToken).isValid()).isTrue();
 	}
 
 	@Test
@@ -86,8 +85,8 @@ public class XsuaaJwtSignatureValidatorTest {
 				.thenThrow(new OAuth2ServiceException("Error retrieving token keys"));
 
 		ValidationResult result = cut.validate(xsuaaToken);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("JWKS could not be fetched");
 	}
 
 	@Test
@@ -105,8 +104,8 @@ public class XsuaaJwtSignatureValidatorTest {
 						oQIDAQAB
 						-----END PUBLIC KEY-----""");
 		ValidationResult result = cut.validate(xsuaaToken);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("JWKS could not be fetched"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("JWKS could not be fetched");
 	}
 
 	@Test
@@ -123,7 +122,7 @@ public class XsuaaJwtSignatureValidatorTest {
 						frWAPyEfuIW9B+mR/2vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4
 						oQIDAQAB
 						-----END PUBLIC KEY-----""");
-		assertThat(cut.validate(xsuaaTokenSignedWithVerificationKey).isValid(), is(true));
+		assertThat(cut.validate(xsuaaTokenSignedWithVerificationKey).isValid()).isTrue();
 	}
 
 	@Test
@@ -132,8 +131,8 @@ public class XsuaaJwtSignatureValidatorTest {
 		when(mockConfiguration.getProperty("verificationkey")).thenReturn("INVALIDKEY");
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("Fallback validation key"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("Fallback validation key");
 	}
 
 	@Test
@@ -143,10 +142,10 @@ public class XsuaaJwtSignatureValidatorTest {
 				"-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1QaZzMjtEfHdimrHP3/2Yr+1z685eiOUlwybRVG9i8wsgOUh+PUGuQL8hgulLZWXU5MbwBLTECAEMQbcRTNVTolkq4i67EP6JesHJIFADbK1Ni0KuMcPuiyOLvDKiDEMnYG1XP3X3WCNfsCVT9YoU+lWIrZr/ZsIvQri8jczr4RkynbTBsPaAOygPUlipqDrpadMO1momNCbea/o6GPn38LxEw609ItfgDGhL6f/yVid5pFzZQWb+9l6mCuJww0hnhO6gt6Rv98OWDty9G0frWAPyEfuIW9B+mR/3vGhyU9IbbWpvFXiy9RVbbsM538TCjd5JF2dJvxy24addC4oQIDAQAB-----END PUBLIC KEY-----");
 
 		ValidationResult result = cut.validate(xsuaaTokenSignedWithVerificationKey);
-		assertThat(result.isErroneous(), is(true));
-		assertThat(result.getErrorDescription(), containsString("Signature of Jwt Token is not valid"));
-		assertThat(result.getErrorDescription(),
-				containsString("(Signature: CetA62rQSNRj93S9mqaHrKJyzONKeEKcEJ9O5wObRD_"));
+		assertThat(result.isErroneous()).isTrue();
+		assertThat(result.getErrorDescription()).contains("Signature of Jwt Token is not valid");
+		assertThat(result.getErrorDescription())
+				.contains("(Signature: CetA62rQSNRj93S9mqaHrKJyzONKeEKcEJ9O5wObRD_");
 	}
 
 }

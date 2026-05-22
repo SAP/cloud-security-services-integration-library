@@ -5,10 +5,10 @@
  */
 package com.sap.cloud.security.xsuaa.http;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 import static org.assertj.core.util.Lists.newArrayList;
+import org.junit.jupiter.api.Test;
 
 public class HttpHeadersTest {
 

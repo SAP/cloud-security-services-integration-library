@@ -1,6 +1,6 @@
 package com.sap.cloud.security.token;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 
 /**
  * Extension interface for resolving and caching ID tokens from access tokens.

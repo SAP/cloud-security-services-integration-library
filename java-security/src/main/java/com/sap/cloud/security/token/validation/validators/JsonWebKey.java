@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;

@@ -16,10 +16,10 @@ import com.sap.cloud.security.token.*;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
+import jakarta.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +52,7 @@ public class HybridTokenFactory implements TokenFactory {
 			}
 			return new SapIdToken(decodedJwt);
 		} catch (JsonParsingException e) {
-			throw new JsonParsingException(String.format("Issue with Jwt parsing. Authorization header: %s - %s",
+			throw new JsonParsingException("Issue with Jwt parsing. Authorization header: %s - %s".formatted(
 					jwtToken.substring(0, 20), e.getMessage()), e);
 		}
 	}
@@ -82,7 +82,7 @@ public class HybridTokenFactory implements TokenFactory {
 		}
 		OAuth2ServiceConfiguration serviceConfiguration = Environments.getCurrent().getXsuaaConfiguration();
 		if (serviceConfiguration != null) {
-			xsAppId = Optional.of(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
+			xsAppId = Optional.ofNullable(serviceConfiguration.getProperty(ServiceConstants.XSUAA.APP_ID));
 		} else {
 			LOGGER.warn(
 					"There is no xsuaa service configuration with 'xsappname' property: no local scope check possible.");

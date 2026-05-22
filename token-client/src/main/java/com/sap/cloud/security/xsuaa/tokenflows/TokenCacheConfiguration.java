@@ -8,7 +8,7 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.xsuaa.Assertions;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Objects;
 

@@ -5,10 +5,10 @@
  */
 package com.sap.cloud.security.test;
 
-import com.sap.cloud.security.config.Service;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import com.sap.cloud.security.config.Service;
+import org.junit.jupiter.api.Test;
 
 public class SecurityTestTest {
 

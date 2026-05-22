@@ -9,7 +9,7 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 
 import static com.sap.cloud.security.spring.autoconfig.SapSecurityProperties.SAP_SPRING_SECURITY_HYBRID;
 import static com.sap.cloud.security.spring.autoconfig.SapSecurityProperties.SAP_SPRING_SECURITY_IDENTITY_PROOFTOKEN;

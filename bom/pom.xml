@@ -3,12 +3,12 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.1 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-bom</artifactId>
-    <version>3.6.6</version>
+    <version>4.0.5</version>
     <packaging>pom</packaging>
     <name>java-bom</name>
 
@@ -67,21 +67,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>spring-xsuaa</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>xsuaa-spring-boot-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>spring-xsuaa-test</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>spring-security</artifactId>
                 <version>${project.version}</version>
@@ -92,13 +77,28 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>spring-security-3</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>${xsuaa-groupId}</groupId>
                 <artifactId>token-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${xsuaa-groupId}</groupId>
-                <artifactId>spring-security-compatibility</artifactId>
+                <artifactId>token-client-spring</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${xsuaa-groupId}</groupId>
+                <artifactId>token-client-spring-3</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

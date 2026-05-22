@@ -5,12 +5,11 @@
  */
 package com.sap.cloud.security.xsuaa.util;
 
-import org.junit.Test;
-
 import java.net.URI;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class UriUtilTest {
 
@@ -19,30 +18,30 @@ public class UriUtilTest {
 	@Test
 	public void replaceSubdomain_replacesNothingWhenSubdomainIsNull() {
 		URI replacedURI = UriUtil.replaceSubdomain(tokenEndpointUri, null);
-		assertThat(replacedURI, is(tokenEndpointUri));
+		assertThat(replacedURI).isEqualTo(tokenEndpointUri);
 	}
 
 	@Test
 	public void replaceSubdomain() {
 		URI replacedURI = UriUtil.replaceSubdomain(tokenEndpointUri, "newsubdomain");
-		assertThat(replacedURI.toString(), is("https://newsubdomain.myauth.com/mypath"));
+		assertThat(replacedURI.toString()).isEqualTo("https://newsubdomain.myauth.com/mypath");
 	}
 
 	@Test
 	public void replaceSubdomain_replacesNothingWhenSubdomainIsEmpty() {
 		URI replacedURI = UriUtil.replaceSubdomain(tokenEndpointUri, "");
-		assertThat(replacedURI, is(tokenEndpointUri));
+		assertThat(replacedURI).isEqualTo(tokenEndpointUri);
 	}
 
 	@Test
 	public void replaceSubdomain_replacesNothingWhenUrlContainsNoSubdomain() {
 		URI replacedURI = UriUtil.replaceSubdomain(URI.create("http://localhost"), "newsubdomain");
-		assertThat(replacedURI.toString(), is("http://localhost"));
+		assertThat(replacedURI.toString()).isEqualTo("http://localhost");
 	}
 
 	@Test
 	public void replaceSubdomain_noUrlSchemaGiven() {
 		URI replacedURI = UriUtil.replaceSubdomain(URI.create("localhost"), "newsubdomain");
-		assertThat(replacedURI.toString(), is("localhost"));
+		assertThat(replacedURI.toString()).isEqualTo("localhost");
 	}
 }

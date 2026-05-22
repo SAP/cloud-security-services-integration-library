@@ -1,7 +1,6 @@
 package com.sap.cloud.security.xsuaa.client;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,7 +29,7 @@ class OAuth2ServiceExceptionTest {
 
   @Test
   void testWithHeaders() {
-    assertThat(builtWithHeaders.getHeaders().size(), is(4));
+    assertThat(builtWithHeaders.getHeaders().size()).isEqualTo(4);
     assertTrue(builtWithHeaders.getMessage().contains(SERVICE_EXCEPTION));
     assertTrue(
         builtWithHeaders

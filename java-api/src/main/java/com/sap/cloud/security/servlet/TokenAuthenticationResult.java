@@ -7,7 +7,7 @@ package com.sap.cloud.security.servlet;
 
 import com.sap.cloud.security.token.Token;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.Collections;
