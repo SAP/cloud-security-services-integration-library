@@ -7,6 +7,7 @@ package com.sap.cloud.security.ias.tokenflows;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
+import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
 
 import org.junit.jupiter.api.Test;
@@ -14,8 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class IasTokenFlowsTest {
@@ -24,6 +28,9 @@ class IasTokenFlowsTest {
 
 	@Mock
 	private OAuth2TokenService mockTokenService;
+
+	@Mock
+	private OAuth2ServiceConfiguration mockConfig;
 
 	@Test
 	void constructor_withNullTokenService_throws() {
@@ -77,5 +84,24 @@ class IasTokenFlowsTest {
 		IasClientCredentialsTokenFlow second = flows.clientCredentialsTokenFlow();
 
 		assertThat(first).isNotSameAs(second);
+	}
+
+	@Test
+	void fromConfiguration_withoutBtpTenantApiProperty_createsFlowsWithoutResolver() {
+		ClientIdentity identity = new ClientCredentials("id", "secret");
+		when(mockConfig.getUrl()).thenReturn(URI.create(IAS_BASE_URL));
+		when(mockConfig.getClientIdentity()).thenReturn(identity);
+		when(mockConfig.getProperty("btp-tenant-api")).thenReturn(null);
+
+		IasTokenFlows flows = IasTokenFlows.fromConfiguration(mockTokenService, mockConfig);
+
+		assertThat(flows).isNotNull();
+		assertThat(flows.clientCredentialsTokenFlow()).isNotNull();
+		assertThat(flows.jwtBearerTokenFlow()).isNotNull();
+	}
+
+	@Test
+	void btpTenantApiProperty_constant_hasCorrectValue() {
+		assertThat(IasTokenFlows.BTP_TENANT_API_PROPERTY).isEqualTo("btp-tenant-api");
 	}
 }
