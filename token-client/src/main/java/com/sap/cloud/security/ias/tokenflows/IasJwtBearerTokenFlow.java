@@ -17,6 +17,9 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static com.sap.cloud.security.ias.tokenflows.IasClientCredentialsTokenFlow.*;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
@@ -34,6 +37,8 @@ import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
  * </ul>
  */
 public class IasJwtBearerTokenFlow {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(IasJwtBearerTokenFlow.class);
 
 	private final OAuth2TokenService tokenService;
 	private final IasDefaultEndpoints endpointsProvider;
@@ -197,6 +202,11 @@ public class IasJwtBearerTokenFlow {
 				throw new TokenFlowException(
 						"Error resolving IAS tenant host for app_tid '%s': %s".formatted(appTid, e.getMessage()), e);
 			}
+		} else if (appTid != null && tenantHostResolver == null) {
+			LOGGER.warn("app_tid '{}' is set but no IasTenantHostResolver is configured. "
+					+ "The token request will use the provider endpoint. "
+					+ "Ensure the IAS service binding contains the '{}' property for dynamic tenant resolution.",
+					appTid, IasTokenFlows.BTP_TENANT_API_PROPERTY);
 		}
 		return endpointsProvider.getTokenEndpoint();
 	}
