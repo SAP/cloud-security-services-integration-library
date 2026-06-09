@@ -14,12 +14,14 @@ import com.sap.cloud.security.config.ClientCertificate;
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.ServiceConstants;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
 import java.net.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -170,6 +172,75 @@ public class DefaultXsuaaTokenExtensionTest {
       Token result = cut.resolveXsuaaToken(xsuaaToken);
 
       assertThat(result).isNull();
+    }
+  }
+
+  @Test
+  public void exchangeToXsuaa_uaadomainPresent_callsTenantAgnosticEndpoint()
+      throws OAuth2ServiceException {
+    try (MockedStatic<Token> token = mockStatic(Token.class)) {
+      try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+        securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+        token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
+        when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.BINDING_SECRET);
+        when(xsuaaConfig.getClientIdentity()).thenReturn(new ClientCredentials("CLIENT_ID", "SECRET"));
+        when(xsuaaConfig.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN))
+            .thenReturn("authentication.eu10.hana.ondemand.com");
+
+        cut.resolveXsuaaToken(null);
+
+        ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
+        verify(tokenService, times(1))
+            .retrieveAccessTokenViaJwtBearerTokenGrant(
+                uriCaptor.capture(), any(), eq("TOKEN"), any(), eq(false), eq("APP_TID"));
+        assertThat(uriCaptor.getValue())
+            .isEqualTo(URI.create("https://authentication.eu10.hana.ondemand.com/oauth/token"));
+      }
+    }
+  }
+
+  @Test
+  public void exchangeToXsuaa_uaadomainPresentAndCertBased_usesCertHostPrefix()
+      throws OAuth2ServiceException {
+    try (MockedStatic<Token> token = mockStatic(Token.class)) {
+      try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+        securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+        token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
+        when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.X509);
+        when(xsuaaConfig.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN))
+            .thenReturn("authentication.eu10.hana.ondemand.com");
+
+        cut.resolveXsuaaToken(null);
+
+        ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
+        verify(tokenService, times(1))
+            .retrieveAccessTokenViaJwtBearerTokenGrant(
+                uriCaptor.capture(), any(ClientCertificate.class), eq("TOKEN"), any(), eq(false), eq("APP_TID"));
+        assertThat(uriCaptor.getValue())
+            .isEqualTo(URI.create("https://cert.authentication.eu10.hana.ondemand.com/oauth/token"));
+      }
+    }
+  }
+
+  @Test
+  public void exchangeToXsuaa_uaadomainBlank_fallsBackToSubdomainEndpoint()
+      throws OAuth2ServiceException {
+    try (MockedStatic<Token> token = mockStatic(Token.class)) {
+      try (MockedStatic<SecurityContext> securityContext = mockStatic(SecurityContext.class)) {
+        securityContext.when(SecurityContext::getIdToken).thenReturn(idToken);
+        token.when(() -> Token.create("TOKEN")).thenReturn(xsuaaToken);
+        when(xsuaaConfig.getCredentialType()).thenReturn(CredentialType.X509);
+        when(xsuaaConfig.getCertUrl()).thenReturn(URI.create("https://provider.cert.eu10.hana.ondemand.com"));
+        when(xsuaaConfig.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN)).thenReturn("   ");
+
+        cut.resolveXsuaaToken(null);
+
+        ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
+        verify(tokenService, times(1))
+            .retrieveAccessTokenViaJwtBearerTokenGrant(
+                uriCaptor.capture(), any(ClientCertificate.class), eq("TOKEN"), any(), eq(false), eq("APP_TID"));
+        assertThat(uriCaptor.getValue().getHost()).isEqualTo("provider.cert.eu10.hana.ondemand.com");
+      }
     }
   }
 }

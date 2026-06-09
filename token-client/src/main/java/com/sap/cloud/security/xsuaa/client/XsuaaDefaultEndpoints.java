@@ -10,6 +10,7 @@ import static com.sap.cloud.security.xsuaa.util.UriUtil.expandPath;
 
 import com.sap.cloud.security.config.CredentialType;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
+import com.sap.cloud.security.config.ServiceConstants;
 import java.net.URI;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -19,10 +20,13 @@ import org.slf4j.LoggerFactory;
 public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private final URI baseUri;
 	private final URI certUri;
+	@Nullable
+	private final String uaaDomain;
   private Boolean certificateBased = false;
 	private static final String TOKEN_ENDPOINT = "/oauth/token";
 	private static final String AUTHORIZE_ENDPOINT = "/oauth/authorize";
 	private static final String KEYSET_ENDPOINT = "/token_keys";
+	private static final String CERT_HOST_PREFIX = "cert.";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaDefaultEndpoints.class);
 
@@ -40,6 +44,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 		LOGGER.debug("Xsuaa default service endpoint: base url = {}, (cert url = {})", baseUri, certUri);
 		this.baseUri = URI.create(baseUri);
 		this.certUri = certUri != null ? URI.create(certUri) : null;
+		this.uaaDomain = null;
 	}
 
 	/**
@@ -52,6 +57,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		this.baseUri = config.getUrl();
+		this.uaaDomain = config.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN);
 		final CredentialType credentialType = config.getCredentialType() != null ? config.getCredentialType() : CredentialType.BINDING_SECRET;
     this.certUri =
         switch (credentialType) {
@@ -81,6 +87,25 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	public URI getJwksUri() {
 		assertNotNull(baseUri, "XsuaaDefaultEndpoints.getJwksUri() requires baseUri not to be null.");
 		return expandPath(baseUri, KEYSET_ENDPOINT);
+	}
+
+	/**
+	 * Returns the token endpoint URI built from the XSUAA {@code uaadomain} property (i.e. without
+	 * any tenant subdomain). Use this when the request carries a tenant identifier via the
+	 * {@code X-zid} header so XSUAA can resolve the tenant server-side instead of via subdomain.
+	 * <p>
+	 * For X.509-based credentials the host is prefixed with {@code cert.}.
+	 *
+	 * @return the {@code uaadomain}-based token endpoint, or {@code null} if {@code uaadomain} is not
+	 * 		present in the configuration (e.g. for the legacy {@code (baseUri, certUri)} constructor).
+	 */
+	@Nullable
+	public URI getUaaDomainTokenEndpoint() {
+		if (uaaDomain == null || uaaDomain.isBlank()) {
+			return null;
+		}
+		String host = certificateBased ? CERT_HOST_PREFIX + uaaDomain : uaaDomain;
+		return URI.create("https://" + host + TOKEN_ENDPOINT);
 	}
 
 }

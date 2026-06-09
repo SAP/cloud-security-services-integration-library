@@ -133,12 +133,26 @@ public class DefaultXsuaaTokenExtension implements XsuaaTokenExtension {
             .orElseThrow(() -> new IllegalStateException("IAS token missing 'app_tid'"));
     final Map<String, String> params = Map.of("token_format", "jwt");
     final XsuaaDefaultEndpoints endpoints = new XsuaaDefaultEndpoints(xsuaaConfig);
-    final URI tokenEndpoint = endpoints.getTokenEndpoint();
+    final URI tokenEndpoint = resolveTokenEndpoint(endpoints);
 
     return Token.create(
         tokenService
             .retrieveAccessTokenViaJwtBearerTokenGrant(
                 tokenEndpoint, xsuaaConfig.getClientIdentity(), idToken.getTokenValue(), params, false, zid)
             .getAccessToken());
+  }
+
+  /**
+   * Picks the {@code uaadomain}-based token endpoint when available so that XSUAA resolves the
+   * subscriber tenant via the {@code X-zid} header instead of the request subdomain. Falls back to
+   * the subdomain-bearing endpoint for bindings without {@code uaadomain}.
+   */
+  private static URI resolveTokenEndpoint(XsuaaDefaultEndpoints endpoints) {
+    final URI uaaDomainEndpoint = endpoints.getUaaDomainTokenEndpoint();
+    if (uaaDomainEndpoint != null) {
+      return uaaDomainEndpoint;
+    }
+    LOGGER.debug("XSUAA 'uaadomain' not present in configuration; falling back to subdomain-bearing token endpoint");
+    return endpoints.getTokenEndpoint();
   }
 }
