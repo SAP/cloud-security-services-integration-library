@@ -5,22 +5,20 @@
  */
 package com.sap.cloud.security.ias.tokenflows;
 
+import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
+
 import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.client.SecurityHttpClientProvider;
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
-
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.io.Serial;
 import java.io.Serializable;
 import java.net.URI;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 /**
  * Entry point for IAS (Identity Authentication Service) token flows.
@@ -125,8 +123,27 @@ public class IasTokenFlows implements Serializable {
 	 */
 	public static IasTokenFlows fromConfiguration(@Nonnull OAuth2TokenService tokenService,
 			@Nonnull OAuth2ServiceConfiguration config) {
+		return fromConfiguration(tokenService, config, IasTenantHostCacheConfiguration.defaultConfiguration());
+	}
+
+	/**
+	 * Convenience factory: creates IasTokenFlows from an {@link OAuth2ServiceConfiguration} with an
+	 * explicit cache configuration for tenant host resolution.
+	 *
+	 * @param tokenService
+	 * 		the OAuth2 token service
+	 * @param config
+	 * 		the IAS service configuration (from service binding)
+	 * @param cacheConfiguration
+	 * 		cache configuration for the tenant host resolver
+	 * @return configured IasTokenFlows instance (with tenant resolution if BTP API URI is present)
+	 */
+	public static IasTokenFlows fromConfiguration(@Nonnull OAuth2TokenService tokenService,
+			@Nonnull OAuth2ServiceConfiguration config,
+			@Nonnull IasTenantHostCacheConfiguration cacheConfiguration) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
-		IasTenantHostResolver resolver = createResolverFromConfig(config, null);
+		assertNotNull(cacheConfiguration, "IasTenantHostCacheConfiguration must not be null.");
+		IasTenantHostResolver resolver = createResolverFromConfig(config, null, cacheConfiguration);
 		return new IasTokenFlows(tokenService, new IasDefaultEndpoints(config), config.getClientIdentity(), resolver);
 	}
 
@@ -147,9 +164,31 @@ public class IasTokenFlows implements Serializable {
 	public static IasTokenFlows fromConfiguration(@Nonnull OAuth2TokenService tokenService,
 			@Nonnull OAuth2ServiceConfiguration config,
 			@Nonnull SecurityHttpClient httpClient) {
+		return fromConfiguration(tokenService, config, httpClient,
+				IasTenantHostCacheConfiguration.defaultConfiguration());
+	}
+
+	/**
+	 * Convenience factory: creates IasTokenFlows with an explicit HTTP client and cache configuration.
+	 *
+	 * @param tokenService
+	 * 		the OAuth2 token service
+	 * @param config
+	 * 		the IAS service configuration (from service binding)
+	 * @param httpClient
+	 * 		the HTTP client to use for BTP tenant API requests
+	 * @param cacheConfiguration
+	 * 		cache configuration for the tenant host resolver
+	 * @return configured IasTokenFlows instance (with tenant resolution if BTP API URI is present)
+	 */
+	public static IasTokenFlows fromConfiguration(@Nonnull OAuth2TokenService tokenService,
+			@Nonnull OAuth2ServiceConfiguration config,
+			@Nonnull SecurityHttpClient httpClient,
+			@Nonnull IasTenantHostCacheConfiguration cacheConfiguration) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		assertNotNull(httpClient, "SecurityHttpClient must not be null.");
-		IasTenantHostResolver resolver = createResolverFromConfig(config, httpClient);
+		assertNotNull(cacheConfiguration, "IasTenantHostCacheConfiguration must not be null.");
+		IasTenantHostResolver resolver = createResolverFromConfig(config, httpClient, cacheConfiguration);
 		return new IasTokenFlows(tokenService, new IasDefaultEndpoints(config), config.getClientIdentity(), resolver);
 	}
 
@@ -173,16 +212,42 @@ public class IasTokenFlows implements Serializable {
 			@Nonnull OAuth2ServiceConfiguration config,
 			@Nonnull URI btpTenantApiBaseUri,
 			@Nonnull SecurityHttpClient httpClient) {
+		return fromConfiguration(tokenService, config, btpTenantApiBaseUri, httpClient,
+				IasTenantHostCacheConfiguration.defaultConfiguration());
+	}
+
+	/**
+	 * Convenience factory: creates IasTokenFlows with an explicit BTP tenant API URI and cache configuration.
+	 *
+	 * @param tokenService
+	 * 		the OAuth2 token service
+	 * @param config
+	 * 		the IAS service configuration (from service binding)
+	 * @param btpTenantApiBaseUri
+	 * 		the BTP tenant API base URI for subdomain resolution
+	 * @param httpClient
+	 * 		the HTTP client for tenant API requests
+	 * @param cacheConfiguration
+	 * 		cache configuration for the tenant host resolver
+	 * @return configured IasTokenFlows instance with tenant resolution
+	 */
+	public static IasTokenFlows fromConfiguration(@Nonnull OAuth2TokenService tokenService,
+			@Nonnull OAuth2ServiceConfiguration config,
+			@Nonnull URI btpTenantApiBaseUri,
+			@Nonnull SecurityHttpClient httpClient,
+			@Nonnull IasTenantHostCacheConfiguration cacheConfiguration) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		assertNotNull(btpTenantApiBaseUri, "BTP tenant API URI must not be null.");
 		assertNotNull(httpClient, "SecurityHttpClient must not be null.");
-		IasTenantHostResolver resolver = new IasTenantHostResolver(btpTenantApiBaseUri, httpClient);
+		assertNotNull(cacheConfiguration, "IasTenantHostCacheConfiguration must not be null.");
+		IasTenantHostResolver resolver = new IasTenantHostResolver(btpTenantApiBaseUri, httpClient, cacheConfiguration);
 		return new IasTokenFlows(tokenService, new IasDefaultEndpoints(config), config.getClientIdentity(), resolver);
 	}
 
 	@Nullable
 	private static IasTenantHostResolver createResolverFromConfig(OAuth2ServiceConfiguration config,
-			@Nullable SecurityHttpClient httpClient) {
+			@Nullable SecurityHttpClient httpClient,
+			IasTenantHostCacheConfiguration cacheConfiguration) {
 		String btpTenantApiUrl = config.getProperty(BTP_TENANT_API_PROPERTY);
 		if (btpTenantApiUrl == null || btpTenantApiUrl.isBlank()) {
 			LOGGER.debug("No '{}' property found in IAS service configuration. "
@@ -193,7 +258,7 @@ public class IasTokenFlows implements Serializable {
 		if (httpClient == null) {
 			httpClient = SecurityHttpClientProvider.createClient(config.getClientIdentity());
 		}
-		return new IasTenantHostResolver(btpTenantApiUri, httpClient);
+		return new IasTenantHostResolver(btpTenantApiUri, httpClient, cacheConfiguration);
 	}
 
 	/**

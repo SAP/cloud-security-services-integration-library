@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -114,6 +115,54 @@ class IasTenantHostResolverTest {
 		cut.resolve(TENANT_ID);
 
 		verify(mockHttpClient, times(2)).execute(any());
+	}
+
+	@Test
+	void resolve_cachingDisabled_callsBackendEveryTime() throws IOException {
+		IasTenantHostCacheConfiguration disabled = IasTenantHostCacheConfiguration.builder()
+				.enabled(false)
+				.build();
+		IasTenantHostResolver disabledCut = new IasTenantHostResolver(BTP_API_BASE_URI, mockHttpClient, disabled);
+		String responseBody = """
+				{"token_endpoint": "https://nocache.accounts.ondemand.com/oauth2/token"}""";
+		mockResponse(200, responseBody);
+
+		disabledCut.resolve(TENANT_ID);
+		disabledCut.resolve(TENANT_ID);
+		disabledCut.resolve(TENANT_ID);
+
+		verify(mockHttpClient, times(3)).execute(any());
+	}
+
+	@Test
+	void resolve_cachingDisabled_clearCacheIsNoop() throws IOException {
+		IasTenantHostCacheConfiguration disabled = IasTenantHostCacheConfiguration.builder()
+				.enabled(false)
+				.build();
+		IasTenantHostResolver disabledCut = new IasTenantHostResolver(BTP_API_BASE_URI, mockHttpClient, disabled);
+
+		disabledCut.clearCache(); // must not throw
+	}
+
+	@Test
+	void resolve_errorResponse_isNotCached() throws IOException {
+		mockResponse(500, "boom");
+
+		assertThatThrownBy(() -> cut.resolve(TENANT_ID)).isInstanceOf(OAuth2ServiceException.class);
+		assertThatThrownBy(() -> cut.resolve(TENANT_ID)).isInstanceOf(OAuth2ServiceException.class);
+
+		verify(mockHttpClient, times(2)).execute(any());
+	}
+
+	@Test
+	void getCacheConfiguration_returnsConfiguredInstance() {
+		IasTenantHostCacheConfiguration custom = IasTenantHostCacheConfiguration.builder()
+				.ttl(Duration.ofMinutes(15))
+				.maxSize(50)
+				.build();
+		IasTenantHostResolver customCut = new IasTenantHostResolver(BTP_API_BASE_URI, mockHttpClient, custom);
+
+		assertThat(customCut.getCacheConfiguration()).isSameAs(custom);
 	}
 
 	@Test
