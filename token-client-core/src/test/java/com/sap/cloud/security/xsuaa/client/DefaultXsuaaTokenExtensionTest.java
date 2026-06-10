@@ -222,7 +222,7 @@ public class DefaultXsuaaTokenExtensionTest {
                 eq(false),
                 eq("APP_TID"));
         assertEquals(
-            URI.create("https://cert.authentication.eu10.hana.ondemand.com/oauth/token"),
+            URI.create("https://authentication.cert.eu10.hana.ondemand.com/oauth/token"),
             uriCaptor.getValue());
       }
     }
