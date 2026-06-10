@@ -26,7 +26,8 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	private static final String TOKEN_ENDPOINT = "/oauth/token";
 	private static final String AUTHORIZE_ENDPOINT = "/oauth/authorize";
 	private static final String KEYSET_ENDPOINT = "/token_keys";
-	private static final String CERT_HOST_PREFIX = "cert.";
+	private static final String AUTHENTICATION_HOST = "authentication.";
+	private static final String AUTHENTICATION_CERT_HOST = "authentication.cert.";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(XsuaaDefaultEndpoints.class);
 
@@ -94,7 +95,8 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * any tenant subdomain). Use this when the request carries a tenant identifier via the
 	 * {@code X-zid} header so XSUAA can resolve the tenant server-side instead of via subdomain.
 	 * <p>
-	 * For X.509-based credentials the host is prefixed with {@code cert.}.
+	 * For X.509-based credentials the {@code authentication.} host segment is replaced with
+	 * {@code authentication.cert.}.
 	 *
 	 * @return the {@code uaadomain}-based token endpoint, or {@code null} if {@code uaadomain} is not
 	 * 		present in the configuration (e.g. for the legacy {@code (baseUri, certUri)} constructor).
@@ -104,7 +106,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 		if (uaaDomain == null || uaaDomain.isBlank()) {
 			return null;
 		}
-		String host = certificateBased ? CERT_HOST_PREFIX + uaaDomain : uaaDomain;
+		String host = certificateBased ? uaaDomain.replace(AUTHENTICATION_HOST, AUTHENTICATION_CERT_HOST) : uaaDomain;
 		return URI.create("https://" + host + TOKEN_ENDPOINT);
 	}
 

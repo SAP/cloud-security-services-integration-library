@@ -217,7 +217,7 @@ public class DefaultXsuaaTokenExtensionTest {
             .retrieveAccessTokenViaJwtBearerTokenGrant(
                 uriCaptor.capture(), any(ClientCertificate.class), eq("TOKEN"), any(), eq(false), eq("APP_TID"));
         assertThat(uriCaptor.getValue())
-            .isEqualTo(URI.create("https://cert.authentication.eu10.hana.ondemand.com/oauth/token"));
+            .isEqualTo(URI.create("https://authentication.cert.eu10.hana.ondemand.com/oauth/token"));
       }
     }
   }
