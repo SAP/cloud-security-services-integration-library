@@ -107,7 +107,7 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 			return null;
 		}
 		String host = certificateBased ? uaaDomain.replace(AUTHENTICATION_HOST, AUTHENTICATION_CERT_HOST) : uaaDomain;
-		return URI.create("https://" + host + TOKEN_ENDPOINT);
+		return expandPath(URI.create("https://" + host), TOKEN_ENDPOINT);
 	}
 
 }
