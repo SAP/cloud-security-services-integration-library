@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.4
+
+- Fix multi-tenant XSUAA token exchange in `DefaultXsuaaTokenExtension`
+  - The IAS-to-XSUAA exchange used the provider subdomain endpoint, which caused XSUAA to resolve the provider tenant instead of the tenant carried in the `X-zid` header (`app_tid`)
+  - Token exchange now targets a tenant-agnostic endpoint built from the `uaadomain` binding property, so XSUAA resolves the tenant via `X-zid`
+  - For X.509 credentials the host's `authentication.` segment is replaced with `authentication.cert.` (analogous to the Node.js library), e.g. `authentication.eu10.hana.ondemand.com` → `authentication.cert.eu10.hana.ondemand.com`
+  - Falls back to the existing subdomain-bearing endpoint when `uaadomain` is missing, preserving behavior for legacy bindings
+
 ## 3.7.3
 
 ### Dependency upgrades
