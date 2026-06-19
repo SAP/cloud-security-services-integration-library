@@ -94,7 +94,7 @@ public class SSLContextFactory {
 	 */
 	public SSLContext create(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
 		KeyStore keystore = createKeyStore(clientIdentity);
-		KeyManagerFactory keyManagerFactory = createKeyManagerFactory();
+		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 		keyManagerFactory.init(keystore, noPassword);
 		TrustManagerFactory trustManagerFactory = TrustManagerFactory
 				.getInstance(TrustManagerFactory.getDefaultAlgorithm());
@@ -102,16 +102,6 @@ public class SSLContextFactory {
 		SSLContext sslContext = createDefaultSSLContext();
 		sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
 		return sslContext;
-	}
-
-	private KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {
-		try {
-			return KeyManagerFactory.getInstance("SunX509");
-		} catch (NoSuchAlgorithmException e) {
-			logger.debug("SunX509 KeyManagerFactory not available, falling back to default algorithm '{}'.",
-					KeyManagerFactory.getDefaultAlgorithm());
-			return KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		}
 	}
 
 	private KeyStore initializeKeyStore(PrivateKey privateKey, Certificate[] certificateChain)
