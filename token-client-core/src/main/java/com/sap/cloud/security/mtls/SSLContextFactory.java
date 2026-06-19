@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -93,11 +94,24 @@ public class SSLContextFactory {
 	 */
 	public SSLContext create(ClientIdentity clientIdentity) throws GeneralSecurityException, IOException {
 		KeyStore keystore = createKeyStore(clientIdentity);
-		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		KeyManagerFactory keyManagerFactory = createKeyManagerFactory();
 		keyManagerFactory.init(keystore, noPassword);
+		TrustManagerFactory trustManagerFactory = TrustManagerFactory
+				.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+		trustManagerFactory.init((KeyStore) null);
 		SSLContext sslContext = createDefaultSSLContext();
-		sslContext.init(keyManagerFactory.getKeyManagers(), null, null);
+		sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
 		return sslContext;
+	}
+
+	private KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {
+		try {
+			return KeyManagerFactory.getInstance("SunX509");
+		} catch (NoSuchAlgorithmException e) {
+			logger.debug("SunX509 KeyManagerFactory not available, falling back to default algorithm '{}'.",
+					KeyManagerFactory.getDefaultAlgorithm());
+			return KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		}
 	}
 
 	private KeyStore initializeKeyStore(PrivateKey privateKey, Certificate[] certificateChain)
