@@ -1,6 +1,6 @@
 **Rating**: **GOOD**
 
-**Score**: **5.97**, max score value is 10.0
+**Score**: **6.04**, max score value is 10.0
 
 **Confidence**: High (9.65, max confidence value is 10.0)
 
@@ -75,7 +75,7 @@ It used the following sub-scores:
     
 1.  **[Community commitment](#community-commitment)**: **8.0** (weight is 0.5)
     
-1.  **[Project activity](#project-activity)**: **2.88** (weight is 0.5)
+1.  **[Project activity](#project-activity)**: **3.55** (weight is 0.5)
     
 1.  **[Project popularity](#project-popularity)**: **0.21** (weight is 0.5)
     
@@ -289,18 +289,18 @@ This sub-score is based on 3 features:
 
 ### Project activity
 
-Score: **2.88**, confidence is 10.0 (max), weight is 0.5 (medium)
+Score: **3.55**, confidence is 10.0 (max), weight is 0.5 (medium)
 
 The score evaluates how active a project is. It's based on number of commits and contributors in the last 3 months.
 
-17 commits in the last 3 months results to 2.62 points
-3 contributors increase the score value from 2.62 to 2.88
+21 commits in the last 3 months results to 3.23 points
+3 contributors increase the score value from 3.23 to 3.55
 
 This sub-score is based on 2 features:
 
 
 
-1.  **Number of commits in the last three months:** 17
+1.  **Number of commits in the last three months:** 21
 1.  **Number of contributors in the last three months:** 3
 
 
