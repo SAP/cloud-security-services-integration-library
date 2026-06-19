@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## 4.0.7
 
+- Fix mTLS handshake regression introduced in 3.6.7 (`SSLContextFactory`)
+  - Restore `SunX509` as the preferred `KeyManagerFactory` algorithm and only fall back to the JVM default algorithm when `SunX509` is unavailable (FIPS providers like Bouncy Castle)
+  - Initialize the `SSLContext` with an explicit `TrustManagerFactory` backed by the system default trust store instead of passing `null`, fixing `(certificate_unknown) No X509TrustManager implementation available` failures observed on certain runtime configurations
 - Fix multi-tenant XSUAA token exchange in `DefaultXsuaaTokenExtension`
   - The IAS-to-XSUAA exchange used the provider subdomain endpoint, which caused XSUAA to resolve the provider tenant instead of the tenant carried in the `X-zid` header (`app_tid`)
   - Token exchange now targets a tenant-agnostic endpoint built from the `uaadomain` binding property, so XSUAA resolves the tenant via `X-zid`
