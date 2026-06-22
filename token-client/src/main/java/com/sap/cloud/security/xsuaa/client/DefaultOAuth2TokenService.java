@@ -11,7 +11,9 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 import com.sap.cloud.security.client.ApacheHttpClient4Executor;
 import com.sap.cloud.security.client.CustomHttpClientAdapter;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
+import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.client.SecurityHttpClient;
+import com.sap.cloud.security.client.SecurityHttpClientProvider;
 import com.sap.cloud.security.client.SecurityHttpRequest;
 import com.sap.cloud.security.client.SecurityHttpResponse;
 import com.sap.cloud.security.servlet.MDCHelper;
@@ -40,6 +42,10 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
   private final SecurityHttpClient httpClient;
   private final DefaultTokenClientConfiguration config =
       DefaultTokenClientConfiguration.getInstance();
+
+  public DefaultOAuth2TokenService() throws HttpClientException {
+    this(SecurityHttpClientProvider.createClient(null));
+  }
 
   public DefaultOAuth2TokenService(@Nonnull final SecurityHttpClient httpClient) {
     this(httpClient, TokenCacheConfiguration.defaultConfiguration());
