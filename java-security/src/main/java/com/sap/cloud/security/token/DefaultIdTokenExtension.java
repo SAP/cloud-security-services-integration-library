@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *   <li>If cached ID Token is still valid, it is returned as is
  *   <li>If the current token is already an ID token, it is returned as-is.
- *   <li>If the token belongs to a technical user (where {@code sub == azp}), an exception is
+ *   <li>If the token belongs to a technical user (claim {@code sap_id_type} = {@code "app"}, or
+ *       {@code sub == azp} for pre-{@code sap_id_type} tokens), an exception is
  *       thrown.
  *   <li>If the token is an access token, it will be exchanged for an ID token using the configured
  *       IAS service credentials.
@@ -115,14 +116,21 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
   /**
    * Determines whether the token represents a technical user.
    *
-   * <p>A token is considered to belong to a technical user if the {@code sub} (subject) claim
-   * equals the {@code azp} (authorized party / client ID) claim.
+   * <p>Prefers the {@code sap_id_type} claim ({@link SapIdType#APP}) when present. For tokens
+   * issued before the claim was introduced, falls back to comparing {@code sub} with
+   * {@code azp}.
    *
    * @param token the token to inspect
    * @return {@code true} if the token belongs to a technical user
    */
   private boolean isTechnicalUser(Token token) {
-    String subject = token.getClaimAsString("sub");
+    if (token instanceof SapIdToken idToken) {
+      SapIdType idType = idToken.getIdType();
+      if (idType != null) {
+        return idType == SapIdType.APP;
+      }
+    }
+    String subject = token.getClaimAsString(TokenClaims.SUBJECT);
     String azp = token.getClientId();
     if (subject == null || azp == null || subject.isBlank() || azp.isBlank()) {
       return false;

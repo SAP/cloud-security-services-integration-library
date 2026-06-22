@@ -43,6 +43,13 @@ public final class TokenClaims {
 	public static final String SAP_GLOBAL_ZONE_ID = "zone_uuid"; // legacy claim
 	public static final String SAP_GLOBAL_APP_TID = "app_tid"; // tenant GUID
 
+	/**
+	 * Indicates the type of the token principal. Issued by SAP Cloud Identity Service. Values
+	 * are {@code "user"} for human end-users and {@code "app"} for technical/application
+	 * principals. See {@link SapIdType} for the typed accessor.
+	 */
+	public static final String SAP_ID_TYPE = "sap_id_type";
+
 	public static final String GROUPS = "groups"; // scim groups
 	public static final String AUTHORIZATION_PARTY = "azp"; // Authorization party contains OAuth client identifier
 	public static final String CNF = "cnf"; // X509 certificate ("cnf" (confirmation)) claim

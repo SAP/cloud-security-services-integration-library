@@ -59,4 +59,17 @@ public class SapIdToken extends AbstractToken {
 	public String getCnfX509Thumbprint() {
 		return getAttributeFromClaimAsString(TokenClaims.CNF, TokenClaims.CNF_X5T);
 	}
+
+	/**
+	 * Returns the principal type carried by the {@code sap_id_type} claim. Issued by SAP Cloud
+	 * Identity Service to disambiguate human end-users ({@link SapIdType#USER}) from
+	 * technical/application principals ({@link SapIdType#APP}).
+	 *
+	 * @return the resolved {@link SapIdType}, or {@code null} if the claim is absent or carries
+	 * 		an unknown value (e.g. a future principal type).
+	 */
+	@Nullable
+	public SapIdType getIdType() {
+		return SapIdType.fromClaimValue(getClaimAsString(TokenClaims.SAP_ID_TYPE));
+	}
 }

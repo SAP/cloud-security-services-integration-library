@@ -231,4 +231,53 @@ public class DefaultIdTokenExtensionTest {
     Map<String, String> params = paramCaptor.getValue();
     assertThat(params.get("app_tid")).isNull();
   }
+
+  @Test
+  public void resolveToken_sapIdTypeAppClaim_treatedAsTechnicalUser() {
+    SecurityContext.setToken(sapIdTokenWithPayload("{\"sap_id_type\":\"app\",\"sub\":\"user\",\"azp\":\"" + clientId + "\"}"));
+
+    assertThatThrownBy(() -> cut.resolveIdToken(null))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void resolveToken_sapIdTypeUserClaim_overridesSubEqualsAzpHeuristic()
+      throws OAuth2ServiceException {
+    // sub == azp would have flagged this as technical under the legacy heuristic; the explicit
+    // sap_id_type=user claim takes precedence so the exchange proceeds.
+    SapIdToken userToken = sapIdTokenWithPayload(
+        "{\"sap_id_type\":\"user\",\"sub\":\"" + clientId + "\",\"azp\":\"" + clientId
+            + "\",\"aud\":[\"audience\"],\"iss\":\"" + tokenUri + "\"}");
+    SecurityContext.setToken(userToken);
+
+    cut.resolveIdToken(null);
+
+    verify(tokenService)
+        .retrieveAccessTokenViaJwtBearerTokenGrant(
+            eq(completeTokenUri), any(), any(), any(), any(), eq(false));
+  }
+
+  private static SapIdToken sapIdTokenWithPayload(String payload) {
+    return new SapIdToken(new com.sap.cloud.security.xsuaa.jwt.DecodedJwt() {
+      @Override
+      public String getHeader() {
+        return "{}";
+      }
+
+      @Override
+      public String getPayload() {
+        return payload;
+      }
+
+      @Override
+      public String getSignature() {
+        return "";
+      }
+
+      @Override
+      public String getEncodedToken() {
+        return "encoded";
+      }
+    });
+  }
 }
