@@ -56,7 +56,20 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * 		URI, authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config) {
-		this(config, config.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN));
+		this(config, readUaaDomain(config));
+	}
+
+	@Nullable
+	private static String readUaaDomain(@Nonnull OAuth2ServiceConfiguration config) {
+		try {
+			return config.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN);
+		} catch (UnsupportedOperationException e) {
+			// Configurations that don't implement getProperty (e.g. spring-xsuaa's
+			// XsuaaServiceConfiguration default) should use the (config, uaaDomain) constructor
+			// instead. Fall back to null here so the tenant-agnostic token endpoint is simply
+			// unavailable rather than crashing the caller.
+			return null;
+		}
 	}
 
 	/**
