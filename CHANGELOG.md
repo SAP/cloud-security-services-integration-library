@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## 4.0.7
 
+- Add missing no-arg constructor to `DefaultOAuth2TokenService`
+  - The class lacked the no-arg constructor that the migration documentation (`token-client/CUSTOM_HTTPCLIENT.md`) advertised
+  - The sibling services `DefaultOAuth2TokenKeyService` and `DefaultOidcConfigurationService` already had it; this restores symmetry
+  - The new constructor obtains a `SecurityHttpClient` via `SecurityHttpClientProvider.createClient(null)` and delegates to the existing `(SecurityHttpClient)` constructor
 - Fix multi-tenant XSUAA token exchange in `DefaultXsuaaTokenExtension`
   - The IAS-to-XSUAA exchange used the provider subdomain endpoint, which caused XSUAA to resolve the provider tenant instead of the tenant carried in the `X-zid` header (`app_tid`)
   - Token exchange now targets a tenant-agnostic endpoint built from the `uaadomain` binding property, so XSUAA resolves the tenant via `X-zid`
