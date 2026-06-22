@@ -63,7 +63,7 @@ public class XsuaaDefaultEndpointsTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void getEndpoint_throwsException_whenBaseUriIsNull() {
-		new XsuaaDefaultEndpoints(null, CERT_URL);
+		new XsuaaDefaultEndpoints((String) null, CERT_URL);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
