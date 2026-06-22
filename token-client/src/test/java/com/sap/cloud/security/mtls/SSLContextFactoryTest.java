@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import java.nio.charset.StandardCharsets;
@@ -76,6 +78,17 @@ public class SSLContextFactoryTest {
 	public void create() throws GeneralSecurityException, IOException {
 		assertThat(cut.create(certificates, rsaPrivateKey)).isNotNull();
 		assertThat(cut.create(eccCertificate, eccPrivateKey)).isNotNull();
+	}
+
+	@Test
+	public void create_initializesTrustManagerAndKeyManager() throws GeneralSecurityException, IOException {
+		SSLContext sslContext = cut.create(certificates, rsaPrivateKey);
+
+		// SSLEngine creation triggers internal initialization of the trust/key managers and would
+		// fail with "No X509TrustManager implementation available" if the SSLContext was initialized
+		// without a working TrustManager.
+		SSLEngine engine = sslContext.createSSLEngine();
+		assertThat(engine).isNotNull();
 	}
 
 	@Test

@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## 4.0.7
 
+- Fix mTLS handshake regression in `SSLContextFactory`
+  - Initialize the `SSLContext` with an explicit `TrustManagerFactory` backed by the system default trust store instead of passing `null`, fixing `(certificate_unknown) No X509TrustManager implementation available` failures observed on certain runtime configurations
 - Add missing no-arg constructor to `DefaultOAuth2TokenService`
   - The class lacked the no-arg constructor that the migration documentation (`token-client/CUSTOM_HTTPCLIENT.md`) advertised
   - The sibling services `DefaultOAuth2TokenKeyService` and `DefaultOidcConfigurationService` already had it; this restores symmetry
