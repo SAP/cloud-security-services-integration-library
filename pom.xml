@@ -75,7 +75,7 @@
 		<assertj.version>3.27.7</assertj.version>
 		<wiremock.version>3.13.2</wiremock.version>
 		<reactor.test.version>3.8.5</reactor.test.version>
-		<jakarta.annotation.version>2.1.1</jakarta.annotation.version>
+		<jakarta.annotation.version>3.0.0</jakarta.annotation.version>
 		<spotbugs.version>4.9.8.3</spotbugs.version>
 		<spotbugs.annotations.version>4.9.8</spotbugs.annotations.version>
 		<skipTests>false</skipTests>
