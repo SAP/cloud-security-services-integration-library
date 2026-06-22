@@ -56,9 +56,25 @@ public class XsuaaDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * 		URI, authorize and key set URI (JWKS) will be derived.
 	 */
 	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config) {
+		this(config, config.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN));
+	}
+
+	/**
+	 * Creates a new XsuaaDefaultEndpoints with an explicitly supplied {@code uaaDomain}.
+	 * <p>
+	 * Use this when the {@code uaaDomain} is available on the configuration via a typed accessor
+	 * and {@link OAuth2ServiceConfiguration#getProperty(String)} is not supported by the
+	 * configuration implementation.
+	 *
+	 * @param config
+	 * 		- OAuth2ServiceConfiguration of XSUAA used for {@code url}, {@code certUrl} and credential type.
+	 * @param uaaDomain
+	 * 		- the {@code uaadomain} value, or {@code null} if not available.
+	 */
+	public XsuaaDefaultEndpoints(@Nonnull OAuth2ServiceConfiguration config, @Nullable String uaaDomain) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		this.baseUri = config.getUrl();
-		this.uaaDomain = config.getProperty(ServiceConstants.XSUAA.UAA_DOMAIN);
+		this.uaaDomain = uaaDomain;
 		final CredentialType credentialType = config.getCredentialType() != null ? config.getCredentialType() : CredentialType.BINDING_SECRET;
     this.certUri =
         switch (credentialType) {

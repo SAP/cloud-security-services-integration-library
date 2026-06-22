@@ -57,7 +57,7 @@ public class XsuaaTokenFlowAutoConfiguration {
 		logger.debug("auto-configures XsuaaTokenFlows using {} based restOperations",
 				xsuaaServiceConfiguration.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
 		OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(
-				xsuaaServiceConfiguration);
+				xsuaaServiceConfiguration, xsuaaServiceConfiguration.getUaaDomain());
 		ClientIdentity clientCredentials = xsuaaServiceConfiguration.getClientIdentity();
 		OAuth2TokenService oAuth2TokenService = new XsuaaOAuth2TokenService(xsuaaRestOperations);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientCredentials);
