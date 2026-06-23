@@ -244,7 +244,7 @@
         }
       }
     },
-    "value" : 6.040967586393117,
+    "value" : 6.0532425454765875,
     "weight" : 1.0,
     "confidence" : 9.645390070921986,
     "usedValues" : [ {
@@ -253,7 +253,7 @@
         "type" : "ProjectSecurityAwarenessScore",
         "name" : "How well open-source community is aware about security"
       },
-      "value" : 4.0,
+      "value" : 3.5,
       "weight" : 0.9,
       "confidence" : 10.0,
       "usedValues" : [ {
@@ -278,7 +278,7 @@
           "type" : "BooleanFeature",
           "name" : "If a project uses signed commits"
         },
-        "flag" : true,
+        "flag" : false,
         "explanation" : [ ]
       }, {
         "type" : "BooleanValue",
@@ -1330,7 +1330,7 @@
         "type" : "ProjectActivityScore",
         "name" : "Open-source project activity score"
       },
-      "value" : 3.553846153846154,
+      "value" : 4.56923076923077,
       "weight" : 0.5,
       "confidence" : 10.0,
       "usedValues" : [ {
@@ -1339,7 +1339,7 @@
           "type" : "PositiveIntegerFeature",
           "name" : "Number of commits in the last three months"
         },
-        "number" : 21,
+        "number" : 27,
         "explanation" : [ ]
       }, {
         "type" : "IntegerValue",
@@ -1350,7 +1350,7 @@
         "number" : 3,
         "explanation" : [ ]
       } ],
-      "explanation" : [ "21 commits in the last 3 months results to 3.23 points", "3 contributors increase the score value from 3.23 to 3.55" ],
+      "explanation" : [ "27 commits in the last 3 months results to 4.15 points", "3 contributors increase the score value from 4.15 to 4.57" ],
       "isUnknown" : false,
       "isNotApplicable" : false,
       "feature" : {
