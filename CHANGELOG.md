@@ -1,6 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.1.0
+
+- Update dependencies:
+  - Spring Boot: 4.0.6 → 4.1.0
+  - Spring Framework: 7.0.7 → 7.0.8
+  - Spring Security: 7.0.5 → 7.1.0
+  - Jetty: 12.1.9 → 12.1.10
+  - Reactor: 3.8.2 → 3.8.6
+  - JUnit: 6.0.3 → 6.1.0
+  - SpotBugs annotations: 4.9.8 → 4.10.2
+  - SpotBugs Maven Plugin: 4.9.8.3 → 4.10.2.0
+  - org.json: 20251224 → 20260522
+  - logcaptor: 2.12.2 → 2.12.6
+  - assertj-core (samples): 3.24.2 → 3.27.7
+  - maven-surefire-plugin: 3.5.5 → 3.5.6
+  - jacoco-maven-plugin: 0.8.14 → 0.8.15
+  - central-publishing-maven-plugin: 0.10.0 → 0.11.0
+- Fix `junit-bom` import in the root pom — entry was missing `<type>pom</type><scope>import</scope>`, so JUnit platform/jupiter versions were silently resolved through Spring Boot's BOM. Now correctly imported and ordered ahead of `spring-boot-dependencies` so junit-bom wins for all JUnit 6 artifacts.
+
 ## 4.0.7
 
 - Fix mTLS handshake regression in `SSLContextFactory`
