@@ -25,9 +25,18 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Provides builder objects for executing OAuth2 token flows against IAS:
  * <ul>
- *   <li>{@link #clientCredentialsTokenFlow()} - for technical user / service-to-service tokens</li>
- *   <li>{@link #jwtBearerTokenFlow()} - for user token exchange (user propagation)</li>
+ *   <li>{@link #clientCredentialsTokenFlow()} - {@code client_credentials} grant; technical-user
+ *       (machine) tokens without an end-user context. Used both for plain service-to-service
+ *       calls and for app-to-app calls with the {@code resource} parameter.</li>
+ *   <li>{@link #jwtBearerTokenFlow()} - {@code urn:ietf:params:oauth:grant-type:jwt-bearer} grant;
+ *       exchanges an existing user token for a new token, preserving the user identity. Used for
+ *       app-to-app calls that need to carry the user context.</li>
+ *   <li>{@link #refreshTokenFlow()} - {@code refresh_token} grant; exchanges a refresh token
+ *       previously issued by IAS for a new access token.</li>
  * </ul>
+ * <p>
+ * Note: IAS does not offer a resource owner password credentials grant, so there is no
+ * password flow builder.
  *
  * <p>Example usage:
  * <pre>{@code
@@ -36,16 +45,21 @@ import org.slf4j.LoggerFactory;
  *     iasServiceConfig.getUrl(),
  *     iasServiceConfig.getClientIdentity());
  *
- * // Technical user token
+ * // Technical-user token (no end-user context)
  * OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow()
  *     .appTid(subscriberTenantId)
  *     .resource("target-application")
  *     .execute();
  *
- * // User propagation
+ * // App-to-app with preserved user context
  * OAuth2TokenResponse response = tokenFlows.jwtBearerTokenFlow()
  *     .token(incomingJwt)
  *     .resource("target-application")
+ *     .execute();
+ *
+ * // Refresh a previously issued IAS access token
+ * OAuth2TokenResponse response = tokenFlows.refreshTokenFlow()
+ *     .refreshToken(refreshTokenValue)
  *     .execute();
  * }</pre>
  */
@@ -264,7 +278,8 @@ public class IasTokenFlows implements Serializable {
 	/**
 	 * Creates a new Client Credentials Token Flow builder for IAS.
 	 * <p>
-	 * Use this to request technical user tokens for service-to-service communication.
+	 * Use this for technical-user tokens (no end-user context). Combine with
+	 * {@link IasClientCredentialsTokenFlow#resource(String)} for app-to-app calls.
 	 *
 	 * @return the {@link IasClientCredentialsTokenFlow} builder
 	 */
@@ -275,11 +290,23 @@ public class IasTokenFlows implements Serializable {
 	/**
 	 * Creates a new JWT Bearer Token Flow builder for IAS.
 	 * <p>
-	 * Use this to exchange a user token for a new token (user propagation).
+	 * Use this to exchange an incoming user token for a new token while preserving the
+	 * user identity (app-to-app with user context).
 	 *
 	 * @return the {@link IasJwtBearerTokenFlow} builder
 	 */
 	public IasJwtBearerTokenFlow jwtBearerTokenFlow() {
 		return new IasJwtBearerTokenFlow(tokenService, endpointsProvider, clientIdentity, tenantHostResolver);
+	}
+
+	/**
+	 * Creates a new Refresh Token Flow builder for IAS.
+	 * <p>
+	 * Use this to exchange a refresh token previously issued by IAS for a new access token.
+	 *
+	 * @return the {@link IasRefreshTokenFlow} builder
+	 */
+	public IasRefreshTokenFlow refreshTokenFlow() {
+		return new IasRefreshTokenFlow(tokenService, endpointsProvider, clientIdentity, tenantHostResolver);
 	}
 }

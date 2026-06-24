@@ -53,6 +53,7 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
    - [Initialization](#initialization)
    - [Client Credentials Token Flow](#client-credentials-token-flow-1)
    - [JWT Bearer Token Flow](#jwt-bearer-token-flow-1)
+   - [Refresh Token Flow](#refresh-token-flow-1)
    - [Multi-tenant: subscriber host resolution](#multi-tenant-subscriber-host-resolution)
 4. [Retry mechanism](#retry-mechanism)
    - [4.1. Java EE applications](#java-ee-applications)
@@ -400,10 +401,13 @@ OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
 
 ## IAS Token Flows API usage
 
-The `IasTokenFlows` class (package `com.sap.cloud.security.ias.tokenflows`) provides the same builder-pattern entry point as `XsuaaTokenFlows`, but for tokens issued by SAP Cloud Identity Service (IAS). Two flows are supported:
+The `IasTokenFlows` class (package `com.sap.cloud.security.ias.tokenflows`) provides the same builder-pattern entry point as `XsuaaTokenFlows`, but for tokens issued by SAP Cloud Identity Service (IAS). Three flows are supported:
 
-- **Client Credentials Token Flow** — technical-user / service-to-service tokens
-- **JWT Bearer Token Flow** — user propagation (exchange an incoming user token)
+- **Client Credentials Token Flow** (`grant_type=client_credentials`) — technical-user tokens, i.e. tokens *without* an end-user context. Useful both for plain service-to-service calls and for app-to-app calls when no user identity needs to flow.
+- **JWT Bearer Token Flow** (`grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer`) — exchanges an existing user token for a new token while preserving the user identity. Use this for app-to-app calls that need to carry the user context.
+- **Refresh Token Flow** (`grant_type=refresh_token`) — exchanges a refresh token previously issued by IAS for a new access token.
+
+> IAS does not offer a resource owner password credentials grant, so there is no password flow builder.
 
 ### Initialization
 
@@ -427,7 +431,7 @@ IasTokenFlows tokenFlows = new IasTokenFlows(
 
 ### Client Credentials Token Flow
 
-Use this for technical-user tokens (service-to-service communication, no end user involved):
+Use this for technical-user tokens (no end-user context). Set `resource(...)` for an app-to-app call:
 
 ```java
 OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow()
@@ -440,12 +444,24 @@ OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow()
 
 ### JWT Bearer Token Flow
 
-Use this to exchange an incoming user token (user propagation to a downstream service):
+Use this to exchange an incoming user token for a new token while preserving the user identity (app-to-app with user context):
 
 ```java
 OAuth2TokenResponse response = tokenFlows.jwtBearerTokenFlow()
         .token(incomingJwt)                 // required: the user's access token
         .resource("target-application")     // optional
+        .appTid(subscriberTenantId)         // optional: triggers subscriber host resolution
+        .disableCache(true)
+        .execute();
+```
+
+### Refresh Token Flow
+
+Use this to exchange a refresh token previously issued by IAS for a new access token:
+
+```java
+OAuth2TokenResponse response = tokenFlows.refreshTokenFlow()
+        .refreshToken(refreshTokenValue)    // required
         .appTid(subscriberTenantId)         // optional: triggers subscriber host resolution
         .disableCache(true)
         .execute();
