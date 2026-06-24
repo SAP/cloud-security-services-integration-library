@@ -61,7 +61,7 @@
 		<reactor.version>3.8.6</reactor.version>
 		<log4j2.version>2.26.0</log4j2.version>
 		<slf4j.api.version>2.0.18</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
-		<org.json.version>20251224</org.json.version>
+		<org.json.version>20260522</org.json.version>
 		<sap.cloud.env.servicebinding.version>0.31.0</sap.cloud.env.servicebinding.version>
 		<apache.httpclient.version>4.5.14</apache.httpclient.version>
 		<caffeine.version>3.2.4</caffeine.version>
@@ -109,6 +109,14 @@
 			</dependency>
 			<!-- spring -->
 			<!-- BOMs -->
+			<!-- Import junit-bom FIRST so its junit-platform/jupiter versions win over Spring Boot's. -->
+			<dependency>
+				<groupId>org.junit</groupId>
+				<artifactId>junit-bom</artifactId>
+				<version>${junit-jupiter.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<!-- Align all Jetty artifacts FIRST so its versions win over Spring Boot's -->
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
@@ -256,11 +264,6 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.junit</groupId>
-				<artifactId>junit-bom</artifactId>
-				<version>${junit-jupiter.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.hamcrest</groupId>
