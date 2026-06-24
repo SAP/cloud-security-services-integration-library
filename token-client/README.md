@@ -49,11 +49,16 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
    - [2.2. Client Credentials Token Flow](#client-credentials-token-flow)
    - [2.3. Refresh Token Flow](#refresh-token-flow)
    - [2.4. Password Token Flow](#password-token-flow)
-3. [Retry mechanism](#retry-mechanism)
-   - [3.1. Java EE applications](#java-ee-applications)
-   - [3.2. Spring Boot applications](#spring-boot-applications)
-4. [Troubleshooting](#troubleshooting)
-5. [Samples](#samples)
+3. [IAS Token Flows API usage](#ias-token-flows-api-usage)
+   - [Initialization](#initialization)
+   - [Client Credentials Token Flow](#client-credentials-token-flow-1)
+   - [JWT Bearer Token Flow](#jwt-bearer-token-flow-1)
+   - [Multi-tenant: subscriber host resolution](#multi-tenant-subscriber-host-resolution)
+4. [Retry mechanism](#retry-mechanism)
+   - [4.1. Java EE applications](#java-ee-applications)
+   - [4.2. Spring Boot applications](#spring-boot-applications)
+5. [Troubleshooting](#troubleshooting)
+6. [Samples](#samples)
 
 ## Setup 
 For Spring Boot applications `TokenFlows` come autoconfigured with our `spring-security` or `spring-security-3` libraries and can be easily consumed by autowiring the `XsuaaTokenFlows` Bean. For more details see [1.1. Configuration for Spring Applications](#11-configuration-for-spring-applications) section.
@@ -392,6 +397,116 @@ OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
                                     .disableCache(true)  // optionally disables token cache for request
                                     .execute();
 ```
+
+## IAS Token Flows API usage
+
+The `IasTokenFlows` class (package `com.sap.cloud.security.ias.tokenflows`) provides the same builder-pattern entry point as `XsuaaTokenFlows`, but for tokens issued by SAP Cloud Identity Service (IAS). Two flows are supported:
+
+- **Client Credentials Token Flow** — technical-user / service-to-service tokens
+- **JWT Bearer Token Flow** — user propagation (exchange an incoming user token)
+
+### Initialization
+
+The simplest path is the `fromConfiguration(...)` factory, which derives the IAS endpoint, the client identity, and (if the binding allows it) the tenant host resolver from a single `OAuth2ServiceConfiguration`:
+
+```java
+OAuth2ServiceConfiguration iasConfig = Environments.getCurrent().getIasConfiguration();
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService();
+
+IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(tokenService, iasConfig);
+```
+
+If you need full control (custom endpoints, custom client identity, no resolver), use the direct constructor:
+
+```java
+IasTokenFlows tokenFlows = new IasTokenFlows(
+        tokenService,
+        new IasDefaultEndpoints(iasConfig),
+        iasConfig.getClientIdentity());
+```
+
+### Client Credentials Token Flow
+
+Use this for technical-user tokens (service-to-service communication, no end user involved):
+
+```java
+OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow()
+        .resource("target-application")     // optional: target application identifier
+        .appTid(subscriberTenantId)         // optional: triggers subscriber host resolution
+        .tokenFormat("jwt")                 // optional
+        .disableCache(true)                 // optionally disables the token cache for this request
+        .execute();
+```
+
+### JWT Bearer Token Flow
+
+Use this to exchange an incoming user token (user propagation to a downstream service):
+
+```java
+OAuth2TokenResponse response = tokenFlows.jwtBearerTokenFlow()
+        .token(incomingJwt)                 // required: the user's access token
+        .resource("target-application")     // optional
+        .appTid(subscriberTenantId)         // optional: triggers subscriber host resolution
+        .disableCache(true)
+        .execute();
+```
+
+### Multi-tenant: subscriber host resolution
+
+In a multi-tenant IAS application the token endpoint host differs per subscriber subdomain. The `IasTokenFlows` API resolves that subdomain at runtime when:
+
+1. The IAS service binding carries a `btp-tenant-api` property (the BTP tenant API base URI). The `fromConfiguration(...)` factories pick this up automatically.
+2. A flow is invoked with an `appTid(...)` value. Flows without `appTid` keep using the provider host.
+
+Under the hood, `IasTenantHostResolver` calls `GET {btp-tenant-api}/sap/rest/tenantLoginInfo?id={appTid}` and extracts the subscriber subdomain from the returned `token_endpoint`. The configured IAS host is then rewritten to the subscriber host before the token request is sent.
+
+If the binding does not expose `btp-tenant-api`, no resolver is constructed and flows operate against the provider host unchanged. You can also wire a resolver explicitly:
+
+```java
+IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(
+        tokenService,
+        iasConfig,
+        URI.create("https://api.authentication.eu10.hana.ondemand.com"),
+        SecurityHttpClientProvider.createClient(iasConfig.getClientIdentity()));
+```
+
+#### Tenant host cache
+
+Resolved subdomains are cached so repeated requests for the same subscriber do not flood the BTP tenant API. The cache uses `expireAfterWrite` semantics:
+
+- While the cached value is fresh (within the TTL): returned directly, **no** BTP call
+- After the TTL has elapsed: the next resolve blocks once on the BTP API, then caches the fresh result for another TTL window
+
+Defaults: enabled, 1 hour TTL, max 1000 entries. Configure via `IasTenantHostCacheConfiguration`:
+
+```java
+IasTenantHostCacheConfiguration cacheConfig = IasTenantHostCacheConfiguration.builder()
+        .enabled(true)
+        .ttl(Duration.ofHours(2))
+        .maxSize(500)
+        .build();
+
+IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(tokenService, iasConfig, cacheConfig);
+```
+
+To disable caching entirely (every resolve hits the BTP API): `.enabled(false)`.
+
+#### Spring Boot configuration
+
+Spring Boot consumers can bind the cache configuration declaratively via `IasTenantHostCacheProperties`:
+
+```yaml
+sap:
+  spring:
+    security:
+      ias:
+        tenant-host-cache:
+          enabled: true         # default: true
+          ttl: 1h               # default: 1h (any java.time.Duration string)
+          max-size: 1000        # default: 1000
+```
+
+The resulting `IasTenantHostCacheConfiguration` bean is picked up by the IAS auto-configuration.
 
 ## Retry mechanism
 
