@@ -1,6 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.5
+
+- Add `AbstractTokenAuthenticator#withValidatorCustomizer(Consumer<JwtValidatorBuilder>)` to let callers adjust the internally constructed `JwtValidatorBuilder` just before it is built. Useful for narrowly opting out of individual default checks (e.g. `JwtValidatorBuilder#disableTenantIdCheck`) without having to replicate the rest of the default validator setup. Multiple customizers can be registered; they are applied in registration order.
+
 ## 3.7.4
 
 - Fix mTLS handshake regression introduced in 3.6.7 (`SSLContextFactory`)

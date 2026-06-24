@@ -146,6 +146,50 @@ class IasTokenAuthenticatorTest {
 		Mockito.verify(validationListener2, times(1)).onValidationError(any());
 	}
 
+	@Test
+	void withValidatorCustomizer_invokesCustomizerBeforeBuild() {
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
+				.forService(Service.IAS)
+				.withDomains("myauth.com")
+				.withClientId("T000310")
+				.build();
+		java.util.concurrent.atomic.AtomicBoolean called = new java.util.concurrent.atomic.AtomicBoolean();
+
+		AbstractTokenAuthenticator authenticator = new IasTokenAuthenticator()
+				.withServiceConfiguration(configuration)
+				.withValidatorCustomizer(builder -> {
+					called.set(true);
+					builder.disableTenantIdCheck();
+				});
+		authenticator.getOrCreateTokenValidator();
+
+		assertTrue(called.get(), "registered customizer must be invoked during validator construction");
+	}
+
+	@Test
+	void withValidatorCustomizer_multipleCustomizers_areInvokedInOrder() {
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder
+				.forService(Service.IAS)
+				.withDomains("myauth.com")
+				.withClientId("T000310")
+				.build();
+		java.util.List<Integer> calls = new java.util.ArrayList<>();
+
+		AbstractTokenAuthenticator authenticator = new IasTokenAuthenticator()
+				.withServiceConfiguration(configuration)
+				.withValidatorCustomizer(b -> calls.add(1))
+				.withValidatorCustomizer(b -> calls.add(2));
+		authenticator.getOrCreateTokenValidator();
+
+		assertEquals(java.util.List.of(1, 2), calls);
+	}
+
+	@Test
+	void withValidatorCustomizer_nullCustomizer_throws() {
+		assertThrows(NullPointerException.class,
+				() -> new IasTokenAuthenticator().withValidatorCustomizer(null));
+	}
+
 	private HttpServletRequest createRequestWithoutToken() {
 		return Mockito.mock(HttpServletRequest.class);
 	}
