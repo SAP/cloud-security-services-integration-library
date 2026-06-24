@@ -407,8 +407,6 @@ The `IasTokenFlows` class (package `com.sap.cloud.security.ias.tokenflows`) prov
 - **JWT Bearer Token Flow** (`grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer`) — exchanges an existing user token for a new token while preserving the user identity. Use this for app-to-app calls that need to carry the user context.
 - **Refresh Token Flow** (`grant_type=refresh_token`) — exchanges a refresh token previously issued by IAS for a new access token.
 
-> IAS does not offer a resource owner password credentials grant, so there is no password flow builder.
-
 ### Initialization
 
 The simplest path is the `fromConfiguration(...)` factory, which derives the IAS endpoint, the client identity, and (if the binding allows it) the tenant host resolver from a single `OAuth2ServiceConfiguration`:

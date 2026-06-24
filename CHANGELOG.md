@@ -10,7 +10,6 @@ All notable changes to this project will be documented in this file.
     - `IasRefreshTokenFlow` (`grant_type=refresh_token`) — exchanges a refresh token issued by IAS for a new access token
   - `IasDefaultEndpoints` resolves the IAS token endpoint from an `OAuth2ServiceConfiguration`
   - Convenience factories `IasTokenFlows.fromConfiguration(...)` wire up the flows from a service binding, including tenant host resolution when the binding exposes it
-  - IAS does not offer a resource owner password credentials grant; no password flow is provided
 - Add multi-tenant subscriber host resolution for IAS token flows
   - `IasTenantHostResolver` queries the BTP tenant API (`/sap/rest/tenantLoginInfo?id={tenantId}`) to discover the subscriber's IAS subdomain and rewrites the configured IAS host before token requests
   - Activated automatically when the IAS service binding carries a `btp-tenant-api` property; without that property the resolver is not constructed and flows continue to use the provider host

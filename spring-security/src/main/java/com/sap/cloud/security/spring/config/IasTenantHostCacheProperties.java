@@ -5,7 +5,7 @@
  */
 package com.sap.cloud.security.spring.config;
 
-import com.sap.cloud.security.ias.tokenflows.IasTenantHostCacheConfiguration;
+import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
 
 import java.time.Duration;
 

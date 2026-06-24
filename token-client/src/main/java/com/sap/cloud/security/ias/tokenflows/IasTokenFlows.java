@@ -5,6 +5,10 @@
  */
 package com.sap.cloud.security.ias.tokenflows;
 
+import com.sap.cloud.security.ias.client.IasDefaultEndpoints;
+import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
+import com.sap.cloud.security.ias.client.IasTenantHostResolver;
+
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 
 import com.sap.cloud.security.client.SecurityHttpClient;
@@ -34,9 +38,6 @@ import org.slf4j.LoggerFactory;
  *   <li>{@link #refreshTokenFlow()} - {@code refresh_token} grant; exchanges a refresh token
  *       previously issued by IAS for a new access token.</li>
  * </ul>
- * <p>
- * Note: IAS does not offer a resource owner password credentials grant, so there is no
- * password flow builder.
  *
  * <p>Example usage:
  * <pre>{@code
