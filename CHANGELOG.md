@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## 4.1.0
 
+- Add `AbstractTokenAuthenticator#withValidatorCustomizer(Consumer<JwtValidatorBuilder>)` to let callers adjust the internally constructed `JwtValidatorBuilder` just before it is built. Useful for narrowly opting out of individual default checks (e.g. `JwtValidatorBuilder#disableTenantIdCheck`) without having to replicate the rest of the default validator setup. Multiple customizers can be registered; they are applied in registration order.
 - Update dependencies:
   - Spring Boot: 4.0.6 → 4.1.0
   - Spring Framework: 7.0.7 → 7.0.8

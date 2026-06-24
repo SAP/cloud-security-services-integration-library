@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractTokenAuthenticator.class);
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
+	private final List<Consumer<JwtValidatorBuilder>> validatorCustomizers = new ArrayList<>();
 	private Validator<Token> tokenValidator;
 	protected SecurityHttpClient httpClient;
 	protected OAuth2ServiceConfiguration serviceConfiguration;
@@ -117,6 +119,34 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	}
 
 	/**
+	 * Registers a callback that receives the {@link JwtValidatorBuilder} that the authenticator
+	 * uses internally to assemble its default validator, just before {@code build()} is invoked.
+	 * <p>
+	 * Use this to adjust the default validator setup without replicating it. For example, to opt
+	 * out of the tenant id check (see
+	 * {@link JwtValidatorBuilder#disableTenantIdCheck()} — use with caution):
+	 *
+	 * <pre>{@code
+	 * new IasTokenAuthenticator()
+	 *     .withServiceConfiguration(config)
+	 *     .withValidatorCustomizer(JwtValidatorBuilder::disableTenantIdCheck);
+	 * }</pre>
+	 *
+	 * Multiple customizers can be registered; they are applied in registration order. Callers
+	 * should keep customizations targeted — passing in a fully custom {@code Validator} is
+	 * intentionally not supported, because it would force callers to replicate the default
+	 * setup and drift as the defaults evolve.
+	 *
+	 * @param customizer
+	 * 		the customizer; must not be null
+	 * @return the authenticator instance
+	 */
+	public AbstractTokenAuthenticator withValidatorCustomizer(Consumer<JwtValidatorBuilder> customizer) {
+		this.validatorCustomizers.add(Objects.requireNonNull(customizer, "customizer must not be null"));
+		return this;
+	}
+
+	/**
 	 * Return configured service configuration or Environments.getCurrent() if not configured.
 	 *
 	 * @return the actual service configuration
@@ -149,6 +179,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 			jwtValidatorBuilder.configureAnotherServiceInstance(getOtherServiceConfiguration());
 			Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(jwtValidatorBuilder::withCacheConfiguration);
 			validationListeners.forEach(jwtValidatorBuilder::withValidatorListener);
+			validatorCustomizers.forEach(customizer -> customizer.accept(jwtValidatorBuilder));
 			tokenValidator = jwtValidatorBuilder.build();
 		}
 		return tokenValidator;
