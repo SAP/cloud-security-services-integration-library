@@ -5,6 +5,10 @@
  */
 package com.sap.cloud.security.ias.tokenflows;
 
+import com.sap.cloud.security.ias.client.IasDefaultEndpoints;
+import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
+import com.sap.cloud.security.ias.client.IasTenantHostResolver;
+
 import com.sap.cloud.security.config.ClientIdentity;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenResponse;

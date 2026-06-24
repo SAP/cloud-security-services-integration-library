@@ -3,7 +3,7 @@
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.sap.cloud.security.ias.tokenflows;
+package com.sap.cloud.security.ias.client;
 
 import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.client.SecurityHttpRequest;
