@@ -14,6 +14,7 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
@@ -102,6 +103,10 @@ abstract class JwtSignatureValidator implements Validator<Token> {
 		String headerAndPayload = tokenSections[0] + "." + tokenSections[1];
 		String signature = tokenSections[2];
 		try {
+			AlgorithmParameterSpec parameterSpec = algorithm.parameterSpec();
+			if (parameterSpec != null) {
+				publicSignature.setParameter(parameterSpec);
+			}
 			publicSignature.initVerify(publicKey);
 			publicSignature.update(headerAndPayload.getBytes(UTF_8));
 
