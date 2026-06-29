@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file.
 
 ## 4.1.0
 
+- Add IAS Token Flows API in `token-client` (`com.sap.cloud.security.ias.tokenflows`)
+  - `IasTokenFlows` entry point with builder-style flows:
+    - `IasClientCredentialsTokenFlow` (`grant_type=client_credentials`) — technical-user tokens (no end-user context), also used for app-to-app calls without user identity
+    - `IasJwtBearerTokenFlow` (`grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer`) — exchanges an existing user token while preserving the user identity (app-to-app with user context)
+    - `IasRefreshTokenFlow` (`grant_type=refresh_token`) — exchanges a refresh token issued by IAS for a new access token
+  - `IasDefaultEndpoints` resolves the IAS token endpoint from an `OAuth2ServiceConfiguration`
+  - Convenience factories `IasTokenFlows.fromConfiguration(...)` wire up the flows from a service binding, including tenant host resolution when the binding exposes it
+- Add multi-tenant subscriber host resolution for IAS token flows
+  - `IasTenantHostResolver` queries the BTP tenant API (`/sap/rest/tenantLoginInfo?id={tenantId}`) to discover the subscriber's IAS subdomain and rewrites the configured IAS host before token requests
+  - Activated automatically when the IAS service binding carries a `btp-tenant-api` property; without that property the resolver is not constructed and flows continue to use the provider host
+  - Triggered when an `app_tid` is supplied on a flow (`clientCredentialsTokenFlow().appTid(...)` / `jwtBearerTokenFlow().appTid(...)`); flows without `app_tid` are unaffected
+  - Resolved subdomains are cached via Caffeine with `expireAfterWrite` semantics — within the TTL the cached value is returned without any BTP call; after the TTL the next resolve blocks once on the BTP API, then caches the fresh result
+  - Cache governed by `IasTenantHostCacheConfiguration` (`enabled` / `ttl` / `maxSize`). Default: enabled, 1h TTL, 1000 entries. Spring Boot consumers can bind via `sap.spring.security.ias.tenant-host-cache.*` (`IasTenantHostCacheProperties`)
 - Update dependencies:
   - Spring Boot: 4.0.6 → 4.1.0
   - Spring Framework: 7.0.7 → 7.0.8
