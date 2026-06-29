@@ -16,6 +16,36 @@ All notable changes to this project will be documented in this file.
   - Triggered when an `app_tid` is supplied on a flow (`clientCredentialsTokenFlow().appTid(...)` / `jwtBearerTokenFlow().appTid(...)`); flows without `app_tid` are unaffected
   - Resolved subdomains are cached via Caffeine with `expireAfterWrite` semantics — within the TTL the cached value is returned without any BTP call; after the TTL the next resolve blocks once on the BTP API, then caches the fresh result
   - Cache governed by `IasTenantHostCacheConfiguration` (`enabled` / `ttl` / `maxSize`). Default: enabled, 1h TTL, 1000 entries. Spring Boot consumers can bind via `sap.spring.security.ias.tenant-host-cache.*` (`IasTenantHostCacheProperties`)
+- Update dependencies:
+  - Spring Boot: 4.0.6 → 4.1.0
+  - Spring Framework: 7.0.7 → 7.0.8
+  - Spring Security: 7.0.5 → 7.1.0
+  - Jetty: 12.1.9 → 12.1.10
+  - Reactor: 3.8.2 → 3.8.6
+  - JUnit: 6.0.3 → 6.1.0
+  - SpotBugs annotations: 4.9.8 → 4.10.2
+  - SpotBugs Maven Plugin: 4.9.8.3 → 4.10.2.0
+  - org.json: 20251224 → 20260522
+  - logcaptor: 2.12.2 → 2.12.6
+  - assertj-core (samples): 3.24.2 → 3.27.7
+  - maven-surefire-plugin: 3.5.5 → 3.5.6
+  - jacoco-maven-plugin: 0.8.14 → 0.8.15
+  - central-publishing-maven-plugin: 0.10.0 → 0.11.0
+- Fix `junit-bom` import in the root pom — entry was missing `<type>pom</type><scope>import</scope>`, so JUnit platform/jupiter versions were silently resolved through Spring Boot's BOM. Now correctly imported and ordered ahead of `spring-boot-dependencies` so junit-bom wins for all JUnit 6 artifacts.
+
+## 4.0.7
+
+- Fix mTLS handshake regression in `SSLContextFactory`
+  - Initialize the `SSLContext` with an explicit `TrustManagerFactory` backed by the system default trust store instead of passing `null`, fixing `(certificate_unknown) No X509TrustManager implementation available` failures observed on certain runtime configurations
+- Add missing no-arg constructor to `DefaultOAuth2TokenService`
+  - The class lacked the no-arg constructor that the migration documentation (`token-client/CUSTOM_HTTPCLIENT.md`) advertised
+  - The sibling services `DefaultOAuth2TokenKeyService` and `DefaultOidcConfigurationService` already had it; this restores symmetry
+  - The new constructor obtains a `SecurityHttpClient` via `SecurityHttpClientProvider.createClient(null)` and delegates to the existing `(SecurityHttpClient)` constructor
+- Fix multi-tenant XSUAA token exchange in `DefaultXsuaaTokenExtension`
+  - The IAS-to-XSUAA exchange used the provider subdomain endpoint, which caused XSUAA to resolve the provider tenant instead of the tenant carried in the `X-zid` header (`app_tid`)
+  - Token exchange now targets a tenant-agnostic endpoint built from the `uaadomain` binding property, so XSUAA resolves the tenant via `X-zid`
+  - For X.509 credentials the host's `authentication.` segment is replaced with `authentication.cert.` (analogous to the Node.js library), e.g. `authentication.eu10.hana.ondemand.com` → `authentication.cert.eu10.hana.ondemand.com`
+  - Falls back to the existing subdomain-bearing endpoint when `uaadomain` is missing, preserving behavior for legacy bindings
 
 ## 4.0.6
 
