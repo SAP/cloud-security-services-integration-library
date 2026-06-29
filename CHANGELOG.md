@@ -3,9 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## 4.1.0
 
-- Support additional JWT signature algorithms in `JwtSignatureValidator`. In addition to the previously supported `RS256`, tokens signed with the following RSA-based algorithms (RFC 7518 §3.3 / §3.5) can now be validated:
+- Support additional JWT signature algorithms in `JwtSignatureValidator`. In addition to the previously supported `RS256`, tokens signed with the following algorithms (RFC 7518 §3.3 / §3.4 / §3.5) can now be validated:
   - `RS384`, `RS512` (RSASSA-PKCS1-v1_5 with SHA-384 / SHA-512)
   - `PS256`, `PS384`, `PS512` (RSASSA-PSS with SHA-256 / SHA-384 / SHA-512). The corresponding `PSSParameterSpec` is set automatically before signature verification.
+  - `ES256`, `ES384`, `ES512` (ECDSA on P-256 / P-384 / P-521 with SHA-256 / SHA-384 / SHA-512). The JCA name `SHA*withECDSAinP1363Format` is used so the raw `R||S` signature format mandated by RFC 7518 §3.4 is accepted directly. EC JWKs are constructed from `crv`/`x`/`y` with strict curve and coordinate-length validation per RFC 7518 §6.2.1.
   - Selection is driven by the JWT header `alg` value. Unknown values continue to be rejected with the existing "is not supported" error.
 - Update dependencies:
   - Spring Boot: 4.0.6 → 4.1.0

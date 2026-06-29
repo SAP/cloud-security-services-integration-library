@@ -33,6 +33,9 @@ class JsonWebKeySetFactory {
 		String keyId = null;
 		String modulus = null;
 		String publicExponent = null;
+		String curve = null;
+		String xCoordinate = null;
+		String yCoordinate = null;
 
 		String keyType = key.getString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
 		if (key.has(JsonWebKeyConstants.ALG_PARAMETER_NAME)) {
@@ -50,10 +53,19 @@ class JsonWebKeySetFactory {
 		if (key.has(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME)) {
 			publicExponent = key.getString(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME);
 		}
+		if (key.has(JsonWebKeyConstants.EC_CURVE_PARAMETER_NAME)) {
+			curve = key.getString(JsonWebKeyConstants.EC_CURVE_PARAMETER_NAME);
+		}
+		if (key.has(JsonWebKeyConstants.EC_X_COORDINATE_PARAMETER_NAME)) {
+			xCoordinate = key.getString(JsonWebKeyConstants.EC_X_COORDINATE_PARAMETER_NAME);
+		}
+		if (key.has(JsonWebKeyConstants.EC_Y_COORDINATE_PARAMETER_NAME)) {
+			yCoordinate = key.getString(JsonWebKeyConstants.EC_Y_COORDINATE_PARAMETER_NAME);
+		}
 		JwtSignatureAlgorithm algorithm = keyAlgorithm != null ? JwtSignatureAlgorithm.fromValue(keyAlgorithm)
 				: JwtSignatureAlgorithm.fromType(keyType);
 
-		return new JsonWebKeyImpl(algorithm, keyId, modulus, publicExponent,
+		return new JsonWebKeyImpl(algorithm, keyId, modulus, publicExponent, curve, xCoordinate, yCoordinate,
 				pemEncodedPublicKey);
 	}
 

@@ -20,6 +20,7 @@ import java.security.KeyPairGenerator;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.ECGenParameterSpec;
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ class JwtSignatureAlgorithmTest {
 	void enum_values_areTheExpectedSet() {
 		assertThat(JwtSignatureAlgorithm.values())
 				.extracting(JwtSignatureAlgorithm::value)
-				.containsExactly("RS256", "RS384", "RS512", "PS256", "PS384", "PS512");
+				.containsExactly("RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512");
 	}
 
 	@Test
@@ -51,6 +52,7 @@ class JwtSignatureAlgorithmTest {
 
 	@Test
 	void fromType_unknown_returnsNull() {
+		// EC has no safe default — the algorithm is curve-bound and must come from the JWK's alg field
 		assertThat(JwtSignatureAlgorithm.fromType("EC")).isNull();
 		assertThat(JwtSignatureAlgorithm.fromType("oct")).isNull();
 	}
@@ -96,8 +98,23 @@ class JwtSignatureAlgorithmTest {
 
 	private static KeyPair generateKeyPair(JwtSignatureAlgorithm algorithm) throws Exception {
 		KeyPairGenerator generator = KeyPairGenerator.getInstance(algorithm.type());
-		generator.initialize(2048);
+		if ("EC".equals(algorithm.type())) {
+			// SunEC's KeyPairGenerator accepts only the standard NIST curve names (secp256r1, ...).
+			// Map from the JWK curve name (P-256, ...) to the matching NIST name.
+			generator.initialize(new ECGenParameterSpec(nistCurveName(algorithm.curveName())));
+		} else {
+			generator.initialize(2048);
+		}
 		return generator.generateKeyPair();
+	}
+
+	private static String nistCurveName(String jwkCurveName) {
+		switch (jwkCurveName) {
+			case "P-256": return "secp256r1";
+			case "P-384": return "secp384r1";
+			case "P-521": return "secp521r1";
+			default: throw new IllegalArgumentException("Unknown JWK curve: " + jwkCurveName);
+		}
 	}
 
 	private static String createSignedToken(JwtSignatureAlgorithm algorithm, KeyPair keyPair) throws Exception {
