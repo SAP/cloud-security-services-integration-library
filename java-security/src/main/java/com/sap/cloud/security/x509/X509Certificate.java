@@ -141,4 +141,15 @@ public class X509Certificate implements Certificate {
 		return this.pem;
 	}
 
+	/**
+	 * @return the certificate as bare base64-encoded DER, with PEM delimiters and all whitespace
+	 * 		removed. Safe to use as an HTTP header value (RFC 7230 forbids CR/LF in header values).
+	 */
+	public String getPEMHeaderValue() {
+		return this.pem
+				.replace("-----BEGIN CERTIFICATE-----", "")
+				.replace("-----END CERTIFICATE-----", "")
+				.replaceAll("\\s", "");
+	}
+
 }
