@@ -149,18 +149,14 @@ public class X509Certificate implements Certificate {
 	 * 		(leaf) certificate.
 	 */
 	public String getLeafCertificateAsHeaderValue() {
-		String pem = this.pem;
-		int begin = pem.indexOf("-----BEGIN CERTIFICATE-----");
-		if (begin >= 0) {
-			int end = pem.indexOf("-----END CERTIFICATE-----", begin);
-			if (end > begin) {
-				pem = pem.substring(begin, end + "-----END CERTIFICATE-----".length());
-			}
+		int begin = pem.indexOf(X509Parser.BEGIN_CERTIFICATE);
+		if (begin < 0) {
+			return pem.replaceAll("\\s", "");
 		}
-		return pem
-				.replace("-----BEGIN CERTIFICATE-----", "")
-				.replace("-----END CERTIFICATE-----", "")
-				.replaceAll("\\s", "");
+		int bodyStart = begin + X509Parser.BEGIN_CERTIFICATE.length();
+		int end = pem.indexOf(X509Parser.END_CERTIFICATE, bodyStart);
+		int bodyEnd = end > bodyStart ? end : pem.length();
+		return pem.substring(bodyStart, bodyEnd).replaceAll("\\s", "");
 	}
 
 }
