@@ -42,13 +42,13 @@ class X509CertificateTest {
 	}
 
 	@Test
-	void getPEMHeaderValue_stripsDelimitersAndWhitespace_fromMultilinePEM() {
+	void getLeafCertificateAsHeaderValue_stripsDelimitersAndWhitespace_fromMultilinePEM() {
 		String pem = "-----BEGIN CERTIFICATE-----\n"
 				+ chunk(x509_base64, 64)
 				+ "\n-----END CERTIFICATE-----\n";
 		X509Certificate fromPem = X509Certificate.newCertificate(pem);
 
-		String headerValue = fromPem.getPEMHeaderValue();
+		String headerValue = fromPem.getLeafCertificateAsHeaderValue();
 		assertThat(headerValue).isEqualTo(x509_base64);
 		assertThat(headerValue).doesNotContain("-----BEGIN");
 		assertThat(headerValue).doesNotContain("-----END");
@@ -58,7 +58,7 @@ class X509CertificateTest {
 	}
 
 	@Test
-	void getPEMHeaderValue_fromXfccUrlEncodedPEM() throws Exception {
+	void getLeafCertificateAsHeaderValue_fromXfccUrlEncodedPEM() throws Exception {
 		String pem = "-----BEGIN CERTIFICATE-----\n"
 				+ chunk(x509_base64, 64)
 				+ "\n-----END CERTIFICATE-----\n";
@@ -68,7 +68,24 @@ class X509CertificateTest {
 		X509Certificate fromXfcc = X509Certificate.newCertificate(xfcc);
 
 		assertThat(fromXfcc).isNotNull();
-		assertThat(fromXfcc.getPEMHeaderValue()).isEqualTo(x509_base64);
+		assertThat(fromXfcc.getLeafCertificateAsHeaderValue()).isEqualTo(x509_base64);
+	}
+
+	@Test
+	void getLeafCertificateAsHeaderValue_multiCertPEM_keepsOnlyFirstCert() {
+		String pem = "-----BEGIN CERTIFICATE-----\n"
+				+ chunk(x509_base64, 64)
+				+ "\n-----END CERTIFICATE-----\n"
+				+ "-----BEGIN CERTIFICATE-----\nMIIGARBITRARYSECONDCERTDATA==\n-----END CERTIFICATE-----\n";
+		X509Certificate cert = X509Certificate.newCertificate(pem);
+
+		assertThat(cert).isNotNull();
+		String headerValue = cert.getLeafCertificateAsHeaderValue();
+		assertThat(headerValue).isEqualTo(x509_base64);
+		assertThat(headerValue).doesNotContain("MIIGARBITRARYSECONDCERTDATA");
+		assertThat(headerValue).doesNotContain("-----BEGIN");
+		assertThat(headerValue).doesNotContain("-----END");
+		assertThat(headerValue).doesNotContain("\n");
 	}
 
 	private static String chunk(String s, int width) {

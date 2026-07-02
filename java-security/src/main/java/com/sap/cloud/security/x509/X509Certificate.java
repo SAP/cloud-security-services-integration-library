@@ -142,11 +142,22 @@ public class X509Certificate implements Certificate {
 	}
 
 	/**
-	 * @return the certificate as bare base64-encoded DER, with PEM delimiters and all whitespace
-	 * 		removed. Safe to use as an HTTP header value (RFC 7230 forbids CR/LF in header values).
+	 * @return the leaf certificate as bare base64-encoded DER, safe to use as an HTTP header
+	 * 		value (RFC 7230 forbids CR/LF in header values). If the PEM contains multiple
+	 * 		concatenated certificates only the first is kept — consistent with
+	 * 		{@link #getSubjectDN()} and {@link #getThumbprint()}, which also operate on the first
+	 * 		(leaf) certificate.
 	 */
-	public String getPEMHeaderValue() {
-		return this.pem
+	public String getLeafCertificateAsHeaderValue() {
+		String pem = this.pem;
+		int begin = pem.indexOf("-----BEGIN CERTIFICATE-----");
+		if (begin >= 0) {
+			int end = pem.indexOf("-----END CERTIFICATE-----", begin);
+			if (end > begin) {
+				pem = pem.substring(begin, end + "-----END CERTIFICATE-----".length());
+			}
+		}
+		return pem
 				.replace("-----BEGIN CERTIFICATE-----", "")
 				.replace("-----END CERTIFICATE-----", "")
 				.replaceAll("\\s", "");
