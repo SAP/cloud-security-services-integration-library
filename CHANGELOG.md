@@ -1,8 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 4.1.0
+## 4.0.8
 
+- Fix IAS proof-token validation regression under Istio / Kyma with `credential-type: X509_GENERATED`
+  - `SapIdJwtSignatureValidator` was setting the `x-client_cert` request header directly from `X509Certificate#getPEM()`. When the certificate originates from Istio's `x-forwarded-client-cert` (XFCC) header, the PEM includes `-----BEGIN CERTIFICATE-----` / `-----END CERTIFICATE-----` delimiters and CR/LF line breaks
+  - Since 4.0.0, the token-client HTTP transport uses Java 11's `HttpClient`, which enforces RFC 7230 and rejects any header value containing CR/LF with `IllegalArgumentException` (surfaced as `"Token signature can not be validated because: invalid header value: <PEM>"`). Every authenticated request behind Istio failed proof-token validation as a result
+  - The header value is now sanitized to bare base64-encoded DER (PEM delimiters and all whitespace stripped) before being placed on the wire. The IAS JWKS endpoint accepts this form. A new `X509Certificate#getPEMHeaderValue()` accessor keeps the sanitization next to the PEM parsing; `getPEM()`'s existing contract is unchanged
+  - `JavaHttpClientAdapter` additionally fails fast with a message naming the offending header key (not the value, which may be sensitive) if a header value ever contains CR/LF, turning any future regression from a misleading `"invalid header value: <PEM>"` into an actionable transport-layer error
 - Update dependencies:
   - Spring Boot: 4.0.6 → 4.1.0
   - Spring Framework: 7.0.7 → 7.0.8
