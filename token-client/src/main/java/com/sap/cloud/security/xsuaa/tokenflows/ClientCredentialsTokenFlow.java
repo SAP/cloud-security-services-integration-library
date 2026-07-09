@@ -17,6 +17,8 @@ import java.util.*;
 import static com.sap.cloud.security.xsuaa.Assertions.assertNotNull;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_FORMAT;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_TYPE_OPAQUE;
 import static com.sap.cloud.security.xsuaa.tokenflows.XsuaaTokenFlowsUtils.buildAuthorities;
 
 /**
@@ -30,6 +32,7 @@ public class ClientCredentialsTokenFlow {
 	private final OAuth2TokenService tokenService;
 	private boolean disableCache = false;
 	private List<String> scopes = new ArrayList<>();
+	private boolean opaque = false;
 
 	/**
 	 * Creates a new instance.
@@ -125,6 +128,17 @@ public class ClientCredentialsTokenFlow {
 	}
 
 	/**
+	 * Can be used to change the format of the returned token.
+	 *
+	 * @param opaque enables opaque token format when set to {@code true}.
+	 * @return this builder.
+	 */
+	public ClientCredentialsTokenFlow setOpaqueTokenFormat(boolean opaque) {
+		this.opaque = opaque;
+		return this;
+	}
+
+	/**
 	 * Executes the token flow and returns a JWT token from XSUAA.
 	 *
 	 * @return the encoded OAuth access token returned by XSUAA.
@@ -174,10 +188,16 @@ public class ClientCredentialsTokenFlow {
 		if (authorities != null) {
 			requestParameter.put(AUTHORITIES, authorities); // places JSON inside the URI
 		}
+
 		String scopesParameter = String.join(" ", scopes);
 		if (!scopesParameter.isEmpty()) {
 			requestParameter.put(SCOPE, scopesParameter);
 		}
+
+		if (opaque) {
+			requestParameter.put(TOKEN_FORMAT, TOKEN_TYPE_OPAQUE);
+		}
+
 		try {
 			return tokenService
 					.retrieveAccessTokenViaClientCredentialsGrant(request.getTokenEndpoint(),

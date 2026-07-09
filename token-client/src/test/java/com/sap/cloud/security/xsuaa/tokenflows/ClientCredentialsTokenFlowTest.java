@@ -7,6 +7,8 @@ package com.sap.cloud.security.xsuaa.tokenflows;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.AUTHORITIES;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.SCOPE;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_FORMAT;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.TOKEN_TYPE_OPAQUE;
 import static com.sap.cloud.security.xsuaa.tokenflows.TestConstants.*;
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -168,6 +170,44 @@ public class ClientCredentialsTokenFlowTest {
 
 		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
 
+	}
+
+	@Test
+	public void execute_withOpaqueTokenFormat() throws TokenFlowException, OAuth2ServiceException {
+		ArgumentCaptor<Map<String, String>> optionalParametersCaptor = ArgumentCaptor.forClass(Map.class);
+
+		OAuth2TokenResponse accessToken = mockRetrieveAccessToken();
+
+		OAuth2TokenResponse response = cut.execute();
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
+
+		verify(mockTokenService, times(1))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
+						isNull(), isNull(), optionalParametersCaptor.capture(), anyBoolean());
+
+		Map<String, String> optionalParameters = optionalParametersCaptor.getValue();
+		assertThat(optionalParameters).doesNotContainKey(TOKEN_FORMAT);
+
+		response = cut.setOpaqueTokenFormat(false).execute();
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
+
+		verify(mockTokenService, times(2))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
+						isNull(), isNull(), optionalParametersCaptor.capture(), anyBoolean());
+
+		optionalParameters = optionalParametersCaptor.getValue();
+		assertThat(optionalParameters).doesNotContainKey(TOKEN_FORMAT);
+
+		response = cut.setOpaqueTokenFormat(true).execute();
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
+
+		verify(mockTokenService, times(3))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
+						isNull(), isNull(), optionalParametersCaptor.capture(), anyBoolean());
+
+		optionalParameters = optionalParametersCaptor.getValue();
+		assertThat(optionalParameters).containsKey(TOKEN_FORMAT);
+		assertThat(optionalParameters.get(TOKEN_FORMAT)).isEqualTo(TOKEN_TYPE_OPAQUE);
 	}
 
 	private void verifyThatDisableCacheAttributeIs(boolean disableCache) throws OAuth2ServiceException {
