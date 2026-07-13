@@ -80,8 +80,8 @@ public class SapIdTokenTest {
 	}
 
 	@Test
-	public void getIdType_unknownClaimValue_returnsNull() {
-		assertThat(tokenWithPayload("{\"sap_id_type\":\"future-type\"}").getIdType()).isNull();
+	public void getIdType_unknownClaimValue_returnsRawString() {
+		assertThat(tokenWithPayload("{\"sap_id_type\":\"future-type\"}").getIdType()).isEqualTo("future-type");
 	}
 
 	private static SapIdToken tokenWithPayload(String payloadJson) {

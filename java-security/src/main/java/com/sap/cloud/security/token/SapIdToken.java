@@ -61,15 +61,17 @@ public class SapIdToken extends AbstractToken {
 	}
 
 	/**
-	 * Returns the principal type carried by the {@code sap_id_type} claim. Issued by SAP Cloud
-	 * Identity Service to disambiguate human end-users ({@link SapIdType#USER}) from
-	 * technical/application principals ({@link SapIdType#APP}).
+	 * Returns the raw {@code sap_id_type} claim value carried by the token. Issued by SAP Cloud
+	 * Identity Service to disambiguate human end-users from technical/application principals.
 	 *
-	 * @return the resolved {@link SapIdType}, or {@code null} if the claim is absent or carries
-	 * 		an unknown value (e.g. a future principal type).
+	 * <p>Compare against the constants in {@link SapIdType} (e.g. {@link SapIdType#USER},
+	 * {@link SapIdType#APP}) for the values known today. The raw string is returned so callers
+	 * stay forward-compatible with future IAS values that this library does not yet know about.
+	 *
+	 * @return the raw claim value, or {@code null} if the claim is absent
 	 */
 	@Nullable
-	public SapIdType getIdType() {
-		return SapIdType.fromClaimValue(getClaimAsString(TokenClaims.SAP_ID_TYPE));
+	public String getIdType() {
+		return getClaimAsString(TokenClaims.SAP_ID_TYPE);
 	}
 }

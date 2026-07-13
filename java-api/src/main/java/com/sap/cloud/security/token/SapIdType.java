@@ -5,50 +5,22 @@
  */
 package com.sap.cloud.security.token;
 
-import jakarta.annotation.Nullable;
-
 /**
- * Type of the principal an IAS-issued token belongs to. Mirrors the {@code sap_id_type} JWT claim
- * issued by SAP Cloud Identity Service.
+ * Known values of the {@code sap_id_type} JWT claim issued by SAP Cloud Identity Service.
+ *
+ * <p>Exposed as string constants rather than an enum so that consumers remain forward-compatible
+ * with values introduced by future IAS versions: {@link SapIdToken#getIdType()} returns the raw
+ * claim string, and callers can compare against the constants defined here for the values known
+ * today.
  */
-public enum SapIdType {
+public final class SapIdType {
+
 	/** Human end-user principal. */
-	USER("user"),
+	public static final String USER = "user";
+
 	/** Technical / application principal. */
-	APP("app");
+	public static final String APP = "app";
 
-	private final String claimValue;
-
-	SapIdType(String claimValue) {
-		this.claimValue = claimValue;
-	}
-
-	/**
-	 * Returns the raw claim value used on the wire.
-	 *
-	 * @return the raw claim value as it appears in the JWT (e.g. {@code "user"} or {@code "app"}).
-	 */
-	public String claimValue() {
-		return claimValue;
-	}
-
-	/**
-	 * Resolves a {@link SapIdType} from a raw {@code sap_id_type} claim value.
-	 *
-	 * @param value the claim value, may be {@code null}
-	 * @return the matching {@link SapIdType}, or {@code null} if {@code value} is {@code null} or
-	 * 		does not match a known type (forward-compatibility for future values)
-	 */
-	@Nullable
-	public static SapIdType fromClaimValue(@Nullable String value) {
-		if (value == null) {
-			return null;
-		}
-		for (SapIdType t : values()) {
-			if (t.claimValue.equals(value)) {
-				return t;
-			}
-		}
-		return null;
+	private SapIdType() {
 	}
 }

@@ -241,6 +241,17 @@ public class DefaultIdTokenExtensionTest {
   }
 
   @Test
+  public void resolveToken_sapIdTypeUnknownClaim_conservativelyTreatedAsTechnicalUser() {
+    // Any value other than "user" — including future IAS values this library does not yet know
+    // — must be treated as technical to avoid attempting an unintended token exchange.
+    SecurityContext.setToken(sapIdTokenWithPayload(
+        "{\"sap_id_type\":\"agent\",\"sub\":\"human\",\"azp\":\"" + clientId + "\"}"));
+
+    assertThatThrownBy(() -> cut.resolveIdToken(null))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
   public void resolveToken_sapIdTypeUserClaim_overridesSubEqualsAzpHeuristic()
       throws OAuth2ServiceException {
     // sub == azp would have flagged this as technical under the legacy heuristic; the explicit
