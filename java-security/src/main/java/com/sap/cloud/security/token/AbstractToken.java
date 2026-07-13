@@ -95,7 +95,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public boolean isExpired() {
-		return getExpiration() == null || getExpiration().isBefore(Instant.now());
+		return getExpiration() == null || getExpiration().plus(EXPIRATION_LEEWAY).isBefore(Instant.now());
 	}
 
 	@Nullable
