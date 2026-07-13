@@ -17,8 +17,6 @@ import jakarta.annotation.Nullable;
 import java.io.Serial;
 import java.security.Principal;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -97,7 +95,7 @@ public abstract class AbstractToken implements Token {
 
 	@Override
 	public boolean isExpired() {
-		return getExpiration() == null || getExpiration().isBefore(LocalDateTime.now().toInstant(ZoneOffset.UTC));
+		return getExpiration() == null || getExpiration().plus(EXPIRATION_LEEWAY).isBefore(Instant.now());
 	}
 
 	@Nullable
