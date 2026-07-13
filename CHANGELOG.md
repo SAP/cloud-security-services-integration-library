@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.1.0
+
+- Expose the `sap_id_type` claim on `SapIdToken`
+  - New `SapIdToken#getIdType()` returning a typed `SapIdType` enum (`USER`, `APP`); resolves to `null` if the claim is absent or carries an unknown value
+  - New `TokenClaims.SAP_ID_TYPE` constant
+  - `DefaultIdTokenExtension#isTechnicalUser` now prefers the `sap_id_type` claim and falls back to the `sub == azp` heuristic for tokens issued before the claim was introduced
+
 ## 4.0.8
 
 - Fix IAS proof-token validation regression under Istio / Kyma with `credential-type: X509_GENERATED`
