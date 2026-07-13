@@ -42,6 +42,62 @@ class X509CertificateTest {
 	}
 
 	@Test
+	void getLeafCertificateAsHeaderValue_stripsDelimitersAndWhitespace_fromMultilinePEM() {
+		String pem = "-----BEGIN CERTIFICATE-----\n"
+				+ chunk(x509_base64, 64)
+				+ "\n-----END CERTIFICATE-----\n";
+		X509Certificate fromPem = X509Certificate.newCertificate(pem);
+
+		String headerValue = fromPem.getLeafCertificateAsHeaderValue();
+		assertThat(headerValue).isEqualTo(x509_base64);
+		assertThat(headerValue).doesNotContain("-----BEGIN");
+		assertThat(headerValue).doesNotContain("-----END");
+		assertThat(headerValue).doesNotContain("\n");
+		assertThat(headerValue).doesNotContain("\r");
+		assertThat(headerValue).doesNotContain(" ");
+	}
+
+	@Test
+	void getLeafCertificateAsHeaderValue_fromXfccUrlEncodedPEM() throws Exception {
+		String pem = "-----BEGIN CERTIFICATE-----\n"
+				+ chunk(x509_base64, 64)
+				+ "\n-----END CERTIFICATE-----\n";
+		String xfcc = "Hash=abc;Cert=\""
+				+ java.net.URLEncoder.encode(pem, java.nio.charset.StandardCharsets.UTF_8)
+				+ "\"";
+		X509Certificate fromXfcc = X509Certificate.newCertificate(xfcc);
+
+		assertThat(fromXfcc).isNotNull();
+		assertThat(fromXfcc.getLeafCertificateAsHeaderValue()).isEqualTo(x509_base64);
+	}
+
+	@Test
+	void getLeafCertificateAsHeaderValue_multiCertPEM_keepsOnlyFirstCert() {
+		String pem = "-----BEGIN CERTIFICATE-----\n"
+				+ chunk(x509_base64, 64)
+				+ "\n-----END CERTIFICATE-----\n"
+				+ "-----BEGIN CERTIFICATE-----\nMIIGARBITRARYSECONDCERTDATA==\n-----END CERTIFICATE-----\n";
+		X509Certificate cert = X509Certificate.newCertificate(pem);
+
+		assertThat(cert).isNotNull();
+		String headerValue = cert.getLeafCertificateAsHeaderValue();
+		assertThat(headerValue).isEqualTo(x509_base64);
+		assertThat(headerValue).doesNotContain("MIIGARBITRARYSECONDCERTDATA");
+		assertThat(headerValue).doesNotContain("-----BEGIN");
+		assertThat(headerValue).doesNotContain("-----END");
+		assertThat(headerValue).doesNotContain("\n");
+	}
+
+	private static String chunk(String s, int width) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i += width) {
+			if (i > 0) sb.append('\n');
+			sb.append(s, i, Math.min(i + width, s.length()));
+		}
+		return sb.toString();
+	}
+
+	@Test
 	void getSubjectDN() {
 		assertThat(cut.getSubjectDN()).isEqualTo(
 				"CN=bdcd300c-b202-4a7a-bb95-2a7e6d15fe47/2b585405-d391-4986-b76d-b4f24685f3c8, L=aoxk2addh.accounts400.ondemand.com, OU=8e1affb2-62a1-43cc-a687-2ba75e4b3d84, OU=Canary, OU=SAP Cloud Platform Clients, O=SAP SE, C=DE");
