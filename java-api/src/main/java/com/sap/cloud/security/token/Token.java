@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.security.Principal;
 import java.security.ProviderException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
@@ -34,6 +35,17 @@ public interface Token extends Serializable {
 	};
 
 	String DEFAULT_TOKEN_FACTORY = "com.sap.cloud.security.servlet.HybridTokenFactory";
+
+	/**
+	 * Clock skew allowance applied when interpreting the {@code exp} and {@code nbf} claims.
+	 * <p>
+	 * A token is treated as still usable up to this duration past its {@code exp} timestamp, and
+	 * as acceptable up to this duration before its {@code nbf} timestamp. The same value is used
+	 * by {@link #isExpired()} on the caller side and by the timestamp validator on the receiver
+	 * side, so a caller that sees {@code !isExpired()} can rely on the receiver not rejecting the
+	 * token purely on clock drift.
+	 */
+	Duration EXPIRATION_LEEWAY = Duration.ofMinutes(1);
 
 	/**
 	 * Creates a token instance based on TokenFactory implementation.
@@ -132,7 +144,8 @@ public interface Token extends Serializable {
 	Instant getExpiration();
 
 	/**
-	 * Returns true if the token is expired.
+	 * Returns true if the token is expired, allowing for a small {@link #EXPIRATION_LEEWAY} past
+	 * the {@code exp} timestamp to account for clock skew between systems.
 	 *
 	 * @return true if the token is expired.
 	 */

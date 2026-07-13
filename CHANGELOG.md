@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.5
+
+- Introduce a 1-minute clock-skew leeway on `Token#isExpired()`
+  - `Token.EXPIRATION_LEEWAY` (public constant) makes the sender-side tolerance match the value the `JwtTimestampValidator` already used on the receiver side, so both cannot drift apart
+  - Callers that see `!isExpired()` can now rely on the receiver accepting the token for a few more seconds — mirrors the behavior of the Node.js `@sap/xssec` library
+
 ## 3.7.4
 
 - Fix mTLS handshake regression introduced in 3.6.7 (`SSLContextFactory`)
