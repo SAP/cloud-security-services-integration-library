@@ -114,6 +114,28 @@ class AbstractTokenTest {
 	}
 
 	@Test
+	void tokenWithinExpirationLeeway_isNotExpired() {
+		// Token expired 30 seconds ago; the 1-minute leeway must still cover it.
+		AbstractToken tokenJustExpired = new MockTokenBuilder()
+				.withExpiration(Instant.now().minusSeconds(30))
+				.build();
+		when(tokenJustExpired.isExpired()).thenCallRealMethod();
+
+		assertThat(tokenJustExpired.isExpired()).isFalse();
+	}
+
+	@Test
+	void tokenBeyondExpirationLeeway_isExpired() {
+		// Token expired well past the 1-minute leeway.
+		AbstractToken tokenLongExpired = new MockTokenBuilder()
+				.withExpiration(Instant.now().minusSeconds(120))
+				.build();
+		when(tokenLongExpired.isExpired()).thenCallRealMethod();
+
+		assertThat(tokenLongExpired.isExpired()).isTrue();
+	}
+
+	@Test
 	void getNotBefore_notContained_shouldBeNull() {
 		assertThat(String.valueOf(cut.getNotBefore().toEpochMilli())).startsWith("1572017569"); // consider iat
 	}
