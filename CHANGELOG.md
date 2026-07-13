@@ -19,6 +19,9 @@ All notable changes to this project will be documented in this file.
   - jacoco-maven-plugin: 0.8.14 → 0.8.15
   - central-publishing-maven-plugin: 0.10.0 → 0.11.0
 - Fix `junit-bom` import in the root pom — entry was missing `<type>pom</type><scope>import</scope>`, so JUnit platform/jupiter versions were silently resolved through Spring Boot's BOM. Now correctly imported and ordered ahead of `spring-boot-dependencies` so junit-bom wins for all JUnit 6 artifacts.
+- Introduce a 1-minute clock-skew leeway on `Token#isExpired()`
+  - `Token.EXPIRATION_LEEWAY` (public constant) makes the sender-side tolerance match the value the `JwtTimestampValidator` already used on the receiver side, so both cannot drift apart
+  - Callers that see `!isExpired()` can now rely on the receiver accepting the token for a few more seconds — mirrors the behavior of the Node.js `sap-cloud-security-xsuaa`/`services` libraries
 
 ## 4.0.7
 
