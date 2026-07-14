@@ -160,6 +160,8 @@ public class ClientCredentialsTokenFlow {
 
 		if (opaque) {
 			requestParameter.put(TOKEN_FORMAT, TOKEN_TYPE_OPAQUE);
+		} else {
+			requestParameter.remove(TOKEN_FORMAT);
 		}
 
 		try {

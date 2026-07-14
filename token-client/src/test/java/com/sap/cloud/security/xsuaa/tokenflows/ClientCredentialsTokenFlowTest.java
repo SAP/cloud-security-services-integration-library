@@ -221,6 +221,16 @@ public class ClientCredentialsTokenFlowTest {
 		optionalParameters = optionalParametersCaptor.getValue();
 		assertThat(optionalParameters).containsKey(TOKEN_FORMAT);
 		assertThat(optionalParameters.get(TOKEN_FORMAT)).isEqualTo(TOKEN_TYPE_OPAQUE);
+
+		response = cut.setOpaqueTokenFormat(false).execute();
+		assertThat(response.getAccessToken()).isSameAs(accessToken.getAccessToken());
+
+		verify(mockTokenService, times(4))
+				.retrieveAccessTokenViaClientCredentialsGrant(eq(TOKEN_ENDPOINT_URI), eq(clientIdentity),
+						isNull(), isNull(), optionalParametersCaptor.capture(), anyBoolean());
+
+		optionalParameters = optionalParametersCaptor.getValue();
+		assertThat(optionalParameters).doesNotContainKey(TOKEN_FORMAT);
 	}
 
 	private void verifyThatDisableCacheAttributeIs(boolean disableCache) throws OAuth2ServiceException {
