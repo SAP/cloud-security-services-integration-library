@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -42,6 +43,7 @@ public class JwtValidatorBuilder {
 	private OAuth2TokenKeyService tokenKeyService = null;
 	private Validator<Token> customAudienceValidator;
 	private CacheConfiguration tokenKeyCacheConfiguration;
+	private SecurityCache<String, String> securityCache;
 	private boolean isTenantIdCheckDisabled;
 	private boolean isProofTokenCheckEnabled;
 
@@ -90,6 +92,22 @@ public class JwtValidatorBuilder {
 	 */
 	public JwtValidatorBuilder withCacheConfiguration(CacheConfiguration tokenKeyCacheConfiguration) {
 		this.tokenKeyCacheConfiguration = tokenKeyCacheConfiguration;
+		return this;
+	}
+
+	/**
+	 * Wires a shared {@link SecurityCache} into the JWKS and OIDC caches so that a rolling deploy
+	 * or a cache eviction does not force every pod to refetch from XSUAA / IAS.
+	 *
+	 * <p>The same cache instance is reused by both caches — key namespaces keep the entries apart.
+	 * Pass {@code null} to fall back to the built-in in-memory cache.
+	 *
+	 * @param securityCache the cache to use, or {@code null}
+	 * @return this builder
+	 * @since 4.1.0
+	 */
+	public JwtValidatorBuilder withSecurityCache(SecurityCache<String, String> securityCache) {
+		this.securityCache = securityCache;
 		return this;
 	}
 
@@ -260,19 +278,24 @@ public class JwtValidatorBuilder {
 	}
 
 	private OAuth2TokenKeyServiceWithCache getTokenKeyServiceWithCache() {
-		if (tokenKeyService != null) {
-			return OAuth2TokenKeyServiceWithCache.getInstance()
-					.withTokenKeyService(tokenKeyService);
+		OAuth2TokenKeyServiceWithCache instance = tokenKeyService != null
+				? OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyService)
+				: OAuth2TokenKeyServiceWithCache.getInstance();
+		if (securityCache != null) {
+			instance.withSecurityCache(securityCache);
 		}
-		return OAuth2TokenKeyServiceWithCache.getInstance();
+		return instance;
 	}
 
 	private OidcConfigurationServiceWithCache getOidcConfigurationServiceWithCache() {
-		if (oidcConfigurationService != null) {
-			return OidcConfigurationServiceWithCache.getInstance()
-					.withOidcConfigurationService(oidcConfigurationService);
+		OidcConfigurationServiceWithCache instance = oidcConfigurationService != null
+				? OidcConfigurationServiceWithCache.getInstance()
+						.withOidcConfigurationService(oidcConfigurationService)
+				: OidcConfigurationServiceWithCache.getInstance();
+		if (securityCache != null) {
+			instance.withSecurityCache(securityCache);
 		}
-		return OidcConfigurationServiceWithCache.getInstance();
+		return instance;
 	}
 
 }

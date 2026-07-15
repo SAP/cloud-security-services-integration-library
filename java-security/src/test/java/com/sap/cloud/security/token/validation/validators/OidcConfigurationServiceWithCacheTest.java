@@ -64,7 +64,12 @@ public class OidcConfigurationServiceWithCacheTest {
 
 	@Test
 	public void retrieveEndpoints() throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+		when(oidcEndpointsProviderMock.getTokenEndpoint()).thenReturn(URI.create("https://myauth.com/oauth/token"));
+		when(oidcEndpointsProviderMock.getAuthorizeEndpoint()).thenReturn(URI.create("https://myauth.com/oauth/authorize"));
+		when(oidcEndpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks"));
+
 		OAuth2ServiceEndpointsProvider endpointsProvider = cut.getOrRetrieveEndpoints(DISCOVERY_URI);
+		// Fresh request bypasses the cache — the mock instance is returned unchanged.
 		Assertions.assertThat(endpointsProvider).isSameAs(oidcEndpointsProviderMock);
 
 		Mockito.verify(oidcConfigServiceMock, times(1))
@@ -73,11 +78,21 @@ public class OidcConfigurationServiceWithCacheTest {
 
 	@Test
 	public void getCachedEndpoints() throws OAuth2ServiceException {
-		OAuth2ServiceEndpointsProvider endpointsProvider = cut.getOrRetrieveEndpoints(DISCOVERY_URI);
+		when(oidcEndpointsProviderMock.getTokenEndpoint()).thenReturn(URI.create("https://myauth.com/oauth/token"));
+		when(oidcEndpointsProviderMock.getAuthorizeEndpoint()).thenReturn(URI.create("https://myauth.com/oauth/authorize"));
+		when(oidcEndpointsProviderMock.getJwksUri()).thenReturn(URI.create("https://myauth.com/jwks"));
 
+		OAuth2ServiceEndpointsProvider endpointsProvider = cut.getOrRetrieveEndpoints(DISCOVERY_URI);
 		OAuth2ServiceEndpointsProvider cachedEndpointsProvider = cut.getOrRetrieveEndpoints(DISCOVERY_URI);
+
 		Assertions.assertThat(cachedEndpointsProvider).isNotNull();
-		Assertions.assertThat(cachedEndpointsProvider).isSameAs(endpointsProvider);
+		// Since 4.1.0 the cached entry is reconstructed from a JSON envelope — same URIs, new instance.
+		Assertions.assertThat(cachedEndpointsProvider.getTokenEndpoint())
+				.isEqualTo(endpointsProvider.getTokenEndpoint());
+		Assertions.assertThat(cachedEndpointsProvider.getAuthorizeEndpoint())
+				.isEqualTo(endpointsProvider.getAuthorizeEndpoint());
+		Assertions.assertThat(cachedEndpointsProvider.getJwksUri())
+				.isEqualTo(endpointsProvider.getJwksUri());
 
 		Mockito.verify(oidcConfigServiceMock, times(1))
 				.retrieveEndpoints(DISCOVERY_URI);
