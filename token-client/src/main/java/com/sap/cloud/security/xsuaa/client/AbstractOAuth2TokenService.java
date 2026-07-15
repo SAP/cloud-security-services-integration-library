@@ -359,10 +359,12 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
     }
 
     OAuth2TokenResponse response =
-        singleFlight(cacheKey, () -> requestAccessToken(tokenEndpoint, headers, parameters));
-    // Store the freshly-fetched value; if it lives past its useful window the next lookup will
-    // detect the near-expiry via isSoonExpired and refresh again.
-    safeSet(cacheKey, serialize(response), tokenCacheConfiguration.getCacheDuration());
+        singleFlight(
+            cacheKey,
+            () -> requestAccessToken(tokenEndpoint, headers, parameters),
+            fetched ->
+                safeSet(
+                    cacheKey, serialize(fetched), tokenCacheConfiguration.getCacheDuration()));
     logDebug(response);
     return response;
   }
@@ -388,12 +390,16 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
   }
 
   private OAuth2TokenResponse singleFlight(
-      final String cacheKey, final CheckedSupplier supplier) throws OAuth2ServiceException {
+      final String cacheKey,
+      final CheckedSupplier supplier,
+      final java.util.function.Consumer<OAuth2TokenResponse> onFreshFetch)
+      throws OAuth2ServiceException {
     // Atomically get-or-create the CF the fetch will complete into.
     CompletableFuture<OAuth2TokenResponse> ours = new CompletableFuture<>();
     CompletableFuture<OAuth2TokenResponse> existing = inFlight.putIfAbsent(cacheKey, ours);
     if (existing != null) {
-      // Another thread is fetching. Await its result.
+      // Another thread is fetching. Await its result. Waiters do NOT write to the cache — the
+      // fetcher does that exactly once, avoiding N redundant round-trips to a distributed store.
       try {
         return existing.get();
       } catch (InterruptedException ie) {
@@ -415,6 +421,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
     // We are the fetcher.
     try {
       OAuth2TokenResponse fetched = supplier.get();
+      onFreshFetch.accept(fetched);
       ours.complete(fetched);
       return fetched;
     } catch (OAuth2ServiceException | RuntimeException e) {

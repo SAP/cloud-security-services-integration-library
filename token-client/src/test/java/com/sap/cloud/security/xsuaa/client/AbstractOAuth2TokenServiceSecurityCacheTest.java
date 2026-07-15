@@ -118,6 +118,86 @@ class AbstractOAuth2TokenServiceSecurityCacheTest {
     }
   }
 
+  @Test
+  void singleFlight_threeConcurrentMisses_writeCacheOnce() throws Exception {
+    RecordingCache cache = new RecordingCache();
+    SlowFetchService svc =
+        new SlowFetchService(TokenCacheConfiguration.defaultConfiguration(), cache);
+    ExecutorService pool = Executors.newFixedThreadPool(3);
+    try {
+      CountDownLatch bothStarted = new CountDownLatch(1);
+      svc.releaseFetch = bothStarted;
+
+      Future<OAuth2TokenResponse> f1 =
+          pool.submit(
+              () ->
+                  svc.retrieveAccessTokenViaClientCredentialsGrant(
+                      URI_TOKEN, CLIENT, null, null, null, false));
+      Future<OAuth2TokenResponse> f2 =
+          pool.submit(
+              () ->
+                  svc.retrieveAccessTokenViaClientCredentialsGrant(
+                      URI_TOKEN, CLIENT, null, null, null, false));
+      Future<OAuth2TokenResponse> f3 =
+          pool.submit(
+              () ->
+                  svc.retrieveAccessTokenViaClientCredentialsGrant(
+                      URI_TOKEN, CLIENT, null, null, null, false));
+
+      Thread.sleep(200);
+      bothStarted.countDown();
+
+      f1.get(5, TimeUnit.SECONDS);
+      f2.get(5, TimeUnit.SECONDS);
+      f3.get(5, TimeUnit.SECONDS);
+
+      // One fetch, one cache write — no matter how many waiters there are.
+      assertThat(svc.calls.get()).isEqualTo(1);
+      assertThat(cache.setCount.get()).isEqualTo(1);
+    } finally {
+      pool.shutdownNow();
+    }
+  }
+
+  @Test
+  void singleFlight_fetcherFails_waitersSeeSameException() throws Exception {
+    FailingFetchService svc =
+        new FailingFetchService(TokenCacheConfiguration.defaultConfiguration());
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      CountDownLatch release = new CountDownLatch(1);
+      svc.release = release;
+
+      Future<OAuth2TokenResponse> f1 =
+          pool.submit(
+              () ->
+                  svc.retrieveAccessTokenViaClientCredentialsGrant(
+                      URI_TOKEN, CLIENT, null, null, null, false));
+      Future<OAuth2TokenResponse> f2 =
+          pool.submit(
+              () ->
+                  svc.retrieveAccessTokenViaClientCredentialsGrant(
+                      URI_TOKEN, CLIENT, null, null, null, false));
+
+      Thread.sleep(150);
+      release.countDown();
+
+      assertThat(catchThrowable(f1)).hasRootCauseMessage("fetch failed");
+      assertThat(catchThrowable(f2)).hasRootCauseMessage("fetch failed");
+    } finally {
+      pool.shutdownNow();
+    }
+  }
+
+  private static Throwable catchThrowable(Future<?> f) {
+    try {
+      f.get(5, TimeUnit.SECONDS);
+      return null;
+    } catch (Exception e) {
+      return e;
+    }
+  }
+
   // --- test doubles ---
 
   private static final class SingleFlightService extends AbstractOAuth2TokenService {
@@ -149,6 +229,10 @@ class AbstractOAuth2TokenServiceSecurityCacheTest {
       super(cfg);
     }
 
+    SlowFetchService(TokenCacheConfiguration cfg, SecurityCache<String, String> cache) {
+      super(cfg, cache);
+    }
+
     @Override
     protected OAuth2TokenResponse requestAccessToken(
         URI tokenEndpointUri, HttpHeaders headers, Map<String, String> parameters) {
@@ -165,6 +249,28 @@ class AbstractOAuth2TokenServiceSecurityCacheTest {
       }
       return new OAuth2TokenResponse(
           "access", null, "bearer", Instant.now().plus(Duration.ofHours(1)).toEpochMilli());
+    }
+  }
+
+  private static final class FailingFetchService extends AbstractOAuth2TokenService {
+    volatile CountDownLatch release;
+
+    FailingFetchService(TokenCacheConfiguration cfg) {
+      super(cfg);
+    }
+
+    @Override
+    protected OAuth2TokenResponse requestAccessToken(
+        URI tokenEndpointUri, HttpHeaders headers, Map<String, String> parameters)
+        throws OAuth2ServiceException {
+      try {
+        if (release != null) {
+          release.await(3, TimeUnit.SECONDS);
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+      throw new OAuth2ServiceException("fetch failed");
     }
   }
 
