@@ -110,7 +110,10 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		PublicKey key = cut.getPublicKey(keyParameters, PARAMS);
 		PublicKey cachedKey = cut.getPublicKey(keyParameters, PARAMS);
 
-		assertThat(cachedKey).isNotNull().isSameAs(key);
+		// Since 4.1.0 cached JWKS travels through JSON (SecurityCache SPI) so the reconstructed
+		// PublicKey is a fresh instance. RSA PublicKey#equals compares modulus + exponent, so
+		// structural equality is sufficient here.
+		assertThat(cachedKey).isNotNull().isEqualTo(key);
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), eq(PARAMS));
 	}
 
@@ -144,7 +147,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 		PublicKey key = cut.getPublicKey(keyParameters, params);
 		PublicKey cachedKey = cut.getPublicKey(keyParameters, params);
 
-		assertThat(cachedKey).isNotNull().isSameAs(key);
+		assertThat(cachedKey).isNotNull().isEqualTo(key);
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), eq(params));
 	}
 
