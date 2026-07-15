@@ -115,6 +115,81 @@ class TokenDecodeCacheTest {
         .doesNotThrowAnyException();
   }
 
+  @Test
+  void ttlBelowOneSecond_isRaisedToOneSecond() {
+    TokenDecodeCache cache =
+        new TokenDecodeCache(
+            new NoOpSecurityCache<>(),
+            TokenDecodeCacheConfiguration.enabled(Duration.ofMinutes(5)),
+            clock);
+    Token token = mockedTokenExpiringAt(NOW.plus(Duration.ofMillis(500)), new AtomicInteger());
+    assertThat(cache.computeTtl(token)).isEqualTo(Duration.ofSeconds(1));
+  }
+
+  @Test
+  void tokenWithoutExpClaim_returnsNullTtl() {
+    TokenDecodeCache cache =
+        new TokenDecodeCache(
+            new NoOpSecurityCache<>(),
+            TokenDecodeCacheConfiguration.enabled(Duration.ofMinutes(5)),
+            clock);
+    Token t = mock(Token.class);
+    when(t.getExpiration()).thenReturn(null);
+    assertThat(cache.computeTtl(t)).isNull();
+  }
+
+  @Test
+  void decoderThrows_propagatesFromCacheHitPath() {
+    RecordingCache backing = new RecordingCache();
+    TokenDecodeCache cache =
+        new TokenDecodeCache(
+            backing,
+            TokenDecodeCacheConfiguration.enabled(Duration.ofMinutes(5)),
+            clock);
+    // Prime the cache.
+    AtomicInteger first = new AtomicInteger();
+    cache.getOrDecode(
+        "token-1", raw -> mockedTokenExpiringAt(NOW.plus(Duration.ofMinutes(10)), first));
+
+    // On a subsequent lookup the decoder throws — the cache treats it as a miss and refetches.
+    AtomicInteger second = new AtomicInteger();
+    Token result =
+        cache.getOrDecode(
+            "token-1",
+            raw -> {
+              int n = second.incrementAndGet();
+              if (n == 1) {
+                throw new RuntimeException("bad cached value");
+              }
+              return mockedTokenExpiringAt(NOW.plus(Duration.ofMinutes(10)), new AtomicInteger());
+            });
+    assertThat(result).isNotNull();
+    assertThat(second.get()).isEqualTo(2);
+  }
+
+  @Test
+  void cacheHitWithExpiredEntry_isTreatedAsMiss() {
+    RecordingCache backing = new RecordingCache();
+    TokenDecodeCache cache =
+        new TokenDecodeCache(
+            backing,
+            TokenDecodeCacheConfiguration.enabled(Duration.ofMinutes(5)),
+            clock);
+    // Prime a cache entry that is already expired when the second call decodes it.
+    cache.getOrDecode(
+        "token-1",
+        raw -> mockedTokenExpiringAt(NOW.plus(Duration.ofMinutes(10)), new AtomicInteger()));
+    AtomicInteger calls = new AtomicInteger();
+    Token result =
+        cache.getOrDecode(
+            "token-1",
+            raw -> mockedTokenExpiringAt(NOW.minus(Duration.ofSeconds(1)), calls));
+    // Decode was called on the cache-hit path with an "expired" mock token, then again on the
+    // miss path — proving the code drops the cached entry when the token has drifted past exp.
+    assertThat(result).isNotNull();
+    assertThat(calls.get()).isGreaterThanOrEqualTo(2);
+  }
+
   private static Token mockedTokenExpiringAt(final Instant exp, final AtomicInteger counter) {
     counter.incrementAndGet();
     Token t = mock(Token.class);

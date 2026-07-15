@@ -7,6 +7,11 @@
 package com.sap.cloud.security.cache.jcache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import javax.cache.Cache;
@@ -65,5 +70,41 @@ class JCacheSecurityCacheTest {
     cut.clear();
     assertThat(cut.get("k1")).isEmpty();
     assertThat(cut.get("k2")).isEmpty();
+  }
+
+  @Test
+  void get_swallowsRuntimeExceptionAndReturnsEmpty() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> broken = mock(Cache.class);
+    when(broken.get(any())).thenThrow(new RuntimeException("boom"));
+    JCacheSecurityCache adapter = new JCacheSecurityCache(broken);
+    assertThat(adapter.get("k")).isEmpty();
+  }
+
+  @Test
+  void set_swallowsRuntimeException() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> broken = mock(Cache.class);
+    doThrow(new RuntimeException("boom")).when(broken).put(any(), any());
+    JCacheSecurityCache adapter = new JCacheSecurityCache(broken);
+    assertThatCode(() -> adapter.set("k", "v", null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void delete_swallowsRuntimeException() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> broken = mock(Cache.class);
+    when(broken.remove(any())).thenThrow(new RuntimeException("boom"));
+    JCacheSecurityCache adapter = new JCacheSecurityCache(broken);
+    assertThatCode(() -> adapter.delete("k")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void clear_swallowsRuntimeException() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> broken = mock(Cache.class);
+    doThrow(new RuntimeException("boom")).when(broken).clear();
+    JCacheSecurityCache adapter = new JCacheSecurityCache(broken);
+    assertThatCode(adapter::clear).doesNotThrowAnyException();
   }
 }
