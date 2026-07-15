@@ -30,8 +30,12 @@ import org.springframework.context.annotation.Configuration;
  *   <li>A Spring {@link CacheManager} bean holding a cache named {@code sap-security} (or the name
  *       configured via {@code sap.security.cache.distributed.cache-name}).
  *   <li>A JSR-107 {@link javax.cache.CacheManager} bean holding a cache with the same name.
- *   <li>Nothing — the library falls back to its in-memory Caffeine cache.
  * </ol>
+ *
+ * <p>If none of the above resolves to a real backing store the application context fails to start
+ * with an {@link IllegalStateException}. Silently falling back to a no-op cache would defeat the
+ * library's built-in Caffeine cache, so this class fails fast rather than run without any cache at
+ * all.
  *
  * <p>The token-client SPI and the java-security JWKS/OIDC caches will pick up this bean via their
  * respective configuration hooks in {@link
@@ -59,7 +63,6 @@ public class SecurityCacheAutoConfiguration {
     String cacheName =
         env.getProperty(DEFAULT_CACHE_NAME_PROPERTY, DEFAULT_CACHE_NAME);
 
-    // 1) Spring CacheManager
     CacheManager springMgr = springCacheManagerProvider.getIfAvailable();
     if (springMgr != null) {
       Cache spring = springMgr.getCache(cacheName);
@@ -74,7 +77,6 @@ public class SecurityCacheAutoConfiguration {
           cacheName);
     }
 
-    // 2) JSR-107 (JCache) CacheManager — optional; only wired if the class is on the classpath.
     try {
       Class<?> jcacheClass = Class.forName("javax.cache.CacheManager");
       Object jcacheMgr;
@@ -84,18 +86,32 @@ public class SecurityCacheAutoConfiguration {
         jcacheMgr = null;
       }
       if (jcacheMgr != null) {
-        return new JCacheSecurityCacheAdapterFactory(cacheName).build(jcacheMgr);
+        SecurityCache adapter = new JCacheSecurityCacheAdapterFactory(cacheName).build(jcacheMgr);
+        if (adapter != null) {
+          logger.info(
+              "Wiring SecurityCache to JCache CacheManager cache '{}'",
+              cacheName);
+          return adapter;
+        }
+        throw new IllegalStateException(
+            "sap.security.cache.distributed.enabled=true and a javax.cache.CacheManager bean is"
+                + " present, but no cache named '"
+                + cacheName
+                + "' with <String, String> could be resolved. Provide a matching cache, override"
+                + " sap.security.cache.distributed.cache-name, or set enabled=false.");
       }
     } catch (final ClassNotFoundException e) {
       // javax.cache-api not on classpath — ignore.
     }
 
-    // 3) Nothing — fall back to no-op so we don't accidentally shadow the library's built-in cache.
-    logger.info(
-        "sap.security.cache.distributed.enabled=true but no Spring CacheManager cache named '{}' "
-            + "and no javax.cache.CacheManager bean was found. Falling back to library default.",
-        cacheName);
-    return new com.sap.cloud.security.cache.NoOpSecurityCache<>();
+    throw new IllegalStateException(
+        "sap.security.cache.distributed.enabled=true but no backing store was found. Provide"
+            + " either a SecurityCache<String,String> bean, a Spring CacheManager bean holding a"
+            + " cache named '"
+            + cacheName
+            + "', or a javax.cache.CacheManager bean holding one. Alternatively set"
+            + " sap.security.cache.distributed.enabled=false to keep using the library's built-in"
+            + " Caffeine cache.");
   }
 
   /**
@@ -112,12 +128,11 @@ public class SecurityCacheAutoConfiguration {
     @SuppressWarnings({"rawtypes", "unchecked"})
     SecurityCache build(final Object jcacheManager) {
       try {
-        // We only reach this branch when javax.cache.CacheManager is present.
         java.lang.reflect.Method getCache =
             jcacheManager.getClass().getMethod("getCache", String.class, Class.class, Class.class);
         Object cache = getCache.invoke(jcacheManager, cacheName, String.class, String.class);
         if (cache == null) {
-          return new com.sap.cloud.security.cache.NoOpSecurityCache<>();
+          return null;
         }
         Class<?> adapterClass =
             Class.forName("com.sap.cloud.security.cache.jcache.JCacheSecurityCache");
@@ -126,7 +141,7 @@ public class SecurityCacheAutoConfiguration {
                 .getConstructor(Class.forName("javax.cache.Cache"))
                 .newInstance(cache);
       } catch (final ReflectiveOperationException e) {
-        return new com.sap.cloud.security.cache.NoOpSecurityCache<>();
+        return null;
       }
     }
   }

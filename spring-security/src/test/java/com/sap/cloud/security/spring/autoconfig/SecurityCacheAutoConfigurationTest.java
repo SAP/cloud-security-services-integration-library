@@ -8,7 +8,6 @@ package com.sap.cloud.security.spring.autoconfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sap.cloud.security.cache.NoOpSecurityCache;
 import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.spring.cache.SpringCacheSecurityCache;
 import java.time.Duration;
@@ -60,14 +59,42 @@ class SecurityCacheAutoConfigurationTest {
   }
 
   @Test
-  void enabled_noCacheAvailable_fallsBackToNoOp() {
+  void enabled_withSpringCacheManager_customCacheName_wrapsNamedCache() {
     runner
-        .withPropertyValues("sap.security.cache.distributed.enabled=true")
+        .withPropertyValues(
+            "sap.security.cache.distributed.enabled=true",
+            "sap.security.cache.distributed.cache-name=custom-cache")
+        .withUserConfiguration(CustomNameSpringCacheManagerConfig.class)
         .run(
             ctx -> {
               assertThat(ctx).hasSingleBean(SecurityCache.class);
               SecurityCache<?, ?> cache = ctx.getBean(SecurityCache.class);
-              assertThat(cache).isInstanceOf(NoOpSecurityCache.class);
+              assertThat(cache).isInstanceOf(SpringCacheSecurityCache.class);
+            });
+  }
+
+  @Test
+  void enabled_springCacheManagerWithoutNamedCache_fallsThrough_thenFailsFast() {
+    runner
+        .withPropertyValues(
+            "sap.security.cache.distributed.enabled=true",
+            "sap.security.cache.distributed.cache-name=absent")
+        .withUserConfiguration(SpringCacheManagerConfig.class)
+        .run(
+            ctx -> {
+              assertThat(ctx).hasFailed();
+              assertThat(ctx.getStartupFailure()).hasStackTraceContaining("no backing store");
+            });
+  }
+
+  @Test
+  void enabled_noCacheAvailable_failsFast() {
+    runner
+        .withPropertyValues("sap.security.cache.distributed.enabled=true")
+        .run(
+            ctx -> {
+              assertThat(ctx).hasFailed();
+              assertThat(ctx.getStartupFailure()).hasStackTraceContaining("no backing store");
             });
   }
 
@@ -85,6 +112,17 @@ class SecurityCacheAutoConfigurationTest {
     public CacheManager cacheManager() {
       SimpleCacheManager mgr = new SimpleCacheManager();
       mgr.setCaches(java.util.List.of(new ConcurrentMapCache("sap-security")));
+      mgr.afterPropertiesSet();
+      return mgr;
+    }
+  }
+
+  @Configuration
+  static class CustomNameSpringCacheManagerConfig {
+    @Bean
+    public CacheManager cacheManager() {
+      SimpleCacheManager mgr = new SimpleCacheManager();
+      mgr.setCaches(java.util.List.of(new ConcurrentMapCache("custom-cache")));
       mgr.afterPropertiesSet();
       return mgr;
     }
