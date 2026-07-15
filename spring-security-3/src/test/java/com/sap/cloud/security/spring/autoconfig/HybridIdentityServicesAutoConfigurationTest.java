@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.spring.autoconfig;
 
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.spring.token.authentication.HybridJwtDecoder;
 import com.sap.cloud.security.spring.token.authentication.IasJwtDecoder;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +18,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.sap.cloud.security.spring.autoconfig.SapSecurityProperties.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HybridIdentityServicesAutoConfigurationTest {
@@ -279,6 +283,51 @@ class HybridIdentityServicesAutoConfigurationTest {
 		@Bean
 		public JwtDecoder customJwtDecoder() {
 			return NimbusJwtDecoder.withJwkSetUri("http://localhost:8080/uaa/oauth/token_keys").build();
+		}
+	}
+
+	@Test
+	void securityCacheBean_isPickedUpByHybridDecoder() {
+		runner
+				.withUserConfiguration(SecurityCacheProvider.class)
+				.run(context -> {
+					assertNotNull(context.getBean("hybridJwtDecoder", HybridJwtDecoder.class));
+					assertNotNull(context.getBean(SecurityCache.class));
+				});
+	}
+
+	@Test
+	void securityCacheBean_isPickedUpByIasDecoder() {
+		List<String> identityProperties = new ArrayList<>();
+		identityProperties.add("sap.security.services.identity.url:http://localhost");
+		identityProperties.add(SAP_SECURITY_SERVICES_IDENTITY_DOMAINS + ":localhost");
+		identityProperties.add("sap.security.services.identity.clientid:cid");
+
+		WebApplicationContextRunner cr = new WebApplicationContextRunner()
+				.withPropertyValues(identityProperties.toArray(new String[0]))
+				.withBean(org.springframework.web.context.support.HttpRequestHandlerServlet.class)
+				.withUserConfiguration(SecurityCacheProvider.class)
+				.withConfiguration(AutoConfigurations.of(HybridIdentityServicesAutoConfiguration.class));
+		cr.run(ctx -> {
+			assertNotNull(ctx.getBean("iasJwtDecoder", IasJwtDecoder.class));
+			assertNotNull(ctx.getBean(SecurityCache.class));
+		});
+	}
+
+	@Configuration
+	static class SecurityCacheProvider {
+		@Bean
+		public SecurityCache<String, String> securityCache() {
+			return new SecurityCache<>() {
+				@Override
+				public Optional<String> get(String key) { return Optional.empty(); }
+				@Override
+				public void set(String key, String value, Duration ttl) {}
+				@Override
+				public void delete(String key) {}
+				@Override
+				public void clear() {}
+			};
 		}
 	}
 

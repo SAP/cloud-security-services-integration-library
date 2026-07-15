@@ -8,6 +8,7 @@ package com.sap.cloud.security.spring.autoconfig;
 import static com.sap.cloud.security.spring.autoconfig.SapSecurityProperties.*;
 import static org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type.SERVLET;
 
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.client.HttpClientFactory;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -23,7 +24,9 @@ import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -54,6 +57,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 @Conditional(Conditions.HybridDefaultCondition.class)
 @EnableConfigurationProperties({ XsuaaServiceConfiguration.class, IdentityServiceConfiguration.class,
 		XsuaaServiceConfigurations.class })
+@AutoConfigureAfter(SecurityCacheAutoConfiguration.class)
 @AutoConfigureBefore(OAuth2ResourceServerAutoConfiguration.class) // imports OAuth2ResourceServerJwtConfiguration which
 // specifies JwtDecoder
 public class HybridIdentityServicesAutoConfiguration {
@@ -81,23 +85,29 @@ public class HybridIdentityServicesAutoConfiguration {
 		@ConditionalOnMissingBean(JwtDecoder.class)
 		@ConditionalOnProperty(SAP_SECURITY_SERVICES_XSUAA_UAADOMAIN)
 		public JwtDecoder hybridJwtDecoder(XsuaaServiceConfiguration xsuaaConfig,
-				IdentityServiceConfiguration identityConfig) {
+				IdentityServiceConfiguration identityConfig,
+				ObjectProvider<SecurityCache<String, String>> securityCache) {
 			LOGGER.debug("auto-configures HybridJwtDecoder.");
       SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
       SecurityContext.registerXsuaaTokenExtension(getDefaultXSUAATokenExtension(identityConfig));
       TokenExchangeMode mode = TokenExchangeMode.fromString(tokenExchangeMode);
-      return new JwtDecoderBuilder()
+      JwtDecoderBuilder builder = new JwtDecoderBuilder()
           .withIasServiceConfiguration(identityConfig)
           .withXsuaaServiceConfiguration(xsuaaConfig)
-          .withTokenExchange(mode)
-          .build();
+          .withTokenExchange(mode);
+      SecurityCache<String, String> cache = securityCache.getIfAvailable();
+      if (cache != null) {
+        builder.withSecurityCache(cache);
+      }
+      return builder.build();
 		}
 
 
 		@Bean
 		@Primary
 		@ConditionalOnProperty(SAP_SECURITY_SERVICES_XSUAA_0_UAADOMAIN)
-		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig) {
+		public JwtDecoder hybridJwtDecoderMultiXsuaaServices(IdentityServiceConfiguration identityConfig,
+				ObjectProvider<SecurityCache<String, String>> securityCache) {
 			LOGGER.debug("auto-configures HybridJwtDecoder when bound to multiple xsuaa service instances.");
 			/*
 			 * Use only primary XSUAA config and up to 1 more config of type BROKER to stay
@@ -112,21 +122,30 @@ public class HybridIdentityServicesAutoConfiguration {
 				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
 			}
       SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
-			return new JwtDecoderBuilder()
-					.withIasServiceConfiguration(identityConfig)
-					.withXsuaaServiceConfigurations(usedXsuaaConfigs)
-					.build();
+      JwtDecoderBuilder builder = new JwtDecoderBuilder()
+          .withIasServiceConfiguration(identityConfig)
+          .withXsuaaServiceConfigurations(usedXsuaaConfigs);
+      SecurityCache<String, String> cache = securityCache.getIfAvailable();
+      if (cache != null) {
+        builder.withSecurityCache(cache);
+      }
+      return builder.build();
 		}
 
 		@Bean
 		@ConditionalOnProperty(SAP_SECURITY_SERVICES_IDENTITY_DOMAINS)
 		@ConditionalOnMissingBean(JwtDecoder.class)
-		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig) {
+		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig,
+				ObjectProvider<SecurityCache<String, String>> securityCache) {
 			LOGGER.debug("auto-configures IasJwtDecoder.");
       SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
-			return new JwtDecoderBuilder()
-					.withIasServiceConfiguration(identityConfig)
-					.build();
+      JwtDecoderBuilder builder = new JwtDecoderBuilder()
+          .withIasServiceConfiguration(identityConfig);
+      SecurityCache<String, String> cache = securityCache.getIfAvailable();
+      if (cache != null) {
+        builder.withSecurityCache(cache);
+      }
+      return builder.build();
 		}
 	}
 
