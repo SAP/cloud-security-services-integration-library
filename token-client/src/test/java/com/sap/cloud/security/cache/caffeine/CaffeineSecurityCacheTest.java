@@ -7,7 +7,16 @@
 package com.sap.cloud.security.cache.caffeine;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Ticker;
+import com.sap.cloud.security.config.CacheConfiguration;
 import java.time.Duration;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -67,5 +76,84 @@ class CaffeineSecurityCacheTest {
     assertThat(cache.unwrap()).isNotNull();
     cache.set("k", "v", null);
     assertThat(cache.unwrap().getIfPresent("k")).isEqualTo("v");
+  }
+
+  @Test
+  void tickerConstructor_isUsable() {
+    CaffeineSecurityCache cache =
+        new CaffeineSecurityCache(10, Duration.ofMinutes(1), Ticker.systemTicker());
+    cache.set("k", "v", null);
+    assertThat(cache.get("k")).contains("v");
+  }
+
+  @Test
+  void preBuiltConstructor_wrapsExistingCache() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> delegate = mock(Cache.class);
+    when(delegate.getIfPresent("k")).thenReturn("v");
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(delegate);
+    assertThat(cache.get("k")).contains("v");
+    assertThat(cache.unwrap()).isSameAs(delegate);
+  }
+
+  @Test
+  void forConfiguration_readsSizeAndDuration() {
+    CacheConfiguration cfg =
+        new CacheConfiguration() {
+          @Override
+          public Duration getCacheDuration() {
+            return Duration.ofMinutes(2);
+          }
+
+          @Override
+          public int getCacheSize() {
+            return 100;
+          }
+
+          @Override
+          public boolean isCacheStatisticsEnabled() {
+            return false;
+          }
+        };
+    CaffeineSecurityCache cache = CaffeineSecurityCache.forConfiguration(cfg);
+    assertThat(cache).isNotNull();
+    cache.set("k", "v", null);
+    assertThat(cache.get("k")).contains("v");
+  }
+
+  @Test
+  void get_swallowsRuntimeExceptionAndReturnsEmpty() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> delegate = mock(Cache.class);
+    when(delegate.getIfPresent(any())).thenThrow(new RuntimeException("boom"));
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(delegate);
+    assertThat(cache.get("k")).isEmpty();
+  }
+
+  @Test
+  void set_swallowsRuntimeException() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> delegate = mock(Cache.class);
+    doThrow(new RuntimeException("boom")).when(delegate).put(eq("k"), eq("v"));
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(delegate);
+    assertThatCode(() -> cache.set("k", "v", null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void delete_swallowsRuntimeException() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> delegate = mock(Cache.class);
+    doThrow(new RuntimeException("boom")).when(delegate).invalidate(any());
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(delegate);
+    assertThatCode(() -> cache.delete("k")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void clear_swallowsRuntimeException() {
+    @SuppressWarnings("unchecked")
+    Cache<String, String> delegate = mock(Cache.class);
+    doThrow(new RuntimeException("boom")).when(delegate).invalidateAll();
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(delegate);
+    assertThatCode(cache::clear).doesNotThrowAnyException();
   }
 }

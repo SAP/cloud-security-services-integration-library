@@ -7,9 +7,15 @@
 package com.sap.cloud.security.spring.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
+import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
 
 class SpringCacheSecurityCacheTest {
@@ -44,6 +50,56 @@ class SpringCacheSecurityCacheTest {
     springCache.put("k", 42); // put a non-String directly
     SpringCacheSecurityCache cut = new SpringCacheSecurityCache(springCache);
 
+    assertThat(cut.get("k")).isEmpty();
+  }
+
+  @Test
+  void get_swallowsExceptionAndReturnsEmpty() {
+    Cache broken = mock(Cache.class);
+    when(broken.get(any())).thenThrow(new RuntimeException("boom"));
+    SpringCacheSecurityCache cut = new SpringCacheSecurityCache(broken);
+    assertThat(cut.get("k")).isEmpty();
+  }
+
+  @Test
+  void set_swallowsException() {
+    Cache broken = mock(Cache.class);
+    doThrow(new RuntimeException("boom")).when(broken).put(any(), any());
+    SpringCacheSecurityCache cut = new SpringCacheSecurityCache(broken);
+    assertThatCode(() -> cut.set("k", "v", null)).doesNotThrowAnyException();
+  }
+
+  @Test
+  void delete_swallowsException() {
+    Cache broken = mock(Cache.class);
+    doThrow(new RuntimeException("boom")).when(broken).evict(any());
+    SpringCacheSecurityCache cut = new SpringCacheSecurityCache(broken);
+    assertThatCode(() -> cut.delete("k")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void clear_swallowsException() {
+    Cache broken = mock(Cache.class);
+    doThrow(new RuntimeException("boom")).when(broken).clear();
+    SpringCacheSecurityCache cut = new SpringCacheSecurityCache(broken);
+    assertThatCode(cut::clear).doesNotThrowAnyException();
+  }
+
+  @Test
+  void get_nullValueWrapper_returnsEmpty() {
+    Cache emptyCache = mock(Cache.class);
+    when(emptyCache.get("k")).thenReturn(null);
+    SpringCacheSecurityCache cut = new SpringCacheSecurityCache(emptyCache);
+    assertThat(cut.get("k")).isEmpty();
+  }
+
+  @Test
+  void get_wrapperReturnsNullValue_returnsEmpty() {
+    Cache cacheWithNullValue = mock(Cache.class);
+    Cache.ValueWrapper wrapper = mock(Cache.ValueWrapper.class);
+    when(wrapper.get()).thenReturn(null);
+    when(cacheWithNullValue.get("k")).thenReturn(wrapper);
+    SpringCacheSecurityCache cut = new SpringCacheSecurityCache(cacheWithNullValue);
     assertThat(cut.get("k")).isEmpty();
   }
 }
