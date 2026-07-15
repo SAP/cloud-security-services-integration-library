@@ -267,6 +267,82 @@ Common issues and solutions:
 | `Token exchange failed` exception | Missing XSUAA binding or invalid configuration | Verify both IAS and XSUAA service bindings exist |
 | Exchange returns 401              | IAS binding missing `xsuaa-cross-consumption`  | Add parameter to IAS service binding             |
 
+### 2.5 Distributed Caching (since 4.1.0)
+
+The library keeps five internal caches that shape latency and identity-service load:
+
+| Cache | Namespace | What it caches | Default |
+|---|---|---|---|
+| Outbound token cache | `tokens` | client-credentials / JWT-bearer / refresh-token responses from XSUAA | Caffeine in-memory |
+| JWKS cache | `jwks` | raw JWKS JSON per JWKS URI | Caffeine in-memory |
+| OIDC discovery cache | `oidc` | discovery response per issuer | Caffeine in-memory |
+| Token decode cache | `decode` | raw JWT strings, keyed by SHA-256 of the token | **opt-in, off by default** |
+| Signature validation cache | `sig` | boolean 'signature verified' verdicts, tagged with an HMAC | **opt-in, off by default** |
+
+**Why distributed?** After a rolling deploy every pod otherwise starts cold: no JWKS, no XSUAA client-credentials tokens. Under load the first requests fan out to XSUAA and IAS — the classic thundering herd. Sharing these caches across pods eliminates the cold-start penalty and keeps identity-service traffic flat. All caches use a common `SecurityCache<String,String>` SPI so you plug in Redis, Hazelcast, JCache or Spring Cache without pulling those dependencies into the core.
+
+#### Enabling on Spring Boot
+
+Add the JCache adapter or use your existing Spring `CacheManager`:
+
+```yaml
+sap:
+  security:
+    cache:
+      distributed:
+        enabled: true
+        # cache-name: sap-security  # default
+```
+
+```java
+@Configuration
+public class CachingConfig {
+    @Bean
+    public CacheManager cacheManager() {
+        SimpleCacheManager mgr = new SimpleCacheManager();
+        mgr.setCaches(List.of(new RedisCacheManager(...).getCache("sap-security")));
+        return mgr;
+    }
+}
+```
+
+The auto-configuration discovers, in order: a `SecurityCache<String,String>` bean → a Spring `CacheManager` cache named `sap-security` → a `javax.cache.CacheManager` bean → nothing.
+
+#### Enabling on plain Java (JCache)
+
+```xml
+<dependency>
+    <groupId>com.sap.cloud.security</groupId>
+    <artifactId>token-client-jcache</artifactId>
+    <version>4.1.0</version>
+</dependency>
+```
+
+```java
+Cache<String, String> jcache = cacheManager.getCache("sap-security", String.class, String.class);
+SecurityCache<String, String> cache = new JCacheSecurityCache(jcache);
+
+DefaultOAuth2TokenService tokenService = new DefaultOAuth2TokenService(
+    httpClient, TokenCacheConfiguration.defaultConfiguration(), cache);
+
+JwtValidatorBuilder.getInstance(config)
+    .withHttpClient(httpClient)
+    .withSecurityCache(cache)
+    .build();
+```
+
+#### Custom adapter
+
+Implement `com.sap.cloud.security.cache.SecurityCache<String,String>` — four methods (`get`, `set`, `delete`, `clear`). **Never throw** — the contract requires every failure to degrade to a cache miss. See the JCache and Spring adapters for reference.
+
+#### Warnings
+
+- **Signature validation cache is sensitive.** It caches a boolean 'signature verified' verdict — if compromised, an attacker could flip 'invalid' to 'valid'. Every entry carries an HMAC-SHA256 tag derived from your own credentials via HKDF-SHA256 (RFC 5869). Tampered entries fail the MAC check and are treated as misses. Even so, do not enable this cache unless you fully control the backing store.
+- **Failure semantics.** Every cache call is best-effort. A broken cache never breaks token retrieval, JWKS fetch, or token validation — the library falls through to the source of truth and logs a WARN.
+- **TTL behavior.** Adapters ignore per-entry TTL and rely on the cache infrastructure's expiry policy. Configure your `ExpiryPolicy` (JCache) or `CacheManager` (Spring) to match: 10 min for tokens/JWKS/OIDC, 5 min or less for decode / signature caches.
+
+Per-module details: [token-client/README.md](token-client/README.md), [java-security/README.md](java-security/README.md), [spring-security-3/README.md](spring-security-3/README.md).
+
 ## Installation
 The SAP Cloud Security Services Integration is published to maven central: https://search.maven.org/search?q=com.sap.cloud.security and is available as a Maven dependency. Add the following BOM to your dependency management in your `pom.xml`:
 ```xml

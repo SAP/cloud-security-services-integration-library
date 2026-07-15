@@ -346,6 +346,22 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
 tokenService.clearCache();
 ```
 
+#### Distributed Cache (since 4.1.0)
+
+The outbound token cache is expressed against the `com.sap.cloud.security.cache.SecurityCache` SPI. Pass a caller-supplied cache to the third constructor parameter to share tokens across a horizontally-scaled deployment (Redis, Hazelcast, ...):
+
+```java
+SecurityCache<String, String> shared = new JCacheSecurityCache(myJCache);
+OAuth2TokenService svc = new DefaultOAuth2TokenService(
+    httpClient, TokenCacheConfiguration.defaultConfiguration(), shared);
+```
+
+- Cached tokens travel as JSON with an absolute expiry (millis since epoch) so a rolling deploy or a distributed cache round-trip does not truncate their lifetime.
+- Concurrent misses for the same key are collapsed via a single-flight `CompletableFuture` map — no thundering herd on XSUAA when many callers ask for the same client-credentials token at once.
+- Cache faults are always best-effort; a broken cache degrades to a normal token fetch and logs a WARN.
+
+See the main [README](../README.md#25-distributed-caching-since-410) for the full picture including JWKS / OIDC caches.
+
 ## Token Flows API usage
 The `XsuaaTokenFlows` provides a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
 
