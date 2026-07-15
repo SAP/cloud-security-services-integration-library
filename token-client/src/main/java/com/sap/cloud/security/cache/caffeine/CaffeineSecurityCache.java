@@ -71,6 +71,14 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
     this(maximumSize, expireAfterWrite, Ticker.systemTicker());
   }
 
+  /**
+   * Wraps an already-configured Caffeine cache. Useful when callers want to reuse a project-wide
+   * Caffeine instance (e.g. one that records statistics or uses a same-thread executor).
+   */
+  public CaffeineSecurityCache(@Nonnull final Cache<String, String> preBuilt) {
+    this.delegate = preBuilt;
+  }
+
   /** Convenience factory that reads size and duration from {@link CacheConfiguration}. */
   public static CaffeineSecurityCache forConfiguration(
       @Nonnull final CacheConfiguration cacheConfiguration) {
