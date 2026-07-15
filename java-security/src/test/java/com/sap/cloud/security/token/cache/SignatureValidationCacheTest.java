@@ -121,6 +121,57 @@ class SignatureValidationCacheTest {
         .doesNotThrowAnyException();
   }
 
+  @Test
+  void unformattedEntry_isDetectedAsMiss() {
+    MemoryCache backing = new MemoryCache();
+    SignatureValidationCache cache =
+        new SignatureValidationCache(
+            backing,
+            SignatureValidationCacheConfiguration.enabled(Duration.ofMinutes(5), IKM));
+    // Inject a raw entry that does not start with the OK| prefix.
+    String key = com.sap.cloud.security.cache.CacheKeys.build(
+        com.sap.cloud.security.cache.CacheKeys.NAMESPACE_SIG, TOKEN + "|" + KID);
+    backing.store.put(key, "GARBAGE-not-OK-prefix");
+    assertThat(cache.isKnownValid(TOKEN, KID)).isFalse();
+  }
+
+  @Test
+  void invalidBase64Entry_isDetectedAsMiss() {
+    MemoryCache backing = new MemoryCache();
+    SignatureValidationCache cache =
+        new SignatureValidationCache(
+            backing,
+            SignatureValidationCacheConfiguration.enabled(Duration.ofMinutes(5), IKM));
+    String key = com.sap.cloud.security.cache.CacheKeys.build(
+        com.sap.cloud.security.cache.CacheKeys.NAMESPACE_SIG, TOKEN + "|" + KID);
+    backing.store.put(key, "OK|not-valid-base64!!!!");
+    assertThat(cache.isKnownValid(TOKEN, KID)).isFalse();
+  }
+
+  @Test
+  void nullKid_treatedAsEmptyString() {
+    MemoryCache backing = new MemoryCache();
+    SignatureValidationCache cache =
+        new SignatureValidationCache(
+            backing,
+            SignatureValidationCacheConfiguration.enabled(Duration.ofMinutes(5), IKM));
+
+    cache.recordValid(TOKEN, null);
+    assertThat(cache.isKnownValid(TOKEN, null)).isTrue();
+    // Empty string kid must produce the same key as null.
+    assertThat(cache.isKnownValid(TOKEN, "")).isTrue();
+  }
+
+  @Test
+  void recordValid_disabled_isNoOp() {
+    MemoryCache backing = new MemoryCache();
+    SignatureValidationCache cache =
+        new SignatureValidationCache(
+            backing, SignatureValidationCacheConfiguration.disabled());
+    cache.recordValid(TOKEN, KID);
+    assertThat(backing.store).isEmpty();
+  }
+
   private static class MemoryCache implements SecurityCache<String, String> {
     final Map<String, String> store = new HashMap<>();
 
