@@ -46,6 +46,39 @@ Please upgrade to Spring Boot 4.x and the [`spring-security`](../spring-security
 
 See [MIGRATION_4.0.md](../MIGRATION_4.0.md) for migration instructions.
 
+## Distributed Cache Auto-Configuration (since 4.1.0)
+
+To share the SAP Cloud Security caches across a horizontally-scaled deployment, enable the auto-configuration:
+
+```yaml
+sap:
+  security:
+    cache:
+      distributed:
+        enabled: true
+        # cache-name: sap-security  # default; override to reuse another cache
+```
+
+Then expose either a `SecurityCache<String,String>` bean directly or a Spring `CacheManager` whose cache called `sap-security` is backed by your distributed store:
+
+```java
+@Configuration
+public class DistributedCacheConfig {
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory rcf) {
+        return RedisCacheManager.builder(rcf).initialCacheNames(Set.of("sap-security")).build();
+    }
+}
+```
+
+The auto-config picks that up and wires it into:
+- `XsuaaTokenFlows` — outbound token cache (namespace `tokens`).
+- `JwtValidatorBuilder` (via `withSecurityCache`) — JWKS and OIDC caches (namespaces `jwks`, `oidc`).
+
+Discovery order: (1) user `SecurityCache` bean → (2) Spring `CacheManager.getCache(name)` → (3) `javax.cache.CacheManager.getCache(name, String.class, String.class)` → (4) no-op (WARN in logs).
+
+See the top-level [README](../README.md#25-distributed-caching-since-410) for the complete story including opt-in decode / signature caches.
+
 ## Complete Documentation
 
 For complete documentation on usage, configuration, testing, and troubleshooting, see:
