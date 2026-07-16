@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.1 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.sap.cloud.security.xsuaa</groupId>
+		<artifactId>parent</artifactId>
+		<version>4.0.8</version>
+	</parent>
+
+	<groupId>com.sap.cloud.security</groupId>
+	<artifactId>java-security-javax</artifactId>
+	<name>java-security-javax</name>
+	<packaging>jar</packaging>
+
+	<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	<description>java-security for javax.servlet (Tomcat 9 / Jakarta EE 8)</description>
+
+	<organization>
+		<name>SAP SE</name>
+		<url>https://www.sap.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Identity Service Development</name>
+			<email>xsuaa-development@sap.com</email>
+			<organization>SAP SE</organization>
+			<organizationUrl>https://www.sap.com</organizationUrl>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git://github.com/SAP/cloud-security-xsuaa-integration.git</connection>
+		<developerConnection>scm:git:ssh//github.com/SAP/cloud-security-xsuaa-integration.git</developerConnection>
+		<url>https://github.com/SAP/cloud-security-xsuaa-integration</url>
+	</scm>
+
+	<properties>
+		<!-- Sources are generated into this directory by the transformer, then compiled from here -->
+		<javax.generated.sources>${project.build.directory}/generated-sources/javax</javax.generated.sources>
+		<javax.generated.test.sources>${project.build.directory}/generated-test-sources/javax</javax.generated.test.sources>
+	</properties>
+
+	<dependencies>
+		<!--
+		  java-api and env sources are COPIED and transformed (jakarta→javax) into this
+		  artifact, so their classes are bundled here. They are declared provided+optional
+		  purely so the transformed sources compile — they must NOT leak onto the consumer
+		  classpath, otherwise the jakarta.servlet copies would clash with the bundled javax ones.
+		-->
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>env</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<!-- Runtime third-party deps that env used to bring transitively (jakarta-free) -->
+		<dependency>
+			<groupId>com.sap.cloud.environment.servicebinding.api</groupId>
+			<artifactId>java-access-api</artifactId>
+			<version>${sap.cloud.env.servicebinding.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.environment.servicebinding.api</groupId>
+			<artifactId>java-consumption-api</artifactId>
+			<version>${sap.cloud.env.servicebinding.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.environment.servicebinding</groupId>
+			<artifactId>java-sap-vcap-services</artifactId>
+			<version>${sap.cloud.env.servicebinding.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.environment.servicebinding</groupId>
+			<artifactId>java-sap-service-operator</artifactId>
+			<version>${sap.cloud.env.servicebinding.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${org.json.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>compile</scope>
+			<version>${commons.io.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.spotbugs</groupId>
+			<artifactId>spotbugs-annotations</artifactId>
+			<optional>true</optional>
+			<version>${spotbugs.annotations.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.security.xsuaa</groupId>
+			<artifactId>token-client</artifactId>
+			<version>${project.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+			<version>${junit-jupiter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<scope>test</scope>
+			<version>${junit-jupiter.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+			<version>${mockito.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+			<version>${assertj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<scope>test</scope>
+			<version>1.5.13</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<!-- Compile from the transformer-generated sources, not src/main/java -->
+		<sourceDirectory>${javax.generated.sources}</sourceDirectory>
+
+		<plugins>
+			<!-- Step 1: copy java-security sources into generated-sources/javax -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-jakarta-sources</id>
+						<phase>initialize</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${javax.generated.sources}</outputDirectory>
+							<overwrite>true</overwrite>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/../java-security/src/main/java</directory>
+									<filtering>false</filtering>
+									<!-- Spring adapter is out of scope for a servlet/Tomcat token-validation consumer -->
+									<excludes>
+										<exclude>com/sap/cloud/security/adapter/spring/**</exclude>
+									</excludes>
+								</resource>
+								<resource>
+									<directory>${project.basedir}/../java-api/src/main/java</directory>
+									<filtering>false</filtering>
+								</resource>
+								<resource>
+									<directory>${project.basedir}/../env/src/main/java</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<!-- Carry over the java-security META-INF/services SPI registrations -->
+					<execution>
+						<id>copy-jakarta-resources</id>
+						<phase>initialize</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+							<overwrite>true</overwrite>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/../java-security/src/main/resources</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<!-- Copy java-security test sources for transformation -->
+					<execution>
+						<id>copy-jakarta-test-sources</id>
+						<phase>initialize</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${javax.generated.test.sources}</outputDirectory>
+							<overwrite>true</overwrite>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/../java-security/src/test/java</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<!-- Copy java-security test resources -->
+					<execution>
+						<id>copy-jakarta-test-resources</id>
+						<phase>initialize</phase>
+						<goals><goal>copy-resources</goal></goals>
+						<configuration>
+							<outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+							<overwrite>true</overwrite>
+							<resources>
+								<resource>
+									<directory>${project.basedir}/../java-security/src/test/resources</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Step 2: rewrite jakarta→javax in the copied sources in-place -->
+			<plugin>
+				<groupId>org.eclipse.transformer</groupId>
+				<artifactId>transformer-maven-plugin</artifactId>
+				<version>1.0.0</version>
+				<executions>
+					<execution>
+						<id>transform-sources-jakarta-to-javax</id>
+						<phase>generate-sources</phase>
+						<goals><goal>transform</goal></goals>
+						<configuration>
+							<transformDirectory>${javax.generated.sources}</transformDirectory>
+							<rules>
+								<renames>src/main/resources/jakarta-to-javax.properties</renames>
+							</rules>
+						</configuration>
+					</execution>
+					<execution>
+						<id>transform-test-sources-jakarta-to-javax</id>
+						<phase>generate-test-sources</phase>
+						<goals><goal>transform</goal></goals>
+						<configuration>
+							<transformDirectory>${javax.generated.test.sources}</transformDirectory>
+							<rules>
+								<renames>src/main/resources/jakarta-to-javax.properties</renames>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Register the generated test sources directory -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.6.0</version>
+				<executions>
+					<execution>
+						<id>add-test-source</id>
+						<phase>generate-test-sources</phase>
+						<goals><goal>add-test-source</goal></goals>
+						<configuration>
+							<sources>
+								<source>${javax.generated.test.sources}</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven.source.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
