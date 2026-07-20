@@ -47,6 +47,7 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
   + [[Optional] Audit Logging](#optional-audit-logging)
   + [[Optional] Setup Security Context for non-HTTP requests](#optional-setup-security-context-for-non-http-requests)
   + [[Optional] Reactive Usage with Webflux](#optional-reactive-usage-with-webflux)
+  + [[Optional] Distributed Cache](#optional-distributed-cache-since-410)
 * [Testing](#testing)
   + [JUnit](#junit)
   + [Overriding identity service configurations](#overriding-identity-service-configurations)
