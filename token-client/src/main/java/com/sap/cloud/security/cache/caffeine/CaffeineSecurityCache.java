@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *   <li>{@link #set(String, String, Duration)} ignores the per-entry TTL and stores the value with
  *       the eviction policy configured on the underlying Caffeine cache (expire-after-write from
- *       {@link CacheConfiguration#getCacheDuration()}). Distributed adapters (JCache, Spring)
+ *       {@link CacheConfiguration#getCacheDuration()}). Distributed adapters (e.g. Spring)
  *       behave the same way — per-entry TTLs are configured on the cache infrastructure, not per
  *       call.
  *   <li>All operations are wrapped in a try/catch so that a broken cache never causes the caller
