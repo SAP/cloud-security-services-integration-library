@@ -412,7 +412,7 @@ The auto-config wires that cache into:
 
 Discovery order: (1) user-supplied `SecurityCache<String,String>` bean → (2) Spring `CacheManager.getCache(name)`. If neither is present the context fails fast — this is on purpose so a misconfigured deployment does not silently run without a shared cache.
 
-For any backend that is not fronted by a Spring `CacheManager` (raw Redis via Jedis, a JCache provider, an in-house store, ...), implement `SecurityCache<String,String>` directly and declare it as a `@Bean` — the auto-config prefers it over any `CacheManager`. Copy-pasteable snippets for Redis (Jedis), JCache (JSR-107), and Spring-managed backends live in the top-level [*Bring your own cache*](../README.md#bring-your-own-cache) section.
+For any backend that is not fronted by a Spring `CacheManager` (raw Redis via Jedis, an in-house store, ...), implement `SecurityCache<String,String>` directly and declare it as a `@Bean` — the auto-config prefers it over any `CacheManager`. Copy-pasteable snippets for Redis (Jedis) and Spring-managed backends live in the top-level [*Bring your own cache*](../README.md#bring-your-own-cache) section.
 
 See the top-level [README](../README.md#25-distributed-caching-since-410) for the complete story including the opt-in decode / signature caches.
 
