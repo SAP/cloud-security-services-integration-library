@@ -44,6 +44,7 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
    - [Identity service configuration setup](#oauth2serviceconfiguration)
    - [HTTP Client setup](#httpclientfactory)
    - [Cache configuration](#cache-configuration)
+       - [Distributed Cache](#distributed-cache-since-410)
 2. [API Usage](#token-flows-api-usage)
    - [2.1. Jwt Bearer Token Flow](#jwt-bearer-token-flow)
    - [2.2. Client Credentials Token Flow](#client-credentials-token-flow)
