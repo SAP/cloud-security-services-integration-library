@@ -62,7 +62,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
 
   /**
    * Constructor accepting an external {@link SecurityCache} implementation, for example a
-   * distributed cache adapter (Redis via JCache, Spring Cache, ...). Use this when running in a
+   * distributed cache adapter (Redis, Hazelcast, Spring Cache, ...). Use this when running in a
    * cluster to avoid a per-instance token cache that would otherwise be cold on every rolling
    * deploy.
    *

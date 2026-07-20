@@ -351,10 +351,12 @@ tokenService.clearCache();
 The outbound token cache is expressed against the `com.sap.cloud.security.cache.SecurityCache` SPI. Pass a caller-supplied cache to the third constructor parameter to share tokens across a horizontally-scaled deployment (Redis, Hazelcast, ...):
 
 ```java
-SecurityCache<String, String> shared = new JCacheSecurityCache(myJCache);
+SecurityCache<String, String> shared = new MyRedisSecurityCache(jedisPool);   // your adapter
 OAuth2TokenService svc = new DefaultOAuth2TokenService(
     httpClient, TokenCacheConfiguration.defaultConfiguration(), shared);
 ```
+
+Ready-to-copy `SecurityCache` implementations for Redis (Jedis), any JCache (JSR-107) provider, and any Spring-managed backend are in the [main README's *Bring your own cache* section](../README.md#bring-your-own-cache).
 
 - Cached tokens travel as JSON with an absolute expiry (millis since epoch) so a rolling deploy or a distributed cache round-trip does not truncate their lifetime.
 - Concurrent misses for the same key are collapsed via a single-flight `CompletableFuture` map — no thundering herd on XSUAA when many callers ask for the same client-credentials token at once.

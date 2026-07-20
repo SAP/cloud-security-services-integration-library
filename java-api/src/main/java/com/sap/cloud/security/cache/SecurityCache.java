@@ -15,8 +15,10 @@ import java.util.Optional;
  * client libraries.
  *
  * <p>Implementations may be backed by an in-memory store (default) or by a distributed cache such
- * as Redis, Hazelcast, or any JCache/Spring Cache compatible store. See the modules
- * {@code token-client-jcache} and {@code spring-security-3} for ready-made adapters.
+ * as Redis, Hazelcast, or any store you can adapt behind the four methods below. See the
+ * {@code CaffeineSecurityCache} (in-memory) and {@code SpringCacheSecurityCache} (Spring
+ * {@code CacheManager}) adapters for reference. Any other backend is a copy-pasteable
+ * implementation of this interface — see the project README for snippets.
  *
  * <h2>Contract</h2>
  *

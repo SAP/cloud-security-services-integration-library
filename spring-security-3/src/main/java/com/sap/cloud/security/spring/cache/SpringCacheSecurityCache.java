@@ -15,7 +15,7 @@ import org.springframework.cache.Cache;
 
 /**
  * {@link SecurityCache} adapter over a Spring {@link org.springframework.cache.Cache}. Plug in any
- * Spring Cache abstraction (Caffeine, Redis, JCache-behind-Spring, ...) to share the SAP Cloud
+ * Spring Cache abstraction (Caffeine, Redis, Hazelcast, ...) to share the SAP Cloud
  * Security caches across processes.
  *
  * <h2>TTL handling</h2>
