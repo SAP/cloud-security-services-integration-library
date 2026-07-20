@@ -357,7 +357,7 @@ OAuth2TokenService svc = new DefaultOAuth2TokenService(
     httpClient, TokenCacheConfiguration.defaultConfiguration(), shared);
 ```
 
-Ready-to-copy `SecurityCache` implementations for Redis (Jedis), any JCache (JSR-107) provider, and any Spring-managed backend are in the [main README's *Bring your own cache* section](../README.md#bring-your-own-cache).
+Ready-to-copy `SecurityCache` implementations for Redis (Jedis) and any Spring-managed backend are in the [main README's *Bring your own cache* section](../README.md#bring-your-own-cache).
 
 - Cached tokens travel as JSON with an absolute expiry (millis since epoch) so a rolling deploy or a distributed cache round-trip does not truncate their lifetime.
 - Concurrent misses for the same key are collapsed via a single-flight `CompletableFuture` map — no thundering herd on XSUAA when many callers ask for the same client-credentials token at once.

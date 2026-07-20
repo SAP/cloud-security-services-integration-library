@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Configuration;
  * {@link IllegalStateException}. Silently falling back to a no-op cache would defeat the library's
  * built-in Caffeine cache, so this class fails fast rather than run without any cache at all.
  *
- * <p>Any cache backend beyond Spring's own abstraction (Redis, Hazelcast, JCache providers, ...)
+ * <p>Any cache backend beyond Spring's own abstraction (Redis, Hazelcast, ...)
  * is supported by declaring a custom {@link SecurityCache} bean — see the README for a
  * copy-pasteable snippet.
  *
