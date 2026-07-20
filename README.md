@@ -279,11 +279,18 @@ The library keeps five internal caches that shape latency and identity-service l
 | Token decode cache | `decode` | raw JWT strings, keyed by SHA-256 of the token | **opt-in, off by default** |
 | Signature validation cache | `sig` | boolean 'signature verified' verdicts, tagged with an HMAC | **opt-in, off by default** |
 
-**Why distributed?** After a rolling deploy every pod otherwise starts cold: no JWKS, no XSUAA client-credentials tokens. Under load the first requests fan out to XSUAA and IAS — the classic thundering herd. Sharing these caches across pods eliminates the cold-start penalty and keeps identity-service traffic flat. All caches use a common `SecurityCache<String,String>` SPI so you plug in Redis, Hazelcast, JCache or Spring Cache without pulling those dependencies into the core.
+**Why distributed?** After a rolling deploy every pod otherwise starts cold: no JWKS, no XSUAA client-credentials tokens. Under load the first requests fan out to XSUAA and IAS — the classic thundering herd. Sharing these caches across pods eliminates the cold-start penalty and keeps identity-service traffic flat.
+
+All caches route through a single `com.sap.cloud.security.cache.SecurityCache<String,String>` SPI. The library ships two adapters out of the box:
+
+- **`CaffeineSecurityCache`** (in `token-client`) — the in-process default; used when you do nothing.
+- **`SpringCacheSecurityCache`** (in `spring-security` / `spring-security-3`) — wraps a Spring `org.springframework.cache.Cache` so any Spring-managed backend (Redis, Hazelcast, Caffeine, ...) works via Spring's `CacheManager` abstraction.
+
+Any other backend (a raw Jedis client, a Hazelcast `IMap`, a JCache `javax.cache.Cache`, a JDBC-backed store, ...) is a copy-pasteable implementation of the SPI — see [Bring your own cache](#bring-your-own-cache) below.
 
 #### Enabling on Spring Boot
 
-Add the JCache adapter or use your existing Spring `CacheManager`:
+Enable the auto-configuration and expose a Spring `CacheManager` whose cache is named `sap-security` (or override the name via `sap.security.cache.distributed.cache-name`):
 
 ```yaml
 sap:
@@ -296,50 +303,200 @@ sap:
 
 ```java
 @Configuration
-public class CachingConfig {
+public class DistributedCacheConfig {
     @Bean
-    public CacheManager cacheManager() {
-        SimpleCacheManager mgr = new SimpleCacheManager();
-        mgr.setCaches(List.of(new RedisCacheManager(...).getCache("sap-security")));
-        return mgr;
+    public CacheManager cacheManager(RedisConnectionFactory rcf) {
+        return RedisCacheManager.builder(rcf)
+            .initialCacheNames(Set.of("sap-security"))
+            .build();
     }
 }
 ```
 
-The auto-configuration discovers, in order: a `SecurityCache<String,String>` bean → a Spring `CacheManager` cache named `sap-security` → a `javax.cache.CacheManager` bean → nothing.
+The auto-configuration discovers, in order: (1) a user-supplied `SecurityCache<String,String>` bean → (2) a Spring `CacheManager` cache with the configured name. If neither is present the context fails fast with a clear error rather than silently disabling caching.
 
-#### Enabling on plain Java (JCache)
+#### Enabling on plain Java
 
-```xml
-<dependency>
-    <groupId>com.sap.cloud.security</groupId>
-    <artifactId>token-client-jcache</artifactId>
-    <version>4.1.0</version>
-</dependency>
-```
+Instantiate a `SecurityCache` adapter and hand it to the token service and the validator builder:
 
 ```java
-Cache<String, String> jcache = cacheManager.getCache("sap-security", String.class, String.class);
-SecurityCache<String, String> cache = new JCacheSecurityCache(jcache);
+// 1. Build a SecurityCache backed by your store (see snippets below).
+SecurityCache<String, String> cache = new MyRedisSecurityCache(jedisPool);
 
-DefaultOAuth2TokenService tokenService = new DefaultOAuth2TokenService(
-    httpClient, TokenCacheConfiguration.defaultConfiguration(), cache);
+// 2. Share it with the outbound token cache.
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(
+    httpClient,
+    TokenCacheConfiguration.defaultConfiguration(),
+    cache);
 
-JwtValidatorBuilder.getInstance(config)
+// 3. Share it with the JWKS + OIDC caches during token validation.
+CombiningValidator<Token> validator = JwtValidatorBuilder.getInstance(config)
     .withHttpClient(httpClient)
     .withSecurityCache(cache)
     .build();
 ```
 
-#### Custom adapter
+#### Bring your own cache
 
-Implement `com.sap.cloud.security.cache.SecurityCache<String,String>` — four methods (`get`, `set`, `delete`, `clear`). **Never throw** — the contract requires every failure to degrade to a cache miss. See the JCache and Spring adapters for reference.
+The SPI has four methods: `get`, `set`, `delete`, `clear`. Two invariants matter:
+
+1. **Never throw.** Every cache call is best-effort. A cache failure must degrade to a miss and let the caller fetch from source — swallow the exception, log at WARN, return.
+2. **Thread-safe.** The library calls the cache from many threads concurrently.
+
+##### Snippet 1 — Redis via Jedis (plain Java, no Spring)
+
+```java
+import com.sap.cloud.security.cache.SecurityCache;
+import jakarta.annotation.Nonnull;
+import java.time.Duration;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.params.SetParams;
+
+public final class JedisSecurityCache implements SecurityCache<String, String> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JedisSecurityCache.class);
+    private static final String PREFIX = "sap-security:";
+    private static final long DEFAULT_TTL_SECONDS = 600;   // 10 min
+
+    private final JedisPool pool;
+
+    public JedisSecurityCache(final JedisPool pool) {
+        this.pool = pool;
+    }
+
+    @Override @Nonnull
+    public Optional<String> get(@Nonnull final String key) {
+        try (Jedis j = pool.getResource()) {
+            return Optional.ofNullable(j.get(PREFIX + key));
+        } catch (RuntimeException e) {
+            LOG.warn("Redis.get failed for {}: {}", key, e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void set(@Nonnull final String key, @Nonnull final String value, final Duration ttl) {
+        long seconds = ttl != null ? Math.max(1, ttl.getSeconds()) : DEFAULT_TTL_SECONDS;
+        try (Jedis j = pool.getResource()) {
+            j.set(PREFIX + key, value, SetParams.setParams().ex(seconds));
+        } catch (RuntimeException e) {
+            LOG.warn("Redis.set failed for {}: {}", key, e.getMessage());
+        }
+    }
+
+    @Override
+    public void delete(@Nonnull final String key) {
+        try (Jedis j = pool.getResource()) {
+            j.del(PREFIX + key);
+        } catch (RuntimeException e) {
+            LOG.warn("Redis.del failed for {}: {}", key, e.getMessage());
+        }
+    }
+
+    @Override
+    public void clear() {
+        // Only wipe our own keys — never FLUSHDB a shared Redis.
+        try (Jedis j = pool.getResource()) {
+            j.eval(
+                "for _,k in ipairs(redis.call('KEYS', ARGV[1])) do redis.call('DEL', k) end return 0",
+                0, PREFIX + "*");
+        } catch (RuntimeException e) {
+            LOG.warn("Redis.clear failed: {}", e.getMessage());
+        }
+    }
+}
+```
+
+Wire it up as shown in [Enabling on plain Java](#enabling-on-plain-java).
+
+##### Snippet 2 — Any JCache (JSR-107) provider (plain Java, no Spring)
+
+Works for Ehcache, Hazelcast, Redisson, Infinispan, Caffeine-JCache — any JCache provider on your classpath:
+
+```java
+import com.sap.cloud.security.cache.SecurityCache;
+import jakarta.annotation.Nonnull;
+import java.time.Duration;
+import java.util.Optional;
+import javax.cache.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public final class JCacheSecurityCache implements SecurityCache<String, String> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JCacheSecurityCache.class);
+    private final Cache<String, String> delegate;
+
+    public JCacheSecurityCache(@Nonnull final Cache<String, String> delegate) {
+        this.delegate = delegate;
+    }
+
+    @Override @Nonnull
+    public Optional<String> get(@Nonnull final String key) {
+        try {
+            return Optional.ofNullable(delegate.get(key));
+        } catch (RuntimeException e) {
+            LOG.warn("JCache.get failed for {}: {}", key, e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void set(@Nonnull final String key, @Nonnull final String value, final Duration ttl) {
+        // TTL is controlled by the ExpiryPolicy on the JCache CacheManager; per-put TTL is ignored
+        // because JCache providers vary in whether they honor it.
+        try { delegate.put(key, value); }
+        catch (RuntimeException e) { LOG.warn("JCache.put failed for {}: {}", key, e.getMessage()); }
+    }
+
+    @Override
+    public void delete(@Nonnull final String key) {
+        try { delegate.remove(key); }
+        catch (RuntimeException e) { LOG.warn("JCache.remove failed for {}: {}", key, e.getMessage()); }
+    }
+
+    @Override
+    public void clear() {
+        try { delegate.clear(); }
+        catch (RuntimeException e) { LOG.warn("JCache.clear failed: {}", e.getMessage()); }
+    }
+}
+```
+
+##### Snippet 3 — Any Spring-managed backend (Spring Boot)
+
+If your app already has a Spring `CacheManager` you do **not** need to implement `SecurityCache` yourself. Just make sure the manager exposes a cache named `sap-security` — the auto-configuration wraps it via `SpringCacheSecurityCache`:
+
+```java
+@Configuration
+public class SecurityCacheConfig {
+
+    // Hazelcast — Spring will discover it via HazelcastCacheManager.
+    @Bean
+    public CacheManager cacheManager(HazelcastInstance hz) {
+        return new HazelcastCacheManager(hz);   // needs an IMap named "sap-security"
+    }
+}
+```
+
+For a fully custom backend (a JDBC store, an in-house cache, ...) you can also expose a `SecurityCache<String,String>` bean directly — the auto-configuration prefers that over any `CacheManager`:
+
+```java
+@Bean
+public SecurityCache<String, String> securityCache(JedisPool pool) {
+    return new JedisSecurityCache(pool);        // from Snippet 1
+}
+```
 
 #### Warnings
 
 - **Signature validation cache is sensitive.** It caches a boolean 'signature verified' verdict — if compromised, an attacker could flip 'invalid' to 'valid'. Every entry carries an HMAC-SHA256 tag derived from your own credentials via HKDF-SHA256 (RFC 5869). Tampered entries fail the MAC check and are treated as misses. Even so, do not enable this cache unless you fully control the backing store.
 - **Failure semantics.** Every cache call is best-effort. A broken cache never breaks token retrieval, JWKS fetch, or token validation — the library falls through to the source of truth and logs a WARN.
-- **TTL behavior.** Adapters ignore per-entry TTL and rely on the cache infrastructure's expiry policy. Configure your `ExpiryPolicy` (JCache) or `CacheManager` (Spring) to match: 10 min for tokens/JWKS/OIDC, 5 min or less for decode / signature caches.
+- **TTL behavior.** Adapters written on top of infrastructure that has its own TTL policy (JCache `ExpiryPolicy`, Redis `EXPIRE`, ...) should honor that policy rather than the per-entry TTL the library passes. Configure your infrastructure to match: 10 min for tokens/JWKS/OIDC, 5 min or less for decode / signature caches.
 
 Per-module details: [token-client/README.md](token-client/README.md), [java-security/README.md](java-security/README.md), [spring-security-3/README.md](spring-security-3/README.md).
 
