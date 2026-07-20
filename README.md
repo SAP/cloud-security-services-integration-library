@@ -290,7 +290,7 @@ All caches route through a single `com.sap.cloud.security.cache.SecurityCache<St
 - **`CaffeineSecurityCache`** (in `token-client`) — the in-process default; used when you do nothing.
 - **`SpringCacheSecurityCache`** (in `spring-security` / `spring-security-3`) — wraps a Spring `org.springframework.cache.Cache` so any Spring-managed backend (Redis, Hazelcast, Caffeine, ...) works via Spring's `CacheManager` abstraction.
 
-Any other backend (a raw Jedis client, a Hazelcast `IMap`, a JCache `javax.cache.Cache`, a JDBC-backed store, ...) is a copy-pasteable implementation of the SPI — see [Bring your own cache](#bring-your-own-cache) below.
+Any other backend (a raw Jedis client, a Hazelcast `IMap`, a JDBC-backed store, ...) is a copy-pasteable implementation of the SPI — see [Bring your own cache](#bring-your-own-cache) below.
 
 #### Enabling on Spring Boot
 
@@ -417,61 +417,7 @@ public final class JedisSecurityCache implements SecurityCache<String, String> {
 
 Wire it up as shown in [Enabling on plain Java](#enabling-on-plain-java).
 
-##### Snippet 2 — Any JCache (JSR-107) provider (plain Java, no Spring)
-
-Works for Ehcache, Hazelcast, Redisson, Infinispan, Caffeine-JCache — any JCache provider on your classpath:
-
-```java
-import com.sap.cloud.security.cache.SecurityCache;
-import jakarta.annotation.Nonnull;
-import java.time.Duration;
-import java.util.Optional;
-import javax.cache.Cache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public final class JCacheSecurityCache implements SecurityCache<String, String> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(JCacheSecurityCache.class);
-    private final Cache<String, String> delegate;
-
-    public JCacheSecurityCache(@Nonnull final Cache<String, String> delegate) {
-        this.delegate = delegate;
-    }
-
-    @Override @Nonnull
-    public Optional<String> get(@Nonnull final String key) {
-        try {
-            return Optional.ofNullable(delegate.get(key));
-        } catch (RuntimeException e) {
-            LOG.warn("JCache.get failed for {}: {}", key, e.getMessage());
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public void set(@Nonnull final String key, @Nonnull final String value, final Duration ttl) {
-        // TTL is controlled by the ExpiryPolicy on the JCache CacheManager; per-put TTL is ignored
-        // because JCache providers vary in whether they honor it.
-        try { delegate.put(key, value); }
-        catch (RuntimeException e) { LOG.warn("JCache.put failed for {}: {}", key, e.getMessage()); }
-    }
-
-    @Override
-    public void delete(@Nonnull final String key) {
-        try { delegate.remove(key); }
-        catch (RuntimeException e) { LOG.warn("JCache.remove failed for {}: {}", key, e.getMessage()); }
-    }
-
-    @Override
-    public void clear() {
-        try { delegate.clear(); }
-        catch (RuntimeException e) { LOG.warn("JCache.clear failed: {}", e.getMessage()); }
-    }
-}
-```
-
-##### Snippet 3 — Any Spring-managed backend (Spring Boot)
+##### Snippet 2 — Any Spring-managed backend (Spring Boot)
 
 If your app already has a Spring `CacheManager` you do **not** need to implement `SecurityCache` yourself. Just make sure the manager exposes a cache named `sap-security` — the auto-configuration wraps it via `SpringCacheSecurityCache`:
 
@@ -500,7 +446,7 @@ public SecurityCache<String, String> securityCache(JedisPool pool) {
 
 - **Signature validation cache is sensitive.** It caches a boolean 'signature verified' verdict — if compromised, an attacker could flip 'invalid' to 'valid'. Every entry carries an HMAC-SHA256 tag derived from your own credentials via HKDF-SHA256 (RFC 5869). Tampered entries fail the MAC check and are treated as misses. Even so, do not enable this cache unless you fully control the backing store.
 - **Failure semantics.** Every cache call is best-effort. A broken cache never breaks token retrieval, JWKS fetch, or token validation — the library falls through to the source of truth and logs a WARN.
-- **TTL behavior.** Adapters written on top of infrastructure that has its own TTL policy (JCache `ExpiryPolicy`, Redis `EXPIRE`, ...) should honor that policy rather than the per-entry TTL the library passes. Configure your infrastructure to match: 10 min for tokens/JWKS/OIDC, 5 min or less for decode / signature caches.
+- **TTL behavior.** Adapters written on top of infrastructure that has its own TTL policy (Redis `EXPIRE`, ...) should honor that policy rather than the per-entry TTL the library passes. Configure your infrastructure to match: 10 min for tokens/JWKS/OIDC, 5 min or less for decode / signature caches.
 
 Per-module details: [token-client/README.md](token-client/README.md), [java-security/README.md](java-security/README.md), [spring-security-3/README.md](spring-security-3/README.md).
 
