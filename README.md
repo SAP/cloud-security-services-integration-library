@@ -273,15 +273,13 @@ Common issues and solutions:
 
 ### 2.5 Distributed Caching (since 4.1.0)
 
-The library keeps five internal caches that shape latency and identity-service load:
+The library keeps three internal caches that shape latency and identity-service load:
 
 | Cache | Namespace | What it caches | Default |
 |---|---|---|---|
 | Outbound token cache | `tokens` | client-credentials / JWT-bearer / refresh-token responses from XSUAA | Caffeine in-memory |
 | JWKS cache | `jwks` | raw JWKS JSON per JWKS URI | Caffeine in-memory |
 | OIDC discovery cache | `oidc` | discovery response per issuer | Caffeine in-memory |
-| Token decode cache | `decode` | raw JWT strings, keyed by SHA-256 of the token | **opt-in, off by default** |
-| Signature validation cache | `sig` | boolean 'signature verified' verdicts, tagged with an HMAC | **opt-in, off by default** |
 
 **Why distributed?** After a rolling deploy every pod otherwise starts cold: no JWKS, no XSUAA client-credentials tokens. Under load the first requests fan out to XSUAA and IAS — the classic thundering herd. Sharing these caches across pods eliminates the cold-start penalty and keeps identity-service traffic flat.
 
@@ -444,9 +442,8 @@ public SecurityCache<String, String> securityCache(JedisPool pool) {
 
 #### Warnings
 
-- **Signature validation cache is sensitive.** It caches a boolean 'signature verified' verdict — if compromised, an attacker could flip 'invalid' to 'valid'. Every entry carries an HMAC-SHA256 tag derived from your own credentials via HKDF-SHA256 (RFC 5869). Tampered entries fail the MAC check and are treated as misses. Even so, do not enable this cache unless you fully control the backing store.
 - **Failure semantics.** Every cache call is best-effort. A broken cache never breaks token retrieval, JWKS fetch, or token validation — the library falls through to the source of truth and logs a WARN.
-- **TTL behavior.** Adapters written on top of infrastructure that has its own TTL policy (Redis `EXPIRE`, ...) should honor that policy rather than the per-entry TTL the library passes. Configure your infrastructure to match: 10 min for tokens/JWKS/OIDC, 5 min or less for decode / signature caches.
+- **TTL behavior.** Adapters written on top of infrastructure that has its own TTL policy (Redis `EXPIRE`, ...) should honor that policy rather than the per-entry TTL the library passes. Configure your infrastructure to match: 10 min for tokens/JWKS/OIDC.
 
 Per-module details: [token-client/README.md](token-client/README.md), [java-security/README.md](java-security/README.md), [spring-security-3/README.md](spring-security-3/README.md).
 
