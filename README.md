@@ -40,6 +40,7 @@ See [CHANGELOG.md](CHANGELOG.md) for complete details.
        - [2.4.1 Jakarta Example](#241-jakarta-example-using-hybridtokenauthenticator)
        - [2.4.2 Spring Boot Example](#242-spring-boot-example-using-hybridjwtdecoder)
    - [2.5 Distributed Caching](#25-distributed-caching-since-410)
+       - [When do I need it?](#recommendation-when-do-i-need-a-distributed-cache)
        - [Enabling on Spring Boot](#enabling-on-spring-boot)
        - [Enabling on plain Java](#enabling-on-plain-java)
        - [Bring your own cache](#bring-your-own-cache)
@@ -277,15 +278,34 @@ The library keeps three internal caches that shape latency and identity-service 
 
 | Cache | Namespace | What it caches | Default |
 |---|---|---|---|
-| Outbound token cache | `tokens` | client-credentials / JWT-bearer / refresh-token responses from XSUAA | Caffeine in-memory |
+| Outbound token cache | `tokens` | client-credentials, refresh-token, and **JWT-bearer token-exchange** responses from XSUAA / IAS | Caffeine in-memory |
 | JWKS cache | `jwks` | raw JWKS JSON per JWKS URI | Caffeine in-memory |
 | OIDC discovery cache | `oidc` | discovery response per issuer | Caffeine in-memory |
 
-**Why distributed?** After a rolling deploy every pod otherwise starts cold: no JWKS, no XSUAA client-credentials tokens. Under load the first requests fan out to XSUAA and IAS — the classic thundering herd. Sharing these caches across pods eliminates the cold-start penalty and keeps identity-service traffic flat.
+The outbound token cache covers **every** token that goes through `OAuth2TokenService` — including the IAS-to-XSUAA and XSUAA-to-XSUAA exchanges triggered via `DefaultIdTokenExtension` / `DefaultXsuaaTokenExtension`. There is no separate exchange cache; the same shared store serves all three flows.
+
+#### Recommendation: when do I need a distributed cache?
+
+**Default (Caffeine in-memory) is the right choice for:**
+
+- Small or single-instance services.
+- Services where a cold start after a restart is acceptable (a few seconds of extra XSUAA / IAS traffic while caches warm up).
+- Local development and tests.
+
+**Switch to a distributed cache (e.g. Redis) for:**
+
+- Larger deployments with **many pods** — every additional pod would otherwise fetch JWKS and issue its own client-credentials / exchange tokens independently.
+- Services with **frequent rolling deploys** — every deploy takes every pod through a cold cache, so the identity-service load scales with your deploy frequency.
+- **Token-exchange-heavy workloads** (e.g. IAS-to-XSUAA exchange on every incoming user request) — a single hot tenant amplifies pod-local cache misses into a burst on the identity service.
+- Any service that must stay within the per-subaccount **XSUAA rate limit** under peak traffic and rolling deploys.
+
+Sharing these caches across pods eliminates the cold-start penalty, keeps identity-service traffic flat during deploys, and stops the classic thundering herd where every pod races XSUAA for the same client-credentials token.
+
+#### The SPI and shipped adapters
 
 All caches route through a single `com.sap.cloud.security.cache.SecurityCache<String,String>` SPI. The library ships two adapters out of the box:
 
-- **`CaffeineSecurityCache`** (in `token-client`) — the in-process default; used when you do nothing.
+- **`CaffeineSecurityCache`** (in `token-client`) — the in-process default; used when you do nothing. Perfect for small services.
 - **`SpringCacheSecurityCache`** (in `spring-security` / `spring-security-3`) — wraps a Spring `org.springframework.cache.Cache` so any Spring-managed backend (Redis, Hazelcast, Caffeine, ...) works via Spring's `CacheManager` abstraction.
 
 Any other backend (a raw Jedis client, a Hazelcast `IMap`, a JDBC-backed store, ...) is a copy-pasteable implementation of the SPI — see [Bring your own cache](#bring-your-own-cache) below.
