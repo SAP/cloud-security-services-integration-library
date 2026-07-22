@@ -379,7 +379,7 @@ You can use [java-security-test](/java-security-test) library for testing the se
 
 ## Caches (since 4.1.0)
 
-This module owns four caches, all going through the `com.sap.cloud.security.cache.SecurityCache` SPI so you can point them at a distributed store. See the [main README](../README.md#25-distributed-caching-since-410) for setup.
+This module owns two caches, both going through the `com.sap.cloud.security.cache.SecurityCache` SPI so you can point them at a distributed store. See the [main README](../README.md#25-distributed-caching-since-410) for setup.
 
 ### JWKS cache
 Namespace `jwks`. Caches the raw JWKS JSON per JWKS URI + request-params tuple. The `JsonWebKeySet` is rebuilt on every hit — a few hundred microseconds — in exchange for cache entries that are safe to share across processes. Wire in with:
@@ -395,41 +395,6 @@ Defaults: 1000 entries, 10 minutes TTL. Sizes/durations adjustable via `withCach
 
 ### OIDC discovery cache
 Namespace `oidc`. Caches the three URIs the runtime needs (`token_endpoint`, `authorization_endpoint`, `jwks_uri`) as a compact JSON envelope. Same wiring as JWKS.
-
-### Token decode cache (opt-in)
-Namespace `decode`. Memoizes the raw-JWT → `Token` mapping so chatty services do not re-decode the same bearer on every hop.
-
-```java
-TokenDecodeCache decodeCache = new TokenDecodeCache(
-    sharedSecurityCache,
-    TokenDecodeCacheConfiguration.enabled(Duration.ofMinutes(5)));
-Token token = decodeCache.getOrDecode(rawToken, Token::create);
-```
-
-- Off by default.
-- TTL is `min(exp - now, configured cap)`; expired tokens are never stored.
-- Key is `sha256(token)` — the token itself is never used as a key.
-
-### Signature validation cache (opt-in, security-sensitive)
-Namespace `sig`. Memoizes the boolean 'signature verified' verdict.
-
-```java
-SignatureValidationCache sigCache = new SignatureValidationCache(
-    sharedSecurityCache,
-    SignatureValidationCacheConfiguration.enabled(
-        Duration.ofMinutes(5),
-        ("app-id:" + clientId + ":" + clientSecret).getBytes(UTF_8)));
-
-if (!sigCache.isKnownValid(rawToken, kid)) {
-    // full RSA verification here…
-    sigCache.recordValid(rawToken, kid);
-}
-```
-
-- Off by default.
-- Each entry carries an HMAC-SHA256 tag; the key is derived from your application's own IKM via HKDF-SHA256 (RFC 5869). Tampered entries or entries written by another application fail the MAC check and are treated as misses.
-- Only successful validations are cached; failures always go back to the RSA verifier.
-- **Do not enable unless you fully control the backing store.**
 
 ### Local testing 
 When you like to test/debug your secured application rest API locally (offline) you need to provide the `VCAP_SERVICES` before you run the application. The security library requires the following key value pairs in the `VCAP_SERVICES`
