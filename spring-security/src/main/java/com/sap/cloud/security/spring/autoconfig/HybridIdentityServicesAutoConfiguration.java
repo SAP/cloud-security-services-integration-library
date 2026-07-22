@@ -21,6 +21,7 @@ import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,14 +85,14 @@ public class HybridIdentityServicesAutoConfiguration {
 				IdentityServiceConfiguration identityConfig,
 				ObjectProvider<SecurityCache<String, String>> securityCache) {
 			LOGGER.debug("auto-configures HybridJwtDecoder.");
-      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
-      SecurityContext.registerXsuaaTokenExtension(getDefaultXSUAATokenExtension(xsuaaConfig));
+      SecurityCache<String, String> cache = securityCache.getIfAvailable();
+      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig, cache));
+      SecurityContext.registerXsuaaTokenExtension(getDefaultXSUAATokenExtension(xsuaaConfig, cache));
       TokenExchangeMode mode = TokenExchangeMode.fromString(tokenExchangeMode);
       JwtDecoderBuilder builder = new JwtDecoderBuilder()
           .withIasServiceConfiguration(identityConfig)
           .withXsuaaServiceConfiguration(xsuaaConfig)
           .withTokenExchange(mode);
-      SecurityCache<String, String> cache = securityCache.getIfAvailable();
       if (cache != null) {
         builder.withSecurityCache(cache);
       }
@@ -117,11 +118,11 @@ public class HybridIdentityServicesAutoConfiguration {
 					.equals(usedXsuaaConfigs.get(1).getProperty(ServiceConstants.SERVICE_PLAN))) {
 				usedXsuaaConfigs = usedXsuaaConfigs.subList(0, 1);
 			}
-      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
+      SecurityCache<String, String> cache = securityCache.getIfAvailable();
+      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig, cache));
       JwtDecoderBuilder builder = new JwtDecoderBuilder()
           .withIasServiceConfiguration(identityConfig)
           .withXsuaaServiceConfigurations(usedXsuaaConfigs);
-      SecurityCache<String, String> cache = securityCache.getIfAvailable();
       if (cache != null) {
         builder.withSecurityCache(cache);
       }
@@ -134,10 +135,10 @@ public class HybridIdentityServicesAutoConfiguration {
 		public JwtDecoder iasJwtDecoder(IdentityServiceConfiguration identityConfig,
 				ObjectProvider<SecurityCache<String, String>> securityCache) {
 			LOGGER.debug("auto-configures IasJwtDecoder.");
-      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig));
+      SecurityCache<String, String> cache = securityCache.getIfAvailable();
+      SecurityContext.registerIdTokenExtension(getDefaultIdTokenExtension(identityConfig, cache));
       JwtDecoderBuilder builder = new JwtDecoderBuilder()
           .withIasServiceConfiguration(identityConfig);
-      SecurityCache<String, String> cache = securityCache.getIfAvailable();
       if (cache != null) {
         builder.withSecurityCache(cache);
       }
@@ -146,16 +147,24 @@ public class HybridIdentityServicesAutoConfiguration {
 	}
 
   private static DefaultIdTokenExtension getDefaultIdTokenExtension(
-      IdentityServiceConfiguration identityConfig) {
+      IdentityServiceConfiguration identityConfig,
+      SecurityCache<String, String> securityCache) {
     return new DefaultIdTokenExtension(
-        new DefaultOAuth2TokenService(SecurityHttpClientProvider.createClient(identityConfig.getClientIdentity())),
+        new DefaultOAuth2TokenService(
+            SecurityHttpClientProvider.createClient(identityConfig.getClientIdentity()),
+            TokenCacheConfiguration.defaultConfiguration(),
+            securityCache),
         identityConfig);
   }
 
   private static DefaultXsuaaTokenExtension getDefaultXSUAATokenExtension(
-      OAuth2ServiceConfiguration xsuaaConfig) {
+      OAuth2ServiceConfiguration xsuaaConfig,
+      SecurityCache<String, String> securityCache) {
     return new DefaultXsuaaTokenExtension(
-        new DefaultOAuth2TokenService(SecurityHttpClientProvider.createClient(xsuaaConfig.getClientIdentity())),
+        new DefaultOAuth2TokenService(
+            SecurityHttpClientProvider.createClient(xsuaaConfig.getClientIdentity()),
+            TokenCacheConfiguration.defaultConfiguration(),
+            securityCache),
         xsuaaConfig);
   }
 }

@@ -12,6 +12,7 @@ import com.sap.cloud.security.token.TokenExchangeMode;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenService;
 import com.sap.cloud.security.xsuaa.client.DefaultXsuaaTokenExtension;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenService;
+import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.jwt.Base64JwtDecoder;
 import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
@@ -170,7 +171,9 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
   }
 
   private void registerExtensions() {
-    OAuth2TokenService tokenService = new DefaultOAuth2TokenService(httpClient);
+    OAuth2TokenService tokenService =
+        new DefaultOAuth2TokenService(
+            httpClient, TokenCacheConfiguration.defaultConfiguration(), getSecurityCache());
     SecurityContext.registerIdTokenExtension(new DefaultIdTokenExtension(tokenService, iasConfig));
     SecurityContext.registerXsuaaTokenExtension(
         new DefaultXsuaaTokenExtension(tokenService, xsuaaConfig));
