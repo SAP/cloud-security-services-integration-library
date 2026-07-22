@@ -83,12 +83,20 @@ public enum JwtSignatureAlgorithm {
 
 	/**
 	 * Returns the default algorithm for the given JWK key type. Used as a fallback when a JWK
-	 * entry omits its {@code alg}. Falls back to {@link #RS256} for {@code RSA} keys; returns
-	 * {@code null} for unknown types.
+	 * entry omits its {@code alg}.
+	 * <p>
+	 * When multiple algorithms share a {@code kty}, the first match in enum declaration order
+	 * wins — currently {@link #RS256} for {@code RSA}. Preserve that order when adding new
+	 * algorithms (e.g. EC): put the canonical RFC 7518 default at the top of its {@code kty}
+	 * group. The choice is only advisory; downstream key construction still cross-checks the
+	 * concrete JWK parameters (curve, coordinate length, …) against the returned algorithm,
+	 * so a mismatched default produces a clear error rather than a silently wrong key.
 	 */
 	public static JwtSignatureAlgorithm fromType(String type) {
-		if ("RSA".equals(type)) {
-			return RS256;
+		for (JwtSignatureAlgorithm algorithm : values()) {
+			if (algorithm.type.equals(type)) {
+				return algorithm;
+			}
 		}
 		return null;
 	}
