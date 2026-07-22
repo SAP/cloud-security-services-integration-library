@@ -383,6 +383,8 @@ In case you want to implement a reactive token authentication flow, you can use 
 
 ### [Optional] Distributed Cache (since 4.1.0)
 
+By default the library uses an **in-memory Caffeine cache** for JWKS, OIDC discovery, and outbound tokens — that's the right choice for small services and local development. For larger deployments (many pods, frequent rolling deploys, token-exchange-heavy workloads) we recommend a **distributed cache** so a restarting pod picks up already-warm entries from its peers instead of re-fetching everything from XSUAA / IAS. See the top-level [README §2.5](../README.md#25-distributed-caching-since-410) for the full recommendation with concrete criteria.
+
 To share the SAP Cloud Security caches across a horizontally-scaled deployment, enable the auto-configuration and expose a Spring `CacheManager` whose cache is named `sap-security`:
 
 ```yaml
@@ -407,14 +409,14 @@ public class DistributedCacheConfig {
 ```
 
 The auto-config wires that cache into:
-- `XsuaaTokenFlows` — outbound token cache (namespace `tokens`).
+- `XsuaaTokenFlows` — outbound token cache (namespace `tokens`). Covers client-credentials, refresh-token, and **JWT-bearer token-exchange** responses (the flow behind `DefaultIdTokenExtension` / `DefaultXsuaaTokenExtension`).
 - `JwtValidatorBuilder` (via `withSecurityCache`) — JWKS and OIDC caches (namespaces `jwks`, `oidc`).
 
 Discovery order: (1) user-supplied `SecurityCache<String,String>` bean → (2) Spring `CacheManager.getCache(name)`. If neither is present the context fails fast — this is on purpose so a misconfigured deployment does not silently run without a shared cache.
 
 For any backend that is not fronted by a Spring `CacheManager` (raw Redis via Jedis, an in-house store, ...), implement `SecurityCache<String,String>` directly and declare it as a `@Bean` — the auto-config prefers it over any `CacheManager`. Copy-pasteable snippets for Redis (Jedis) and Spring-managed backends live in the top-level [*Bring your own cache*](../README.md#bring-your-own-cache) section.
 
-See the top-level [README](../README.md#25-distributed-caching-since-410) for the complete story including the opt-in decode / signature caches.
+See the top-level [README](../README.md#25-distributed-caching-since-410) for the complete story including when to use a distributed cache and how to bring your own.
 
 
 ## Testing
