@@ -167,6 +167,9 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 		}
 
 		if (jwks.getAll().isEmpty()) {
+			// Note: an empty JWKS can also occur when the JWKS response was non-empty but ALL entries were
+			// dropped by JsonWebKeySetFactory (unsupported alg/kty, malformed entry). See earlier
+			// 'Skipping JWK entry' log lines for details.
 			LOGGER.error("Retrieved no token keys from {} for the given header parameters.", keyParameters.keyUri);
 			return null;
 		}
@@ -177,7 +180,15 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 			}
 		}
 
-		LOGGER.warn("No matching key found. Cached keys: {}", jwks);
+		// The exception below may also occur when the JWKS originally contained a matching key, but that
+		// entry was silently dropped by JsonWebKeySetFactory because its algorithm is not supported by
+		// this library (e.g. EC/EdDSA), or because the entry was malformed. In that case the dropped
+		// key does NOT appear in `jwks` below — see earlier 'Skipping JWK entry' log lines from
+		// JsonWebKeySetFactory for details.
+		LOGGER.warn("No matching key found. Cached keys: {}."
+				+ " Note: JWKS entries with algorithms not supported by this library, or malformed entries,"
+				+ " are dropped at parse time — see earlier 'Skipping JWK entry' log lines for details.",
+				jwks);
 		throw new IllegalArgumentException("Key with kid " + keyParameters.keyId + " not found in JWKS.");
 	}
 
