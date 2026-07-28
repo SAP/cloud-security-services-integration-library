@@ -47,7 +47,7 @@ class JsonWebKeySetFactory {
 		try {
 			return createJsonWebKey(key);
 		} catch (RuntimeException e) {
-			LOGGER.warn("Skipping unusable JWK entry (kid={}, kty={}, alg={}) in JWKS: {}",
+			LOGGER.warn("Skipping JWK entry that could not be parsed (kid={}, kty={}, alg={}) in JWKS: {}",
 					LogSanitizer.sanitize(key.optString(JsonWebKeyConstants.KID_PARAMETER_NAME, "<none>")),
 					LogSanitizer.sanitize(key.optString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME, "<none>")),
 					LogSanitizer.sanitize(key.optString(JsonWebKeyConstants.ALG_PARAMETER_NAME, "<none>")),
@@ -67,9 +67,10 @@ class JsonWebKeySetFactory {
 				: JwtSignatureAlgorithm.fromType(keyType);
 
 		if (algorithm == null) {
-			// Neither the JWA "alg" value nor the JWK "kty" mapped to a signature algorithm this library
-			// supports. Skip so tokens signed with a key we DO support elsewhere in the JWKS still validate.
-			LOGGER.info("Ignoring JWK entry with unsupported algorithm (kid={}, kty={}, alg={}).",
+			// Neither the JWA "alg" value (e.g. "ES256") nor the JWK "kty" (e.g. "EC") mapped to a signature algorithm
+			// we support. Skip this JWK instead of failing the whole set — the JWKS may still contain other keys we
+			// can validate with.
+			LOGGER.info("Skipping JWK entry with unsupported algorithm (kid={}, kty={}, alg={}) in JWKS.",
 					LogSanitizer.sanitize(keyId != null ? keyId : "<none>"),
 					LogSanitizer.sanitize(keyType),
 					LogSanitizer.sanitize(keyAlgorithmName != null ? keyAlgorithmName : "<none>"));
