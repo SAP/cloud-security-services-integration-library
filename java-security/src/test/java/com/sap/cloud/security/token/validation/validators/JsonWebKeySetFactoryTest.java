@@ -203,4 +203,60 @@ public class JsonWebKeySetFactoryTest {
 	private static String base64Url(byte[] bytes) {
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 	}
+
+	// A syntactically valid RSA JWK reused in the tolerance tests below to prove that valid entries
+	// survive alongside entries the library cannot use.
+	private static final String RSA_ENTRY = "{"
+			+ "\"kty\":\"RSA\","
+			+ "\"alg\":\"RS256\","
+			+ "\"kid\":\"rsa-key\","
+			+ "\"e\":\"AQAB\","
+			+ "\"n\":\"AJjTNzl32UtFLvHmGVwoBlhYFVkF-jB52nWJN8x2eTyD3g2NwKWkhqTBIlcJ9XE-ilFRzCx3Js9YLDcu"
+			+ "-KQp5gmttluydwaGbpc0dAN-2sjFa0R4d5334MkpPLufNZdNm723KWm93txKLUjeS4sRk9VVmbw22pV3-p-ZKuOfTVi"
+			+ "-mc5BLNtDKzhJOXC3Z7IoE0FB0iiEOU6ZXcg5CTJts8DpawdkffOPkHZQxZqFR-2Gro8a9oNGferu1vSJopOsE4hXPFu"
+			+ "3lF34Txp-63lS6tf-aNjc9CcdHoxRw8Exp3LPpNUQUug26UzjK_bZCRHN2bF9xbeDragpEVyOYVJmvh8\""
+			+ "}";
+
+	@Test
+	public void skipsJwksEntryWithUnsupportedAlgValue() {
+		// "EdDSA" is not part of the supported set. The unusable entry must be silently dropped so
+		// the RSA key alongside it remains validatable.
+		String jwks = "{\"keys\":["
+				+ "{\"kty\":\"OKP\",\"alg\":\"EdDSA\",\"kid\":\"ed-key\",\"crv\":\"Ed25519\",\"x\":\"foo\"},"
+				+ RSA_ENTRY
+				+ "]}";
+
+		JsonWebKeySet result = JsonWebKeySetFactory.createFromJson(jwks);
+
+		assertThat(result.getAll()).hasSize(1);
+		assertThat(result.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "rsa-key")).isNotNull();
+	}
+
+	@Test
+	public void skipsJwksEntryWithUnsupportedKty() {
+		// No "alg" present; kty "OKP" (EdDSA family) does not resolve to any supported signature algorithm.
+		String jwks = "{\"keys\":["
+				+ "{\"kty\":\"OKP\",\"kid\":\"ed-key\",\"crv\":\"Ed25519\",\"x\":\"foo\"},"
+				+ RSA_ENTRY
+				+ "]}";
+
+		JsonWebKeySet result = JsonWebKeySetFactory.createFromJson(jwks);
+
+		assertThat(result.getAll()).hasSize(1);
+		assertThat(result.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "rsa-key")).isNotNull();
+	}
+
+	@Test
+	public void skipsJwksEntryWithMissingKty() {
+		// Entirely malformed entry (missing mandatory "kty") must not tear down the whole set.
+		String jwks = "{\"keys\":["
+				+ "{\"kid\":\"broken\"},"
+				+ RSA_ENTRY
+				+ "]}";
+
+		JsonWebKeySet result = JsonWebKeySetFactory.createFromJson(jwks);
+
+		assertThat(result.getAll()).hasSize(1);
+		assertThat(result.getKeyByAlgorithmAndId(JwtSignatureAlgorithm.RS256, "rsa-key")).isNotNull();
+	}
 }
