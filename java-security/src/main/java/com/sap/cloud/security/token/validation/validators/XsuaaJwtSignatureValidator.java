@@ -68,8 +68,7 @@ class XsuaaJwtSignatureValidator extends JwtSignatureValidator {
 
 			String fallbackKey = configuration.getProperty(ServiceConstants.XSUAA.VERIFICATION_KEY);
 			try {
-				key = JsonWebKeyImpl.createPublicKeyFromPemEncodedPublicKey(JwtSignatureAlgorithm.RS256,
-						fallbackKey);
+				key = new KeyMaterial.Pem(fallbackKey).toPublicKey(JwtSignatureAlgorithm.RS256);
 			} catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
 				IllegalArgumentException illegalArgEx = new IllegalArgumentException(
 						"Fallback validation key supplied via " + ServiceConstants.XSUAA.VERIFICATION_KEY
