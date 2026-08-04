@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 - Skip IAS proof-token validation for tokens with a single audience or no audience claim
   - `SapIdJwtSignatureValidator` previously gated the proof-token / forwarded-client-cert check on the presence of the `ias_apis` claim. It now gates on `token.getAudiences().size() > 1`, so the check only runs for genuine app-to-app tokens (multiple audiences) and is skipped for app-to-service tokens (single audience) and tokens with a missing/empty `aud` claim
-  - Matches the behavior implemented in the `@sap/xssec` Node.js library and eliminates spurious "client certificate could not be read" failures on requests where no `x-forwarded-client-cert` header is expected
+  - Eliminates spurious "client certificate could not be read" failures on requests where no `x-forwarded-client-cert` header is expected
 - Expose the `sap_id_type` claim on `SapIdToken`
   - New `SapIdToken#getIdType()` returning a typed `SapIdType` enum (`USER`, `APP`); resolves to `null` if the claim is absent or carries an unknown value
   - New `TokenClaims.SAP_ID_TYPE` constant
