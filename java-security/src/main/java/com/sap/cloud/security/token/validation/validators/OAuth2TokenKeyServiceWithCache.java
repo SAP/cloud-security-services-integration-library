@@ -183,8 +183,8 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 
 		// The exception below may also occur when the JWKS originally contained a matching key, but that
 		// entry was silently dropped by JsonWebKeySetFactory because its algorithm is not supported by
-		// this library (e.g. EC/EdDSA), or because the entry was malformed. In that case the dropped
-		// key does NOT appear in `jwks` below — see earlier 'Skipping JWK entry' log lines from
+		// this library (e.g. EdDSA), or because the entry was malformed. In that case the dropped key
+		// does NOT appear in `jwks` below — see earlier 'Skipping JWK entry' log lines from
 		// JsonWebKeySetFactory for details.
 		LOGGER.warn("No matching key with kid '{}' and algorithm '{}' found. Cached keys: {}."
 				+ " Note: JWKS entries with algorithms not supported by this library, or malformed entries,"

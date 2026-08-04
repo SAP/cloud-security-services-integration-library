@@ -39,8 +39,8 @@ class JsonWebKeySetFactory {
 	/**
 	 * Wraps {@link #createJsonWebKey(JSONObject)} so that one bad JWK entry does not tear down the
 	 * whole JWKS. Identity providers may publish keys for algorithms this library does not (yet)
-	 * support (new EC curves, EdDSA, …); dropping the entire key set would break token validation
-	 * for tokens signed with algorithms we DO support that happen to share the same JWKS endpoint.
+	 * support (e.g. EdDSA); dropping the entire key set would break token validation for tokens
+	 * signed with algorithms we DO support that happen to share the same JWKS endpoint.
 	 */
 	@Nullable
 	private static JsonWebKey tryCreateJsonWebKey(JSONObject key) {
@@ -67,9 +67,9 @@ class JsonWebKeySetFactory {
 				: JwtSignatureAlgorithm.fromType(keyType);
 
 		if (algorithm == null) {
-			// Neither the JWA "alg" value (e.g. "ES256") nor the JWK "kty" (e.g. "EC") mapped to a signature algorithm
-			// we support. Skip this JWK instead of failing the whole set — the JWKS may still contain other keys we
-			// can validate with.
+			// The JWA "alg" value (or the JWK "kty" when no "alg" is present) did not map to a signature
+			// algorithm this library supports — e.g. an EdDSA/OKP key on a shared JWKS endpoint. Skip this
+			// JWK instead of failing the whole set — other keys in the JWKS may still be usable.
 			LOGGER.info("Skipping JWK entry with unsupported algorithm (kid={}, kty={}, alg={}) in JWKS.",
 					LogSanitizer.sanitize(keyId != null ? keyId : "<none>"),
 					LogSanitizer.sanitize(keyType),
