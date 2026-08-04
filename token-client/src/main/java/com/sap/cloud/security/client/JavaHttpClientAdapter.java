@@ -37,7 +37,13 @@ class JavaHttpClientAdapter implements SecurityHttpClient {
 					.timeout(Duration.ofSeconds(socketTimeoutSeconds));
 
 			// Add headers
-			request.getHeaders().forEach(builder::header);
+			request.getHeaders().forEach((name, value) -> {
+				if (value != null && (value.indexOf('\r') >= 0 || value.indexOf('\n') >= 0)) {
+					throw new IllegalArgumentException(
+							"Header value for '" + name + "' contains illegal CR/LF characters.");
+				}
+				builder.header(name, value);
+			});
 
 			// Set method and body
 			if (request.getBody() != null && request.getBody().length > 0) {

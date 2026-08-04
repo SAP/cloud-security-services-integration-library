@@ -8,6 +8,18 @@ All notable changes to this project will be documented in this file.
   - `PS256`, `PS384`, `PS512` (RSASSA-PSS with SHA-256 / SHA-384 / SHA-512). The corresponding `PSSParameterSpec` is set automatically before signature verification.
   - `ES256`, `ES384`, `ES512` (ECDSA on P-256 / P-384 / P-521 with SHA-256 / SHA-384 / SHA-512). The JCA name `SHA*withECDSAinP1363Format` is used so the raw `R||S` signature format mandated by RFC 7518 §3.4 is accepted directly. EC JWKs are constructed from `crv`/`x`/`y` with strict curve and coordinate-length validation per RFC 7518 §6.2.1.
   - Selection is driven by the JWT header `alg` value. Unknown values continue to be rejected with the existing "is not supported" error.
+- Expose the `sap_id_type` claim on `SapIdToken`
+  - New `SapIdToken#getIdType()` returning a typed `SapIdType` enum (`USER`, `APP`); resolves to `null` if the claim is absent or carries an unknown value
+  - New `TokenClaims.SAP_ID_TYPE` constant
+  - `DefaultIdTokenExtension#isTechnicalUser` now prefers the `sap_id_type` claim and falls back to the `sub == azp` heuristic for tokens issued before the claim was introduced
+
+## 4.0.8
+
+- Fix IAS proof-token validation regression under Istio / Kyma with `credential-type: X509_GENERATED`
+  - `SapIdJwtSignatureValidator` was setting the `x-client_cert` request header directly from `X509Certificate#getPEM()`. When the certificate originates from Istio's `x-forwarded-client-cert` (XFCC) header, the PEM includes `-----BEGIN CERTIFICATE-----` / `-----END CERTIFICATE-----` delimiters and CR/LF line breaks
+  - Since 4.0.0, the token-client HTTP transport uses Java 11's `HttpClient`, which enforces RFC 7230 and rejects any header value containing CR/LF with `IllegalArgumentException` (surfaced as `"Token signature can not be validated because: invalid header value: <PEM>"`). Every authenticated request behind Istio failed proof-token validation as a result
+  - The header value is now sanitized to bare base64-encoded DER (PEM delimiters and all whitespace stripped) before being placed on the wire. The IAS JWKS endpoint accepts this form. A new `X509Certificate#getPEMHeaderValue()` accessor keeps the sanitization next to the PEM parsing; `getPEM()`'s existing contract is unchanged
+  - `JavaHttpClientAdapter` additionally fails fast with a message naming the offending header key (not the value, which may be sensitive) if a header value ever contains CR/LF, turning any future regression from a misleading `"invalid header value: <PEM>"` into an actionable transport-layer error
 - Update dependencies:
   - Spring Boot: 4.0.6 → 4.1.0
   - Spring Framework: 7.0.7 → 7.0.8
@@ -24,6 +36,9 @@ All notable changes to this project will be documented in this file.
   - jacoco-maven-plugin: 0.8.14 → 0.8.15
   - central-publishing-maven-plugin: 0.10.0 → 0.11.0
 - Fix `junit-bom` import in the root pom — entry was missing `<type>pom</type><scope>import</scope>`, so JUnit platform/jupiter versions were silently resolved through Spring Boot's BOM. Now correctly imported and ordered ahead of `spring-boot-dependencies` so junit-bom wins for all JUnit 6 artifacts.
+- Introduce a 1-minute clock-skew leeway on `Token#isExpired()`
+  - `Token.EXPIRATION_LEEWAY` (public constant) makes the sender-side tolerance match the value the `JwtTimestampValidator` already used on the receiver side, so both cannot drift apart
+  - Callers that see `!isExpired()` can now rely on the receiver accepting the token for a few more seconds — mirrors the behavior of the Node.js `@sap/xssec` library
 
 ## 4.0.7
 

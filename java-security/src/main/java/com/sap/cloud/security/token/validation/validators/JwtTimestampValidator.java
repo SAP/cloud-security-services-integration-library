@@ -11,7 +11,6 @@ import com.sap.cloud.security.token.validation.ValidationResults;
 import com.sap.cloud.security.token.validation.Validator;
 
 import jakarta.annotation.Nullable;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.function.Supplier;
@@ -28,10 +27,7 @@ import static com.sap.cloud.security.token.validation.ValidationResults.createIn
  */
 class JwtTimestampValidator implements Validator<Token> {
 
-	/**
-	 * Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew.
-	 */
-	private static final TemporalAmount DEFAULT_TOLERANCE = Duration.ofMinutes(1);
+	private static final TemporalAmount DEFAULT_TOLERANCE = Token.EXPIRATION_LEEWAY;
 
 	private final Supplier<Instant> timeProvider;
 	private final TemporalAmount tolerance;

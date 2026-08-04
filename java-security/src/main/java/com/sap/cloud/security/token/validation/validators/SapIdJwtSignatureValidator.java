@@ -79,7 +79,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 			} else {
 				Map<String, String> cacheKeyParams = new HashMap<>(requestParams);
 
-				requestParams.put(HttpHeaders.X_CLIENT_CERT, cert.getPEM());
+				requestParams.put(HttpHeaders.X_CLIENT_CERT, cert.getLeafCertificateAsHeaderValue());
 				cacheKeyParams.put(X509Constants.FWD_CLIENT_CERT_SUB, cert.getSubjectDN());
 
 				cacheKey = new OAuth2TokenKeyServiceWithCache.CacheKey(keyParams.keyUri(), cacheKeyParams);

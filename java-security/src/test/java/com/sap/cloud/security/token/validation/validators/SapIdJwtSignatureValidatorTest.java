@@ -168,6 +168,47 @@ public class SapIdJwtSignatureValidatorTest {
 	}
 
 	@Test
+	public void validate_withEnabledProofTokenCheck_multiLinePemCert_headerIsSanitized() throws IOException {
+		String base64 = IOUtils.resourceToString("/cf-forwarded-client-cert.txt", UTF_8);
+		String multiLinePem = "-----BEGIN CERTIFICATE-----\n"
+				+ chunk(base64, 64)
+				+ "\n-----END CERTIFICATE-----\n";
+		Certificate cert = X509Certificate.newCertificate(multiLinePem);
+		SecurityContext.setClientCertificate(cert);
+
+		OAuth2TokenKeyService tokenKeyMock = Mockito.mock(OAuth2TokenKeyService.class);
+		ParamsCapturesClientCert capture = new ParamsCapturesClientCert();
+		when(tokenKeyMock
+				.retrieveTokenKeys(any(), argThat(capture)))
+				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+
+		SapIdJwtSignatureValidator cut = new SapIdJwtSignatureValidator(
+				mockConfiguration,
+				OAuth2TokenKeyServiceWithCache.getInstance()
+						.withTokenKeyService(tokenKeyMock),
+				OidcConfigurationServiceWithCache.getInstance()
+						.withOidcConfigurationService(oidcConfigServiceMock));
+		cut.enableProofTokenValidationCheck();
+		assertTrue(cut.validate(iasToken).isValid());
+
+		assertThat(capture.captured).isNotNull();
+		assertThat(capture.captured).doesNotContain("-----BEGIN");
+		assertThat(capture.captured).doesNotContain("-----END");
+		assertThat(capture.captured).doesNotContain("\n");
+		assertThat(capture.captured).doesNotContain("\r");
+		assertThat(capture.captured).doesNotContain(" ");
+	}
+
+	private static String chunk(String s, int width) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i += width) {
+			if (i > 0) sb.append('\n');
+			sb.append(s, i, Math.min(i + width, s.length()));
+		}
+		return sb.toString();
+	}
+
+	@Test
 	public void validate_withEnabledProofTokenCheck_app2app() {
 		Token iasToken = new SapIdToken(
 				"eyJraWQiOiJkZWZhdWx0LWtpZC1pYXMiLCJhbGciOiJSUzI1NiJ9.eyJleHAiOjY5NzQwMzE2MDAsImF6cCI6IlQwMDAzMTAiLCJjaWQiOiJUMDAwMzEwIiwiYXVkIjoiVDAwMDMxMCIsInpvbmVfdXVpZCI6InRoZS16b25lLWlkIiwiYXBwX3RpZCI6InRoZS1hcHAtdGlkIiwidXNlcl91dWlkIjoiMTIzNDU2Nzg5MCIsInNjaW1faWQiOiJzY2ltLTEyMzQ1Njc4OTAiLCJzdWIiOiJQMTc2OTQ1IiwiaXNzIjoiaHR0cHM6Ly9hcHBsaWNhdGlvbi5teWF1dGguY29tIiwiZ2l2ZW5fbmFtZSI6ImpvaG4iLCJmYW1pbHlfbmFtZSI6ImRvZSIsImVtYWlsIjoiam9obi5kb2VAZW1haWwub3JnIiwiaWFzX2FwaXMiOiJpYXNfYXBpcyJ9.XScl2bUr12mDNmVJahYIHEr7rlfaBFoyjR4UTJvOuEKXIQIgf58hRqbDNoKNM2pRiue8FvlD4TuI1OQ9r4wQgJ86sa0YIly7YfOhX6XQoDUXCcFVU_MsYTZJo2LMmOziD5EHt9wakRhWN3FqDM7KG4j_-HOhj3k0I72gFt83BToQHcMsW26eDQ7qfeeiNFsuUWzX8U-hZzCdOsl6EGYw2VU9kedEACH7xsOmfDdfLEPHu1HmjRmywdE118z4fPXpIvSN47V4VeXU8jZptRgxz1TDLT2w_zb4IPJInacadMVLNIVcrWqplQKTiS7nUCzCk2_aSKnBjerO5ugoERS9HA");
@@ -283,6 +324,20 @@ public class SapIdJwtSignatureValidatorTest {
 		@Override
 		public boolean matches(Map<String, String> map) {
 			return map.get(HttpHeaders.X_CLIENT_CERT) == null;
+		}
+	}
+
+	static class ParamsCapturesClientCert implements ArgumentMatcher<Map<String, String>> {
+		String captured;
+
+		@Override
+		public boolean matches(Map<String, String> map) {
+			String value = map.get(HttpHeaders.X_CLIENT_CERT);
+			if (value != null) {
+				this.captured = value;
+				return true;
+			}
+			return false;
 		}
 	}
 

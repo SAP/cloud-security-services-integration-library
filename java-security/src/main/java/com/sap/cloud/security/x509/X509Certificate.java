@@ -141,4 +141,22 @@ public class X509Certificate implements Certificate {
 		return this.pem;
 	}
 
+	/**
+	 * @return the leaf certificate as bare base64-encoded DER, safe to use as an HTTP header
+	 * 		value (RFC 7230 forbids CR/LF in header values). If the PEM contains multiple
+	 * 		concatenated certificates only the first is kept — consistent with
+	 * 		{@link #getSubjectDN()} and {@link #getThumbprint()}, which also operate on the first
+	 * 		(leaf) certificate.
+	 */
+	public String getLeafCertificateAsHeaderValue() {
+		int begin = pem.indexOf(X509Parser.BEGIN_CERTIFICATE);
+		if (begin < 0) {
+			return pem.replaceAll("\\s", "");
+		}
+		int bodyStart = begin + X509Parser.BEGIN_CERTIFICATE.length();
+		int end = pem.indexOf(X509Parser.END_CERTIFICATE, bodyStart);
+		int bodyEnd = end > bodyStart ? end : pem.length();
+		return pem.substring(bodyStart, bodyEnd).replaceAll("\\s", "");
+	}
+
 }
