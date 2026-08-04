@@ -5,10 +5,16 @@
  */
 package com.sap.cloud.security.token.validation.validators;
 
+import com.sap.cloud.security.util.LogSanitizer;
+import jakarta.annotation.Nullable;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class JsonWebKeySetFactory {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(JsonWebKeySetFactory.class);
 
 	private JsonWebKeySetFactory() {
 	}
@@ -20,13 +26,37 @@ class JsonWebKeySetFactory {
 
 			for (Object key : keys) {
 				if (key instanceof JSONObject) {
-					keySet.put(createJsonWebKey((JSONObject) key));
+					JsonWebKey jwk = tryCreateJsonWebKey((JSONObject) key);
+					if (jwk != null) {
+						keySet.put(jwk);
+					}
 				}
 			}
 		}
 		return keySet;
 	}
 
+	/**
+	 * Wraps {@link #createJsonWebKey(JSONObject)} so that one bad JWK entry does not tear down the
+	 * whole JWKS. Identity providers may publish keys for algorithms this library does not (yet)
+	 * support (e.g. EdDSA); dropping the entire key set would break token validation for tokens
+	 * signed with algorithms we DO support that happen to share the same JWKS endpoint.
+	 */
+	@Nullable
+	private static JsonWebKey tryCreateJsonWebKey(JSONObject key) {
+		try {
+			return createJsonWebKey(key);
+		} catch (RuntimeException e) {
+			LOGGER.warn("Skipping JWK entry that could not be parsed (kid={}, kty={}, alg={}) in JWKS: {}",
+					LogSanitizer.sanitize(key.optString(JsonWebKeyConstants.KID_PARAMETER_NAME, "<none>")),
+					LogSanitizer.sanitize(key.optString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME, "<none>")),
+					LogSanitizer.sanitize(key.optString(JsonWebKeyConstants.ALG_PARAMETER_NAME, "<none>")),
+					e.getMessage());
+			return null;
+		}
+	}
+
+	@Nullable
 	private static JsonWebKey createJsonWebKey(JSONObject key) {
 		String keyType = key.getString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
 		String keyAlgorithmName = optionalString(key, JsonWebKeyConstants.ALG_PARAMETER_NAME);
@@ -35,6 +65,17 @@ class JsonWebKeySetFactory {
 		JwtSignatureAlgorithm algorithm = keyAlgorithmName != null
 				? JwtSignatureAlgorithm.fromValue(keyAlgorithmName)
 				: JwtSignatureAlgorithm.fromType(keyType);
+
+		if (algorithm == null) {
+			// The JWA "alg" value (or the JWK "kty" when no "alg" is present) did not map to a signature
+			// algorithm this library supports — e.g. an EdDSA/OKP key on a shared JWKS endpoint. Skip this
+			// JWK instead of failing the whole set — other keys in the JWKS may still be usable.
+			LOGGER.info("Skipping JWK entry with unsupported algorithm (kid={}, kty={}, alg={}) in JWKS.",
+					LogSanitizer.sanitize(keyId != null ? keyId : "<none>"),
+					LogSanitizer.sanitize(keyType),
+					LogSanitizer.sanitize(keyAlgorithmName != null ? keyAlgorithmName : "<none>"));
+			return null;
+		}
 
 		return new JsonWebKeyImpl(algorithm, keyId, extractKeyMaterial(key));
 	}
