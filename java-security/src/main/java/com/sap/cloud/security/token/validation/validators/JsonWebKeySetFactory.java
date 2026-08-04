@@ -28,33 +28,41 @@ class JsonWebKeySetFactory {
 	}
 
 	private static JsonWebKey createJsonWebKey(JSONObject key) {
-		String keyAlgorithm = null;
-		String pemEncodedPublicKey = null;
-		String keyId = null;
-		String modulus = null;
-		String publicExponent = null;
-
 		String keyType = key.getString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME);
-		if (key.has(JsonWebKeyConstants.ALG_PARAMETER_NAME)) {
-			keyAlgorithm = key.getString(JsonWebKeyConstants.ALG_PARAMETER_NAME);
-		}
-		if (key.has(JsonWebKeyConstants.VALUE_PARAMETER_NAME)) {
-			pemEncodedPublicKey = key.getString(JsonWebKeyConstants.VALUE_PARAMETER_NAME);
-		}
-		if (key.has(JsonWebKeyConstants.KID_PARAMETER_NAME)) {
-			keyId = key.getString(JsonWebKeyConstants.KID_PARAMETER_NAME);
-		}
-		if (key.has(JsonWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME)) {
-			modulus = key.getString(JsonWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME);
-		}
-		if (key.has(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME)) {
-			publicExponent = key.getString(JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME);
-		}
-		JwtSignatureAlgorithm algorithm = keyAlgorithm != null ? JwtSignatureAlgorithm.fromValue(keyAlgorithm)
+		String keyAlgorithmName = optionalString(key, JsonWebKeyConstants.ALG_PARAMETER_NAME);
+		String keyId = optionalString(key, JsonWebKeyConstants.KID_PARAMETER_NAME);
+
+		JwtSignatureAlgorithm algorithm = keyAlgorithmName != null
+				? JwtSignatureAlgorithm.fromValue(keyAlgorithmName)
 				: JwtSignatureAlgorithm.fromType(keyType);
 
-		return new JsonWebKeyImpl(algorithm, keyId, modulus, publicExponent,
-				pemEncodedPublicKey);
+		return new JsonWebKeyImpl(algorithm, keyId, extractKeyMaterial(key));
+	}
+
+	/**
+	 * Chooses the appropriate {@link KeyMaterial} carrier for a JWK entry. PEM ({@code value})
+	 * takes precedence — that's the XSUAA JKU response format, which supplies the key as a
+	 * pre-encoded {@code SubjectPublicKeyInfo} regardless of {@code kty}. Otherwise a JWK with a
+	 * {@code crv} field is EC; anything else is treated as RSA (the historical default).
+	 */
+	private static KeyMaterial extractKeyMaterial(JSONObject key) {
+		String pem = optionalString(key, JsonWebKeyConstants.VALUE_PARAMETER_NAME);
+		if (pem != null) {
+			return new KeyMaterial.Pem(pem);
+		}
+		if (key.has(JsonWebKeyConstants.EC_CURVE_PARAMETER_NAME)) {
+			return new KeyMaterial.Ec(
+					key.getString(JsonWebKeyConstants.EC_CURVE_PARAMETER_NAME),
+					optionalString(key, JsonWebKeyConstants.EC_X_COORDINATE_PARAMETER_NAME),
+					optionalString(key, JsonWebKeyConstants.EC_Y_COORDINATE_PARAMETER_NAME));
+		}
+		return new KeyMaterial.Rsa(
+				optionalString(key, JsonWebKeyConstants.RSA_KEY_MODULUS_PARAMETER_NAME),
+				optionalString(key, JsonWebKeyConstants.RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME));
+	}
+
+	private static String optionalString(JSONObject key, String field) {
+		return key.has(field) ? key.getString(field) : null;
 	}
 
 }
