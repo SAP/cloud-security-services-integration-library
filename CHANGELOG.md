@@ -6,10 +6,19 @@ All notable changes to this project will be documented in this file.
 - Skip IAS proof-token validation for tokens with a single audience or no audience claim
   - `SapIdJwtSignatureValidator` previously gated the proof-token / forwarded-client-cert check on the presence of the `ias_apis` claim. It now gates on `token.getAudiences().size() > 1`, so the check only runs for genuine app-to-app tokens (multiple audiences) and is skipped for app-to-service tokens (single audience) and tokens with a missing/empty `aud` claim
   - Eliminates spurious "client certificate could not be read" failures on requests where no `x-forwarded-client-cert` header is expected
+- Support additional JWT signature algorithms in `JwtSignatureValidator`. In addition to the previously supported `RS256`, tokens signed with the following algorithms (RFC 7518 §3.3 / §3.4 / §3.5) can now be validated:
+  - `RS384`, `RS512` (RSASSA-PKCS1-v1_5 with SHA-384 / SHA-512)
+  - `PS256`, `PS384`, `PS512` (RSASSA-PSS with SHA-256 / SHA-384 / SHA-512). The corresponding `PSSParameterSpec` is set automatically before signature verification.
+  - `ES256`, `ES384`, `ES512` (ECDSA on P-256 / P-384 / P-521 with SHA-256 / SHA-384 / SHA-512). The JCA name `SHA*withECDSAinP1363Format` is used so the raw `R||S` signature format mandated by RFC 7518 §3.4 is accepted directly. EC JWKs are constructed from `crv`/`x`/`y` with strict curve and coordinate-length validation per RFC 7518 §6.2.1.
+  - Selection is driven by the JWT header `alg` value. Unknown values continue to be rejected with the existing "is not supported" error.
 - Expose the `sap_id_type` claim on `SapIdToken`
   - New `SapIdToken#getIdType()` returning a typed `SapIdType` enum (`USER`, `APP`); resolves to `null` if the claim is absent or carries an unknown value
   - New `TokenClaims.SAP_ID_TYPE` constant
   - `DefaultIdTokenExtension#isTechnicalUser` now prefers the `sap_id_type` claim and falls back to the `sub == azp` heuristic for tokens issued before the claim was introduced
+- Tolerate unsupported or malformed entries in a JWKS response
+  - `JsonWebKeySetFactory` previously aborted the whole parse when a single entry resolved to an algorithm the library does not recognise (or was otherwise malformed), so an IdP adding a key for a new algorithm family broke token validation for every tenant sharing the endpoint — including tokens signed with algorithms this library DOES support
+  - Each entry is now parsed in isolation: unsupported alg/kty is skipped with an INFO log, a malformed entry is skipped with a WARN, and both carry sanitized `kid`/`kty`/`alg` for diagnostics
+  - When a caller later requests a `kid` that was silently dropped at parse time, the pre-throw WARN in `OAuth2TokenKeyServiceWithCache` now points at the earlier `Skipping JWK entry` log lines so the root cause is discoverable. The existing `Key with kid <kid> not found in JWKS.` exception message is unchanged for downstream log-based alerts
 
 ## 4.0.8
 
