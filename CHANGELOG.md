@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## 4.1.0
 
+- Skip IAS proof-token validation for tokens with a single audience or no audience claim
+  - `SapIdJwtSignatureValidator` previously gated the proof-token / forwarded-client-cert check on the presence of the `ias_apis` claim. It now gates on `token.getAudiences().size() > 1`, so the check only runs for genuine app-to-app tokens (multiple audiences) and is skipped for app-to-service tokens (single audience) and tokens with a missing/empty `aud` claim
+  - Eliminates spurious "client certificate could not be read" failures on requests where no `x-forwarded-client-cert` header is expected
 - Support additional JWT signature algorithms in `JwtSignatureValidator`. In addition to the previously supported `RS256`, tokens signed with the following algorithms (RFC 7518 §3.3 / §3.4 / §3.5) can now be validated:
   - `RS384`, `RS512` (RSASSA-PKCS1-v1_5 with SHA-384 / SHA-512)
   - `PS256`, `PS384`, `PS512` (RSASSA-PSS with SHA-256 / SHA-384 / SHA-512). The corresponding `PSSParameterSpec` is set automatically before signature verification.
