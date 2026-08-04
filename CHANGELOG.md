@@ -19,6 +19,14 @@ All notable changes to this project will be documented in this file.
   - `JsonWebKeySetFactory` previously aborted the whole parse when a single entry resolved to an algorithm the library does not recognise (or was otherwise malformed), so an IdP adding a key for a new algorithm family broke token validation for every tenant sharing the endpoint — including tokens signed with algorithms this library DOES support
   - Each entry is now parsed in isolation: unsupported alg/kty is skipped with an INFO log, a malformed entry is skipped with a WARN, and both carry sanitized `kid`/`kty`/`alg` for diagnostics
   - When a caller later requests a `kid` that was silently dropped at parse time, the pre-throw WARN in `OAuth2TokenKeyServiceWithCache` now points at the earlier `Skipping JWK entry` log lines so the root cause is discoverable. The existing `Key with kid <kid> not found in JWKS.` exception message is unchanged for downstream log-based alerts
+- Update dependencies:
+  - Jetty: 12.1.10 → 12.1.11
+  - JUnit Jupiter: 6.1.0 → 6.1.2
+  - log4j2: 2.26.0 → 2.26.1
+  - org.json: 20260522 → 20260719
+  - SpotBugs annotations: 4.10.2 → 4.10.3
+  - SpotBugs Maven Plugin: 4.10.2.0 → 4.10.3.0
+  - logback-core (test scope, `token-client` / `token-client-spring` / `token-client-spring-3`): 1.5.25 → 1.5.34
 
 ## 4.0.8
 
