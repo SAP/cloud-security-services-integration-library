@@ -12,6 +12,10 @@ All notable changes to this project will be documented in this file.
   - New `SapIdToken#getIdType()` returning a typed `SapIdType` enum (`USER`, `APP`); resolves to `null` if the claim is absent or carries an unknown value
   - New `TokenClaims.SAP_ID_TYPE` constant
   - `DefaultIdTokenExtension#isTechnicalUser` now prefers the `sap_id_type` claim and falls back to the `sub == azp` heuristic for tokens issued before the claim was introduced
+- Tolerate unsupported or malformed entries in a JWKS response
+  - `JsonWebKeySetFactory` previously aborted the whole parse when a single entry resolved to an algorithm the library does not recognise (or was otherwise malformed), so an IdP adding a key for a new algorithm family broke token validation for every tenant sharing the endpoint — including tokens signed with algorithms this library DOES support
+  - Each entry is now parsed in isolation: unsupported alg/kty is skipped with an INFO log, a malformed entry is skipped with a WARN, and both carry sanitized `kid`/`kty`/`alg` for diagnostics
+  - When a caller later requests a `kid` that was silently dropped at parse time, the pre-throw WARN in `OAuth2TokenKeyServiceWithCache` now points at the earlier `Skipping JWK entry` log lines so the root cause is discoverable. The existing `Key with kid <kid> not found in JWKS.` exception message is unchanged for downstream log-based alerts
 
 ## 4.0.8
 
