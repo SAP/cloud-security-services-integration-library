@@ -23,7 +23,7 @@ Use the Spring Boot 3.x starter instead:
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>resourceserver-security-spring-boot-3-starter</artifactId>
-    <version>4.0.8</version>
+    <version>4.1.0</version>
 </dependency>
 ```
 

@@ -13,6 +13,10 @@ class JsonWebKeyConstants {
 	static final String RSA_KEY_MODULUS_PARAMETER_NAME = "n";
 	static final String RSA_KEY_PUBLIC_EXPONENT_PARAMETER_NAME = "e";
 
+	static final String EC_CURVE_PARAMETER_NAME = "crv";
+	static final String EC_X_COORDINATE_PARAMETER_NAME = "x";
+	static final String EC_Y_COORDINATE_PARAMETER_NAME = "y";
+
 	// Parameter names as defined in https://tools.ietf.org/html/rfc7517
 	static final String KEYS_PARAMETER_NAME = "keys";
 	static final String KEY_TYPE_PARAMETER_NAME = "kty";

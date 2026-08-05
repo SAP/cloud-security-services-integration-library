@@ -8,6 +8,7 @@ package com.sap.cloud.security.token;
 import org.junit.jupiter.api.Test;
 
 import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.xsuaa.jwt.DecodedJwt;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -61,5 +62,57 @@ public class SapIdTokenTest {
 	@Test
 	public void getAppTid() {
 		assertThat(cut.getAppTid()).isEqualTo("the-app-tid");
+	}
+
+	@Test
+	public void getIdType_user() {
+		assertThat(tokenWithPayload("{\"sap_id_type\":\"user\"}").getIdType()).isEqualTo(SapIdType.USER);
+	}
+
+	@Test
+	public void getIdType_app() {
+		assertThat(tokenWithPayload("{\"sap_id_type\":\"app\"}").getIdType()).isEqualTo(SapIdType.APP);
+	}
+
+	@Test
+	public void getIdType_claimMissing_returnsNull() {
+		assertThat(cut.getIdType()).isNull();
+	}
+
+	@Test
+	public void getIdType_unknownClaimValue_returnsRawString() {
+		assertThat(tokenWithPayload("{\"sap_id_type\":\"future-type\"}").getIdType()).isEqualTo("future-type");
+	}
+
+	private static SapIdToken tokenWithPayload(String payloadJson) {
+		return new SapIdToken(new StubDecodedJwt(payloadJson));
+	}
+
+	private static final class StubDecodedJwt implements DecodedJwt {
+		private final String payload;
+
+		StubDecodedJwt(String payload) {
+			this.payload = payload;
+		}
+
+		@Override
+		public String getHeader() {
+			return "{}";
+		}
+
+		@Override
+		public String getPayload() {
+			return payload;
+		}
+
+		@Override
+		public String getSignature() {
+			return "";
+		}
+
+		@Override
+		public String getEncodedToken() {
+			return "";
+		}
 	}
 }

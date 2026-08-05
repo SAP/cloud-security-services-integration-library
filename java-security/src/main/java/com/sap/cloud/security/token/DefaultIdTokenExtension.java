@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *   <li>If cached ID Token is still valid, it is returned as is
  *   <li>If the current token is already an ID token, it is returned as-is.
- *   <li>If the token belongs to a technical user (where {@code sub == azp}), an exception is
+ *   <li>If the token belongs to a technical user (claim {@code sap_id_type} != {@code "user"}, or
+ *       {@code sub == azp} for pre-{@code sap_id_type} tokens), an exception is
  *       thrown.
  *   <li>If the token is an access token, it will be exchanged for an ID token using the configured
  *       IAS service credentials.
@@ -115,14 +116,26 @@ public class DefaultIdTokenExtension implements IdTokenExtension {
   /**
    * Determines whether the token represents a technical user.
    *
-   * <p>A token is considered to belong to a technical user if the {@code sub} (subject) claim
-   * equals the {@code azp} (authorized party / client ID) claim.
+   * <p>When the {@code sap_id_type} claim is present, only the explicit value
+   * {@link SapIdType#USER} is treated as a human end-user; every other value (including future
+   * IAS values this library does not yet know about, e.g. {@code "agent"}) is treated as
+   * technical. This is deliberately conservative: refusing an ID-token exchange for a new
+   * principal type is safer than performing one that was never intended.
+   *
+   * <p>For tokens issued before {@code sap_id_type} existed, falls back to comparing {@code sub}
+   * with {@code azp}.
    *
    * @param token the token to inspect
    * @return {@code true} if the token belongs to a technical user
    */
   private boolean isTechnicalUser(Token token) {
-    String subject = token.getClaimAsString("sub");
+    if (token instanceof SapIdToken idToken) {
+      String idType = idToken.getIdType();
+      if (idType != null) {
+        return !SapIdType.USER.equals(idType);
+      }
+    }
+    String subject = token.getClaimAsString(TokenClaims.SUBJECT);
     String azp = token.getClientId();
     if (subject == null || azp == null || subject.isBlank() || azp.isBlank()) {
       return false;

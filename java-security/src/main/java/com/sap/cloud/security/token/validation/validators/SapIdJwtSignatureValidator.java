@@ -1,5 +1,8 @@
 package com.sap.cloud.security.token.validation.validators;
 
+import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
+import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KID_PARAMETER_NAME;
+
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
@@ -10,7 +13,6 @@ import com.sap.cloud.security.xsuaa.client.DefaultOidcConfigurationService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceEndpointsProvider;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
-
 import jakarta.annotation.Nonnull;
 import java.net.URI;
 import java.security.NoSuchAlgorithmException;
@@ -18,9 +20,6 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.sap.cloud.security.token.validation.validators.JsonWebKey.DEFAULT_KEY_ID;
-import static com.sap.cloud.security.token.validation.validators.JsonWebKeyConstants.KID_PARAMETER_NAME;
 
 /**
  * Jwt Signature validator for OIDC tokens issued by Identity service. This validator MUST only be
@@ -51,6 +50,9 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 	 * Enables ProofToken Validation check for forwarded client certificates. If the check is enabled and no forwarded
 	 * certificate in the request is available, the token will be evaluated as invalid.
 	 * With this check enabled, the forwarded certificate is added to the token keys request.
+	 * <p>
+	 * The check is gated on the token's audience count and only runs for tokens with more than one audience (app-to-app
+	 * scenarios). Tokens with a single audience or no audience claim skip the certificate requirement.
 	 */
 	protected void enableProofTokenValidationCheck() {
 		this.isProofTokenValidationEnabled = true;
@@ -71,7 +73,7 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 		requestParams.put(HttpHeaders.X_APP_TID, token.getAppTid());
 		requestParams.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
 		requestParams.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
-		if (isProofTokenValidationEnabled && !token.hasClaim(TokenClaims.IAS_APIS)) {
+		if (isProofTokenValidationEnabled && token.getAudiences().size() > 1) {
 			X509Certificate cert = (X509Certificate) SecurityContext.getClientCertificate();
 
 			if (cert == null) {
