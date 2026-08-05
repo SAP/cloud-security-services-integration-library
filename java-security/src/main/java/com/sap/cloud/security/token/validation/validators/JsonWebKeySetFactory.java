@@ -7,8 +7,14 @@ package com.sap.cloud.security.token.validation.validators;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nullable;
 
 class JsonWebKeySetFactory {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(JsonWebKeySetFactory.class);
 
 	private JsonWebKeySetFactory() {
 	}
@@ -20,13 +26,37 @@ class JsonWebKeySetFactory {
 
 			for (Object key : keys) {
 				if (key instanceof JSONObject) {
-					keySet.put(createJsonWebKey((JSONObject) key));
+					JsonWebKey jwk = tryCreateJsonWebKey((JSONObject) key);
+					if (jwk != null) {
+						keySet.put(jwk);
+					}
 				}
 			}
 		}
 		return keySet;
 	}
 
+	/**
+	 * Wraps {@link #createJsonWebKey(JSONObject)} so that a single malformed or unsupported entry does not tear down
+	 * the whole JWKS. This is important because identity providers may add keys for algorithms we do not (yet)
+	 * support (e.g. new EC curves, EdDSA, ...); dropping the full key set would break token validation for all
+	 * tenants that share this JWKS endpoint, including tokens signed with algorithms we DO support.
+	 */
+	@Nullable
+	private static JsonWebKey tryCreateJsonWebKey(JSONObject key) {
+		try {
+			return createJsonWebKey(key);
+		} catch (RuntimeException e) {
+			LOGGER.warn("Skipping JWK entry that could not be parsed (kid={}, kty={}, alg={}) in JWKS: {}",
+					key.optString(JsonWebKeyConstants.KID_PARAMETER_NAME, "<none>"),
+					key.optString(JsonWebKeyConstants.KEY_TYPE_PARAMETER_NAME, "<none>"),
+					key.optString(JsonWebKeyConstants.ALG_PARAMETER_NAME, "<none>"),
+					e.getMessage());
+			return null;
+		}
+	}
+
+	@Nullable
 	private static JsonWebKey createJsonWebKey(JSONObject key) {
 		String keyAlgorithm = null;
 		String pemEncodedPublicKey = null;
@@ -52,6 +82,17 @@ class JsonWebKeySetFactory {
 		}
 		JwtSignatureAlgorithm algorithm = keyAlgorithm != null ? JwtSignatureAlgorithm.fromValue(keyAlgorithm)
 				: JwtSignatureAlgorithm.fromType(keyType);
+
+		if (algorithm == null) {
+			// Neither the JWA "alg" value (e.g. "ES256") nor the JWK "kty" (e.g. "EC") mapped to a signature algorithm
+			// we support. Skip this JWK instead of failing the whole set — the JWKS may still contain other keys we
+			// can validate with.
+			LOGGER.info("Skipping JWK entry with unsupported algorithm (kid={}, kty={}, alg={}) in JWKS.",
+					keyId != null ? keyId : "<none>",
+					keyType,
+					keyAlgorithm != null ? keyAlgorithm : "<none>");
+			return null;
+		}
 
 		return new JsonWebKeyImpl(algorithm, keyId, modulus, publicExponent,
 				pemEncodedPublicKey);
