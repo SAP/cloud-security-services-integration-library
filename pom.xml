@@ -57,7 +57,7 @@
 		<legacy3.spring.security.version>6.5.10</legacy3.spring.security.version>
 		<legacy3.spring.security.oauth2.version>6.5.10</legacy3.spring.security.oauth2.version>
 		<legacy3.reactor.version>3.8.2</legacy3.reactor.version>
-		<org.eclipse.jetty.version>12.1.11</org.eclipse.jetty.version>
+		<org.eclipse.jetty.version>12.1.12</org.eclipse.jetty.version>
 		<reactor.version>3.8.6</reactor.version>
 		<log4j2.version>2.26.1</log4j2.version>
 		<slf4j.api.version>2.0.18</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
