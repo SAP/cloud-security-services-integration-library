@@ -50,13 +50,8 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
 
   private final Cache<String, String> delegate;
 
-  /**
-   * Creates a Caffeine-backed cache with the given size, expire-after-write duration and ticker.
-   *
-   * <p>The ticker parameter is primarily intended for tests that need to advance time
-   * deterministically.
-   */
-  public CaffeineSecurityCache(
+  /** For testing only — allows injecting a custom ticker to advance time deterministically. */
+  CaffeineSecurityCache(
       final int maximumSize, final Duration expireAfterWrite, @Nonnull final Ticker ticker) {
     this.delegate =
         Caffeine.newBuilder()

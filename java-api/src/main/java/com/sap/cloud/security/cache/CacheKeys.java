@@ -12,25 +12,23 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 
 /**
- * Utilities for building stable, opaque cache keys.
+ * Utilities for building stable cache keys for the SAP Cloud Security libraries.
  *
- * <p>All cache keys produced by the SAP Cloud Security libraries follow the pattern
- * <pre>{@code sap-security:<namespace>:<sha256-hex>}</pre>
- * where the namespace identifies the cache (e.g. {@code tokens}, {@code jwks}, {@code oidc},
- * {@code decode}, {@code sig}) and the hex string is the SHA-256 digest of the full request
- * fingerprint.
- *
- * <p>Hashing is performed for two reasons:
- * <ol>
- *   <li>Request fingerprints for the token cache contain credentials
- *       ({@code client_secret}, {@code password}, {@code assertion}). Hashing keeps them out of
- *       the key material stored in a distributed cache.
- *   <li>Uniform key length regardless of input size — friendlier for shared cache stores.
- * </ol>
+ * <p>All keys follow the pattern {@code sap-security:<namespace>:<fingerprint>} where the
+ * namespace identifies the cache (e.g. {@code tokens}, {@code jwks}, {@code oidc}).
  *
  * <p>The prefix {@code sap-security:} allows implementations backed by a shared store to scope
- * {@link SecurityCache#clear()} to library-owned entries and to identify entries at a glance in
- * cache-management UIs.
+ * {@link SecurityCache#clear()} to library-owned entries only.
+ *
+ * <p>Two key formats are provided:
+ * <ul>
+ *   <li>{@link #buildOpaque(String, String)} — SHA-256 hashes the fingerprint. Use for the
+ *       <em>token cache</em>, where the fingerprint contains credentials
+ *       ({@code client_secret}, {@code password}, {@code assertion}) that must not be stored in
+ *       plain text in a distributed cache.
+ *   <li>{@link #build(String, String)} — stores the fingerprint as-is. Use for JWKS and OIDC
+ *       entries, which contain no credentials and benefit from human-readable keys for debugging.
+ * </ul>
  *
  * @since 4.1.0
  */
@@ -45,12 +43,6 @@ public final class CacheKeys {
   /** Namespace for OIDC discovery cache entries. */
   public static final String NAMESPACE_OIDC = "oidc";
 
-  /** Namespace for parsed-token (decode) cache entries. */
-  public static final String NAMESPACE_DECODE = "decode";
-
-  /** Namespace for signature-validation-result cache entries. */
-  public static final String NAMESPACE_SIG = "sig";
-
   private static final String PREFIX = "sap-security:";
 
   private CacheKeys() {
@@ -58,14 +50,32 @@ public final class CacheKeys {
   }
 
   /**
-   * Builds an opaque cache key of the form {@code sap-security:<namespace>:<sha256-hex>}.
+   * Builds a human-readable cache key of the form {@code sap-security:<namespace>:<fingerprint>}.
    *
-   * @param namespace the cache namespace, e.g. {@link #NAMESPACE_TOKENS}
+   * <p>Use this for JWKS and OIDC entries where the fingerprint contains no credentials and
+   * readability in a cache management UI is desirable.
+   *
+   * @param namespace the cache namespace, e.g. {@link #NAMESPACE_JWKS}
    * @param fingerprint the fingerprint of the request — any string that uniquely identifies the
    *     entry, including all parameters that affect the response
-   * @return the opaque cache key
+   * @return the cache key
    */
   public static String build(final String namespace, final String fingerprint) {
+    return PREFIX + namespace + ":" + fingerprint;
+  }
+
+  /**
+   * Builds an opaque cache key of the form {@code sap-security:<namespace>:<sha256-hex>}.
+   *
+   * <p>Use this for the token cache, where the fingerprint contains credentials
+   * ({@code client_secret}, {@code password}, {@code assertion}) that must not be stored in plain
+   * text in a distributed cache.
+   *
+   * @param namespace the cache namespace, e.g. {@link #NAMESPACE_TOKENS}
+   * @param fingerprint the fingerprint of the request including all credential parameters
+   * @return the opaque cache key
+   */
+  public static String buildOpaque(final String namespace, final String fingerprint) {
     return PREFIX + namespace + ":" + sha256Hex(fingerprint);
   }
 
