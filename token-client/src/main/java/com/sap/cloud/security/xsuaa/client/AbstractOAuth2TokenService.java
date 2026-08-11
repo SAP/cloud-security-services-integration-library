@@ -343,7 +343,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
             .collect(Collectors.toList()));
 
     final String fingerprint = fingerprint(tokenEndpoint, headers, parameters);
-    final String cacheKey = CacheKeys.build(CacheKeys.NAMESPACE_TOKENS, fingerprint);
+    final String cacheKey = CacheKeys.buildOpaque(CacheKeys.NAMESPACE_TOKENS, fingerprint);
 
     Optional<String> cached = safeGet(cacheKey);
     if (cached.isPresent()) {

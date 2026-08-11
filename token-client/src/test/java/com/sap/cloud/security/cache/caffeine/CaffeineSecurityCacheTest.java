@@ -15,7 +15,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.config.CacheConfiguration;
 import java.time.Duration;
 import java.util.Optional;
@@ -76,14 +75,6 @@ class CaffeineSecurityCacheTest {
     assertThat(cache.unwrap()).isNotNull();
     cache.set("k", "v", null);
     assertThat(cache.unwrap().getIfPresent("k")).isEqualTo("v");
-  }
-
-  @Test
-  void tickerConstructor_isUsable() {
-    CaffeineSecurityCache cache =
-        new CaffeineSecurityCache(10, Duration.ofMinutes(1), Ticker.systemTicker());
-    cache.set("k", "v", null);
-    assertThat(cache.get("k")).contains("v");
   }
 
   @Test

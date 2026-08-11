@@ -87,12 +87,8 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 		return this;
 	}
 
-	/**
-	 * @return the currently configured {@link SecurityCache}, or {@code null} if none has been set.
-	 * @since 4.1.0
-	 */
 	@Nullable
-	public SecurityCache<String, String> getSecurityCache() {
+	protected SecurityCache<String, String> getSecurityCache() {
 		return securityCache;
 	}
 
