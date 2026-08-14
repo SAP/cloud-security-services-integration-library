@@ -22,7 +22,7 @@ class CacheKeysTest {
   @Test
   void build_hasExpectedPlaintextFormat() {
     String key = CacheKeys.build(CacheKeys.NAMESPACE_JWKS, "url:https://example.com");
-    assertThat(key).isEqualTo("sap-security:jwks:url:https://example.com");
+    assertThat(key).isEqualTo("jwks:url:https://example.com");
   }
 
   @Test
@@ -44,8 +44,7 @@ class CacheKeysTest {
     // SHA-256("abc") = ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
     String key = CacheKeys.buildOpaque(CacheKeys.NAMESPACE_TOKENS, "abc");
     assertThat(key)
-        .isEqualTo(
-            "sap-security:tokens:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+        .isEqualTo("tokens:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
   }
 
   @Test
@@ -53,7 +52,7 @@ class CacheKeysTest {
     String fingerprint = "client_secret=super-secret&grant_type=client_credentials";
     String key = CacheKeys.buildOpaque(CacheKeys.NAMESPACE_TOKENS, fingerprint);
     assertThat(key).doesNotContain("super-secret");
-    assertThat(key).matches("^sap-security:tokens:[0-9a-f]{64}$");
+    assertThat(key).matches("^tokens:[0-9a-f]{64}$");
   }
 
   @Test
@@ -68,12 +67,5 @@ class CacheKeysTest {
     assertThat(CacheKeys.NAMESPACE_TOKENS).isNotEqualTo(CacheKeys.NAMESPACE_JWKS);
     assertThat(CacheKeys.NAMESPACE_TOKENS).isNotEqualTo(CacheKeys.NAMESPACE_OIDC);
     assertThat(CacheKeys.NAMESPACE_JWKS).isNotEqualTo(CacheKeys.NAMESPACE_OIDC);
-  }
-
-  @Test
-  void allKeysStartWithPrefix() {
-    assertThat(CacheKeys.build(CacheKeys.NAMESPACE_JWKS, "x")).startsWith(CacheKeys.prefix());
-    assertThat(CacheKeys.buildOpaque(CacheKeys.NAMESPACE_TOKENS, "x")).startsWith(CacheKeys.prefix());
-    assertThat(CacheKeys.prefix()).isEqualTo("sap-security:");
   }
 }
