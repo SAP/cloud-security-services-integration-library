@@ -63,7 +63,8 @@ public final class LogSanitizer {
 	 * @param obj the object to sanitize
 	 * @return sanitized string safe for logging
 	 */
-	public static String sanitize(Object obj) {
+	public static String sanitize(Object obj) { // lgtm[java/confusing-method-signature]
 		return sanitize(obj != null ? obj.toString() : null);
 	}
+
 }
