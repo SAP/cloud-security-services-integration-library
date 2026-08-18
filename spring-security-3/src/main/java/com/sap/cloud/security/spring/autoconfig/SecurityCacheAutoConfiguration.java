@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
  * <p>Discovery order (first match wins):
  *
  * <ol>
- *   <li>A user-supplied {@link SecurityCache}<{@code String,String}> bean.
+ *   <li>A user-supplied {@link SecurityCache}&lt;{@code String,String}&gt; bean.
  *   <li>A Spring {@link CacheManager} bean holding a cache named {@code sap-security} (or the name
  *       configured via {@code sap.security.cache.distributed.cache-name}).
  * </ol>
