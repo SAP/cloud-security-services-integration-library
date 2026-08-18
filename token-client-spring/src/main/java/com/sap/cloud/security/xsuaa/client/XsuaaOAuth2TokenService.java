@@ -11,6 +11,7 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
 import com.sap.cloud.security.servlet.MDCHelper;
+import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.TokenCacheConfiguration;
 import com.sap.cloud.security.xsuaa.util.HttpClientUtil;
@@ -90,8 +91,8 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
       if (HttpStatus.OK.value() == statusCode && accessTokenMap != null) {
         LOGGER.debug(
             "Successfully retrieved access token from url='{}'with params {}.",
-            requestUri,
-            parameters);
+            LogSanitizer.sanitize(requestUri),
+            LogSanitizer.sanitize(parameters));
         return processResponseBody(accessTokenMap);
       } else if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
         LOGGER.warn("Request failed with status {} but is retryable. Retrying...", statusCode);
