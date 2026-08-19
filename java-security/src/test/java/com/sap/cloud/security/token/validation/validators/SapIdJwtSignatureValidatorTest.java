@@ -279,6 +279,26 @@ public class SapIdJwtSignatureValidatorTest {
 	}
 
 	@Test
+	public void validate_appTidNull_isNotAddedToRequestParams() throws Exception {
+		// iasPaasToken has no app_tid; issuer matches the configured URL so validation passes.
+		// The Java 11 HTTP client rejects null header values — verify X_APP_TID is omitted entirely.
+		when(mockConfiguration.getUrl()).thenReturn(URI.create("https://application.myauth.com"));
+
+		ParamsCapturesAppTid capture = new ParamsCapturesAppTid();
+		OAuth2TokenKeyService tokenKeyMock = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyMock.retrieveTokenKeys(any(), argThat(capture)))
+				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+
+		SapIdJwtSignatureValidator localCut = new SapIdJwtSignatureValidator(
+				mockConfiguration,
+				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyMock),
+				OidcConfigurationServiceWithCache.getInstance().withOidcConfigurationService(oidcConfigServiceMock));
+
+		assertTrue(localCut.validate(iasPaasToken).isValid());
+		assertThat(capture.appTidValue).isEqualTo("<absent>");
+	}
+
+	@Test
 	public void validate() {
 		assertTrue(cut.validate(iasToken).isValid());
 	}
@@ -371,6 +391,18 @@ public class SapIdJwtSignatureValidatorTest {
 				return true;
 			}
 			return false;
+		}
+	}
+
+	static class ParamsCapturesAppTid implements ArgumentMatcher<Map<String, String>> {
+		String appTidValue = "<absent>";
+
+		@Override
+		public boolean matches(Map<String, String> map) {
+			if (map.containsKey(HttpHeaders.X_APP_TID)) {
+				appTidValue = map.get(HttpHeaders.X_APP_TID);
+			}
+			return true;
 		}
 	}
 

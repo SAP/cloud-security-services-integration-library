@@ -70,7 +70,10 @@ class SapIdJwtSignatureValidator extends JwtSignatureValidator {
 		Map<String, String> requestParams = new HashMap<>(3, 1);
 		OAuth2TokenKeyServiceWithCache.CacheKey cacheKey;
 
-		requestParams.put(HttpHeaders.X_APP_TID, token.getAppTid());
+		String appTid = token.getAppTid();
+		if (appTid != null) {
+			requestParams.put(HttpHeaders.X_APP_TID, appTid);
+		}
 		requestParams.put(HttpHeaders.X_CLIENT_ID, configuration.getClientId());
 		requestParams.put(HttpHeaders.X_AZP, token.getClaimAsString(TokenClaims.AUTHORIZATION_PARTY));
 		if (isProofTokenValidationEnabled && token.getAudiences().size() > 1) {
