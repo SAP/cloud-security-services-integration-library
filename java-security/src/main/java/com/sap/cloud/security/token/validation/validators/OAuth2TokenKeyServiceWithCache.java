@@ -175,7 +175,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
         + " Note: JWKS entries with algorithms not supported by this library, or malformed entries,"
         + " are dropped at parse time — see earlier 'Skipping JWK entry' log lines for details.",
         LogSanitizer.sanitize(keyParameters.keyId), LogSanitizer.sanitize(keyParameters.keyAlgorithm),
-        LogSanitizer.sanitize(jwks));
+        LogSanitizer.sanitizeObject(jwks));
     throw new IllegalArgumentException("Key with kid " + keyParameters.keyId + " not found in JWKS.");
   }
 

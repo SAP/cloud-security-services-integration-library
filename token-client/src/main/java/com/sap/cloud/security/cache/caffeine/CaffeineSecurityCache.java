@@ -11,6 +11,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.config.CacheConfiguration;
+import com.sap.cloud.security.util.LogSanitizer;
 import jakarta.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Optional;
@@ -87,7 +88,7 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
     try {
       return Optional.ofNullable(delegate.getIfPresent(key));
     } catch (final RuntimeException e) {
-      LOGGER.warn("CaffeineSecurityCache.get failed for key {}: {}", key, e.getMessage());
+      LOGGER.warn("CaffeineSecurityCache.get failed for key {}: {}", LogSanitizer.sanitize(key), e.getMessage());
       return Optional.empty();
     }
   }
@@ -98,7 +99,7 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
       // Caffeine uses cache-wide expiration; per-entry ttl argument is intentionally ignored.
       delegate.put(key, value);
     } catch (final RuntimeException e) {
-      LOGGER.warn("CaffeineSecurityCache.set failed for key {}: {}", key, e.getMessage());
+      LOGGER.warn("CaffeineSecurityCache.set failed for key {}: {}", LogSanitizer.sanitize(key), e.getMessage());
     }
   }
 
@@ -107,7 +108,7 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
     try {
       delegate.invalidate(key);
     } catch (final RuntimeException e) {
-      LOGGER.warn("CaffeineSecurityCache.delete failed for key {}: {}", key, e.getMessage());
+      LOGGER.warn("CaffeineSecurityCache.delete failed for key {}: {}", LogSanitizer.sanitize(key), e.getMessage());
     }
   }
 
