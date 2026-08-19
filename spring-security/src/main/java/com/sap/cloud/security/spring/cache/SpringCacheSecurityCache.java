@@ -7,6 +7,7 @@
 package com.sap.cloud.security.spring.cache;
 
 import com.sap.cloud.security.cache.SecurityCache;
+import com.sap.cloud.security.util.LogSanitizer;
 import java.time.Duration;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public final class SpringCacheSecurityCache implements SecurityCache<String, Str
       Object v = wrapper.get();
       return v instanceof String s ? Optional.of(s) : Optional.empty();
     } catch (final RuntimeException e) {
-      LOGGER.warn("SpringCache.get failed for {}: {}", key, e.getMessage());
+      LOGGER.warn("SpringCache.get failed for {}: {}", LogSanitizer.sanitize(key), e.getMessage());
       return Optional.empty();
     }
   }
@@ -56,7 +57,7 @@ public final class SpringCacheSecurityCache implements SecurityCache<String, Str
     try {
       delegate.put(key, value);
     } catch (final RuntimeException e) {
-      LOGGER.warn("SpringCache.put failed for {}: {}", key, e.getMessage());
+      LOGGER.warn("SpringCache.put failed for {}: {}", LogSanitizer.sanitize(key), e.getMessage());
     }
   }
 
@@ -65,7 +66,7 @@ public final class SpringCacheSecurityCache implements SecurityCache<String, Str
     try {
       delegate.evict(key);
     } catch (final RuntimeException e) {
-      LOGGER.warn("SpringCache.evict failed for {}: {}", key, e.getMessage());
+      LOGGER.warn("SpringCache.evict failed for {}: {}", LogSanitizer.sanitize(key), e.getMessage());
     }
   }
 
