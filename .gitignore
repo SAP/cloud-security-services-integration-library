@@ -44,3 +44,5 @@ __pycache__/
 ### Misc ###
 samples/vars.yml
 *.pem
+
+CLAUDE.md

@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.1.1
+
+- Fix null `X-App-Tid` request header sent to IAS JWKS endpoint when token lacks `app_tid` claim
+  - `SapIdJwtSignatureValidator` unconditionally placed the `app_tid` claim value as the `X-App-Tid` request header. When the claim is absent, `token.getAppTid()` returns `null`, causing a `NullPointerException` or a literal `"null"` header value on the outgoing JWKS request
+  - The header is now only added when `app_tid` is present in the token; tokens without the claim omit the header entirely, which is the correct behaviour for provider-tenant requests
+
 ## 4.1.0
 
 - Skip IAS proof-token validation for tokens with a single audience or no audience claim
