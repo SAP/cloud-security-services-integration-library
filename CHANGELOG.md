@@ -7,8 +7,6 @@ All notable changes to this project will be documented in this file.
   - The IAS and XSUAA delegate authenticators were constructed without the configurations explicitly passed to `HybridTokenAuthenticator`, causing them to fall back to `Environments.getCurrent()` at request time. The supplied `SecurityHttpClient` was similarly ignored by the delegates
   - The constructor now forwards `iasConfig`, `xsuaaConfig`, and `httpClient` to both delegates via `withServiceConfiguration` / `withHttpClient`. Applications that follow the documented pattern of loading configurations from `Environments.getCurrent()` are unaffected
   - Adds `HybridTokenAuthenticatorConfigurationTest` with real delegates (no reflection-based mock replacement) to guard against regressions on both the IAS and XSUAA validation paths
-- Scope note added to the top-level README clarifying that these libraries are designed and tested exclusively for SAP BTP (Cloud Foundry and Kubernetes/Kyma) environments
-- README `What's New` section and related references updated to version-agnostic `4.x` wording so they remain accurate across patch and minor releases
 
 ## 4.1.1
 
