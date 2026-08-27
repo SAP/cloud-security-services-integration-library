@@ -10,6 +10,10 @@ This repository offers a comprehensive set of libraries designed to simplify the
 Tailored to support Jakarta EE and Spring Boot applications running on Cloud Foundry or Kubernetes environments.
 The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token validation for tokens issued by XSUAA and Identity Services. In addition, it offers a token-client library to easily fetch tokens without cumbersome setup for http requests. Finally, it offers testing utility that mocks Xsuaa and Identity service behaviour and makes it easy to write integration and unit tests.
 
+> **Supported platform: SAP BTP only**
+> These libraries are designed and tested exclusively for applications running on **SAP Business Technology Platform (SAP BTP)** — Cloud Foundry and Kubernetes (Kyma) environments. Service bindings, environment discovery (`Environments.getCurrent()`), and all documented usage patterns assume that service credentials are injected by the SAP BTP runtime.
+> Usage outside of SAP BTP (e.g. on-premise, non-SAP cloud, or custom infrastructure) is not supported. Correct behaviour in such environments cannot be guaranteed, and security properties may not hold.
+
 ## :mega: What's New in 4.0.1
 
 **Major version upgrade** with breaking changes - upgraded to Spring Boot 4.x and Jakarta EE 10!
