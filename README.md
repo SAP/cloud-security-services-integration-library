@@ -14,17 +14,17 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
 > These libraries are designed and tested exclusively for applications running on **SAP Business Technology Platform (SAP BTP)** — Cloud Foundry and Kubernetes (Kyma) environments. Service bindings, environment discovery (`Environments.getCurrent()`), and all documented usage patterns assume that service credentials are injected by the SAP BTP runtime.
 > Usage outside of SAP BTP (e.g. on-premise, non-SAP cloud, or custom infrastructure) is not supported. Correct behaviour in such environments cannot be guaranteed, and security properties may not hold.
 
-## :mega: What's New in 4.0.1
+## :mega: What's New in 4.x
 
 **Major version upgrade** with breaking changes - upgraded to Spring Boot 4.x and Jakarta EE 10!
 
 :white_check_mark: **Migrating from 3.x?** We've got you covered:
-- **Spring Boot 4.x** users: Update to `resourceserver-security-spring-boot-starter` 4.0.1
-- **Spring Boot 3.x** users: Use new `resourceserver-security-spring-boot-3-starter` 4.0.1 - same features, full compatibility
+- **Spring Boot 4.x** users: Update to `resourceserver-security-spring-boot-starter` 4.x
+- **Spring Boot 3.x** users: Use new `resourceserver-security-spring-boot-3-starter` 4.x - same features, full compatibility
 - **spring-xsuaa** users: Module removed - follow our [migration guide](spring-security/Migration_SpringXsuaaProjects.md)
 
 **Key Changes:**
-- :rocket: Spring Boot 4.0.3, Spring Framework 7.0.5, Spring Security 7.0.3
+- :rocket: Spring Boot 4.x, Spring Framework 7.x, Spring Security 7.x
 - :package: New Spring Boot 3.x compatibility layer via legacy modules
 - :zap: Token-client now uses Java 11 HttpClient by default (Apache HttpClient support via custom integration)
 - :x: Removed deprecated modules: `spring-xsuaa`, `spring-xsuaa-test`, `spring-xsuaa-it`, `spring-security-compatibility`
@@ -32,7 +32,7 @@ The libraries focus on streamlining [OAuth 2.0](https://oauth.net) access token 
 See [CHANGELOG.md](CHANGELOG.md) for complete details.
 
 ## Table of Contents
-1. [What's New in 4.0.1](#mega-whats-new-in-400)
+1. [What's New in 4.x](#mega-whats-new-in-4x)
 2. [Prerequisites](#prerequisites)
 3. [Usage](#usage)
    - [2.1 Token Validation](#21-token-validation)
@@ -59,7 +59,7 @@ Before you can use the SAP Cloud Security Services Integration libraries, you mu
 3. Familiarity with OAuth 2.0 and JWT (JSON Web Tokens).
 4. Java 17
 5. Maven 3.9.0 or later
-6. (Optional) Spring Boot 4.0.1 or later, Spring Security 7.0.0 or later if using the Spring integration
+6. (Optional) Spring Boot 4.x or later, Spring Security 7.x or later if using the Spring integration
    - **Spring Boot 3.x users**: Use the legacy compatibility modules (see [Spring Boot 3.x Compatibility](#spring-boot-3x-compatibility))
 
 :exclamation: For Java 8 and 11 please use [2.x release](https://github.com/SAP/cloud-security-services-integration-library/tree/main-2.x) of this library.
@@ -107,10 +107,10 @@ This library streamlines the process of handling token validation for tokens iss
 
 | Your Spring Boot Version | Recommended Module | Description |
 |---|---|---|
-| **Spring Boot 4.x** | [spring-security](/spring-security) with `resourceserver-security-spring-boot-starter` | Current version targeting Spring Boot 4.0.3, Spring Security 7.0.3 |
+| **Spring Boot 4.x** | [spring-security](/spring-security) with `resourceserver-security-spring-boot-starter` | Current version targeting Spring Boot 4.x, Spring Security 7.x |
 | **Spring Boot 3.x** | [spring-security-3](/spring-security-3) with `resourceserver-security-spring-boot-3-starter` | Compatibility layer for Spring Boot 3.5.9, Spring Security 6.5.7 |
 
-:bulb: **New in 4.0.1**: The Spring Boot 3 compatible starter provides a seamless migration path for applications that cannot immediately upgrade to Spring Boot 4.x. Both starters provide the same features and APIs.
+:bulb: **New in 4.x**: The Spring Boot 3 compatible starter provides a seamless migration path for applications that cannot immediately upgrade to Spring Boot 4.x. Both starters provide the same features and APIs.
 
 ##### Spring Boot 3.x Compatibility
 
@@ -132,7 +132,7 @@ See [spring-security-3 README](/spring-security-3/README.md) for complete docume
 
 ##### Migrating from spring-xsuaa
 
-:warning: **Deprecated**: The `spring-xsuaa` module has been removed in version 4.0.1.
+:warning: **Deprecated**: The `spring-xsuaa` module has been removed in version 4.x.
 
 If you're using the deprecated `spring-xsuaa` module:
 - Migrate to [spring-security](/spring-security) (Spring Boot 4.x) or [spring-security-3](/spring-security-3) (Spring Boot 3.x)
@@ -153,7 +153,7 @@ Typical use cases:
 * technical user / system tokens for service to service communication
 * user token exchange for principal propagation in service to service communication
 
-:bulb: **New in 4.0.1**: Token-client now uses Java 11 HttpClient by default. Spring-based implementations have been moved to [token-client-spring](./token-client-spring). For custom HTTP client implementations (Apache HttpClient 4.x/5.x), see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md).
+:bulb: **New in 4.x**: Token-client now uses Java 11 HttpClient by default. Spring-based implementations have been moved to [token-client-spring](./token-client-spring). For custom HTTP client implementations (Apache HttpClient 4.x/5.x), see [CUSTOM_HTTPCLIENT.md](token-client/CUSTOM_HTTPCLIENT.md).
 
 In the table below you'll find links to detailed information.
 
@@ -299,7 +299,7 @@ along with libraries that you intend to use e.g. `java-security`
 
 ## Migration Guide
 
-Upgrading from version 3.x? See our comprehensive [Migration Guide to 4.0.1](MIGRATION_4.0.md) for:
+Upgrading from version 3.x? See our comprehensive [Migration Guide to 4.x](MIGRATION_4.0.md) for:
 
 - **Spring Boot 4.x migration** - Step-by-step upgrade guide
 - **Spring Boot 3.x compatibility** - Using legacy modules for gradual migration
