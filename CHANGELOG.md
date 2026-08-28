@@ -1,6 +1,26 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.6
+
+### Dependency upgrades
+
+Maintenance update of managed dependencies to the latest minor/patch release within each current major line (no major upgrades):
+
+- Bump org.springframework.boot:spring-boot from 3.5.14 to 3.5.16
+- Bump org.springframework:spring-core from 6.2.18 to 6.2.19
+- Bump org.springframework.security from 6.5.10 to 6.5.11
+- Bump org.eclipse.jetty:jetty-bom from 12.1.9 to 12.1.12
+- Bump io.projectreactor:reactor-core (and reactor-test) from 3.8.5 to 3.8.7
+- Bump org.apache.logging.log4j from 2.25.4 to 2.26.1
+- Bump org.json:json from 20251224 to 20260814
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.6.1 to 5.6.4
+- Bump com.github.spotbugs:spotbugs-annotations from 4.9.8 to 4.10.4
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.8.3 to 4.10.4.0
+- Bump org.apache.maven.plugins:maven-surefire-plugin from 3.5.5 to 3.5.6
+
+JUnit Jupiter is intentionally kept at 5.12.2 to stay aligned with the version managed by the `spring-boot-dependencies` BOM.
+
 ## 3.7.5
 
 - Tolerate unsupported or malformed entries in a JWKS response
