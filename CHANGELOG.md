@@ -24,7 +24,7 @@ Also fixes the `junit-bom` import in the root pom — the entry was missing `<ty
 
 ### Known limitations
 
-- `org.bouncycastle:bcprov-jdk15on` / `bcpkix-jdk15on` 1.64 remain on the classpath of the legacy XSUAA test modules (`spring-xsuaa-test`, `spring-xsuaa-it`). They are pulled in transitively by the end-of-life `spring-security-jwt:1.1.1.RELEASE` at `test`/`compile` scope of those test-support modules only and are not propagated to consumers at runtime. Upgrading them would require moving to the differently-named `jdk18on` artifacts, which is not compatible with the EOL `spring-security-jwt` dependency. These modules no longer exist on the 4.x line; consumers requiring patched BouncyCastle should migrate to 4.x.
+- `org.bouncycastle:bcprov-jdk15on` / `bcpkix-jdk15on` 1.64 remain on the classpath of the legacy XSUAA test modules (`spring-xsuaa-test`, `spring-xsuaa-it`). They are pulled in transitively by the end-of-life `spring-security-jwt:1.1.1.RELEASE` at `test`/`compile` scope of those test-support modules only and are not propagated to consumers at runtime. These modules no longer exist on the 4.x line; consumers requiring patched BouncyCastle should migrate to 4.x.
 
 ## 3.7.5
 
