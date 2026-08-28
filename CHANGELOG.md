@@ -15,11 +15,12 @@ Maintenance update of managed dependencies to the latest minor/patch release wit
 - Bump org.apache.logging.log4j from 2.25.4 to 2.26.1
 - Bump org.json:json from 20251224 to 20260814
 - Bump org.apache.httpcomponents.client5:httpclient5 from 5.6.1 to 5.6.4
+- Bump org.junit.jupiter:junit-jupiter from 5.12.2 to 5.14.4
 - Bump com.github.spotbugs:spotbugs-annotations from 4.9.8 to 4.10.4
 - Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.8.3 to 4.10.4.0
 - Bump org.apache.maven.plugins:maven-surefire-plugin from 3.5.5 to 3.5.6
 
-JUnit Jupiter is intentionally kept at 5.12.2 to stay aligned with the version managed by the `spring-boot-dependencies` BOM.
+Also fixes the `junit-bom` import in the root pom — the entry was missing `<type>pom</type><scope>import</scope>`, so the JUnit platform/jupiter versions were silently resolved through Spring Boot's BOM instead. It is now correctly imported and ordered ahead of `spring-boot-dependencies` so junit-bom wins for all JUnit 5 artifacts (mirrors the 4.0.8 fix on the 4.x line).
 
 ## 3.7.5
 
