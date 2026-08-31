@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.1.2
+
+- Enforce constructor-supplied service configurations in `HybridTokenAuthenticator`
+  - The IAS and XSUAA delegate authenticators were constructed without the configurations explicitly passed to `HybridTokenAuthenticator`, causing them to fall back to `Environments.getCurrent()` at request time. The supplied `SecurityHttpClient` was similarly ignored by the delegates
+  - The constructor now forwards `iasConfig`, `xsuaaConfig`, and `httpClient` to both delegates via `withServiceConfiguration` / `withHttpClient`. Applications that follow the documented pattern of loading configurations from `Environments.getCurrent()` are unaffected
+  - Adds `HybridTokenAuthenticatorConfigurationTest` with real delegates (no reflection-based mock replacement) to guard against regressions on both the IAS and XSUAA validation paths
+- Update dependencies:
+  - Spring Boot: 4.1.0 → 4.1.1
+  - Spring Framework: 7.0.8 → 7.0.9
+  - Spring Security: 7.1.0 → 7.1.1
+  - Jetty: 12.1.11 → 12.1.12
+  - Reactor (core & test): 3.8.6 → 3.8.7
+  - JUnit Jupiter: 6.1.2 → 6.1.3
+  - SpotBugs annotations: 4.10.3 → 4.10.4
+  - SpotBugs Maven Plugin: 4.10.3.0 → 4.10.4.0
+  - logcaptor (test scope): 2.12.6 → 2.12.7
+  - Legacy Spring Boot 3.x / Spring Framework 6.x compatibility versions for the `spring-security-3` module: Spring Boot 3.5.14 → 3.5.16, Spring Framework 6.2.18 → 6.2.19, Spring Security 6.5.10 → 6.5.11, Reactor 3.8.2 → 3.8.7
+
 ## 4.1.1
 
 - Fix null `X-App-Tid` request header sent to IAS JWKS endpoint when token lacks `app_tid` claim

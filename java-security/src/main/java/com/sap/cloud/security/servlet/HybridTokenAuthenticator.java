@@ -94,6 +94,12 @@ public class HybridTokenAuthenticator extends AbstractTokenAuthenticator {
     this.httpClient = httpClient;
     this.iasConfig = iasConfig;
     this.xsuaaConfig = xsuaaConfig;
+    this.iasTokenAuthenticator
+        .withServiceConfiguration(iasConfig)
+        .withHttpClient(httpClient);
+    this.xsuaaTokenAuthenticator
+        .withServiceConfiguration(xsuaaConfig)
+        .withHttpClient(httpClient);
   }
 
 
