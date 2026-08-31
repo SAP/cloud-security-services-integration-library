@@ -8,6 +8,7 @@ package com.sap.cloud.security.xsuaa.client;
 
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.*;
 
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.client.ApacheHttpClient4Executor;
 import com.sap.cloud.security.client.CustomHttpClientAdapter;
 import com.sap.cloud.security.client.DefaultTokenClientConfiguration;
@@ -55,6 +56,27 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
       @Nonnull final SecurityHttpClient httpClient,
       @Nonnull final TokenCacheConfiguration tokenCacheConfiguration) {
     super(tokenCacheConfiguration);
+    Assertions.assertNotNull(httpClient, "http client is required");
+    this.httpClient = httpClient;
+  }
+
+  /**
+   * Constructor accepting an external {@link SecurityCache} implementation, for example a
+   * distributed cache adapter (Redis, Hazelcast, Spring Cache, ...). Use this when running in a
+   * cluster to avoid a per-instance token cache that would otherwise be cold on every rolling
+   * deploy.
+   *
+   * @param httpClient the outbound HTTP client
+   * @param tokenCacheConfiguration cache configuration; controls duration/size for the fallback
+   *     Caffeine cache and whether caching is disabled globally.
+   * @param securityCache a shared cache, or {@code null} for the default Caffeine cache.
+   * @since 4.1.0
+   */
+  public DefaultOAuth2TokenService(
+      @Nonnull final SecurityHttpClient httpClient,
+      @Nonnull final TokenCacheConfiguration tokenCacheConfiguration,
+      final SecurityCache<String, String> securityCache) {
+    super(tokenCacheConfiguration, securityCache);
     Assertions.assertNotNull(httpClient, "http client is required");
     this.httpClient = httpClient;
   }

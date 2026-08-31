@@ -21,7 +21,6 @@ public final class LogSanitizer {
 
 	/**
 	 * Sanitizes a string for safe logging by removing control characters.
-	 * Maintains the same information content while preventing log injection.
 	 *
 	 * @param value the string to sanitize
 	 * @return sanitized string safe for logging, or "null" if input is null
@@ -30,8 +29,15 @@ public final class LogSanitizer {
 		if (value == null) {
 			return "null";
 		}
-		// Remove newlines, carriage returns, and other control characters
-		return value.replaceAll("[\\r\\n\\x00-\\x1F\\x7F]", "");
+		StringBuilder sanitized = new StringBuilder(value.length());
+		for (int i = 0; i < value.length(); i++) {
+			char ch = value.charAt(i);
+			if (ch == '\r' || ch == '\n' || ch < 0x20 || ch == 0x7F) {
+				continue;
+			}
+			sanitized.append(ch);
+		}
+		return sanitized.toString();
 	}
 
 	/**
@@ -58,12 +64,15 @@ public final class LogSanitizer {
 	}
 
 	/**
-	 * Sanitizes an object for safe logging by sanitizing its string representation.
+	 * Sanitizes an arbitrary object for safe logging by sanitizing its string representation.
+	 * Unlike {@link #sanitize(String)}, {@link #sanitize(URI)}, and {@link #sanitize(Map)}, this
+	 * method requires an explicit call-site intent — it will not be chosen by the compiler
+	 * through implicit widening.
 	 *
 	 * @param obj the object to sanitize
 	 * @return sanitized string safe for logging
 	 */
-	public static String sanitize(Object obj) {
+	public static String sanitizeObject(Object obj) {
 		return sanitize(obj != null ? obj.toString() : null);
 	}
 }

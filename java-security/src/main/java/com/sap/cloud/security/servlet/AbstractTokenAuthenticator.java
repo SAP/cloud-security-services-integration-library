@@ -7,6 +7,7 @@ package com.sap.cloud.security.servlet;
 
 import static com.sap.cloud.security.x509.X509Constants.FWD_CLIENT_CERT_HEADER;
 
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -41,6 +42,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	protected SecurityHttpClient httpClient;
 	protected OAuth2ServiceConfiguration serviceConfiguration;
 	private CacheConfiguration tokenKeyCacheConfiguration;
+	private SecurityCache<String, String> securityCache;
 
 	@Override
 	public TokenAuthenticationResult validateRequest(ServletRequest request, ServletResponse response) {
@@ -70,6 +72,24 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	public AbstractTokenAuthenticator withCacheConfiguration(CacheConfiguration cacheConfiguration) {
 		this.tokenKeyCacheConfiguration = cacheConfiguration;
 		return this;
+	}
+
+	/**
+	 * Wires a shared {@link SecurityCache} into the JWKS and OIDC caches used by the authenticator.
+	 * Useful for running in a cluster so that JWKS lookups survive rolling deploys.
+	 *
+	 * @param securityCache the cache to use, or {@code null} to keep the built-in in-memory default
+	 * @return this authenticator
+	 * @since 4.1.0
+	 */
+	public AbstractTokenAuthenticator withSecurityCache(@Nullable SecurityCache<String, String> securityCache) {
+		this.securityCache = securityCache;
+		return this;
+	}
+
+	@Nullable
+	protected SecurityCache<String, String> getSecurityCache() {
+		return securityCache;
 	}
 
 	/**
@@ -148,6 +168,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 					.withHttpClient(httpClient);
 			jwtValidatorBuilder.configureAnotherServiceInstance(getOtherServiceConfiguration());
 			Optional.ofNullable(tokenKeyCacheConfiguration).ifPresent(jwtValidatorBuilder::withCacheConfiguration);
+			Optional.ofNullable(securityCache).ifPresent(jwtValidatorBuilder::withSecurityCache);
 			validationListeners.forEach(jwtValidatorBuilder::withValidatorListener);
 			tokenValidator = jwtValidatorBuilder.build();
 		}
