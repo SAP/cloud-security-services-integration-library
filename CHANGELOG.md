@@ -1,6 +1,31 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.6
+
+### Dependency upgrades
+
+Maintenance update of managed dependencies to the latest minor/patch release within each current major line (no major upgrades):
+
+- Bump org.springframework.boot:spring-boot from 3.5.14 to 3.5.16
+- Bump org.springframework:spring-core from 6.2.18 to 6.2.19
+- Bump org.springframework.security from 6.5.10 to 6.5.11
+- Bump org.eclipse.jetty:jetty-bom from 12.1.9 to 12.1.12
+- Bump io.projectreactor:reactor-core (and reactor-test) from 3.8.5 to 3.8.7
+- Bump org.apache.logging.log4j from 2.25.4 to 2.26.1
+- Bump org.json:json from 20251224 to 20260814
+- Bump org.apache.httpcomponents.client5:httpclient5 from 5.6.1 to 5.6.4
+- Bump org.junit.jupiter:junit-jupiter from 5.12.2 to 5.14.4
+- Bump com.github.spotbugs:spotbugs-annotations from 4.9.8 to 4.10.4
+- Bump com.github.spotbugs:spotbugs-maven-plugin from 4.9.8.3 to 4.10.4.0
+- Bump org.apache.maven.plugins:maven-surefire-plugin from 3.5.5 to 3.5.6
+
+Also fixes the `junit-bom` import in the root pom — the entry was missing `<type>pom</type><scope>import</scope>`, so the JUnit platform/jupiter versions were silently resolved through Spring Boot's BOM instead. It is now correctly imported and ordered ahead of `spring-boot-dependencies` so junit-bom wins for all JUnit 5 artifacts (mirrors the 4.0.8 fix on the 4.x line).
+
+### Known limitations
+
+- `org.bouncycastle:bcprov-jdk15on` / `bcpkix-jdk15on` 1.64 remain on the classpath of the legacy XSUAA test modules (`spring-xsuaa-test`, `spring-xsuaa-it`). They are pulled in transitively by the end-of-life `spring-security-jwt:1.1.1.RELEASE` at `test`/`compile` scope of those test-support modules only and are not propagated to consumers at runtime. These modules no longer exist on the 4.x line; consumers requiring patched BouncyCastle should migrate to 4.x.
+
 ## 3.7.5
 
 - Tolerate unsupported or malformed entries in a JWKS response
