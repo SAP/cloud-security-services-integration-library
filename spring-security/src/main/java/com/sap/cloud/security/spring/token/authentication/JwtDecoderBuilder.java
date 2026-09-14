@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.spring.token.authentication;
 
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.config.CacheConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
@@ -33,6 +34,7 @@ public class JwtDecoderBuilder {
 	private final List<ValidationListener> validationListeners = new ArrayList<>();
 	protected SecurityHttpClient httpClient;
 	private CacheConfiguration tokenKeyCacheConfiguration;
+	private SecurityCache<String, String> securityCache;
 	private boolean enableProofTokenCheck;
   private TokenExchangeMode tokenExchangeMode;
 
@@ -45,6 +47,19 @@ public class JwtDecoderBuilder {
 	 */
 	public JwtDecoderBuilder withCacheConfiguration(CacheConfiguration cacheConfiguration) {
 		this.tokenKeyCacheConfiguration = cacheConfiguration;
+		return this;
+	}
+
+	/**
+	 * Wires a shared {@link SecurityCache} into the JWKS + OIDC caches used by the built decoder.
+	 * Useful in clustered environments where JWKS lookups should survive rolling deploys.
+	 *
+	 * @param securityCache the cache to use, or {@code null} to keep the in-memory default
+	 * @return this builder
+	 * @since 4.1.0
+	 */
+	public JwtDecoderBuilder withSecurityCache(SecurityCache<String, String> securityCache) {
+		this.securityCache = securityCache;
 		return this;
 	}
 
@@ -151,6 +166,9 @@ public class JwtDecoderBuilder {
 		JwtValidatorBuilder builder = JwtValidatorBuilder.getInstance(config)
 				.withCacheConfiguration(tokenKeyCacheConfiguration)
 				.withHttpClient(httpClient);
+		if (securityCache != null) {
+			builder.withSecurityCache(securityCache);
+		}
 		for (ValidationListener listener : validationListeners) {
 			builder.withValidatorListener(listener);
 		}

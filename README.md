@@ -43,6 +43,11 @@ See [CHANGELOG.md](CHANGELOG.md) for complete details.
    - [2.4 Token Exchange for Hybrid Authentication](#24-token-exchange-for-hybrid-authentication)
        - [2.4.1 Jakarta Example](#241-jakarta-example-using-hybridtokenauthenticator)
        - [2.4.2 Spring Boot Example](#242-spring-boot-example-using-hybridjwtdecoder)
+   - [2.5 Distributed Caching](#25-distributed-caching-since-410)
+       - [When do I need it?](#recommendation-when-do-i-need-a-distributed-cache)
+       - [Enabling on Spring Boot](#enabling-on-spring-boot)
+       - [Enabling on plain Java](#enabling-on-plain-java)
+       - [Bring your own cache](#bring-your-own-cache)
 4. [Installation](#installation)
 5. [Migration Guide](#migration-guide)
 6. [Troubleshooting](#troubleshooting)
@@ -270,6 +275,201 @@ Common issues and solutions:
 |-----------------------------------|------------------------------------------------|--------------------------------------------------|
 | `Token exchange failed` exception | Missing XSUAA binding or invalid configuration | Verify both IAS and XSUAA service bindings exist |
 | Exchange returns 401              | IAS binding missing `xsuaa-cross-consumption`  | Add parameter to IAS service binding             |
+
+### 2.5 Distributed Caching (since 4.1.0)
+
+The library keeps three internal caches that shape latency and identity-service load:
+
+| Cache | Namespace | What it caches | Default |
+|---|---|---|---|
+| Outbound token cache | `tokens` | client-credentials, refresh-token, and **JWT-bearer token-exchange** responses from XSUAA / IAS | Caffeine in-memory |
+| JWKS cache | `jwks` | raw JWKS JSON per JWKS URI | Caffeine in-memory |
+| OIDC discovery cache | `oidc` | discovery response per issuer | Caffeine in-memory |
+
+The outbound token cache covers **every** token that goes through `OAuth2TokenService` — including the IAS-to-XSUAA and XSUAA-to-XSUAA exchanges triggered via `DefaultIdTokenExtension` / `DefaultXsuaaTokenExtension`. There is no separate exchange cache; the same shared store serves all three flows.
+
+#### Recommendation: when do I need a distributed cache?
+
+**Default (Caffeine in-memory) is the right choice for:**
+
+- Small or single-instance services.
+- Services where a cold start after a restart is acceptable (a few seconds of extra XSUAA / IAS traffic while caches warm up).
+- Local development and tests.
+
+**Switch to a distributed cache (e.g. Redis) for:**
+
+- Larger deployments with **many pods** — every additional pod would otherwise fetch JWKS and issue its own client-credentials / exchange tokens independently.
+- Services with **frequent rolling deploys** — every deploy takes every pod through a cold cache, so the identity-service load scales with your deploy frequency.
+- **Token-exchange-heavy workloads** (e.g. IAS-to-XSUAA exchange on every incoming user request) — a single hot tenant amplifies pod-local cache misses into a burst on the identity service.
+- Any service that must stay within the per-subaccount **XSUAA rate limit** under peak traffic and rolling deploys.
+
+Sharing these caches across pods eliminates the cold-start penalty, keeps identity-service traffic flat during deploys, and stops the classic thundering herd where every pod races XSUAA for the same client-credentials token.
+
+#### The SPI and shipped adapters
+
+All caches route through a single `com.sap.cloud.security.cache.SecurityCache<String,String>` SPI. The library ships two adapters out of the box:
+
+- **`CaffeineSecurityCache`** (in `token-client`) — the in-process default; used when you do nothing. Perfect for small services.
+- **`SpringCacheSecurityCache`** (in `spring-security` / `spring-security-3`) — wraps a Spring `org.springframework.cache.Cache` so any Spring-managed backend (Redis, Hazelcast, Caffeine, ...) works via Spring's `CacheManager` abstraction.
+
+Any other backend (a raw Jedis client, a Hazelcast `IMap`, a JDBC-backed store, ...) is a copy-pasteable implementation of the SPI — see [Bring your own cache](#bring-your-own-cache) below.
+
+#### Enabling on Spring Boot
+
+Enable the auto-configuration and expose a Spring `CacheManager` whose cache is named `sap-security` (or override the name via `sap.security.cache.distributed.cache-name`):
+
+```yaml
+sap:
+  security:
+    cache:
+      distributed:
+        enabled: true
+        # cache-name: sap-security  # default
+```
+
+```java
+@Configuration
+public class DistributedCacheConfig {
+    @Bean
+    public CacheManager cacheManager(RedisConnectionFactory rcf) {
+        return RedisCacheManager.builder(rcf)
+            .initialCacheNames(Set.of("sap-security"))
+            .build();
+    }
+}
+```
+
+The auto-configuration discovers, in order: (1) a user-supplied `SecurityCache<String,String>` bean → (2) a Spring `CacheManager` cache with the configured name. If neither is present the context fails fast with a clear error rather than silently disabling caching.
+
+#### Enabling on plain Java
+
+Instantiate a `SecurityCache` adapter and hand it to the token service and the validator builder:
+
+```java
+// 1. Build a SecurityCache backed by your store (see snippets below).
+SecurityCache<String, String> cache = new MyRedisSecurityCache(jedisPool);
+
+// 2. Share it with the outbound token cache.
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService(
+    httpClient,
+    TokenCacheConfiguration.defaultConfiguration(),
+    cache);
+
+// 3. Share it with the JWKS + OIDC caches during token validation.
+CombiningValidator<Token> validator = JwtValidatorBuilder.getInstance(config)
+    .withHttpClient(httpClient)
+    .withSecurityCache(cache)
+    .build();
+```
+
+#### Bring your own cache
+
+The SPI has four methods: `get`, `set`, `delete`, `clear`. Two invariants matter:
+
+1. **Never throw.** Every cache call is best-effort. A cache failure must degrade to a miss and let the caller fetch from source — swallow the exception, log at WARN, return.
+2. **Thread-safe.** The library calls the cache from many threads concurrently.
+
+##### Snippet 1 — Redis via Jedis (plain Java, no Spring)
+
+```java
+import com.sap.cloud.security.cache.SecurityCache;
+import jakarta.annotation.Nonnull;
+import java.time.Duration;
+import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.params.SetParams;
+
+public final class JedisSecurityCache implements SecurityCache<String, String> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JedisSecurityCache.class);
+    private static final String PREFIX = "sap-security:";
+    private static final long DEFAULT_TTL_SECONDS = 600;   // 10 min
+
+    private final JedisPool pool;
+
+    public JedisSecurityCache(final JedisPool pool) {
+        this.pool = pool;
+    }
+
+    @Override @Nonnull
+    public Optional<String> get(@Nonnull final String key) {
+        try (Jedis j = pool.getResource()) {
+            return Optional.ofNullable(j.get(PREFIX + key));
+        } catch (RuntimeException e) {
+            LOG.warn("Redis.get failed for {}: {}", key, e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void set(@Nonnull final String key, @Nonnull final String value, final Duration ttl) {
+        long seconds = ttl != null ? Math.max(1, ttl.getSeconds()) : DEFAULT_TTL_SECONDS;
+        try (Jedis j = pool.getResource()) {
+            j.set(PREFIX + key, value, SetParams.setParams().ex(seconds));
+        } catch (RuntimeException e) {
+            LOG.warn("Redis.set failed for {}: {}", key, e.getMessage());
+        }
+    }
+
+    @Override
+    public void delete(@Nonnull final String key) {
+        try (Jedis j = pool.getResource()) {
+            j.del(PREFIX + key);
+        } catch (RuntimeException e) {
+            LOG.warn("Redis.del failed for {}: {}", key, e.getMessage());
+        }
+    }
+
+    @Override
+    public void clear() {
+        // Only wipe our own keys — never FLUSHDB a shared Redis.
+        try (Jedis j = pool.getResource()) {
+            j.eval(
+                "for _,k in ipairs(redis.call('KEYS', ARGV[1])) do redis.call('DEL', k) end return 0",
+                0, PREFIX + "*");
+        } catch (RuntimeException e) {
+            LOG.warn("Redis.clear failed: {}", e.getMessage());
+        }
+    }
+}
+```
+
+Wire it up as shown in [Enabling on plain Java](#enabling-on-plain-java).
+
+##### Snippet 2 — Any Spring-managed backend (Spring Boot)
+
+If your app already has a Spring `CacheManager` you do **not** need to implement `SecurityCache` yourself. Just make sure the manager exposes a cache named `sap-security` — the auto-configuration wraps it via `SpringCacheSecurityCache`:
+
+```java
+@Configuration
+public class SecurityCacheConfig {
+
+    // Hazelcast — Spring will discover it via HazelcastCacheManager.
+    @Bean
+    public CacheManager cacheManager(HazelcastInstance hz) {
+        return new HazelcastCacheManager(hz);   // needs an IMap named "sap-security"
+    }
+}
+```
+
+For a fully custom backend (a JDBC store, an in-house cache, ...) you can also expose a `SecurityCache<String,String>` bean directly — the auto-configuration prefers that over any `CacheManager`:
+
+```java
+@Bean
+public SecurityCache<String, String> securityCache(JedisPool pool) {
+    return new JedisSecurityCache(pool);        // from Snippet 1
+}
+```
+
+#### Warnings
+
+- **Failure semantics.** Every cache call is best-effort. A broken cache never breaks token retrieval, JWKS fetch, or token validation — the library falls through to the source of truth and logs a WARN.
+- **TTL behavior.** Adapters written on top of infrastructure that has its own TTL policy (Redis `EXPIRE`, ...) should honor that policy rather than the per-entry TTL the library passes. Configure your infrastructure to match: 10 min for tokens/JWKS/OIDC.
+
+Per-module details: [token-client/README.md](token-client/README.md), [java-security/README.md](java-security/README.md), [spring-security-3/README.md](spring-security-3/README.md).
 
 ## Installation
 The SAP Cloud Security Services Integration is published to maven central: https://search.maven.org/search?q=com.sap.cloud.security and is available as a Maven dependency. Add the following BOM to your dependency management in your `pom.xml`:
