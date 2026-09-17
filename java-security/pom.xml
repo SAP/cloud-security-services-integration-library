@@ -50,6 +50,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.sap.cloud.security</groupId>
+			<artifactId>java-security-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
