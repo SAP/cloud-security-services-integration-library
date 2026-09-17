@@ -91,11 +91,14 @@ Key features:
 Developers who need OAuth2 token validation and token access in their Jakarta EE applications can utilize the [java-security](./java-security) library. This library simplifies the process of acquiring token information such as principal and audiences from the security context and takes over token validation for tokens issued by Xsuaa or Identity services.
 This library is also integrated in SAP Java Buildpack. 
 
+:bulb: **javax / Tomcat 9 environments (no Jakarta)**: If you need token validation without Jakarta EE (e.g. Tomcat 9 / `javax.servlet` runtimes), use the [java-security-core](./java-security-core) module. It contains the token model, all JWT validators (`JwtValidatorBuilder` and friends) and `TokenFactory` registration, and has **no `jakarta.servlet` or Spring dependency**. The servlet-based authenticators (`HybridTokenAuthenticator`, `IasTokenAuthenticator`, `XsuaaTokenAuthenticator`) remain in [java-security](./java-security), which depends on `java-security-core`.
+
 In the table below you'll find links to detailed information.
 
 | Library                                   | Usage Examples                                                                                                                                                                                                                                                                                                                                                                      |
 |-------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [java-security](/java-security)           | [java-security-usage](/samples/java-security-usage) demonstrates java-security usage with Xsuaa service <br/> [java-security-usage-ias](/samples/java-security-usage-ias) demonstrates java-security usage with Identity service  <br/>    [sap-java-buildpack-api-usage](/samples/sap-java-buildpack-api-usage) demonstrates java-security usage with SAP Java Buildpack |
+| [java-security-core](/java-security-core) | Token model, JWT validators and X.509 helpers **without `jakarta.servlet` or Spring** — for `javax.servlet` / Tomcat 9 runtimes and non-servlet code. See the [module README](/java-security-core/README.md) incl. a guide to build your own Authenticator on top of the validators |
 
 :bulb: Changes with SAP Java Buildpack 1.26.0
 The former SAP Java Buildpack versions have used deprecated (Spring) Security libraries and had to be updated. As of version 1.26.0 SAP Java Buildpack uses the [`java-security`](/java-security) library. Please consider these (migration) guides:
@@ -226,7 +229,7 @@ Unauthorized. No silent fallback occurs since IAS access tokens typically lack s
 
 #### Token Exchange Modes
 
-The [`TokenExchangeMode`](java-security/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)enum controls
+The [`TokenExchangeMode`](java-security-core/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java) enum controls
 when
 and how IAS tokens are exchanged:
 
@@ -623,7 +626,6 @@ Please refer to each library's Troubleshooting section
 | Link to troubleshooting section                               |
 |---------------------------------------------------------------|
 | [spring-security](/spring-security/README.md#Troubleshooting) |
-| [spring-xsuaa](/spring-xsuaa/README.md#Troubleshooting)       |
 | [java-security](/java-security/README.md#Troubleshooting)     |
 | [token-client](/token-client/README.md#Troubleshooting)       |
 
