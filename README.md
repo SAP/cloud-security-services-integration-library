@@ -86,6 +86,8 @@ Key features:
 Developers who need OAuth2 token validation and token access in their Jakarta EE applications can utilize the [java-security](./java-security) library. This library simplifies the process of acquiring token information such as principal and audiences from the security context and takes over token validation for tokens issued by Xsuaa or Identity services.
 This library is also integrated in SAP Java Buildpack. 
 
+:bulb: **javax / Tomcat 9 environments (no Jakarta)**: If you need token validation without Jakarta EE (e.g. Tomcat 9 / `javax.servlet` runtimes), use the [java-security-core](./java-security-core) module. It contains the token model, all JWT validators (`JwtValidatorBuilder` and friends) and `TokenFactory` registration, and has **no `jakarta.servlet` or Spring dependency**. The servlet-based authenticators (`HybridTokenAuthenticator`, `IasTokenAuthenticator`, `XsuaaTokenAuthenticator`) remain in [java-security](./java-security), which depends on `java-security-core`.
+
 In the table below you'll find links to detailed information.
 
 | Library                                   | Usage Examples                                                                                                                                                                                                                                                                                                                                                                      |
