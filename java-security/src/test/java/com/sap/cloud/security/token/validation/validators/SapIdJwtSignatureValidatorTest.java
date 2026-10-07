@@ -10,6 +10,7 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.SapIdToken;
 import com.sap.cloud.security.token.SecurityContext;
 import com.sap.cloud.security.token.Token;
+import com.sap.cloud.security.token.TokenClaims;
 import com.sap.cloud.security.token.validation.ValidationResult;
 import com.sap.cloud.security.x509.Certificate;
 import com.sap.cloud.security.x509.X509Certificate;
@@ -299,6 +300,44 @@ public class SapIdJwtSignatureValidatorTest {
 	}
 
 	@Test
+	public void validate_azpAppTidClaim_isSentAsHeaderOnJwksFetch() throws Exception {
+		Token tokenSpy = Mockito.spy(iasToken);
+		doReturn("sender-tenant-tid").when(tokenSpy).getClaimAsString(TokenClaims.AZP_APP_TID);
+
+		ParamsCapturesAzpAppTid capture = new ParamsCapturesAzpAppTid();
+		OAuth2TokenKeyService tokenKeyMock = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyMock.retrieveTokenKeys(any(), argThat(capture)))
+				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+
+		SapIdJwtSignatureValidator localCut = new SapIdJwtSignatureValidator(
+				mockConfiguration,
+				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyMock),
+				OidcConfigurationServiceWithCache.getInstance().withOidcConfigurationService(oidcConfigServiceMock));
+
+		assertTrue(localCut.validate(tokenSpy).isValid());
+		assertThat(capture.azpAppTidValue).isEqualTo("sender-tenant-tid");
+	}
+
+	@Test
+	public void validate_noAzpAppTidClaim_headerIsOmitted() throws Exception {
+		Token tokenSpy = Mockito.spy(iasToken);
+		doReturn(null).when(tokenSpy).getClaimAsString(TokenClaims.AZP_APP_TID);
+
+		ParamsCapturesAzpAppTid capture = new ParamsCapturesAzpAppTid();
+		OAuth2TokenKeyService tokenKeyMock = Mockito.mock(OAuth2TokenKeyService.class);
+		when(tokenKeyMock.retrieveTokenKeys(any(), argThat(capture)))
+				.thenReturn(IOUtils.resourceToString("/iasJsonWebTokenKeys.json", UTF_8));
+
+		SapIdJwtSignatureValidator localCut = new SapIdJwtSignatureValidator(
+				mockConfiguration,
+				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyMock),
+				OidcConfigurationServiceWithCache.getInstance().withOidcConfigurationService(oidcConfigServiceMock));
+
+		assertTrue(localCut.validate(tokenSpy).isValid());
+		assertThat(capture.azpAppTidValue).isEqualTo("<absent>");
+	}
+
+	@Test
 	public void validate() {
 		assertTrue(cut.validate(iasToken).isValid());
 	}
@@ -401,6 +440,18 @@ public class SapIdJwtSignatureValidatorTest {
 		public boolean matches(Map<String, String> map) {
 			if (map.containsKey(HttpHeaders.X_APP_TID)) {
 				appTidValue = map.get(HttpHeaders.X_APP_TID);
+			}
+			return true;
+		}
+	}
+
+	static class ParamsCapturesAzpAppTid implements ArgumentMatcher<Map<String, String>> {
+		String azpAppTidValue = "<absent>";
+
+		@Override
+		public boolean matches(Map<String, String> map) {
+			if (map.containsKey(HttpHeaders.X_AZP_APP_TID)) {
+				azpAppTidValue = map.get(HttpHeaders.X_AZP_APP_TID);
 			}
 			return true;
 		}
