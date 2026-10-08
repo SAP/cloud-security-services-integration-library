@@ -64,15 +64,12 @@ public final class LogSanitizer {
 	}
 
 	/**
-	 * Sanitizes an arbitrary object for safe logging by sanitizing its string representation.
-	 * Unlike {@link #sanitize(String)}, {@link #sanitize(URI)}, and {@link #sanitize(Map)}, this
-	 * method requires an explicit call-site intent — it will not be chosen by the compiler
-	 * through implicit widening.
+	 * Sanitizes an object for safe logging by sanitizing its string representation.
 	 *
 	 * @param obj the object to sanitize
 	 * @return sanitized string safe for logging
 	 */
-	public static String sanitizeObject(Object obj) {
+	public static String sanitize(Object obj) { // lgtm[java/confusing-method-signature]
 		return sanitize(obj != null ? obj.toString() : null);
 	}
 }
