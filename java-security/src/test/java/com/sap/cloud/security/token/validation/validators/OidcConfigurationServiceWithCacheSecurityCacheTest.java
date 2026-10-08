@@ -23,6 +23,11 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,6 +84,43 @@ class OidcConfigurationServiceWithCacheSecurityCacheTest {
         .doesNotThrowAnyException();
     // Cache is broken, so every call refetches.
     verify(svc, times(2)).retrieveEndpoints(DISCOVERY);
+  }
+
+  @Test
+  void singleFlight_twoConcurrentMisses_produceOneDiscoveryCall() throws Exception {
+    CountDownLatch release = new CountDownLatch(1);
+    AtomicInteger fetchCount = new AtomicInteger();
+    when(svc.retrieveEndpoints(any()))
+        .thenAnswer(
+            inv -> {
+              fetchCount.incrementAndGet();
+              release.await(5, TimeUnit.SECONDS);
+              return provider;
+            });
+
+    OidcConfigurationServiceWithCache cut =
+        OidcConfigurationServiceWithCache.getInstance().withOidcConfigurationService(svc);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      Future<OAuth2ServiceEndpointsProvider> f1 =
+          pool.submit(() -> cut.getOrRetrieveEndpoints(DISCOVERY));
+      Future<OAuth2ServiceEndpointsProvider> f2 =
+          pool.submit(() -> cut.getOrRetrieveEndpoints(DISCOVERY));
+
+      // Let both threads enter; the second one should wait on the in-flight future instead of
+      // issuing its own HTTP call.
+      Thread.sleep(150);
+      release.countDown();
+
+      OAuth2ServiceEndpointsProvider p1 = f1.get(10, TimeUnit.SECONDS);
+      OAuth2ServiceEndpointsProvider p2 = f2.get(10, TimeUnit.SECONDS);
+
+      assertThat(p2.getTokenEndpoint()).isEqualTo(p1.getTokenEndpoint());
+      // The whole point of single-flight: two callers, one upstream discovery fetch.
+      assertThat(fetchCount.get()).isEqualTo(1);
+    } finally {
+      pool.shutdownNow();
+    }
   }
 
   private static class RecordingCache implements SecurityCache<String, String> {

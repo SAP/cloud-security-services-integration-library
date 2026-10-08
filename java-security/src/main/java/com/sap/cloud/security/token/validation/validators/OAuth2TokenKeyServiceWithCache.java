@@ -33,6 +33,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * Decorates {@link OAuth2TokenKeyService} with a {@link SecurityCache}-backed cache, which gets
  * looked up before the identity service is requested via HTTP.
  *
- * <p>Since 4.1.0 the cache is expressed against the {@link SecurityCache} SPI. The cached value is
+ * <p>Since 4.2.0 the cache is expressed against the {@link SecurityCache} SPI. The cached value is
  * the raw JWKS JSON as returned by the identity service; the {@link JsonWebKeySet} is rebuilt on
  * every hit. That makes cached entries safe to share across processes at the cost of a small,
  * predictable per-hit CPU overhead.
@@ -113,7 +116,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
    *
    * @param securityCache the cache to use, or {@code null}
    * @return this
-   * @since 4.1.0
+   * @since 4.2.0
    */
   public OAuth2TokenKeyServiceWithCache withSecurityCache(
       @Nullable final SecurityCache<String, String> securityCache) {
@@ -151,10 +154,10 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
       jwks = tryParse(cachedJson.get());
       if (jwks == null) {
         LOGGER.debug("Cached JWKS entry was malformed — refetching");
-        jwks = fetchAndCache(cacheKey, requestParameters, key);
+        jwks = singleFlightFetch(key, () -> fetchAndCache(cacheKey, requestParameters, key));
       }
     } else {
-      jwks = fetchAndCache(cacheKey, requestParameters, key);
+      jwks = singleFlightFetch(key, () -> fetchAndCache(cacheKey, requestParameters, key));
     }
 
     if (jwks == null || jwks.getAll().isEmpty()) {
@@ -175,7 +178,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
         + " Note: JWKS entries with algorithms not supported by this library, or malformed entries,"
         + " are dropped at parse time — see earlier 'Skipping JWK entry' log lines for details.",
         LogSanitizer.sanitize(keyParameters.keyId), LogSanitizer.sanitize(keyParameters.keyAlgorithm),
-        LogSanitizer.sanitizeObject(jwks));
+        LogSanitizer.sanitize(jwks));
     throw new IllegalArgumentException("Key with kid " + keyParameters.keyId + " not found in JWKS.");
   }
 
@@ -202,6 +205,56 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
       LOGGER.warn("Failed to parse cached JWKS JSON: {}", e.getMessage());
       return null;
     }
+  }
+
+  private final ConcurrentHashMap<String, CompletableFuture<JsonWebKeySet>> inFlight =
+      new ConcurrentHashMap<>();
+
+  /**
+   * Collapses concurrent fetches for the same cache key into a single HTTP call. The first
+   * requester performs the retrieval (and the cache write); concurrent waiters receive the same
+   * result. This mirrors the single-flight behavior of the outbound token cache and prevents a
+   * burst of parallel JWKS requests after a cache eviction or a rolling deploy.
+   */
+  private JsonWebKeySet singleFlightFetch(
+      final String key, final CheckedSupplier<JsonWebKeySet> fetcher)
+      throws OAuth2ServiceException {
+    CompletableFuture<JsonWebKeySet> ours = new CompletableFuture<>();
+    CompletableFuture<JsonWebKeySet> existing = inFlight.putIfAbsent(key, ours);
+    if (existing != null) {
+      try {
+        return existing.get();
+      } catch (final InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw OAuth2ServiceException.builder("Interrupted while waiting for in-flight JWKS fetch")
+            .withUri(URI.create("about:blank"))
+            .build();
+      } catch (final ExecutionException ee) {
+        Throwable cause = ee.getCause();
+        if (cause instanceof OAuth2ServiceException oe) {
+          throw oe;
+        }
+        if (cause instanceof RuntimeException re) {
+          throw re;
+        }
+        throw new IllegalStateException(cause);
+      }
+    }
+    try {
+      JsonWebKeySet fetched = fetcher.get();
+      ours.complete(fetched);
+      return fetched;
+    } catch (final OAuth2ServiceException | RuntimeException e) {
+      ours.completeExceptionally(e);
+      throw e;
+    } finally {
+      inFlight.remove(key, ours);
+    }
+  }
+
+  @FunctionalInterface
+  private interface CheckedSupplier<T> {
+    T get() throws OAuth2ServiceException;
   }
 
   private Optional<String> safeGet(final String key) {

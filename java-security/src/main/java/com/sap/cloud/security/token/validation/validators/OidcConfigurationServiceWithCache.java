@@ -23,6 +23,9 @@ import jakarta.annotation.Nullable;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * Decorates {@link OidcConfigurationService} with a {@link SecurityCache}-backed cache, which gets
  * looked up before the identity service is requested via HTTP.
  *
- * <p>Since 4.1.0 the cache is expressed against the {@link SecurityCache} SPI so that a distributed
+ * <p>Since 4.2.0 the cache is expressed against the {@link SecurityCache} SPI so that a distributed
  * cache (Redis, Hazelcast, ...) can be plugged in via
  * {@link JwtValidatorBuilder#withSecurityCache(SecurityCache)}. When no external cache is supplied
  * a size- and duration-bounded Caffeine cache is used.
@@ -110,7 +113,7 @@ public class OidcConfigurationServiceWithCache implements Cacheable {
    *
    * @param securityCache the cache to use, or {@code null}
    * @return this
-   * @since 4.1.0
+   * @since 4.2.0
    */
   public OidcConfigurationServiceWithCache withSecurityCache(
       @Nullable final SecurityCache<String, String> securityCache) {
@@ -142,14 +145,19 @@ public class OidcConfigurationServiceWithCache implements Cacheable {
     }
 
     OAuth2ServiceEndpointsProvider endpointsProvider =
-        getOidcConfigurationService().retrieveEndpoints(discoveryEndpointUri);
-    if (endpointsProvider == null) {
-      return null;
-    }
-    safeSet(
-        cacheKey,
-        SerializedEndpoints.toJson(endpointsProvider),
-        Duration.ofSeconds(cacheValidityInSeconds));
+        singleFlightFetch(
+            cacheKey,
+            () -> {
+              OAuth2ServiceEndpointsProvider provider =
+                  getOidcConfigurationService().retrieveEndpoints(discoveryEndpointUri);
+              if (provider != null) {
+                safeSet(
+                    cacheKey,
+                    SerializedEndpoints.toJson(provider),
+                    Duration.ofSeconds(cacheValidityInSeconds));
+              }
+              return provider;
+            });
     return endpointsProvider;
   }
 
@@ -175,6 +183,56 @@ public class OidcConfigurationServiceWithCache implements Cacheable {
     } catch (final RuntimeException e) {
       LOGGER.warn("SecurityCache.set failed for OIDC entry: {}", e.getMessage());
     }
+  }
+
+  private final ConcurrentHashMap<String, CompletableFuture<OAuth2ServiceEndpointsProvider>>
+      inFlight = new ConcurrentHashMap<>();
+
+  /**
+   * Collapses concurrent fetches for the same cache key into a single HTTP call. The first
+   * requester performs the retrieval (and the cache write); concurrent waiters receive the same
+   * result. This mirrors the single-flight behavior of the outbound token cache and prevents a
+   * burst of parallel discovery requests after a cache eviction or a rolling deploy.
+   */
+  private OAuth2ServiceEndpointsProvider singleFlightFetch(
+      final String key, final CheckedSupplier<OAuth2ServiceEndpointsProvider> fetcher)
+      throws OAuth2ServiceException {
+    CompletableFuture<OAuth2ServiceEndpointsProvider> ours = new CompletableFuture<>();
+    CompletableFuture<OAuth2ServiceEndpointsProvider> existing = inFlight.putIfAbsent(key, ours);
+    if (existing != null) {
+      try {
+        return existing.get();
+      } catch (final InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw OAuth2ServiceException.builder("Interrupted while waiting for in-flight OIDC discovery fetch")
+            .withUri(URI.create("about:blank"))
+            .build();
+      } catch (final ExecutionException ee) {
+        Throwable cause = ee.getCause();
+        if (cause instanceof OAuth2ServiceException oe) {
+          throw oe;
+        }
+        if (cause instanceof RuntimeException re) {
+          throw re;
+        }
+        throw new IllegalStateException(cause);
+      }
+    }
+    try {
+      OAuth2ServiceEndpointsProvider fetched = fetcher.get();
+      ours.complete(fetched);
+      return fetched;
+    } catch (final OAuth2ServiceException | RuntimeException e) {
+      ours.completeExceptionally(e);
+      throw e;
+    } finally {
+      inFlight.remove(key, ours);
+    }
+  }
+
+  @FunctionalInterface
+  private interface CheckedSupplier<T> {
+    T get() throws OAuth2ServiceException;
   }
 
   private SecurityCache<String, String> getCache() {

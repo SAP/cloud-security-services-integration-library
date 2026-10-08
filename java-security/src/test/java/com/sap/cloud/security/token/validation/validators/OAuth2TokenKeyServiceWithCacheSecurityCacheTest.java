@@ -28,6 +28,11 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,6 +99,41 @@ class OAuth2TokenKeyServiceWithCacheSecurityCacheTest {
         .doesNotThrowAnyException();
     // Cache never hits — every call refetches.
     verify(svc, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap());
+  }
+
+  @Test
+  void singleFlight_twoConcurrentMisses_produceOneJwksCall() throws Exception {
+    CountDownLatch release = new CountDownLatch(1);
+    AtomicInteger fetchCount = new AtomicInteger();
+    when(svc.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))
+        .thenAnswer(
+            inv -> {
+              fetchCount.incrementAndGet();
+              release.await(5, TimeUnit.SECONDS);
+              return jwksJson;
+            });
+
+    OAuth2TokenKeyServiceWithCache cut =
+        OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(svc);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      Future<PublicKey> f1 = pool.submit(() -> cut.getPublicKey(params, PARAMS));
+      Future<PublicKey> f2 = pool.submit(() -> cut.getPublicKey(params, PARAMS));
+
+      // Let both threads enter; the second one should wait on the in-flight future instead of
+      // issuing its own HTTP call.
+      Thread.sleep(150);
+      release.countDown();
+
+      PublicKey k1 = f1.get(10, TimeUnit.SECONDS);
+      PublicKey k2 = f2.get(10, TimeUnit.SECONDS);
+
+      assertThat(k2.getEncoded()).isEqualTo(k1.getEncoded());
+      // The whole point of single-flight: two callers, one upstream JWKS fetch.
+      assertThat(fetchCount.get()).isEqualTo(1);
+    } finally {
+      pool.shutdownNow();
+    }
   }
 
   private static class RecordingCache implements SecurityCache<String, String> {
