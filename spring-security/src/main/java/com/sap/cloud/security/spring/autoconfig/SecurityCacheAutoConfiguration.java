@@ -39,7 +39,7 @@ import org.springframework.context.annotation.Configuration;
  * is supported by declaring a custom {@link SecurityCache} bean — see the README for a
  * copy-pasteable snippet.
  *
- * @since 4.1.0
+ * @since 4.2.0
  */
 @Configuration
 @ConditionalOnProperty(prefix = "sap.security.cache.distributed", name = "enabled", havingValue = "true")
@@ -51,9 +51,8 @@ public class SecurityCacheAutoConfiguration {
   private final Logger logger = LoggerFactory.getLogger(getClass());
 
   @Bean
-  @ConditionalOnMissingBean(SecurityCache.class)
-  @SuppressWarnings("rawtypes")
-  public SecurityCache securityCache(
+  @ConditionalOnMissingBean
+  public SecurityCache<String, String> securityCache(
       final ObjectProvider<CacheManager> springCacheManagerProvider,
       final org.springframework.core.env.Environment env) {
     String cacheName = env.getProperty(DEFAULT_CACHE_NAME_PROPERTY, DEFAULT_CACHE_NAME);
