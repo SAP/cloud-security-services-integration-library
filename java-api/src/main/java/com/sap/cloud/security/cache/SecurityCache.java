@@ -76,7 +76,6 @@ public interface SecurityCache<K, V> {
    * @param value the value to store, never {@code null}
    * @param ttl the time-to-live for this entry; {@code null} means "use adapter default"
    */
-   @SuppressWarnings("java/unused-parameter")
    void set(@Nonnull K key, @Nonnull V value, Duration ttl);
 
   /**

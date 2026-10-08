@@ -7,7 +7,6 @@
 package com.sap.cloud.security.spring.cache;
 
 import com.sap.cloud.security.cache.SecurityCache;
-import com.sap.cloud.security.util.LogSanitizer;
 import java.time.Duration;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -51,7 +50,9 @@ public final class SpringCacheSecurityCache implements SecurityCache<String, Str
       Object v = wrapper.get();
       return v instanceof String s ? Optional.of(s) : Optional.empty();
     } catch (final RuntimeException e) {
-      LOGGER.warn("SpringCache.get failed for {}: {}", LogSanitizer.sanitize(key), e.getMessage());
+      // Key and exception message are not logged: cache keys and store error
+      // messages can carry request-derived data and must not end up in logs.
+      LOGGER.warn("SpringCache.get failed - treating as cache miss", e);
       return Optional.empty();
     }
   }
@@ -61,7 +62,7 @@ public final class SpringCacheSecurityCache implements SecurityCache<String, Str
     try {
       delegate.put(key, value);
     } catch (final RuntimeException e) {
-      LOGGER.warn("SpringCache.put failed for {}: {}", LogSanitizer.sanitize(key), e.getMessage());
+      LOGGER.warn("SpringCache.put failed - value not cached", e);
     }
   }
 
@@ -70,7 +71,7 @@ public final class SpringCacheSecurityCache implements SecurityCache<String, Str
     try {
       delegate.evict(key);
     } catch (final RuntimeException e) {
-      LOGGER.warn("SpringCache.evict failed for {}: {}", LogSanitizer.sanitize(key), e.getMessage());
+      LOGGER.warn("SpringCache.evict failed - key not removed", e);
     }
   }
 
@@ -79,7 +80,7 @@ public final class SpringCacheSecurityCache implements SecurityCache<String, Str
     try {
       delegate.clear();
     } catch (final RuntimeException e) {
-      LOGGER.warn("SpringCache.clear failed: {}", e.getMessage());
+      LOGGER.warn("SpringCache.clear failed - cache not cleared", e);
     }
   }
 }
