@@ -14,6 +14,8 @@ import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GR
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_PASSWORD;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.GRANT_TYPE_REFRESH_TOKEN;
 import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.PASSWORD;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.REFRESH_TOKEN;
+import static com.sap.cloud.security.xsuaa.client.OAuth2TokenServiceConstants.USERNAME;
 
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.cache.CacheKeys;
@@ -49,7 +51,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Base implementation of {@link OAuth2TokenService} with a pluggable cache.
  *
- * <p>Since 4.1.0 the response cache is expressed against the {@link SecurityCache} SPI so that
+ * <p>Since 4.2.0 the response cache is expressed against the {@link SecurityCache} SPI so that
  * customers can plug in a distributed cache (e.g. Redis) rather than being locked into the
  * in-memory Caffeine implementation. The default remains a Caffeine cache configured by the
  * supplied {@link TokenCacheConfiguration}. Cached values are serialized to JSON so they can travel
@@ -90,7 +92,7 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
    * @param tokenCacheConfiguration cache configuration; controls whether caching is disabled
    *     entirely and drives the size/duration of the default Caffeine cache.
    * @param securityCache the cache to use, or {@code null} for the default.
-   * @since 4.1.0
+   * @since 4.2.0
    */
   public AbstractOAuth2TokenService(
       @Nonnull final TokenCacheConfiguration tokenCacheConfiguration,
@@ -335,7 +337,9 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
                 e -> {
                   if (e.getKey().contains(PASSWORD)
                       || e.getKey().contains(CLIENT_SECRET)
-                      || e.getKey().contains(ASSERTION)) {
+                      || e.getKey().contains(ASSERTION)
+                      || e.getKey().contains(REFRESH_TOKEN)
+                      || e.getKey().contains(USERNAME)) {
                     return new AbstractMap.SimpleImmutableEntry<>(e.getKey(), "****");
                   }
                   return e;
