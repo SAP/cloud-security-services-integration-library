@@ -21,6 +21,7 @@ public final class LogSanitizer {
 
 	/**
 	 * Sanitizes a string for safe logging by removing control characters.
+	 * Maintains the same information content while preventing log injection.
 	 *
 	 * @param value the string to sanitize
 	 * @return sanitized string safe for logging, or "null" if input is null
@@ -29,15 +30,8 @@ public final class LogSanitizer {
 		if (value == null) {
 			return "null";
 		}
-		StringBuilder sanitized = new StringBuilder(value.length());
-		for (int i = 0; i < value.length(); i++) {
-			char ch = value.charAt(i);
-			if (ch == '\r' || ch == '\n' || ch < 0x20 || ch == 0x7F) {
-				continue;
-			}
-			sanitized.append(ch);
-		}
-		return sanitized.toString();
+		// Remove newlines, carriage returns, and other control characters
+		return value.replaceAll("[\\r\\n\\x00-\\x1F\\x7F]", "");
 	}
 
 	/**
@@ -69,7 +63,7 @@ public final class LogSanitizer {
 	 * @param obj the object to sanitize
 	 * @return sanitized string safe for logging
 	 */
-	public static String sanitize(Object obj) { // lgtm[java/confusing-method-signature]
+	public static String sanitize(Object obj) {
 		return sanitize(obj != null ? obj.toString() : null);
 	}
 }

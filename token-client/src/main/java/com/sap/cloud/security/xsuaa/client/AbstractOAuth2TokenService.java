@@ -124,8 +124,8 @@ public abstract class AbstractOAuth2TokenService implements OAuth2TokenService, 
       LOGGER.debug("Configured token service with cache disabled");
     } else {
       LOGGER.debug(
-          "Configured token service with {} using cache impl {}",
-          tokenCacheConfiguration,
+          "Configured token service with cache duration {} using cache impl {}",
+          tokenCacheConfiguration.getCacheDuration(),
           responseCache.getClass().getSimpleName());
     }
   }
