@@ -70,7 +70,7 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
    * @param tokenCacheConfiguration cache configuration; controls duration/size for the fallback
    *     Caffeine cache and whether caching is disabled globally.
    * @param securityCache a shared cache, or {@code null} for the default Caffeine cache.
-   * @since 4.1.0
+   * @since 4.2.0
    */
   public DefaultOAuth2TokenService(
       @Nonnull final SecurityHttpClient httpClient,

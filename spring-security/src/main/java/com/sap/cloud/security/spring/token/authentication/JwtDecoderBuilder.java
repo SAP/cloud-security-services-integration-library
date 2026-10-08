@@ -56,7 +56,7 @@ public class JwtDecoderBuilder {
 	 *
 	 * @param securityCache the cache to use, or {@code null} to keep the in-memory default
 	 * @return this builder
-	 * @since 4.1.0
+	 * @since 4.2.0
 	 */
 	public JwtDecoderBuilder withSecurityCache(SecurityCache<String, String> securityCache) {
 		this.securityCache = securityCache;

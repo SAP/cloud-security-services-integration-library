@@ -80,7 +80,7 @@ public abstract class AbstractTokenAuthenticator implements TokenAuthenticator {
 	 *
 	 * @param securityCache the cache to use, or {@code null} to keep the built-in in-memory default
 	 * @return this authenticator
-	 * @since 4.1.0
+	 * @since 4.2.0
 	 */
 	public AbstractTokenAuthenticator withSecurityCache(@Nullable SecurityCache<String, String> securityCache) {
 		this.securityCache = securityCache;

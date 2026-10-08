@@ -276,7 +276,7 @@ Common issues and solutions:
 | `Token exchange failed` exception | Missing XSUAA binding or invalid configuration | Verify both IAS and XSUAA service bindings exist |
 | Exchange returns 401              | IAS binding missing `xsuaa-cross-consumption`  | Add parameter to IAS service binding             |
 
-### 2.5 Distributed Caching (since 4.1.0)
+### 2.5 Distributed Caching (since 4.2.0)
 
 The library keeps three internal caches that shape latency and identity-service load:
 
@@ -328,12 +328,19 @@ sap:
 ```
 
 ```java
+import java.time.Duration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+
 @Configuration
 public class DistributedCacheConfig {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory rcf) {
         return RedisCacheManager.builder(rcf)
             .initialCacheNames(Set.of("sap-security"))
+            .withInitialCacheConfiguration(
+                "sap-security",
+                RedisCacheConfiguration.defaultCacheConfig()
+                    .entryTtl(Duration.ofMinutes(10)))   // must be finite — see Warnings
             .build();
     }
 }
@@ -426,10 +433,15 @@ public final class JedisSecurityCache implements SecurityCache<String, String> {
     @Override
     public void clear() {
         // Only wipe our own keys — never FLUSHDB a shared Redis.
+        // SCAN (not KEYS) so a large store is not blocked.
         try (Jedis j = pool.getResource()) {
-            j.eval(
-                "for _,k in ipairs(redis.call('KEYS', ARGV[1])) do redis.call('DEL', k) end return 0",
-                0, PREFIX + "*");
+            String cursor = "0";
+            do {
+                var scanResult = j.scan(
+                    cursor, new redis.clients.jedis.params.ScanParams().match(PREFIX + "*").count(100));
+                j.del(scanResult.getResult().toArray(new String[0]));
+                cursor = scanResult.getCursor();
+            } while (!"0".equals(cursor));
         } catch (RuntimeException e) {
             LOG.warn("Redis.clear failed: {}", e.getMessage());
         }
@@ -467,7 +479,8 @@ public SecurityCache<String, String> securityCache(JedisPool pool) {
 #### Warnings
 
 - **Failure semantics.** Every cache call is best-effort. A broken cache never breaks token retrieval, JWKS fetch, or token validation — the library falls through to the source of truth and logs a WARN.
-- **TTL behavior.** Adapters written on top of infrastructure that has its own TTL policy (Redis `EXPIRE`, ...) should honor that policy rather than the per-entry TTL the library passes. Configure your infrastructure to match: 10 min for tokens/JWKS/OIDC.
+- **The store's TTL must be finite.** The library passes a per-entry TTL with every `set`, but the shipped `SpringCacheSecurityCache` (and any adapter that delegates to infrastructure-managed expiration) lets the store's own policy decide. If your store has *no* expiration (e.g. a `RedisCacheManager` without `entryTtl`, or a plain `SET` without `EXPIRE`), JWKS and OIDC entries live forever: they are only refetched on a *miss*, so after an identity-service key rotation the cached JWKS is never refreshed and token validation starts failing with `Key with kid ... not found`. Configure the store's TTL at or below the library's cache duration (default 10 minutes). Outbound-token entries are additionally re-checked against the token's `exp` claim on every read, but JWKS / OIDC entries are not.
+- **Time-to-live and rotation.** With a finite store TTL, a key rotation is picked up within one TTL period. If you need faster propagation (e.g. an emergency key revocation), delete the affected `jwks:*` keys (or call `SecurityCache.clear()`).
 
 Per-module details: [token-client/README.md](token-client/README.md), [java-security/README.md](java-security/README.md), [spring-security-3/README.md](spring-security-3/README.md).
 

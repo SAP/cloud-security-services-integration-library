@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *     httpClient, TokenCacheConfiguration.defaultConfiguration(), cache);
  * }</pre>
  *
- * @since 4.1.0
+ * @since 4.2.0
  */
 public final class CaffeineSecurityCache implements SecurityCache<String, String> {
 

@@ -17,7 +17,7 @@ import java.util.Optional;
  * <p>Useful for testing scenarios where caching should be disabled entirely without changing the
  * wiring, or as a documented way to opt out of caching in production.
  *
- * @since 4.1.0
+ * @since 4.2.0
  */
 public final class NoOpSecurityCache<K, V> implements SecurityCache<K, V> {
 

@@ -381,7 +381,7 @@ In case you want to implement a reactive token authentication flow, you can use 
 </details>
 
 
-### [Optional] Distributed Cache (since 4.1.0)
+### [Optional] Distributed Cache (since 4.2.0)
 
 By default the library uses an **in-memory Caffeine cache** for JWKS, OIDC discovery, and outbound tokens — that's the right choice for small services and local development. For larger deployments (many pods, frequent rolling deploys, token-exchange-heavy workloads) we recommend a **distributed cache** so a restarting pod picks up already-warm entries from its peers instead of re-fetching everything from XSUAA / IAS. See the top-level [README §2.5](../README.md#25-distributed-caching-since-410) for the full recommendation with concrete criteria.
 

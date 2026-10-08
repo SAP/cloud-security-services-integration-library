@@ -377,7 +377,7 @@ SecurityContext.setToken(token);
 ## Test Utilities
 You can use [java-security-test](/java-security-test) library for testing the security layer. See the [README.md](/java-security-test/README.md) for more information.
 
-## Caches (since 4.1.0)
+## Caches (since 4.2.0)
 
 This module owns two caches, both going through the `com.sap.cloud.security.cache.SecurityCache` SPI so you can point them at a distributed store.
 

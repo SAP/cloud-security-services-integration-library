@@ -86,7 +86,7 @@ public class OidcConfigurationServiceWithCacheTest {
 		OAuth2ServiceEndpointsProvider cachedEndpointsProvider = cut.getOrRetrieveEndpoints(DISCOVERY_URI);
 
 		Assertions.assertThat(cachedEndpointsProvider).isNotNull();
-		// Since 4.1.0 the cached entry is reconstructed from a JSON envelope — same URIs, new instance.
+		// Since 4.2.0 the cached entry is reconstructed from a JSON envelope — same URIs, new instance.
 		Assertions.assertThat(cachedEndpointsProvider.getTokenEndpoint())
 				.isEqualTo(endpointsProvider.getTokenEndpoint());
 		Assertions.assertThat(cachedEndpointsProvider.getAuthorizeEndpoint())

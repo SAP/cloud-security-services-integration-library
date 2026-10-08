@@ -347,7 +347,7 @@ XsuaaTokenFlows tokenFlows = new XsuaaTokenFlows(tokenService, ..., ...);
 tokenService.clearCache();
 ```
 
-#### Distributed Cache (since 4.1.0)
+#### Distributed Cache (since 4.2.0)
 
 By default the outbound token cache is an **in-memory Caffeine cache** — the right choice for small services and local development. For larger deployments with many pods, frequent rolling deploys, or token-exchange-heavy workloads, we recommend passing a **distributed cache** (e.g. Redis) so a restarting pod reuses tokens already fetched by its peers instead of hammering XSUAA. See the top-level [README §2.5](../README.md#25-distributed-caching-since-410) for the recommendation with concrete criteria.
 

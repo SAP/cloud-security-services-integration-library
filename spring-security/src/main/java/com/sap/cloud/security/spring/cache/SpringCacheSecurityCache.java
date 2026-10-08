@@ -23,9 +23,13 @@ import org.springframework.cache.Cache;
  *
  * Spring's {@code Cache} interface has no per-entry TTL. This adapter therefore ignores the {@code
  * ttl} argument and lets the underlying cache implementation apply its own expiration policy
- * (typically configured on the {@code CacheManager}).
+ * (typically configured on the {@code CacheManager}). That policy <strong>must expire entries</strong>:
+ * the library only refetches JWKS and OIDC discovery entries on a cache <em>miss</em>, so a store
+ * without expiration (e.g. a {@code RedisCacheManager} without {@code entryTtl}) would keep the
+ * cached JWKS forever and never pick up a key rotation. Configure a finite TTL on the store, at or
+ * below the library's cache duration (default 10 minutes).
  *
- * @since 4.1.0
+ * @since 4.2.0
  */
 public final class SpringCacheSecurityCache implements SecurityCache<String, String> {
 

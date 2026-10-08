@@ -37,7 +37,7 @@ import java.util.HexFormat;
  *       text in a distributed cache.
  * </ul>
  *
- * @since 4.1.0
+ * @since 4.2.0
  */
 public final class CacheKeys {
 

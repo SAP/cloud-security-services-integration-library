@@ -26,7 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Note: since version 4.1.0 the token cache is expressed against the {@link
+ * Note: since version 4.2.0 the token cache is expressed against the {@link
  * com.sap.cloud.security.cache.SecurityCache} SPI and cached tokens travel through JSON
  * (de)serialization. That means cache hits return a <em>structurally equal</em> response, not the
  * literal same instance — the tests below therefore compare by access token / expiration rather

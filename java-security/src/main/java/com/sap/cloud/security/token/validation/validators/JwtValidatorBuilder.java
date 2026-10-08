@@ -104,7 +104,7 @@ public class JwtValidatorBuilder {
 	 *
 	 * @param securityCache the cache to use, or {@code null}
 	 * @return this builder
-	 * @since 4.1.0
+	 * @since 4.2.0
 	 */
 	public JwtValidatorBuilder withSecurityCache(SecurityCache<String, String> securityCache) {
 		this.securityCache = securityCache;

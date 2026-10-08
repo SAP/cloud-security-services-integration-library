@@ -50,7 +50,7 @@ import java.util.Optional;
  *
  * @param <K> the key type — the library uses {@link String} internally
  * @param <V> the value type — the library uses {@link String} (raw JSON) internally
- * @since 4.1.0
+ * @since 4.2.0
  */
 public interface SecurityCache<K, V> {
 
