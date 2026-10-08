@@ -14,7 +14,6 @@ import com.sap.cloud.security.cache.NoOpSecurityCache;
 import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.cache.caffeine.CaffeineSecurityCache;
 import com.sap.cloud.security.config.CacheConfiguration;
-import com.sap.cloud.security.util.LogSanitizer;
 import com.sap.cloud.security.xsuaa.Assertions;
 import com.sap.cloud.security.xsuaa.client.DefaultOAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
@@ -161,9 +160,10 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
     }
 
     if (jwks == null || jwks.getAll().isEmpty()) {
+      // The key URI is not logged: it is request-derived and can carry
+      // query parameters that must not end up in logs.
       LOGGER.error(
-          "Retrieved no token keys from {} for the given header parameters.",
-          LogSanitizer.sanitize(keyParameters.keyUri));
+          "Retrieved no token keys from the JWKS endpoint for the given key parameters");
       return null;
     }
 
@@ -174,11 +174,11 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
       }
     }
 
-    LOGGER.warn("No matching key with kid '{}' and algorithm '{}' found. Cached keys: {}."
+    // keyId / algorithm are not logged: they come from the token's header and
+    // are user-provided values.
+    LOGGER.warn("No matching key found in the JWKS for the requested keyId and algorithm."
         + " Note: JWKS entries with algorithms not supported by this library, or malformed entries,"
-        + " are dropped at parse time — see earlier 'Skipping JWK entry' log lines for details.",
-        LogSanitizer.sanitize(keyParameters.keyId), LogSanitizer.sanitize(keyParameters.keyAlgorithm),
-        LogSanitizer.sanitize(jwks));
+        + " are dropped at parse time - see earlier 'Skipping JWK entry' log lines for details.");
     throw new IllegalArgumentException("Key with kid " + keyParameters.keyId + " not found in JWKS.");
   }
 

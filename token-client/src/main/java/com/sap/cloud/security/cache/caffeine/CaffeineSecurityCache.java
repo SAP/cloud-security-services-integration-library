@@ -11,7 +11,6 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.config.CacheConfiguration;
-import com.sap.cloud.security.util.LogSanitizer;
 import jakarta.annotation.Nonnull;
 import java.time.Duration;
 import java.util.Optional;
@@ -88,7 +87,9 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
     try {
       return Optional.ofNullable(delegate.getIfPresent(key));
     } catch (final RuntimeException e) {
-      LOGGER.warn("CaffeineSecurityCache.get failed for key {}: {}", LogSanitizer.sanitize(key), e.getMessage());
+      // Key and exception message are not logged: cache keys and error
+      // messages can carry request-derived data and must not end up in logs.
+      LOGGER.warn("CaffeineSecurityCache.get failed - treating as cache miss", e);
       return Optional.empty();
     }
   }
@@ -99,7 +100,7 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
       // Caffeine uses cache-wide expiration; per-entry ttl argument is intentionally ignored.
       delegate.put(key, value);
     } catch (final RuntimeException e) {
-      LOGGER.warn("CaffeineSecurityCache.set failed for key {}: {}", LogSanitizer.sanitize(key), e.getMessage());
+      LOGGER.warn("CaffeineSecurityCache.set failed - value not cached", e);
     }
   }
 
@@ -108,7 +109,7 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
     try {
       delegate.invalidate(key);
     } catch (final RuntimeException e) {
-      LOGGER.warn("CaffeineSecurityCache.delete failed for key {}: {}", LogSanitizer.sanitize(key), e.getMessage());
+      LOGGER.warn("CaffeineSecurityCache.delete failed - key not removed", e);
     }
   }
 
@@ -117,7 +118,7 @@ public final class CaffeineSecurityCache implements SecurityCache<String, String
     try {
       delegate.invalidateAll();
     } catch (final RuntimeException e) {
-      LOGGER.warn("CaffeineSecurityCache.clear failed: {}", e.getMessage());
+      LOGGER.warn("CaffeineSecurityCache.clear failed - cache not cleared", e);
     }
   }
 
