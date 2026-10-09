@@ -1,30 +1,72 @@
 version: 2
-updates:
-  - package-ecosystem: maven
-    directory: "/"
-    schedule:
-      interval: daily
-      time: "06:00"
-      timezone: Etc/UTC
-    groups:
-      dev-deps:
-        dependency-type: "development"
-        update-types:
-          - "minor"
-          - "patch"
-      prod-deps-ver:
-        applies-to: version-updates
-        dependency-type: "production"
-        update-types:
-          - "minor"
-          - "patch"
-      prod-deps-sec:
-        applies-to: security-updates
-        dependency-type: "production"
-        update-types:
-          - "minor"
-          - "patch"
-    reviewers:
-      - "kuntzed"
-      - "NiklasHerrmann21"
-    open-pull-requests-limit: 10
+  updates:
+    - package-ecosystem: maven
+      directory: "/"
+      schedule:
+        interval: daily
+        time: "06:00"
+        timezone: Etc/UTC
+      groups:
+        dev-deps:
+          dependency-type: "development"
+          update-types:
+            - "minor"
+            - "patch"
+        prod-deps-ver:
+          applies-to: version-updates
+          dependency-type: "production"
+          update-types:
+            - "minor"
+            - "patch"
+        prod-deps-sec:
+          applies-to: security-updates
+          dependency-type: "production"
+          update-types:
+            - "minor"
+            - "patch"
+      reviewers:
+        - "kuntzed"
+        - "NiklasHerrmann21"
+      open-pull-requests-limit: 10
+
+    - package-ecosystem: maven
+      directory: "/"
+      target-branch: "main-3.x"
+      schedule:
+        interval: daily
+        time: "06:00"
+        timezone: Etc/UTC
+      groups:
+        dev-deps:
+          dependency-type: "development"
+          update-types:
+            - "minor"
+            - "patch"
+        prod-deps-ver:
+          applies-to: version-updates
+          dependency-type: "production"
+          update-types:
+            - "minor"
+            - "patch"
+      groups:
+        dev-deps:
+          dependency-type: "development"
+          update-types:
+            - "minor"
+            - "patch"
+        prod-deps-ver:
+          applies-to: version-updates
+          dependency-type: "production"
+          update-types:
+            - "minor"
+            - "patch"
+        prod-deps-sec:
+          applies-to: security-updates
+          dependency-type: "production"
+          update-types:
+            - "minor"
+            - "patch"
+      reviewers:
+        - "kuntzed"
+        - "NiklasHerrmann21"
+      open-pull-requests-limit: 10
