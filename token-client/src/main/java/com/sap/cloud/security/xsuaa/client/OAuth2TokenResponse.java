@@ -32,6 +32,28 @@ public class OAuth2TokenResponse {
 	}
 
 	/**
+	 * Package-private constructor used by the internal cache SPI to rebuild an
+	 * {@link OAuth2TokenResponse} from its serialized form. Unlike the public constructor which
+	 * treats the second argument as a duration relative to <em>now</em>, this constructor takes the
+	 * absolute expiry instant in milliseconds since the epoch.
+	 */
+	OAuth2TokenResponse(@Nullable String accessToken, @Nullable String refreshToken, String tokenType,
+			long expiredTimeMillisAbsolute) {
+		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
+		this.tokenType = tokenType;
+		this.expiredTimeMillis = expiredTimeMillisAbsolute;
+	}
+
+	/**
+	 * @return the epoch-millis at which this token expires. Package-private to keep the exact
+	 *     representation an implementation detail; used by the cache SPI serializer.
+	 */
+	long getExpiredTimeMillis() {
+		return expiredTimeMillis;
+	}
+
+	/**
 	 * An OAuth2 access token. This token will be a JSON Web Token suitable for offline validation by OAuth2 Resource
 	 * Servers.
 	 *
