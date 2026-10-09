@@ -88,6 +88,7 @@
 		<module>token-client</module>
 		<module>token-client-spring</module>
 		<module>token-client-spring-3</module>
+		<module>java-security-core</module>
 		<module>java-security</module>
 		<module>spring-security</module>
 		<module>spring-security-3</module>

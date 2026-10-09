@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.2.0
+
+- Split `java-security` into a new `java-security-core` module for Jakarta-free token validation
+  - The token model (`com.sap.cloud.security.token`), the JWT validation packages (`com.sap.cloud.security.token.validation`, incl. `JwtValidatorBuilder` and all validators), `com.sap.cloud.security.x509`, and the `TokenFactory` ServiceLoader registration (via `HybridTokenFactory`) moved to `java-security-core`
+  - `java-security-core` has no `jakarta.servlet` and no Spring dependencies, so token validation can be used from javax-based runtimes (e.g. Tomcat 9) without any Jakarta API on the classpath
+  - `java-security` keeps the servlet-based authenticators (`HybridTokenAuthenticator`, `IasTokenAuthenticator`, `XsuaaTokenAuthenticator`) and the Spring security context adapter, and now depends on `java-security-core`
+  - No API or behavior change for existing `java-security` consumers: all moved classes keep their fully qualified names and stay on the classpath transitively (minor release)
+
+
 ## 4.1.2
 
 - Enforce constructor-supplied service configurations in `HybridTokenAuthenticator`

@@ -144,7 +144,7 @@ The `HybridTokenAuthenticator` is designed for hybrid scenarios where an applica
   `OAuth2ServiceConfiguration`](java-api/src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java))
 - HTTP client for token exchange (`SecurityHttpClient` via [
   `SecurityHttpClientProvider`](token-client/src/main/java/com/sap/cloud/security/client/SecurityHttpClientProvider.java))
-- Chosen [`TokenExchangeMode`](java-security/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)
+- Chosen [`TokenExchangeMode`](../java-security-core/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)
 
 **Configuration Example**:
 
