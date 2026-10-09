@@ -76,7 +76,7 @@
 		<wiremock.version>3.13.2</wiremock.version>
 		<reactor.test.version>3.8.7</reactor.test.version>
 		<jakarta.annotation.version>2.1.1</jakarta.annotation.version>
-		<spotbugs.version>4.10.4.0</spotbugs.version>
+		<spotbugs.version>4.10.4.1</spotbugs.version>
 		<spotbugs.annotations.version>4.10.4</spotbugs.annotations.version>
 		<skipTests>false</skipTests>
 		<jacoco.skip>${skipTests}</jacoco.skip>
