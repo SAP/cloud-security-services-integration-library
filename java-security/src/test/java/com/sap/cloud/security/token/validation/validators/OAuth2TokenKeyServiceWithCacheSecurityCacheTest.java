@@ -8,7 +8,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -16,7 +16,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.sap.cloud.security.cache.CacheKeys;
 import com.sap.cloud.security.cache.SecurityCache;
+import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import jakarta.annotation.Nonnull;
@@ -29,11 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -136,32 +140,181 @@ class OAuth2TokenKeyServiceWithCacheSecurityCacheTest {
     }
   }
 
+  @Test
+  void fetchFailure_isNegativelyCached_repeatedCallsFailFastWithoutNetwork() throws Exception {
+    RecordingCache cache = new RecordingCache();
+    OAuth2TokenKeyServiceWithCache cut =
+        OAuth2TokenKeyServiceWithCache.getInstance()
+            .withTokenKeyService(svc)
+            .withSecurityCache(cache);
+    when(svc.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))
+        .thenThrow(notFound());
+
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+    // The failure is now negatively cached: the second call must fail fast without a network call.
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+
+    verify(svc, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap());
+    // A negative entry (not the JWKS JSON) was written to the cache.
+    String key = cacheKey();
+    assertThat(cache.store.get(key)).isNotNull().isNotEqualTo(jwksJson);
+  }
+
+  @Test
+  void negativeCache_expiresAfterTtl_nextCallRetries() throws Exception {
+    RecordingCache cache = new RecordingCache();
+    OAuth2TokenKeyServiceWithCache cut =
+        OAuth2TokenKeyServiceWithCache.getInstance()
+            .withTokenKeyService(svc)
+            .withSecurityCache(cache);
+    when(svc.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))
+        .thenThrow(notFound())
+        .thenReturn(jwksJson);
+
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+    // Still within the negative TTL: fails fast, no second network call.
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+    verify(svc, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap());
+
+    // Advance past the negative TTL; the next call retries and succeeds.
+    cache.advanceSeconds(31);
+    assertThat(cut.getPublicKey(params, PARAMS)).isNotNull();
+    verify(svc, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap());
+  }
+
+  @Test
+  void successfulFetch_afterNegativeEntry_cachesPositiveValue() throws Exception {
+    RecordingCache cache = new RecordingCache();
+    OAuth2TokenKeyServiceWithCache cut =
+        OAuth2TokenKeyServiceWithCache.getInstance()
+            .withTokenKeyService(svc)
+            .withSecurityCache(cache);
+    when(svc.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))
+        .thenThrow(notFound())
+        .thenReturn(jwksJson);
+
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+    cache.advanceSeconds(31);
+    cut.getPublicKey(params, PARAMS);
+
+    // The negative entry must be replaced by the real JWKS JSON.
+    assertThat(cache.store.get(cacheKey())).isEqualTo(jwksJson);
+    // And the following call is served from the positive entry.
+    cut.getPublicKey(params, PARAMS);
+    verify(svc, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap());
+  }
+
+  @Test
+  void singleFlight_twoConcurrentFailures_produceOneJwksCallAndOneNegativeEntry()
+      throws Exception {
+    RecordingCache cache = new RecordingCache();
+    CountDownLatch release = new CountDownLatch(1);
+    AtomicInteger fetchCount = new AtomicInteger();
+    when(svc.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))
+        .thenAnswer(
+            inv -> {
+              fetchCount.incrementAndGet();
+              release.await(5, TimeUnit.SECONDS);
+              throw notFound();
+            });
+
+    OAuth2TokenKeyServiceWithCache cut =
+        OAuth2TokenKeyServiceWithCache.getInstance()
+            .withTokenKeyService(svc)
+            .withSecurityCache(cache);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      Future<PublicKey> f1 = pool.submit(() -> cut.getPublicKey(params, PARAMS));
+      Future<PublicKey> f2 = pool.submit(() -> cut.getPublicKey(params, PARAMS));
+
+      Thread.sleep(150);
+      release.countDown();
+
+      assertThatThrownBy(() -> f1.get(10, TimeUnit.SECONDS))
+          .isInstanceOf(ExecutionException.class)
+          .hasCauseInstanceOf(OAuth2ServiceException.class);
+      assertThatThrownBy(() -> f2.get(10, TimeUnit.SECONDS))
+          .isInstanceOf(ExecutionException.class)
+          .hasCauseInstanceOf(OAuth2ServiceException.class);
+
+      // Two concurrent callers, one upstream call and exactly one negative cache write.
+      assertThat(fetchCount.get()).isEqualTo(1);
+      assertThat(cache.setCount.get()).isEqualTo(1);
+    } finally {
+      pool.shutdownNow();
+    }
+  }
+
+  private static OAuth2ServiceException notFound() {
+    return OAuth2ServiceException.builder("Not Found")
+        .withStatusCode(404)
+        .withUri(TOKEN_KEYS_URI)
+        .build();
+  }
+
+  private static String cacheKey() {
+    return CacheKeys.build(
+        CacheKeys.NAMESPACE_JWKS,
+        new OAuth2TokenKeyServiceWithCache.CacheKey(TOKEN_KEYS_URI, PARAMS).toString());
+  }
+
   private static class RecordingCache implements SecurityCache<String, String> {
     final AtomicInteger getCount = new AtomicInteger();
     final AtomicInteger setCount = new AtomicInteger();
-    private final Map<String, String> store = new HashMap<>();
+    final Map<String, String> store = new HashMap<>();
+    private final Map<String, Long> expiresAt = new HashMap<>();
+    private final AtomicLong nowSeconds = new AtomicLong(0);
+
+    void advanceSeconds(final long seconds) {
+      nowSeconds.addAndGet(seconds);
+    }
 
     @Nonnull
     @Override
     public Optional<String> get(@Nonnull String key) {
       getCount.incrementAndGet();
-      return Optional.ofNullable(store.get(key));
+      synchronized (store) {
+        Long exp = expiresAt.get(key);
+        if (exp != null && nowSeconds.get() >= exp) {
+          store.remove(key);
+          expiresAt.remove(key);
+        }
+        return Optional.ofNullable(store.get(key));
+      }
     }
 
     @Override
     public void set(@Nonnull String key, @Nonnull String value, Duration ttl) {
       setCount.incrementAndGet();
-      store.put(key, value);
+      synchronized (store) {
+        store.put(key, value);
+        if (ttl != null) {
+          expiresAt.put(key, nowSeconds.get() + ttl.toSeconds());
+        } else {
+          expiresAt.remove(key);
+        }
+      }
     }
 
     @Override
     public void delete(@Nonnull String key) {
-      store.remove(key);
+      synchronized (store) {
+        store.remove(key);
+        expiresAt.remove(key);
+      }
     }
 
     @Override
     public void clear() {
-      store.clear();
+      synchronized (store) {
+        store.clear();
+        expiresAt.clear();
+      }
     }
   }
 

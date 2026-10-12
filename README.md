@@ -309,7 +309,7 @@ Sharing these caches across pods eliminates the cold-start penalty, keeps identi
 
 All caches route through a single `com.sap.cloud.security.cache.SecurityCache<String,String>` SPI. The library ships two adapters out of the box:
 
-- **`CaffeineSecurityCache`** (in `token-client`) — the in-process default; used when you do nothing. Perfect for small services.
+- **`CaffeineSecurityCache`** (in `token-client`) — the in-process default; used when you do nothing. Honors per-entry TTLs (e.g. short-lived negative-cache entries) in addition to its cache-wide default. Perfect for small services.
 - **`SpringCacheSecurityCache`** (in `spring-security` / `spring-security-3`) — wraps a Spring `org.springframework.cache.Cache` so any Spring-managed backend (Redis, Hazelcast, Caffeine, ...) works via Spring's `CacheManager` abstraction.
 
 Any other backend (a raw Jedis client, a Hazelcast `IMap`, a JDBC-backed store, ...) is a copy-pasteable implementation of the SPI — see [Bring your own cache](#bring-your-own-cache) below.
@@ -481,6 +481,7 @@ public SecurityCache<String, String> securityCache(JedisPool pool) {
 - **Failure semantics.** Every cache call is best-effort. A broken cache never breaks token retrieval, JWKS fetch, or token validation — the library falls through to the source of truth and logs a WARN.
 - **The store's TTL must be finite.** The library passes a per-entry TTL with every `set`, but the shipped `SpringCacheSecurityCache` (and any adapter that delegates to infrastructure-managed expiration) lets the store's own policy decide. If your store has *no* expiration (e.g. a `RedisCacheManager` without `entryTtl`, or a plain `SET` without `EXPIRE`), JWKS and OIDC entries live forever: they are only refetched on a *miss*, so after an identity-service key rotation the cached JWKS is never refreshed and token validation starts failing with `Key with kid ... not found`. Configure the store's TTL at or below the library's cache duration (default 10 minutes). Outbound-token entries are additionally re-checked against the token's `exp` claim on every read, but JWKS / OIDC entries are not.
 - **Time-to-live and rotation.** With a finite store TTL, a key rotation is picked up within one TTL period. If you need faster propagation (e.g. an emergency key revocation), delete the affected `jwks:*` keys (or call `SecurityCache.clear()`).
+- **Negative caching of failed JWKS retrievals.** When a JWKS fetch fails (e.g. a 404 for an unknown zone id), the failure is cached for 30 seconds: within that window, further requests for the same key fail fast with an exception instead of each making a network call — a stream of invalid tokens cannot keep hammering the identity service. After the entry expires, the next request retries the retrieval. Adapters that do not support per-entry TTLs (e.g. `SpringCacheSecurityCache`) keep the negative entry for the store's own TTL instead.
 
 Per-module details: [token-client/README.md](token-client/README.md), [java-security/README.md](java-security/README.md), [spring-security-3/README.md](spring-security-3/README.md).
 

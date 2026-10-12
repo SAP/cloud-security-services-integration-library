@@ -20,8 +20,6 @@ import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import com.sap.cloud.security.xsuaa.tokenflows.Cacheable;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Ticker;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -47,9 +45,21 @@ import org.slf4j.LoggerFactory;
  * the raw JWKS JSON as returned by the identity service; the {@link JsonWebKeySet} is rebuilt on
  * every hit. That makes cached entries safe to share across processes at the cost of a small,
  * predictable per-hit CPU overhead.
+ *
+ * <p>Failed retrievals (e.g. an unknown zone id answered with 404) are <em>negatively cached</em>
+ * for a short time ({@link #NEGATIVE_CACHE_TTL}): within that window, further requests for the same
+ * key fail fast without a network call, so a stream of invalid tokens cannot keep triggering
+ * HTTP requests. After the entry expires, the next request retries the retrieval. Adapters that do
+ * not support per-entry TTLs keep the negative entry for the store's own TTL instead.
  */
 class OAuth2TokenKeyServiceWithCache implements Cacheable {
   private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2TokenKeyServiceWithCache.class);
+
+  /** Marker stored in the cache to remember a failed JWKS retrieval (negative caching). */
+  static final String NEGATIVE_CACHE_MARKER = "jwks-fetch-failed";
+
+  /** How long a failed JWKS retrieval is remembered before the next request retries. */
+  static final Duration NEGATIVE_CACHE_TTL = Duration.ofSeconds(30);
 
   private OAuth2TokenKeyService tokenKeyService;
   private SecurityCache<String, String> cache;
@@ -150,7 +160,15 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
     Optional<String> cachedJson = safeGet(key);
     JsonWebKeySet jwks;
     if (cachedJson.isPresent()) {
-      jwks = tryParse(cachedJson.get());
+      final String cached = cachedJson.get();
+      if (NEGATIVE_CACHE_MARKER.equals(cached)) {
+        // Negative cache hit: the last retrieval for this key failed. Fail fast without a
+        // network call; the entry expires after NEGATIVE_CACHE_TTL and the next request retries.
+        LOGGER.debug("Negative cache hit for JWKS key - failing fast without a network call");
+        throw new OAuth2ServiceException(
+            "Token keys retrieval failed previously and is negatively cached; will retry after a short delay");
+      }
+      jwks = tryParse(cached);
       if (jwks == null) {
         LOGGER.debug("Cached JWKS entry was malformed — refetching");
         jwks = singleFlightFetch(key, () -> fetchAndCache(cacheKey, requestParameters, key));
@@ -185,8 +203,16 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
   private JsonWebKeySet fetchAndCache(
       final CacheKey cacheKey, final Map<String, String> requestParameters, final String key)
       throws OAuth2ServiceException {
-    final String jwksJson =
-        getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), requestParameters);
+    final String jwksJson;
+    try {
+      jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), requestParameters);
+    } catch (final OAuth2ServiceException e) {
+      // Negative caching: remember the failure briefly so repeated requests for a permanently
+      // invalid key (e.g. an unknown zone id) fail fast instead of each making a network call.
+      // The entry expires after NEGATIVE_CACHE_TTL; the next request retries the retrieval.
+      safeSet(key, NEGATIVE_CACHE_MARKER, NEGATIVE_CACHE_TTL);
+      throw e;
+    }
     if (jwksJson == null) {
       return null;
     }
@@ -313,16 +339,12 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
   private SecurityCache<String, String> getCache() {
     SecurityCache<String, String> local = cache;
     if (local == null) {
-      Caffeine<Object, Object> builder =
-          Caffeine.newBuilder()
-              .maximumSize(cacheConfiguration.getCacheSize())
-              .expireAfterWrite(cacheConfiguration.getCacheDuration())
-              .ticker(ticker);
-      if (cacheConfiguration.isCacheStatisticsEnabled()) {
-        builder.recordStats();
-      }
-      Cache<String, String> caffeine = builder.build();
-      local = new CaffeineSecurityCache(caffeine);
+      local =
+          new CaffeineSecurityCache(
+              cacheConfiguration.getCacheSize(),
+              cacheConfiguration.getCacheDuration(),
+              ticker,
+              cacheConfiguration.isCacheStatisticsEnabled());
       cache = local;
     }
     return local;

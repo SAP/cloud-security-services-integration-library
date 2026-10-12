@@ -188,7 +188,7 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	}
 
 	@Test
-	public void retrieveTokenKeysDoesNotCacheOnServerException()
+	public void retrieveTokenKeysNegativelyCachesOnServerException()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		Map<String, String> invalidParams = Map.of(HttpHeaders.X_APP_TID, "invalidAppTid");
 		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq(invalidParams)))
@@ -199,11 +199,31 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 				() -> cut.getPublicKey(keyParameters, invalidParams))
 				.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
 
+		// The failure is negatively cached: the second call fails fast with the cached-failure
+		// message and does not hit the network again.
 		assertThatThrownBy(
 				() -> cut.getPublicKey(keyParameters, invalidParams))
-				.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
+				.isInstanceOf(OAuth2ServiceException.class).hasMessageContaining("negatively cached");
 
 		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(PARAMS));
+		verify(tokenKeyServiceMock, times(1)).retrieveTokenKeys(any(), eq(invalidParams));
+	}
+
+	@Test
+	public void negativeCacheEntryExpiresAfterTtlAndRetries()
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException, IOException {
+		Map<String, String> invalidParams = Map.of(HttpHeaders.X_APP_TID, "invalidAppTid");
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq(invalidParams)))
+				.thenThrow(new OAuth2ServiceException("Invalid parameters provided"))
+				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
+
+		assertThatThrownBy(() -> cut.getPublicKey(keyParameters, invalidParams))
+				.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Invalid");
+
+		// Advance past the 30s negative TTL; the next call retries and succeeds.
+		testCacheTicker.advance(Duration.ofSeconds(31));
+		assertThat(cut.getPublicKey(keyParameters, invalidParams)).isNotNull();
+
 		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(invalidParams));
 	}
 

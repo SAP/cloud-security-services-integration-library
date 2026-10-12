@@ -9,15 +9,18 @@ package com.sap.cloud.security.cache.caffeine;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Ticker;
 import com.sap.cloud.security.config.CacheConfiguration;
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 
 class CaffeineSecurityCacheTest {
@@ -54,19 +57,78 @@ class CaffeineSecurityCacheTest {
   }
 
   @Test
-  void perEntryTtlIsIgnoredInFavorOfCacheWideDuration() {
-    // 10ms expire-after-write, per-entry ttl is 1 day; caffeine still evicts.
-    CaffeineSecurityCache cache = new CaffeineSecurityCache(10, Duration.ofMillis(1));
+  void perEntryTtlIsHonored() {
+    ManualTicker ticker = new ManualTicker();
+    // Cache-wide default is 1 hour, but the per-entry TTL of 30s must win.
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(10, Duration.ofHours(1), ticker);
+    cache.set("k", "v", Duration.ofSeconds(30));
+    assertThat(cache.get("k")).contains("v");
+    ticker.advance(Duration.ofSeconds(31));
+    assertThat(cache.get("k")).isEmpty();
+  }
+
+  @Test
+  void perEntryTtlOverridesCacheWideDefault() {
+    ManualTicker ticker = new ManualTicker();
+    // 1ms cache-wide default, but the per-entry TTL of 1 day must win.
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(10, Duration.ofMillis(1), ticker);
     cache.set("k", "v", Duration.ofDays(1));
-    // Sleep to let expire-after-write kick in.
-    try {
-      Thread.sleep(50);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-    }
-    Optional<String> value = cache.get("k");
-    // The value should be gone (best effort — caffeine cleanup happens lazily).
-    assertThat(value).isEmpty();
+    ticker.advance(Duration.ofMillis(50));
+    assertThat(cache.get("k")).contains("v");
+  }
+
+  @Test
+  void nullTtlUsesCacheWideDefault() {
+    ManualTicker ticker = new ManualTicker();
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(10, Duration.ofHours(1), ticker);
+    cache.set("k", "v", null);
+    ticker.advance(Duration.ofMinutes(59));
+    assertThat(cache.get("k")).contains("v");
+    ticker.advance(Duration.ofMinutes(2));
+    assertThat(cache.get("k")).isEmpty();
+  }
+
+  @Test
+  void perEntryTtlsAreIndependentPerKey() {
+    ManualTicker ticker = new ManualTicker();
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(10, Duration.ofHours(1), ticker);
+    cache.set("short", "v", Duration.ofSeconds(30));
+    cache.set("long", "v", Duration.ofHours(1));
+    ticker.advance(Duration.ofSeconds(31));
+    assertThat(cache.get("short")).isEmpty();
+    assertThat(cache.get("long")).contains("v");
+  }
+
+  @Test
+  void putReplacesEntryWithFreshTtl() {
+    ManualTicker ticker = new ManualTicker();
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(10, Duration.ofHours(1), ticker);
+    // A short-lived (negative) entry is replaced by a long-lived one; the replacement must
+    // get a fresh expiration instead of inheriting the short one.
+    cache.set("k", "negative", Duration.ofSeconds(30));
+    ticker.advance(Duration.ofSeconds(10));
+    cache.set("k", "positive", Duration.ofHours(1));
+    ticker.advance(Duration.ofSeconds(45));
+    assertThat(cache.get("k")).contains("positive");
+  }
+
+  @Test
+  void valueWithoutTtlPrefixIsReturnedRawAndExpiresWithDefault() {
+    ManualTicker ticker = new ManualTicker();
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(10, Duration.ofHours(1), ticker);
+    // Simulate an entry written without the internal prefix (e.g. directly into the cache).
+    cache.unwrap().put("k", "raw-value");
+    assertThat(cache.get("k")).contains("raw-value");
+    ticker.advance(Duration.ofHours(2));
+    assertThat(cache.get("k")).isEmpty();
+  }
+
+  @Test
+  void valueContainingDelimiterButNoTtlPrefixIsReturnedRaw() {
+    CaffeineSecurityCache cache = new CaffeineSecurityCache(10, Duration.ofMinutes(1));
+    String value = "{\"keys\":[\"\u0000\"]}";
+    cache.set("k", value, Duration.ofSeconds(30));
+    assertThat(cache.get("k")).contains(value);
   }
 
   @Test
@@ -125,9 +187,11 @@ class CaffeineSecurityCacheTest {
   void set_swallowsRuntimeException() {
     @SuppressWarnings("unchecked")
     Cache<String, String> delegate = mock(Cache.class);
-    doThrow(new RuntimeException("boom")).when(delegate).put(eq("k"), eq("v"));
+    doThrow(new RuntimeException("boom")).when(delegate).put(eq("k"), anyString());
     CaffeineSecurityCache cache = new CaffeineSecurityCache(delegate);
     assertThatCode(() -> cache.set("k", "v", null)).doesNotThrowAnyException();
+    assertThatCode(() -> cache.set("k", "v", Duration.ofSeconds(1)))
+        .doesNotThrowAnyException();
   }
 
   @Test
@@ -146,5 +210,19 @@ class CaffeineSecurityCacheTest {
     doThrow(new RuntimeException("boom")).when(delegate).invalidateAll();
     CaffeineSecurityCache cache = new CaffeineSecurityCache(delegate);
     assertThatCode(cache::clear).doesNotThrowAnyException();
+  }
+
+  /** Deterministic time source for expiration tests. */
+  private static final class ManualTicker implements Ticker {
+    private final AtomicLong nanos = new AtomicLong(0);
+
+    @Override
+    public long read() {
+      return nanos.get();
+    }
+
+    void advance(final Duration duration) {
+      nanos.addAndGet(duration.toNanos());
+    }
   }
 }
