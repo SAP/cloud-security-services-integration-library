@@ -57,7 +57,7 @@
 		<legacy3.spring.security.version>6.5.11</legacy3.spring.security.version>
 		<legacy3.spring.security.oauth2.version>6.5.11</legacy3.spring.security.oauth2.version>
 		<legacy3.reactor.version>3.8.7</legacy3.reactor.version>
-		<org.eclipse.jetty.version>12.1.13</org.eclipse.jetty.version>
+		<org.eclipse.jetty.version>12.1.14</org.eclipse.jetty.version>
 		<reactor.version>3.8.7</reactor.version>
 		<log4j2.version>2.26.1</log4j2.version>
 		<slf4j.api.version>2.0.20</slf4j.api.version> <!--see also here http://www.slf4j.org/faq.html#changesInVersion18 -->
@@ -76,8 +76,8 @@
 		<wiremock.version>3.13.2</wiremock.version>
 		<reactor.test.version>3.8.7</reactor.test.version>
 		<jakarta.annotation.version>2.1.1</jakarta.annotation.version>
-		<spotbugs.version>4.10.4.0</spotbugs.version>
-		<spotbugs.annotations.version>4.10.4</spotbugs.annotations.version>
+		<spotbugs.version>4.10.5.0</spotbugs.version>
+		<spotbugs.annotations.version>4.10.5</spotbugs.annotations.version>
 		<skipTests>false</skipTests>
 		<jacoco.skip>${skipTests}</jacoco.skip>
 	</properties>
