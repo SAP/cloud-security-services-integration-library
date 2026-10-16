@@ -250,9 +250,88 @@ class OAuth2TokenKeyServiceWithCacheSecurityCacheTest {
     }
   }
 
+  @Test
+  void serverError_isNotNegativelyCached_nextCallRetries() throws Exception {
+    RecordingCache cache = new RecordingCache();
+    OAuth2TokenKeyServiceWithCache cut =
+        OAuth2TokenKeyServiceWithCache.getInstance()
+            .withTokenKeyService(svc)
+            .withSecurityCache(cache);
+    when(svc.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))
+        .thenThrow(serverError());
+
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+    // Transient failures are not negatively cached: the second call must reach the network
+    // again instead of failing fast on a negative entry.
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+
+    verify(svc, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap());
+    assertThat(cache.setCount.get()).isZero();
+    assertThat(cache.store).isEmpty();
+  }
+
+  @Test
+  void transportError_isNotNegativelyCached_nextCallRetries() throws Exception {
+    RecordingCache cache = new RecordingCache();
+    OAuth2TokenKeyServiceWithCache cut =
+        OAuth2TokenKeyServiceWithCache.getInstance()
+            .withTokenKeyService(svc)
+            .withSecurityCache(cache);
+    // No HTTP status code (0) — e.g. a read timeout or a connection reset.
+    when(svc.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))
+        .thenThrow(new OAuth2ServiceException("Read timed out"));
+
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+
+    verify(svc, times(2)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap());
+    assertThat(cache.setCount.get()).isZero();
+    assertThat(cache.store).isEmpty();
+  }
+
+  @Test
+  void rateLimit_isNegativelyCachedLikeOtherClientErrors() throws Exception {
+    RecordingCache cache = new RecordingCache();
+    OAuth2TokenKeyServiceWithCache cut =
+        OAuth2TokenKeyServiceWithCache.getInstance()
+            .withTokenKeyService(svc)
+            .withSecurityCache(cache);
+    when(svc.retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap()))
+        .thenThrow(rateLimited());
+
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+    // 429 is a client error and is treated like any other stable 4xx: fail fast within the
+    // negative TTL.
+    assertThatThrownBy(() -> cut.getPublicKey(params, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class);
+
+    verify(svc, times(1)).retrieveTokenKeys(eq(TOKEN_KEYS_URI), anyMap());
+    assertThat(cache.store.get(cacheKey()))
+        .isEqualTo(OAuth2TokenKeyServiceWithCache.NEGATIVE_CACHE_MARKER);
+  }
+
   private static OAuth2ServiceException notFound() {
     return OAuth2ServiceException.builder("Not Found")
         .withStatusCode(404)
+        .withUri(TOKEN_KEYS_URI)
+        .build();
+  }
+
+  private static OAuth2ServiceException serverError() {
+    return OAuth2ServiceException.builder("Internal Server Error")
+        .withStatusCode(500)
+        .withUri(TOKEN_KEYS_URI)
+        .build();
+  }
+
+  private static OAuth2ServiceException rateLimited() {
+    return OAuth2ServiceException.builder("Too Many Requests")
+        .withStatusCode(429)
         .withUri(TOKEN_KEYS_URI)
         .build();
   }

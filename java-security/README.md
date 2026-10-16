@@ -384,7 +384,7 @@ This module owns two caches, both going through the `com.sap.cloud.security.cach
 By default both caches are **in-memory (Caffeine)** — the right choice for small services and local development. For larger deployments with many pods or frequent rolling deploys, we recommend a **distributed cache** (e.g. Redis) so a restarting pod reuses JWKS and OIDC entries already fetched by its peers. See the [main README §2.5](../README.md#25-distributed-caching-since-420) for the full recommendation and the "when do I need it?" criteria.
 
 ### JWKS cache
-Namespace `jwks`. Caches the raw JWKS JSON per JWKS URI + request-params tuple. The `JsonWebKeySet` is rebuilt on every hit — a few hundred microseconds — in exchange for cache entries that are safe to share across processes. Concurrent misses for the same key are collapsed into a single upstream call (single-flight). Failed retrievals (e.g. a 404 for an unknown zone id) are negatively cached for 30 seconds so repeated invalid tokens fail fast without a network call. Wire in with:
+Namespace `jwks`. Caches the raw JWKS JSON per JWKS URI + request-params tuple. The `JsonWebKeySet` is rebuilt on every hit — a few hundred microseconds — in exchange for cache entries that are safe to share across processes. Concurrent misses for the same key are collapsed into a single upstream call (single-flight). Retrievals that fail with a client error (4xx, e.g. a 404 for an unknown zone id) are negatively cached for 30 seconds so repeated invalid tokens fail fast without a network call; transient failures (5xx, timeouts, transport errors) are not cached and retry on the next request. Wire in with:
 
 ```java
 JwtValidatorBuilder.getInstance(config)

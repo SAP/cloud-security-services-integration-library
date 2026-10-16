@@ -46,11 +46,14 @@ import org.slf4j.LoggerFactory;
  * every hit. That makes cached entries safe to share across processes at the cost of a small,
  * predictable per-hit CPU overhead.
  *
- * <p>Failed retrievals (e.g. an unknown zone id answered with 404) are <em>negatively cached</em>
- * for a short time ({@link #NEGATIVE_CACHE_TTL}): within that window, further requests for the same
- * key fail fast without a network call, so a stream of invalid tokens cannot keep triggering
- * HTTP requests. After the entry expires, the next request retries the retrieval. Adapters that do
- * not support per-entry TTLs keep the negative entry for the store's own TTL instead.
+ * <p>Retrievals that fail with a stable client error (any 4xx response, e.g. an unknown zone id
+ * answered with 404) are <em>negatively cached</em> for a short time ({@link #NEGATIVE_CACHE_TTL}):
+ * within that window, further requests for the same key fail fast without a network call, so a
+ * stream of invalid tokens cannot keep triggering HTTP requests. Transient failures — server
+ * errors (5xx), timeouts, transport errors — are <em>not</em> negatively cached, so the next
+ * request retries immediately. After a negative entry expires, the next request retries the
+ * retrieval. Adapters that do not support per-entry TTLs keep the negative entry for the store's
+ * own TTL instead.
  */
 class OAuth2TokenKeyServiceWithCache implements Cacheable {
   private static final Logger LOGGER = LoggerFactory.getLogger(OAuth2TokenKeyServiceWithCache.class);
@@ -62,7 +65,13 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
   static final Duration NEGATIVE_CACHE_TTL = Duration.ofSeconds(30);
 
   private OAuth2TokenKeyService tokenKeyService;
-  private SecurityCache<String, String> cache;
+  /**
+   * Cache explicitly supplied by the caller via {@link #withSecurityCache}. Never invalidated by
+   * {@link #withCacheConfiguration}.
+   */
+  private SecurityCache<String, String> explicitCache;
+  /** Lazily created from {@link #cacheConfiguration} when no explicit cache is supplied. */
+  private SecurityCache<String, String> builtCache;
   private CacheConfiguration cacheConfiguration = TokenKeyCacheConfiguration.defaultConfiguration();
   private Ticker ticker = Ticker.systemTicker();
 
@@ -93,12 +102,16 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
    *
    * <p>Note that the cache size must be 1000 or more and the cache duration must be at least 600
    * seconds!
+   *
+   * <p>This method only tunes the lazily created in-memory default cache. A cache explicitly
+   * supplied via {@link #withSecurityCache} is not affected by this method, in any call order.
    */
   public OAuth2TokenKeyServiceWithCache withCacheConfiguration(
       final CacheConfiguration cacheConfiguration) {
     this.cacheConfiguration = getCheckedConfiguration(cacheConfiguration);
-    // Force cache rebuild with the new configuration next time it's needed.
-    this.cache = null;
+    // Force rebuild of the lazily created default cache next time it's needed.
+    // An explicitly supplied cache (withSecurityCache) is intentionally left untouched.
+    this.builtCache = null;
     LOGGER.debug(
         "Configured token key cache with cacheDuration={} seconds, cacheSize={} and statisticsRecording={}",
         getCacheConfiguration().getCacheDuration().getSeconds(),
@@ -129,7 +142,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
    */
   public OAuth2TokenKeyServiceWithCache withSecurityCache(
       @Nullable final SecurityCache<String, String> securityCache) {
-    this.cache = securityCache;
+    this.explicitCache = securityCache;
     return this;
   }
 
@@ -207,10 +220,13 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
     try {
       jwksJson = getTokenKeyService().retrieveTokenKeys(cacheKey.keyUri(), requestParameters);
     } catch (final OAuth2ServiceException e) {
-      // Negative caching: remember the failure briefly so repeated requests for a permanently
-      // invalid key (e.g. an unknown zone id) fail fast instead of each making a network call.
-      // The entry expires after NEGATIVE_CACHE_TTL; the next request retries the retrieval.
-      safeSet(key, NEGATIVE_CACHE_MARKER, NEGATIVE_CACHE_TTL);
+      // Negative caching: only stable client errors (4xx) are remembered, briefly, so repeated
+      // requests for a permanently invalid key (e.g. an unknown zone id answered with 404) fail
+      // fast instead of each making a network call. Transient failures (5xx, timeouts, transport
+      // errors) are not cached, so the next request retries immediately.
+      if (isStableFailure(e)) {
+        safeSet(key, NEGATIVE_CACHE_MARKER, NEGATIVE_CACHE_TTL);
+      }
       throw e;
     }
     if (jwksJson == null) {
@@ -231,6 +247,20 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
       LOGGER.warn("Failed to parse cached JWKS JSON: {}", e.getMessage());
       return null;
     }
+  }
+
+  /**
+   * A failed retrieval is negatively cached only if the identity service answered with a stable
+   * client error (4xx), e.g. an unknown zone id answered with 404. Such a key will keep failing
+   * until it is corrected, so failing fast for a short window is safe. Transient failures —
+   * server errors (5xx), timeouts, connection problems, and other non-HTTP errors (no status
+   * code) — must not delay the next retry, so they are never negatively cached.
+   */
+  private static boolean isStableFailure(final OAuth2ServiceException e) {
+    // A null status code means no HTTP response was received (or the exception was created
+    // without one) — treated as transient.
+    final Integer statusCode = e.getHttpStatusCode();
+    return statusCode != null && statusCode >= 400 && statusCode < 500;
   }
 
   private final ConcurrentHashMap<String, CompletableFuture<JsonWebKeySet>> inFlight =
@@ -337,7 +367,11 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
   }
 
   private SecurityCache<String, String> getCache() {
-    SecurityCache<String, String> local = cache;
+    SecurityCache<String, String> explicit = explicitCache;
+    if (explicit != null) {
+      return explicit;
+    }
+    SecurityCache<String, String> local = builtCache;
     if (local == null) {
       local =
           new CaffeineSecurityCache(
@@ -345,7 +379,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
               cacheConfiguration.getCacheDuration(),
               ticker,
               cacheConfiguration.isCacheStatisticsEnabled());
-      cache = local;
+      builtCache = local;
     }
     return local;
   }
@@ -365,9 +399,11 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 
   @Override
   public void clearCache() {
-    if (cache != null) {
+    // Clear the effective cache without triggering creation of the default cache.
+    SecurityCache<String, String> local = explicitCache != null ? explicitCache : builtCache;
+    if (local != null) {
       try {
-        cache.clear();
+        local.clear();
       } catch (final RuntimeException e) {
         LOGGER.warn("SecurityCache.clear failed: {}", e.getMessage());
       }
@@ -394,7 +430,7 @@ class OAuth2TokenKeyServiceWithCache implements Cacheable {
 
   /** Testing hook that lets a caller replace the cache with a {@link NoOpSecurityCache}. */
   OAuth2TokenKeyServiceWithCache withDisabledCacheForTests() {
-    this.cache = new NoOpSecurityCache<>();
+    this.explicitCache = new NoOpSecurityCache<>();
     return this;
   }
 

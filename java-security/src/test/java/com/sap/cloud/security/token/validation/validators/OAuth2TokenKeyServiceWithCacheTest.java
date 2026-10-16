@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import com.github.benmanes.caffeine.cache.Ticker;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
+import com.sap.cloud.security.cache.NoOpSecurityCache;
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
@@ -188,11 +190,11 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	}
 
 	@Test
-	public void retrieveTokenKeysNegativelyCachesOnServerException()
+	public void retrieveTokenKeysNegativelyCachesOnStableClientError()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
 		Map<String, String> invalidParams = Map.of(HttpHeaders.X_APP_TID, "invalidAppTid");
 		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq(invalidParams)))
-				.thenThrow(new OAuth2ServiceException("Invalid parameters provided"));
+				.thenThrow(new OAuth2ServiceException("Invalid parameters provided", 404));
 		cut.getPublicKey(keyParameters, PARAMS);
 
 		assertThatThrownBy(
@@ -210,11 +212,46 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 	}
 
 	@Test
+	public void retrieveTokenKeys_onTransientServerError_notNegativelyCached_retriesImmediately()
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+		Map<String, String> invalidParams = Map.of(HttpHeaders.X_APP_TID, "invalidAppTid");
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq(invalidParams)))
+				.thenThrow(new OAuth2ServiceException("Service unavailable", 503));
+
+		assertThatThrownBy(() -> cut.getPublicKey(keyParameters, invalidParams))
+				.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Service unavailable");
+
+		// Transient failures must NOT be negatively cached: the next call goes to the network
+		// again (it must not fail fast with the "negatively cached" message).
+		assertThatThrownBy(() -> cut.getPublicKey(keyParameters, invalidParams))
+				.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Service unavailable");
+
+		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(invalidParams));
+	}
+
+	@Test
+	public void retrieveTokenKeys_onTransportError_notNegativelyCached_retriesImmediately()
+			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException {
+		Map<String, String> invalidParams = Map.of(HttpHeaders.X_APP_TID, "invalidAppTid");
+		// No HTTP status code (0) — e.g. a read timeout or a connection reset.
+		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq(invalidParams)))
+				.thenThrow(new OAuth2ServiceException("Connection to the identity service timed out"));
+
+		assertThatThrownBy(() -> cut.getPublicKey(keyParameters, invalidParams))
+				.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Connection");
+
+		assertThatThrownBy(() -> cut.getPublicKey(keyParameters, invalidParams))
+				.isInstanceOf(OAuth2ServiceException.class).hasMessageStartingWith("Connection");
+
+		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(invalidParams));
+	}
+
+	@Test
 	public void negativeCacheEntryExpiresAfterTtlAndRetries()
 			throws OAuth2ServiceException, InvalidKeySpecException, NoSuchAlgorithmException, IOException {
 		Map<String, String> invalidParams = Map.of(HttpHeaders.X_APP_TID, "invalidAppTid");
 		when(tokenKeyServiceMock.retrieveTokenKeys(any(), eq(invalidParams)))
-				.thenThrow(new OAuth2ServiceException("Invalid parameters provided"))
+				.thenThrow(new OAuth2ServiceException("Invalid parameters provided", 404))
 				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", StandardCharsets.UTF_8));
 
 		assertThatThrownBy(() -> cut.getPublicKey(keyParameters, invalidParams))
@@ -235,6 +272,40 @@ public class OAuth2TokenKeyServiceWithCacheTest {
 				URI.create("http://another/url")), PARAMS);
 
 		verify(tokenKeyServiceMock, times(2)).retrieveTokenKeys(any(), eq(PARAMS));
+	}
+
+	@Test
+	public void withSecurityCache_thenWithCacheConfiguration_keepsExplicitCache() {
+		SecurityCache<String, String> explicit = new NoOpSecurityCache<>();
+		OAuth2TokenKeyServiceWithCache withExplicit = cut.withSecurityCache(explicit);
+
+		// Tuning the cache configuration afterwards must not replace the explicitly supplied
+		// cache (regression: withCacheConfiguration used to reset any cache to the in-memory
+		// default, silently dropping a shared cache).
+		withExplicit.withCacheConfiguration(
+				TokenKeyCacheConfiguration.getInstance(Duration.ofSeconds(678), 1234, false));
+
+		assertThat(withExplicit.internalCacheForTests()).isSameAs(explicit);
+		assertThat(withExplicit.getCacheConfiguration().getCacheSize()).isEqualTo(1234);
+	}
+
+	@Test
+	public void withCacheConfiguration_thenWithSecurityCache_usesExplicitCache() {
+		SecurityCache<String, String> explicit = new NoOpSecurityCache<>();
+
+		OAuth2TokenKeyServiceWithCache withExplicit = cut
+				.withCacheConfiguration(TokenKeyCacheConfiguration.getInstance(Duration.ofSeconds(678), 1234, false))
+				.withSecurityCache(explicit);
+
+		assertThat(withExplicit.internalCacheForTests()).isSameAs(explicit);
+	}
+
+	@Test
+	public void withSecurityCache_null_fallsBackToDefaultCache() {
+		SecurityCache<String, String> explicit = new NoOpSecurityCache<>();
+		OAuth2TokenKeyServiceWithCache withExplicit = cut.withSecurityCache(explicit);
+
+		assertThat(withExplicit.withSecurityCache(null).internalCacheForTests()).isNotSameAs(explicit);
 	}
 
 	private OAuth2TokenKeyServiceWithCache createCut(TokenKeyCacheConfiguration cacheConfiguration) {

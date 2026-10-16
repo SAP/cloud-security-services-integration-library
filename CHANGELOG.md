@@ -12,8 +12,9 @@ All notable changes to this project will be documented in this file.
   - Cache entries are raw JSON strings and keys are namespaced (`tokens:`, `jwks:`, `oidc:`), so entries are safe to share across processes; token request fingerprints are SHA-256 hashed, so client secrets never appear in the key space or logs
   - Concurrent misses for the same key are collapsed into a single upstream call in all three caches (single-flight)
   - See the main README, section "2.5 Distributed Caching", for setup, bring-your-own-cache snippets, operational notes, and known limitations
-- Negative caching of failed JWKS retrievals
-  - A failed `/token_keys` call (e.g. a 404 for an unknown zone id) is now remembered for 30 seconds: repeated requests for the same invalid key fail fast with an exception instead of each triggering a new call to the identity service, so a stream of invalid tokens can no longer keep exhausting HTTP resources
+- Negative caching of stable JWKS retrieval failures
+  - A `/token_keys` call that fails with a client error (4xx, e.g. a 404 for an unknown zone id) is now remembered for 30 seconds: repeated requests for the same invalid key fail fast with an exception instead of each triggering a new call to the identity service, so a stream of invalid tokens can no longer keep exhausting HTTP resources
+  - Transient failures — server errors (5xx), timeouts, transport errors — are not negatively cached, so the next request retries immediately
   - After the 30-second window the next request retries the retrieval
 - `CaffeineSecurityCache` now honors per-entry TTLs
   - `SecurityCache.set(key, value, ttl)` durations shorter than the cache-wide default (as used by the 30-second negative cache entries) are now respected by the Caffeine adapter via Caffeine's `Expiry` policy; previously the per-entry TTL argument was ignored
