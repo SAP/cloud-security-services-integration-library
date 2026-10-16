@@ -86,6 +86,9 @@ public class JwtValidatorBuilder {
 	/**
 	 * Use to configure the token key cache.
 	 *
+	 * <p>Only tunes the in-memory default cache (size, duration, statistics). A cache explicitly
+	 * supplied via {@link #withSecurityCache(SecurityCache)} is not affected, in any call order.
+	 *
 	 * @param tokenKeyCacheConfiguration
 	 * 		the cache configuration
 	 * @return this builder
