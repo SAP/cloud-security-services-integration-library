@@ -43,7 +43,7 @@ See [CHANGELOG.md](CHANGELOG.md) for complete details.
    - [2.4 Token Exchange for Hybrid Authentication](#24-token-exchange-for-hybrid-authentication)
        - [2.4.1 Jakarta Example](#241-jakarta-example-using-hybridtokenauthenticator)
        - [2.4.2 Spring Boot Example](#242-spring-boot-example-using-hybridjwtdecoder)
-   - [2.5 Distributed Caching](#25-distributed-caching-since-410)
+   - [2.5 Distributed Caching](#25-distributed-caching-since-420)
        - [When do I need it?](#recommendation-when-do-i-need-a-distributed-cache)
        - [Enabling on Spring Boot](#enabling-on-spring-boot)
        - [Enabling on plain Java](#enabling-on-plain-java)
@@ -305,6 +305,23 @@ The outbound token cache covers **every** token that goes through `OAuth2TokenSe
 
 Sharing these caches across pods eliminates the cold-start penalty, keeps identity-service traffic flat during deploys, and stops the classic thundering herd where every pod races XSUAA for the same client-credentials token.
 
+#### How the caches behave
+
+All three caches share the same runtime semantics:
+
+- **Best-effort contract.** A cache is an optimization, never a failure cause. Every cache operation is wrapped: any adapter error degrades to a cache miss and a WARN log, and token retrieval, JWKS fetch, and validation continue against the identity service. A down or misconfigured store costs you the shared-cache benefit — it never rejects or breaks requests.
+- **Single-flight.** Concurrent misses for the same cache key are collapsed into **one** upstream call (JWKS fetch, token request, or discovery call); all other callers wait for that single result and only the fetcher writes to the cache. This prevents the thundering herd when many requests miss at the same time (cold start, cache expiry). Note: the waiters block for the duration of the single in-flight call, bounded by the HTTP client's socket timeout (30 seconds) — see [Known limitations](#known-limitations).
+- **Negative caching (JWKS).** A failed JWKS fetch (e.g. a 404 for an unknown zone id) is cached as a short-lived negative entry (30 seconds). Within that window, further requests for the same key fail fast with an exception instead of each making a network call, so a stream of invalid tokens cannot keep triggering calls to the identity service. After the entry expires, the next request retries the retrieval.
+- **Per-entry TTLs.** Every `set` carries a per-entry TTL (default 5 minutes for tokens, 10 minutes for JWKS/OIDC, 30 seconds for negative entries). How far the adapter honors it:
+
+  | Adapter | Per-entry TTL |
+  |---|---|
+  | `CaffeineSecurityCache` | honored — shorter TTLs (negative entries) expire independently of the cache-wide default |
+  | `SpringCacheSecurityCache` | delegated to the store's own expiration policy (e.g. Redis `entryTtl`) |
+  | custom adapters | yours to implement; `ttl == null` means "use your adapter default" |
+
+- **Token entries are expiry-checked on every read.** Beyond the cache TTL, a cached outbound token is re-checked against its `exp` claim (with a small expiration delta) on every read, so a token is never returned once it is about to expire — even if the store's TTL is long.
+
 #### The SPI and shipped adapters
 
 All caches route through a single `com.sap.cloud.security.cache.SecurityCache<String,String>` SPI. The library ships two adapters out of the box:
@@ -368,6 +385,41 @@ CombiningValidator<Token> validator = JwtValidatorBuilder.getInstance(config)
     .withSecurityCache(cache)
     .build();
 ```
+
+#### Configuration reference
+
+Spring Boot properties (both `spring-security` and `spring-security-3` modules):
+
+| Property | Default | Meaning |
+|---|---|---|
+| `sap.security.cache.distributed.enabled` | `false` | Switches the auto-configuration on. `false` keeps the in-memory Caffeine default (no behavior change). |
+| `sap.security.cache.distributed.cache-name` | `sap-security` | Name of the Spring `CacheManager` cache the auto-configuration wraps. |
+
+Plain-Java wiring points (no properties — you pass the cache explicitly):
+
+| Component | Cache wired into | How |
+|---|---|---|
+| `DefaultOAuth2TokenService` | outbound token cache (`tokens`) | 3-arg constructor `(..., SecurityCache)` |
+| `JwtValidatorBuilder` | JWKS + OIDC caches (`jwks`, `oidc`) | `.withSecurityCache(SecurityCache)` |
+| `AbstractTokenAuthenticator` (servlet API) | JWKS + OIDC caches of the built validator | `.withSecurityCache(SecurityCache)` |
+
+On Spring Boot the auto-configuration performs all of the wiring above for you (token flows, `JwtValidatorBuilder`, the `JwtDecoder`, and the hybrid auto-configurations) — you only provide the `SecurityCache` bean or the `CacheManager`.
+
+#### Cache keys and entry content
+
+All entries live in one namespace-prefixed key space, so a single shared store can hold all three caches and `clear()` only touches library-owned keys:
+
+| Cache | Key format | Stored value | Default TTL |
+|---|---|---|---|
+| Outbound tokens | `tokens:<sha256 hex of the request fingerprint>` | the token response as JSON (`access_token`, `refresh_token`, expiry, ...) | 5 min |
+| JWKS | `jwks:url:<jwks uri>\|<request params>` e.g. `jwks:url:https://ias.example/token_keys\|x-app-tid:abc` | the raw JWKS JSON exactly as returned by the identity service. A negative entry stores the fixed marker `jwks-fetch-failed` instead | 10 min |
+| OIDC discovery | `oidc:<discovery endpoint uri>` | compact JSON envelope with `token_endpoint`, `authorization_endpoint`, `jwks_uri` | 10 min |
+
+Design choices behind the key scheme:
+
+- **Token keys are opaque on purpose.** The request fingerprint contains the client secret, so it is SHA-256 hashed before it becomes a key — no secret material ever appears in the key space, in store listings, or in logs.
+- **JWKS/OIDC keys are human-readable on purpose.** They carry URIs and non-secret request parameters only, so you can inspect, audit, and delete specific entries in your store (e.g. all `jwks:*` entries after an emergency key revocation).
+- **Values are raw strings, not serialized library objects.** Entries are plain JSON that is re-parsed on every hit, which is what makes them safe to share across processes (and, eventually, across the Java and Node.js libraries). The cost is a small, predictable per-hit CPU overhead.
 
 #### Bring your own cache
 
@@ -476,12 +528,42 @@ public SecurityCache<String, String> securityCache(JedisPool pool) {
 }
 ```
 
+#### Verification and troubleshooting
+
+**Verify the shared cache is actually in use:**
+
+- Spring Boot: the auto-configuration logs `Wiring SecurityCache to Spring CacheManager cache '<name>'` at startup (INFO).
+- Inspect the store: entries appear under the `tokens:*`, `jwks:*`, and `oidc:*` key spaces (plus your adapter's own prefix, e.g. `sap-security:` in the Jedis snippet).
+- Cross-pod round-trip: restart one pod and watch it serve warm entries instead of re-fetching — identity-service call volume stays flat across a rolling deploy.
+
+**Troubleshooting:**
+
+| Symptom | Cause | Resolution |
+|---|---|---|
+| Context fails with `sap.security.cache.distributed.enabled=true but no backing store was found` | Property enabled, but no `SecurityCache` bean and no `CacheManager` cache with the configured name | Provide a `SecurityCache` bean, fix the `cache-name`, or set `enabled=false` to keep the in-memory default |
+| Repeated WARNs `SecurityCache.get/set failed ...` | Store unreachable, timing out, or deserialization error | Check store health, network, and timeouts. The library continues without the cache (best-effort) — correctness is unaffected, only the shared-cache benefit is lost |
+| Validation fails with `Key with kid ... not found` after an identity-service key rotation | Store TTL is unbounded, so the cached JWKS never expires (see Warnings) | Configure a finite store TTL, or delete the affected `jwks:*` keys / call `SecurityCache.clear()` to force a refresh |
+| Every request with an invalid token triggers a call to the identity service | Library version before 4.2.0 (no negative caching) | Upgrade to 4.2.0: failed JWKS fetches are negatively cached for 30 s and fail fast |
+| Validations for one key are delayed during an identity-service slowdown | Single-flight waiters block on the single in-flight refresh (max 30 s socket timeout) | Expected behavior; a non-blocking background refresh is being evaluated as a follow-up (see Known limitations) |
+
+#### Security considerations
+
+- **The store holds secrets.** Token entries contain access and refresh tokens as plaintext JSON. Treat the cache store as confidential: restrict access (TLS, ACLs, private network / VPC-only), and keep library entries in their own namespaced/prefixed key space so you can audit and wipe them without touching other data.
+- **Keys and logs are log-safe by design.** Token fingerprints are SHA-256 hashes; JWKS/OIDC keys carry URIs and non-secret request parameters only. Library log statements for cache operations never include tokens, cache keys, or store error payloads.
+- **Revocation semantics.** JWKS entries are refreshed within one TTL period (default 10 minutes), so a key revocation propagates within that window. To force immediate propagation, delete the affected `jwks:*` keys or call `SecurityCache.clear()`.
+
 #### Warnings
 
 - **Failure semantics.** Every cache call is best-effort. A broken cache never breaks token retrieval, JWKS fetch, or token validation — the library falls through to the source of truth and logs a WARN.
 - **The store's TTL must be finite.** The library passes a per-entry TTL with every `set`, but the shipped `SpringCacheSecurityCache` (and any adapter that delegates to infrastructure-managed expiration) lets the store's own policy decide. If your store has *no* expiration (e.g. a `RedisCacheManager` without `entryTtl`, or a plain `SET` without `EXPIRE`), JWKS and OIDC entries live forever: they are only refetched on a *miss*, so after an identity-service key rotation the cached JWKS is never refreshed and token validation starts failing with `Key with kid ... not found`. Configure the store's TTL at or below the library's cache duration (default 10 minutes). Outbound-token entries are additionally re-checked against the token's `exp` claim on every read, but JWKS / OIDC entries are not.
 - **Time-to-live and rotation.** With a finite store TTL, a key rotation is picked up within one TTL period. If you need faster propagation (e.g. an emergency key revocation), delete the affected `jwks:*` keys (or call `SecurityCache.clear()`).
 - **Negative caching of failed JWKS retrievals.** When a JWKS fetch fails (e.g. a 404 for an unknown zone id), the failure is cached for 30 seconds: within that window, further requests for the same key fail fast with an exception instead of each making a network call — a stream of invalid tokens cannot keep hammering the identity service. After the entry expires, the next request retries the retrieval. Adapters that do not support per-entry TTLs (e.g. `SpringCacheSecurityCache`) keep the negative entry for the store's own TTL instead.
+
+#### Known limitations
+
+- **Waiters block during a refresh.** Single-flight deduplicates the upstream call, but concurrent callers for the same key wait for that call to complete (bounded by the HTTP client's 30 s socket timeout). If the identity service responds slowly or hangs, validations for that key are delayed accordingly. A non-blocking variant — serving the last cached entry while refreshing in the background ("stale-while-revalidate") — is being evaluated as a follow-up; it involves a security trade-off (a revoked key would keep validating during an identity-service outage) that we want to align first.
+- **`SpringCacheSecurityCache` has no per-entry TTL.** The store's own expiration policy applies to every entry, including the 30 s negative entries. Configure the store TTL accordingly (see the Warnings above).
+- **The OIDC discovery cache has no negative caching.** A failing discovery call is retried on the next miss; this is accepted because discovery is fetched at client setup, not on the per-request validation path.
 
 Per-module details: [token-client/README.md](token-client/README.md), [java-security/README.md](java-security/README.md), [spring-security-3/README.md](spring-security-3/README.md).
 

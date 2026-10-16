@@ -47,7 +47,7 @@ It fully integrates [```java-security```](../java-security) with [Spring Securit
   + [[Optional] Audit Logging](#optional-audit-logging)
   + [[Optional] Setup Security Context for non-HTTP requests](#optional-setup-security-context-for-non-http-requests)
   + [[Optional] Reactive Usage with Webflux](#optional-reactive-usage-with-webflux)
-  + [[Optional] Distributed Cache](#optional-distributed-cache-since-410)
+  + [[Optional] Distributed Cache](#optional-distributed-cache-since-420)
 * [Testing](#testing)
   + [JUnit](#junit)
   + [Overriding identity service configurations](#overriding-identity-service-configurations)
@@ -383,7 +383,7 @@ In case you want to implement a reactive token authentication flow, you can use 
 
 ### [Optional] Distributed Cache (since 4.2.0)
 
-By default the library uses an **in-memory Caffeine cache** for JWKS, OIDC discovery, and outbound tokens — that's the right choice for small services and local development. For larger deployments (many pods, frequent rolling deploys, token-exchange-heavy workloads) we recommend a **distributed cache** so a restarting pod picks up already-warm entries from its peers instead of re-fetching everything from XSUAA / IAS. See the top-level [README §2.5](../README.md#25-distributed-caching-since-410) for the full recommendation with concrete criteria.
+By default the library uses an **in-memory Caffeine cache** for JWKS, OIDC discovery, and outbound tokens — that's the right choice for small services and local development. For larger deployments (many pods, frequent rolling deploys, token-exchange-heavy workloads) we recommend a **distributed cache** so a restarting pod picks up already-warm entries from its peers instead of re-fetching everything from XSUAA / IAS. See the top-level [README §2.5](../README.md#25-distributed-caching-since-420) for the full recommendation with concrete criteria.
 
 To share the SAP Cloud Security caches across a horizontally-scaled deployment, enable the auto-configuration and expose a Spring `CacheManager` whose cache is named `sap-security`:
 
@@ -397,12 +397,19 @@ sap:
 ```
 
 ```java
+import java.time.Duration;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+
 @Configuration
 public class DistributedCacheConfig {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory rcf) {
         return RedisCacheManager.builder(rcf)
             .initialCacheNames(Set.of("sap-security"))
+            .withInitialCacheConfiguration(
+                "sap-security",
+                RedisCacheConfiguration.defaultCacheConfig()
+                    .entryTtl(Duration.ofMinutes(10)))   // must be finite — see main README Warnings
             .build();
     }
 }
@@ -416,7 +423,7 @@ Discovery order: (1) user-supplied `SecurityCache<String,String>` bean → (2) S
 
 For any backend that is not fronted by a Spring `CacheManager` (raw Redis via Jedis, an in-house store, ...), implement `SecurityCache<String,String>` directly and declare it as a `@Bean` — the auto-config prefers it over any `CacheManager`. Copy-pasteable snippets for Redis (Jedis) and Spring-managed backends live in the top-level [*Bring your own cache*](../README.md#bring-your-own-cache) section.
 
-See the top-level [README](../README.md#25-distributed-caching-since-410) for the complete story including when to use a distributed cache and how to bring your own.
+See the top-level [README](../README.md#25-distributed-caching-since-420) for the complete story including when to use a distributed cache and how to bring your own.
 
 
 ## Testing

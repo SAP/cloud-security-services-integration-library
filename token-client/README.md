@@ -44,7 +44,7 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
    - [Identity service configuration setup](#oauth2serviceconfiguration)
    - [HTTP Client setup](#httpclientfactory)
    - [Cache configuration](#cache-configuration)
-       - [Distributed Cache](#distributed-cache-since-410)
+       - [Distributed Cache](#distributed-cache-since-420)
 2. [API Usage](#token-flows-api-usage)
    - [2.1. Jwt Bearer Token Flow](#jwt-bearer-token-flow)
    - [2.2. Client Credentials Token Flow](#client-credentials-token-flow)
@@ -349,7 +349,7 @@ tokenService.clearCache();
 
 #### Distributed Cache (since 4.2.0)
 
-By default the outbound token cache is an **in-memory Caffeine cache** — the right choice for small services and local development. For larger deployments with many pods, frequent rolling deploys, or token-exchange-heavy workloads, we recommend passing a **distributed cache** (e.g. Redis) so a restarting pod reuses tokens already fetched by its peers instead of hammering XSUAA. See the top-level [README §2.5](../README.md#25-distributed-caching-since-410) for the recommendation with concrete criteria.
+By default the outbound token cache is an **in-memory Caffeine cache** — the right choice for small services and local development. For larger deployments with many pods, frequent rolling deploys, or token-exchange-heavy workloads, we recommend passing a **distributed cache** (e.g. Redis) so a restarting pod reuses tokens already fetched by its peers instead of hammering XSUAA. See the top-level [README §2.5](../README.md#25-distributed-caching-since-420) for the recommendation with concrete criteria.
 
 The outbound token cache is expressed against the `com.sap.cloud.security.cache.SecurityCache` SPI. Pass a caller-supplied cache to the third constructor parameter to share tokens across a horizontally-scaled deployment (Redis, Hazelcast, ...):
 
@@ -367,7 +367,7 @@ Ready-to-copy `SecurityCache` implementations for Redis (Jedis) and any Spring-m
 - Concurrent misses for the same key are collapsed via a single-flight `CompletableFuture` map — no thundering herd on XSUAA when many callers ask for the same client-credentials token at once.
 - Cache faults are always best-effort; a broken cache degrades to a normal token fetch and logs a WARN.
 
-See the main [README](../README.md#25-distributed-caching-since-410) for the full picture including JWKS / OIDC caches and the "when do I need it?" recommendation.
+See the main [README](../README.md#25-distributed-caching-since-420) for the full picture including JWKS / OIDC caches and the "when do I need it?" recommendation.
 
 ## Token Flows API usage
 The `XsuaaTokenFlows` provides a builder-pattern API that allows applications to easily create and execute each flow, guiding developers to only set properties that are relevant for the respective token flow.
