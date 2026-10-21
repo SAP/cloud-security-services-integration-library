@@ -1,6 +1,31 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.2.0
+
+- Distributed cache support for the internal token, JWKS, and OIDC discovery caches
+  - The library's three internal caches previously lived only in the JVM's memory: after every restart or rolling deploy every pod re-fetched signing keys and re-issued its own tokens from XSUAA / IAS, causing cold-start latency and thundering-herd traffic against the identity services
+  - New `SecurityCache<String,String>` SPI (`java-api`) behind all three caches; the in-memory Caffeine implementation remains the default, so existing applications see no behavior change
+  - Two adapters ship out of the box: `CaffeineSecurityCache` (in-process default) and `SpringCacheSecurityCache` (wraps any Spring `CacheManager` backend such as Redis or Hazelcast); any other backend can be implemented against the SPI (copy-paste snippets in the main README)
+  - Spring Boot: opt-in via `sap.security.cache.distributed.enabled=true`; the auto-configuration wires a `SecurityCache` bean from a user-supplied bean or a `CacheManager` cache named `sap-security` (configurable via `sap.security.cache.distributed.cache-name`) and fails fast with a clear error if no backing store is present
+  - Plain Java: pass a `SecurityCache` to the `DefaultOAuth2TokenService` constructor (token cache) or `JwtValidatorBuilder.withSecurityCache(...)` / `AbstractTokenAuthenticator.withSecurityCache(...)` (JWKS + OIDC caches)
+  - Cache entries are raw JSON strings and keys are namespaced (`tokens:`, `jwks:`, `oidc:`), so entries are safe to share across processes; token request fingerprints are SHA-256 hashed, so client secrets never appear in the key space or logs
+  - Concurrent misses for the same key are collapsed into a single upstream call in all three caches (single-flight)
+  - See the main README, section "2.5 Distributed Caching", for setup, bring-your-own-cache snippets, operational notes, and known limitations
+- Negative caching of stable JWKS retrieval failures
+  - A `/token_keys` call that fails with a client error (4xx, e.g. a 404 for an unknown zone id) is now remembered for 30 seconds: repeated requests for the same invalid key fail fast with an exception instead of each triggering a new call to the identity service, so a stream of invalid tokens can no longer keep exhausting HTTP resources
+  - Transient failures — server errors (5xx), timeouts, transport errors — are not negatively cached, so the next request retries immediately
+  - After the 30-second window the next request retries the retrieval
+- `CaffeineSecurityCache` now honors per-entry TTLs
+  - `SecurityCache.set(key, value, ttl)` durations shorter than the cache-wide default (as used by the 30-second negative cache entries) are now respected by the Caffeine adapter via Caffeine's `Expiry` policy; previously the per-entry TTL argument was ignored
+- Send the `x-azp_app_tid` request header when fetching IAS signing keys
+  - When validating an IAS token, the `azp_app_tid` claim is now forwarded as an `x-azp_app_tid` header on the `/token_keys` request (only when the claim is present), mirroring the `@sap/xssec` 4.15.0 behavior
+- Update dependencies:
+  - Jetty: 12.1.12 → 12.1.13
+  - SLF4J API: 2.0.18 → 2.0.20
+  - Mockito: 5.23.0 → 5.24.0
+  - Maven Surefire Plugin: 3.5.6 → 3.6.0
+
 ## 4.1.2
 
 - Enforce constructor-supplied service configurations in `HybridTokenAuthenticator`
