@@ -52,6 +52,7 @@ public final class TokenClaims {
 
 	public static final String GROUPS = "groups"; // scim groups
 	public static final String AUTHORIZATION_PARTY = "azp"; // Authorization party contains OAuth client identifier
+	public static final String AZP_APP_TID = "azp_app_tid"; // app_tid of the application identified by the 'azp' claim (sender tenant in app-to-app flows)
 	public static final String CNF = "cnf"; // X509 certificate ("cnf" (confirmation)) claim
 	public static final String CNF_X5T = "x5t#S256"; // X509 certificate thumbprint confirmation method
 
