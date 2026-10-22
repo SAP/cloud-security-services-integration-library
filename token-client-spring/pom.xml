@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.7.6</version>
+		<version>3.7.7</version>
 	</parent>
 
 	<artifactId>token-client-spring</artifactId>
@@ -150,13 +150,13 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.4.14</version>
+			<version>1.6.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.5.25</version>
+			<version>1.6.5</version>
 			<scope>test</scope>
 		</dependency>
         <dependency>

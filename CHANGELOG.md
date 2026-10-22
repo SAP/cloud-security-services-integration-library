@@ -1,6 +1,28 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 3.7.7
+
+### Dependency upgrades
+
+Maintenance update of managed dependencies to the latest minor/patch release within each current major line (no major upgrades). Maven Surefire is intentionally held at 3.5.6 — 3.6.0 blocks the byte-buddy self-attach used by `system-stubs` for environment-variable mocking, breaking `XsuaaServiceConfigurationFromEnvTest`.
+
+- Bump `org.eclipse.jetty:jetty-bom` from 12.1.12 to 12.1.14
+- Bump `org.slf4j:slf4j-api` from 2.0.18 to 2.0.20
+- Bump `org.apache.httpcomponents.client5:httpclient5` from 5.6.4 to 5.6.5
+- Bump `com.github.ben-manes.caffeine:caffeine` from 3.2.4 to 3.3.0
+- Bump `org.mockito:mockito-core` from 5.23.0 to 5.24.0
+- Bump `com.github.spotbugs` (plugin + annotations) from 4.10.4 to 4.10.5
+- Bump `org.jacoco:jacoco-maven-plugin` from 0.8.14 to 0.8.15
+- Bump `central-publishing-maven-plugin` from 0.10.0 to 0.11.0
+- Bump `io.github.hakky54:logcaptor` from 2.12.2 to 2.12.7
+- Bump `ch.qos.logback` (test scope) to 1.6.5
+- Bump `net.bytebuddy:byte-buddy` from 2.12.2 to 2.12.7
+
+### Other
+
+- Stop Dependabot from proposing major-version upgrades on `main-3.x` (Spring Boot 4, Spring Framework 7, Spring Security 7, JUnit 6 are intentionally excluded from this branch)
+
 ## 3.7.6
 
 ### Dependency upgrades
@@ -241,8 +263,8 @@ Also fixes the `junit-bom` import in the root pom — the entry was missing `<ty
 - Bump spring.boot.version from 3.4.4 to 3.4.5
 - Bump org.wiremock:wiremock-standalone from 3.12.1 to 3.13.0
 - Bump org.eclipse.jetty.version from 12.0.19 to 12.0.21
-- Bump io.projectreactor:reactor-test from 3.7.4 to 3.7.6
-- Bump io.projectreactor:reactor-core from 3.7.4 to 3.7.6
+- Bump io.projectreactor:reactor-test from 3.7.4 to 3.7.7
+- Bump io.projectreactor:reactor-core from 3.7.4 to 3.7.7
 
 ## 3.6.0
 
