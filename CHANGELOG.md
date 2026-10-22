@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
   - org.json: 20260719 → 20260814
   - SpotBugs: 4.10.4 → 4.10.5 (annotations and Maven plugin)
   - Sonatype Central Publishing Maven Plugin: 0.11.0 → 0.12.0
+  - logcaptor (test scope): 2.12.7 → 2.13.0 — addresses CVE-2026-104721 via updated logback-classic transitive dependency
 
 ## 4.1.2
 
