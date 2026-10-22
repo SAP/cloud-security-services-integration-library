@@ -377,6 +377,27 @@ SecurityContext.setToken(token);
 ## Test Utilities
 You can use [java-security-test](/java-security-test) library for testing the security layer. See the [README.md](/java-security-test/README.md) for more information.
 
+## Caches (since 4.2.0)
+
+This module owns two caches, both going through the `com.sap.cloud.security.cache.SecurityCache` SPI so you can point them at a distributed store.
+
+By default both caches are **in-memory (Caffeine)** — the right choice for small services and local development. For larger deployments with many pods or frequent rolling deploys, we recommend a **distributed cache** (e.g. Redis) so a restarting pod reuses JWKS and OIDC entries already fetched by its peers. See the [main README §2.5](../README.md#25-distributed-caching-since-420) for the full recommendation and the "when do I need it?" criteria.
+
+### JWKS cache
+Namespace `jwks`. Caches the raw JWKS JSON per JWKS URI + request-params tuple. The `JsonWebKeySet` is rebuilt on every hit — a few hundred microseconds — in exchange for cache entries that are safe to share across processes. Concurrent misses for the same key are collapsed into a single upstream call (single-flight). Retrievals that fail with a client error (4xx, e.g. a 404 for an unknown zone id) are negatively cached for 30 seconds so repeated invalid tokens fail fast without a network call; transient failures (5xx, timeouts, transport errors) are not cached and retry on the next request. Wire in with:
+
+```java
+JwtValidatorBuilder.getInstance(config)
+    .withHttpClient(httpClient)
+    .withSecurityCache(cache)
+    .build();
+```
+
+Defaults: 1000 entries, 10 minutes TTL. Sizes/durations adjustable via `withCacheConfiguration(TokenKeyCacheConfiguration.getInstance(...))`.
+
+### OIDC discovery cache
+Namespace `oidc`. Caches the three URIs the runtime needs (`token_endpoint`, `authorization_endpoint`, `jwks_uri`) as a compact JSON envelope. Same wiring as JWKS.
+
 ### Local testing 
 When you like to test/debug your secured application rest API locally (offline) you need to provide the `VCAP_SERVICES` before you run the application. The security library requires the following key value pairs in the `VCAP_SERVICES`
 - For Xsuaa under `xsuaa/credentials` for jwt validation

@@ -7,6 +7,7 @@ package com.sap.cloud.security.token.validation.validators;
 
 import org.junit.jupiter.api.Test;
 
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.config.OAuth2ServiceConfiguration;
 import com.sap.cloud.security.config.OAuth2ServiceConfigurationBuilder;
 import com.sap.cloud.security.config.ServiceConstants;
@@ -26,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -158,6 +160,35 @@ public class JwtValidatorBuilderTest {
 		assertThat(combiningValidator.validate(new SapIdToken(
 						"eyJraWQiOiJkZWZhdWx0LWtpZCIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiJQMTc2OTQ1IiwiYXVkIjoiVDAwMDMxMCIsInVzZXJfdXVpZCI6IjEyMzQ1Njc4OTAiLCJpc3MiOiJodHRwczovL2FwcGxpY2F0aW9uLm15YXV0aC5jb20iLCJleHAiOjY5NzQwMzE2MDAsImdpdmVuX25hbWUiOiJqb2huIiwiZW1haWwiOiJqb2huLmRvZUBlbWFpbC5vcmciLCJjaWQiOiJUMDAwMzEwIn0.Svrb5PriAuHOdhTFXiicr_qizHiby6b73SdovJAFnWCPDr0r8mmFoEWXjJmdLdw08daNzt8ww_r2khJ-rusUZVfiZY3kyRV1hfeChpNROGfmGbfN62KSsYBPi4dBMIGRz8SqkF6nw5nTC-HOr7Gd8mtZjG9KZYC5fKYOYRvbAZN_xyvLDzFUE6LgLmiT6fV7fHPQi5NSUfawpWQbIgK2sJjnp-ODTAijohyxQNuF4Lq1Prqzjt2QZRwvbskTcYM3gK5fgt6RYDN6MbARJIVFsb1Y7wZFg00dp2XhdFzwWoQl6BluvUL8bL73A8iJSam0csm1cuG0A7kMF9spy_whQw"))
 				.isValid()).isTrue();
+	}
+
+	@Test
+	public void build_withSecurityCacheAndCacheConfiguration_keepsExternalSecurityCache() {
+		// Fresh configuration (unique domain) so a fresh builder instance is created.
+		OAuth2ServiceConfiguration configuration = OAuth2ServiceConfigurationBuilder.forService(XSUAA)
+				.withDomains("auth-cache.com")
+				.withProperty(ServiceConstants.XSUAA.APP_ID, "test-app!t123")
+				.withClientId("sb-test-app!t123")
+				.build();
+
+		@SuppressWarnings("unchecked")
+		SecurityCache<String, String> externalCache = (SecurityCache<String, String>) Mockito.mock(SecurityCache.class);
+
+		CombiningValidator<Token> combiningValidator = JwtValidatorBuilder.getInstance(configuration)
+				.withSecurityCache(externalCache)
+				.withCacheConfiguration(
+						TokenKeyCacheConfiguration.getInstance(Duration.ofSeconds(678), 1234, false))
+				.build();
+
+		JwtSignatureValidator signatureValidator = combiningValidator.getValidators().stream()
+				.filter(validator -> validator instanceof JwtSignatureValidator)
+				.map(validator -> (JwtSignatureValidator) validator)
+				.findFirst()
+				.orElseThrow();
+
+		// The explicitly supplied cache must survive the combination of both builder methods —
+		// withCacheConfiguration must not silently replace it with the in-memory default.
+		assertThat(signatureValidator.tokenKeyService.internalCacheForTests()).isSameAs(externalCache);
 	}
 
 	@Test

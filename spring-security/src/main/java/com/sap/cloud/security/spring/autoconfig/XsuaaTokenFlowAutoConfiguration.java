@@ -5,6 +5,7 @@
  */
 package com.sap.cloud.security.spring.autoconfig;
 
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.client.HttpClientException;
 import com.sap.cloud.security.client.SecurityHttpClient;
 import com.sap.cloud.security.client.SecurityHttpClientProvider;
@@ -59,14 +60,17 @@ public class XsuaaTokenFlowAutoConfiguration {
   @Bean
   @Conditional(PropertyConditions.class)
   public XsuaaTokenFlows xsuaaTokenFlows(
-      @Qualifier("tokenFlowHttpClient") final SecurityHttpClient httpClient) {
+      @Qualifier("tokenFlowHttpClient") final SecurityHttpClient httpClient,
+      final org.springframework.beans.factory.ObjectProvider<SecurityCache<String, String>> securityCache) {
     logger.debug(
         "auto-configuring XsuaaTokenFlows using {} based restOperations",
         xsuaaConfig.getClientIdentity().isCertificateBased() ? "certificate" : "client secret");
     final OAuth2ServiceEndpointsProvider endpointsProvider = new XsuaaDefaultEndpoints(xsuaaConfig);
     final ClientIdentity clientIdentity = xsuaaConfig.getClientIdentity();
+    final SecurityCache<String, String> cache = securityCache.getIfAvailable();
     final OAuth2TokenService oAuth2TokenService =
-        new DefaultOAuth2TokenService(httpClient, TokenCacheConfiguration.defaultConfiguration());
+        new DefaultOAuth2TokenService(
+            httpClient, TokenCacheConfiguration.defaultConfiguration(), cache);
 		return new XsuaaTokenFlows(oAuth2TokenService, endpointsProvider, clientIdentity);
 	}
 
