@@ -15,7 +15,7 @@ Maintenance update of managed dependencies to the latest minor/patch release wit
 - Bump `com.github.spotbugs` (plugin + annotations) from 4.10.4 to 4.10.5
 - Bump `org.jacoco:jacoco-maven-plugin` from 0.8.14 to 0.8.15
 - Bump `central-publishing-maven-plugin` from 0.10.0 to 0.11.0
-- Bump `io.github.hakky54:logcaptor` from 2.12.2 to 2.12.7
+- Bump `io.github.hakky54:logcaptor` from 2.12.2 to 2.13.0 — addresses CVE-2026-104721 via updated logback-classic transitive dependency
 - Bump `ch.qos.logback` (test scope) to 1.6.5
 - Bump `net.bytebuddy:byte-buddy` from 2.12.2 to 2.12.7
 
