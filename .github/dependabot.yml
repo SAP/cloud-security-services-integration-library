@@ -54,6 +54,18 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    # main-3.x intentionally stays on Spring Boot 3 / Spring Framework 6 /
+    # Spring Security 6 / JUnit 5. Block all major-version bumps for these so
+    # Dependabot stops opening ungrouped major PRs (e.g. Spring Boot 4) here.
+    ignore:
+      - dependency-name: "org.springframework.boot:*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.springframework:*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.springframework.security:*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.junit.jupiter:*"
+        update-types: ["version-update:semver-major"]
     reviewers:
       - "kuntzed"
       - "NiklasHerrmann21"
