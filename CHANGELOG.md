@@ -21,10 +21,13 @@ All notable changes to this project will be documented in this file.
 - Send the `x-azp_app_tid` request header when fetching IAS signing keys
   - When validating an IAS token, the `azp_app_tid` claim is now forwarded as an `x-azp_app_tid` header on the `/token_keys` request (only when the claim is present), mirroring the `@sap/xssec` 4.15.0 behavior
 - Update dependencies:
-  - Jetty: 12.1.12 → 12.1.13
+  - Jetty: 12.1.12 → 12.1.14
   - SLF4J API: 2.0.18 → 2.0.20
   - Mockito: 5.23.0 → 5.24.0
   - Maven Surefire Plugin: 3.5.6 → 3.6.0
+  - org.json: 20260719 → 20260814
+  - SpotBugs: 4.10.4 → 4.10.5 (annotations and Maven plugin)
+  - Sonatype Central Publishing Maven Plugin: 0.11.0 → 0.12.0
 
 ## 4.1.2
 
