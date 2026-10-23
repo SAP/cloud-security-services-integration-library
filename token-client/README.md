@@ -509,18 +509,25 @@ IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(
 
 #### Tenant host cache
 
-Resolved subdomains are cached so repeated requests for the same subscriber do not flood the BTP tenant API. The cache uses `expireAfterWrite` semantics:
+Resolved subdomains are cached via the `SecurityCache` SPI in the `tenant-hosts` namespace so repeated
+requests for the same subscriber do not flood the BTP tenant API. Pass a shared cache
+(e.g. the same distributed Redis-backed cache that backs your token requests) to share tenant host
+resolutions across application instances; when no cache is passed, an in-memory Caffeine cache is
+used. The cache entry TTL is applied per entry:
 
 - While the cached value is fresh (within the TTL): returned directly, **no** BTP call
-- After the TTL has elapsed: the next resolve blocks once on the BTP API, then caches the fresh result for another TTL window
+- After the TTL has elapsed: the next resolve hits the BTP API once and caches the fresh result
+- **Failures are never cached**, so a tenant move (old location stays callable for up to one week)
+  is picked up on the next resolution attempt
 
-Defaults: enabled, 1 hour TTL, max 1000 entries. Configure via `IasTenantHostCacheConfiguration`:
+Defaults: enabled, **15 minute** TTL, max 1000 entries. Configure via `IasTenantHostCacheConfiguration`:
 
 ```java
 IasTenantHostCacheConfiguration cacheConfig = IasTenantHostCacheConfiguration.builder()
         .enabled(true)
-        .ttl(Duration.ofHours(2))
+        .ttl(Duration.ofMinutes(15))
         .maxSize(500)
+        .localInformationOnly(false)   // read the host from the local table only, no IAS registry lookup
         .build();
 
 IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(tokenService, iasConfig, cacheConfig);
@@ -528,9 +535,48 @@ IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(tokenService, iasConf
 
 To disable caching entirely (every resolve hits the BTP API): `.enabled(false)`.
 
+The `localInformationOnly` flag maps to the BTP tenant API's `localInformationOnly` query parameter:
+the tenant host is read from the locally known information instead of performing a lookup in the IAS
+registry. Use it when the registry lookup must be avoided (e.g. restricted network paths); the value
+may be stale until the local information is refreshed.
+
+#### Error handling
+
+Every failed resolution is wrapped in an `IasTenantHostResolutionException` carrying a typed
+`ErrorCode` so you can decide on a retry strategy:
+
+| Error code | Source | Transient? |
+|---|---|---|
+| `INVALID_REQUEST` | HTTP 400, or a tenant ID that fails local format validation | no |
+| `AUTHENTICATION_FAILED` | HTTP 401/403 — the IAS service credentials were rejected | no |
+| `TENANT_NOT_FOUND` | HTTP 404 — the tenant is unknown to the BTP tenant API | no |
+| `UPSTREAM_UNAVAILABLE` | HTTP 424, other 5xx, transport error — IAS registry temporarily unreachable | **yes, retry** |
+| `UPSTREAM_MISCONFIGURED` | HTTP 500 — IAS registry misconfigured | no |
+| `TENANT_INACTIVE` | HTTP 200 with status `INACTIVE` | no (until the tenant is activated) |
+| `NOT_TRUSTED` | HTTP 200 with status `NOTRUST` — no trust between provider and subscriber tenant | no (until the trust is established) |
+| `TENANT_INFO_ERROR` | HTTP 200 with status `ERROR` (the API's `error_details` are propagated), a missing/unknown status, or a malformed response | no |
+
+Token flows wrap the exception into a `TokenFlowException` that includes the error code and the
+`app_tid`, so failures are supportable from the log line alone.
+
+#### Security
+
+- The BTP tenant API base URI must use HTTPS (enforced at construction time).
+- The tenant ID is format-validated (`[A-Za-z0-9_-]{1,128}`) before the request and URL-encoded.
+- The subdomain extracted from the response must be a valid DNS label; it is then only used to
+  replace the **first label** of the configured IAS host (the zone is pinned), so client credentials
+  are never sent to a host outside the configured IAS zone.
+- Resolved subdomains are cached under `tenant-hosts:<app_tid>` — the `app_tid` is a tenant
+  identifier, not a credential. Response bodies are not logged at warn level.
+- The resolver's HTTP client must be the one configured with your IAS service credentials (the
+  `fromConfiguration(...)` factories do this for you).
+
 #### Spring Boot configuration
 
-Spring Boot consumers can bind the cache configuration declaratively via `IasTenantHostCacheProperties`:
+Spring Boot auto-configures `IasTokenFlows` from an IAS service binding
+(`sap.security.services.ias.*` / `sap.security.services.ias[0].*`) — disable with
+`sap.spring.security.ias.flows.auto=false`. When the binding carries the `btp-tenant-api` property,
+dynamic tenant host resolution is active. The cache is configured declaratively:
 
 ```yaml
 sap:
@@ -539,11 +585,13 @@ sap:
       ias:
         tenant-host-cache:
           enabled: true         # default: true
-          ttl: 1h               # default: 1h (any java.time.Duration string)
+          ttl: 15m              # default: 15m (any java.time.Duration string)
           max-size: 1000        # default: 1000
+          local-information-only: false  # default: false
 ```
 
-The resulting `IasTenantHostCacheConfiguration` bean is picked up by the IAS auto-configuration.
+If a `SecurityCache` bean is present (e.g. via `sap.security.cache.distributed.enabled=true`), it is
+shared with the tenant host cache; otherwise the in-memory default is used.
 
 ## Retry mechanism
 

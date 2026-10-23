@@ -6,6 +6,7 @@
 package com.sap.cloud.security.ias.tokenflows;
 
 import com.sap.cloud.security.ias.client.IasDefaultEndpoints;
+import com.sap.cloud.security.cache.SecurityCache;
 import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
 import com.sap.cloud.security.ias.client.IasTenantHostResolver;
 
@@ -156,9 +157,35 @@ public class IasTokenFlows implements Serializable {
 	public static IasTokenFlows fromConfiguration(@Nonnull OAuth2TokenService tokenService,
 			@Nonnull OAuth2ServiceConfiguration config,
 			@Nonnull IasTenantHostCacheConfiguration cacheConfiguration) {
+		return fromConfiguration(tokenService, config, cacheConfiguration, null);
+	}
+
+	/**
+	 * Convenience factory: creates IasTokenFlows from an {@link OAuth2ServiceConfiguration} with an
+	 * explicit cache configuration for tenant host resolution and a shared
+	 * {@link SecurityCache} used for the resolved subscriber subdomains.
+	 * <p>
+	 * Pass the same shared cache that backs the token requests (e.g. a distributed Redis-backed
+	 * cache) to share tenant host resolutions across application instances. When {@code null},
+	 * an in-memory Caffeine cache is used.
+	 *
+	 * @param tokenService
+	 * 		the OAuth2 token service
+	 * @param config
+	 * 		the IAS service configuration (from service binding)
+	 * @param cacheConfiguration
+	 * 		cache configuration for the tenant host resolver
+	 * @param tenantHostCache
+	 * 		optional shared cache for resolved subscriber subdomains
+	 * @return configured IasTokenFlows instance (with tenant resolution if BTP API URI is present)
+	 */
+	public static IasTokenFlows fromConfiguration(@Nonnull OAuth2TokenService tokenService,
+			@Nonnull OAuth2ServiceConfiguration config,
+			@Nonnull IasTenantHostCacheConfiguration cacheConfiguration,
+			@Nullable SecurityCache<String, String> tenantHostCache) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		assertNotNull(cacheConfiguration, "IasTenantHostCacheConfiguration must not be null.");
-		IasTenantHostResolver resolver = createResolverFromConfig(config, null, cacheConfiguration);
+		IasTenantHostResolver resolver = createResolverFromConfig(config, null, cacheConfiguration, tenantHostCache);
 		return new IasTokenFlows(tokenService, new IasDefaultEndpoints(config), config.getClientIdentity(), resolver);
 	}
 
@@ -203,7 +230,7 @@ public class IasTokenFlows implements Serializable {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		assertNotNull(httpClient, "SecurityHttpClient must not be null.");
 		assertNotNull(cacheConfiguration, "IasTenantHostCacheConfiguration must not be null.");
-		IasTenantHostResolver resolver = createResolverFromConfig(config, httpClient, cacheConfiguration);
+		IasTenantHostResolver resolver = createResolverFromConfig(config, httpClient, cacheConfiguration, null);
 		return new IasTokenFlows(tokenService, new IasDefaultEndpoints(config), config.getClientIdentity(), resolver);
 	}
 
@@ -251,18 +278,47 @@ public class IasTokenFlows implements Serializable {
 			@Nonnull URI btpTenantApiBaseUri,
 			@Nonnull SecurityHttpClient httpClient,
 			@Nonnull IasTenantHostCacheConfiguration cacheConfiguration) {
+		return fromConfiguration(tokenService, config, btpTenantApiBaseUri, httpClient, cacheConfiguration, null);
+	}
+
+	/**
+	 * Convenience factory: creates IasTokenFlows with an explicit BTP tenant API URI, cache
+	 * configuration and a shared {@link SecurityCache} for resolved subscriber subdomains.
+	 *
+	 * @param tokenService
+	 * 		the OAuth2 token service
+	 * @param config
+	 * 		the IAS service configuration (from service binding)
+	 * @param btpTenantApiBaseUri
+	 * 		the BTP tenant API base URI for subdomain resolution
+	 * @param httpClient
+	 * 		the HTTP client for tenant API requests
+	 * @param cacheConfiguration
+	 * 		cache configuration for the tenant host resolver
+	 * @param tenantHostCache
+	 * 		optional shared cache for resolved subscriber subdomains
+	 * @return configured IasTokenFlows instance with tenant resolution
+	 */
+	public static IasTokenFlows fromConfiguration(@Nonnull OAuth2TokenService tokenService,
+			@Nonnull OAuth2ServiceConfiguration config,
+			@Nonnull URI btpTenantApiBaseUri,
+			@Nonnull SecurityHttpClient httpClient,
+			@Nonnull IasTenantHostCacheConfiguration cacheConfiguration,
+			@Nullable SecurityCache<String, String> tenantHostCache) {
 		assertNotNull(config, "OAuth2ServiceConfiguration must not be null.");
 		assertNotNull(btpTenantApiBaseUri, "BTP tenant API URI must not be null.");
 		assertNotNull(httpClient, "SecurityHttpClient must not be null.");
 		assertNotNull(cacheConfiguration, "IasTenantHostCacheConfiguration must not be null.");
-		IasTenantHostResolver resolver = new IasTenantHostResolver(btpTenantApiBaseUri, httpClient, cacheConfiguration);
+		IasTenantHostResolver resolver = new IasTenantHostResolver(btpTenantApiBaseUri, httpClient,
+				cacheConfiguration, tenantHostCache);
 		return new IasTokenFlows(tokenService, new IasDefaultEndpoints(config), config.getClientIdentity(), resolver);
 	}
 
 	@Nullable
 	private static IasTenantHostResolver createResolverFromConfig(OAuth2ServiceConfiguration config,
 			@Nullable SecurityHttpClient httpClient,
-			IasTenantHostCacheConfiguration cacheConfiguration) {
+			IasTenantHostCacheConfiguration cacheConfiguration,
+			@Nullable SecurityCache<String, String> tenantHostCache) {
 		String btpTenantApiUrl = config.getProperty(BTP_TENANT_API_PROPERTY);
 		if (btpTenantApiUrl == null || btpTenantApiUrl.isBlank()) {
 			LOGGER.debug("No '{}' property found in IAS service configuration. "
@@ -273,7 +329,7 @@ public class IasTokenFlows implements Serializable {
 		if (httpClient == null) {
 			httpClient = SecurityHttpClientProvider.createClient(config.getClientIdentity());
 		}
-		return new IasTenantHostResolver(btpTenantApiUri, httpClient, cacheConfiguration);
+		return new IasTenantHostResolver(btpTenantApiUri, httpClient, cacheConfiguration, tenantHostCache);
 	}
 
 	/**

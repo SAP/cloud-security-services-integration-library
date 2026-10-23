@@ -7,6 +7,7 @@ package com.sap.cloud.security.ias.tokenflows;
 
 import com.sap.cloud.security.ias.client.IasDefaultEndpoints;
 import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
+import com.sap.cloud.security.ias.client.IasTenantHostResolutionException;
 import com.sap.cloud.security.ias.client.IasTenantHostResolver;
 
 import com.sap.cloud.security.config.ClientIdentity;
@@ -185,12 +186,12 @@ public class IasClientCredentialsTokenFlow {
 		if (appTid != null && tenantHostResolver != null) {
 			try {
 				String subscriberSubdomain = tenantHostResolver.resolve(appTid);
-				if (subscriberSubdomain != null) {
-					return endpointsProvider.withSubdomain(subscriberSubdomain).getTokenEndpoint();
-				}
-			} catch (OAuth2ServiceException e) {
+				return endpointsProvider.withSubdomain(subscriberSubdomain).getTokenEndpoint();
+			} catch (IasTenantHostResolutionException e) {
 				throw new TokenFlowException(
-						"Error resolving IAS tenant host for app_tid '%s': %s".formatted(appTid, e.getMessage()), e);
+						"Error resolving IAS tenant host for app_tid '%s' [%s]: %s"
+								.formatted(appTid, e.getErrorCode(), e.getMessage()),
+						e);
 			}
 		} else if (appTid != null && tenantHostResolver == null) {
 			LOGGER.warn("app_tid '{}' is set but no IasTenantHostResolver is configured. "

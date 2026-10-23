@@ -67,10 +67,16 @@ public class IasDefaultEndpoints implements OAuth2ServiceEndpointsProvider {
 	 * @param subscriberSubdomain
 	 * 		the subscriber's subdomain to use
 	 * @return new endpoints instance pointing to the subscriber's IAS tenant
+	 * @throws IllegalArgumentException if the subdomain is not a valid DNS label
 	 */
 	public IasDefaultEndpoints withSubdomain(@Nullable String subscriberSubdomain) {
 		if (subscriberSubdomain == null || subscriberSubdomain.isBlank()) {
 			return this;
+		}
+		if (!IasTenantHostResolver.DNS_LABEL_PATTERN.matcher(subscriberSubdomain).matches()) {
+			throw new IllegalArgumentException(
+					"Subscriber subdomain must be a valid DNS label (lowercase alphanumeric and hyphen): %s"
+							.formatted(subscriberSubdomain));
 		}
 		String host = baseUri.getHost();
 		int dotIndex = host.indexOf('.');

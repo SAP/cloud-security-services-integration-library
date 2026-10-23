@@ -50,6 +50,14 @@ public final class CacheKeys {
   /** Namespace for OIDC discovery cache entries. */
   public static final String NAMESPACE_OIDC = "oidc";
 
+  /**
+   * Namespace for IAS tenant-host (subscriber subdomain) resolution entries.
+   *
+   * <p>The fingerprint is the subscriber {@code app_tid}, which is not a credential and benefits
+   * from a human-readable key for debugging.
+   */
+  public static final String NAMESPACE_TENANT_HOSTS = "tenant-hosts";
+
   private CacheKeys() {
     // utility class
   }

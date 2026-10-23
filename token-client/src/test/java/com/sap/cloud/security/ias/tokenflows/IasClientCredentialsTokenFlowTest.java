@@ -8,6 +8,7 @@ package com.sap.cloud.security.ias.tokenflows;
 import com.sap.cloud.security.ias.client.IasDefaultEndpoints;
 import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
 import com.sap.cloud.security.ias.client.IasTenantHostResolver;
+import com.sap.cloud.security.ias.client.IasTenantHostResolutionException;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
@@ -132,7 +133,7 @@ class IasClientCredentialsTokenFlowTest {
 	}
 
 	@Test
-	void execute_withTenantResolver_resolvesSubscriberEndpoint() throws TokenFlowException, OAuth2ServiceException {
+	void execute_withTenantResolver_resolvesSubscriberEndpoint() throws TokenFlowException, OAuth2ServiceException, IasTenantHostResolutionException {
 		cut = new IasClientCredentialsTokenFlow(mockTokenService, endpointsProvider, clientIdentity, mockTenantResolver);
 		when(mockTenantResolver.resolve("subscriber-tenant")).thenReturn("subscriber");
 		mockAccessToken();
@@ -145,17 +146,17 @@ class IasClientCredentialsTokenFlowTest {
 	}
 
 	@Test
-	void execute_withTenantResolver_resolverReturnsNull_usesProviderEndpoint()
-			throws TokenFlowException, OAuth2ServiceException {
+	void execute_withTenantResolver_resolverFailure_wrapsErrorCode() throws IasTenantHostResolutionException {
 		cut = new IasClientCredentialsTokenFlow(mockTokenService, endpointsProvider, clientIdentity, mockTenantResolver);
-		when(mockTenantResolver.resolve("unknown-tenant")).thenReturn(null);
-		mockAccessToken();
+		when(mockTenantResolver.resolve("bad-tenant")).thenThrow(new IasTenantHostResolutionException(
+				IasTenantHostResolutionException.ErrorCode.UPSTREAM_UNAVAILABLE, 424,
+				"Failed to resolve IAS subdomain for tenant 'bad-tenant' (HTTP 424)", null));
 
-		cut.appTid("unknown-tenant").execute();
-
-		verify(mockTokenService).retrieveAccessTokenViaClientCredentialsGrant(
-				eq(IAS_TOKEN_ENDPOINT),
-				any(), any(), any(), any(), anyBoolean());
+		assertThatThrownBy(() -> cut.appTid("bad-tenant").execute())
+				.isInstanceOf(TokenFlowException.class)
+				.hasMessageContaining("resolving IAS tenant host")
+				.hasMessageContaining("UPSTREAM_UNAVAILABLE")
+				.hasMessageContaining("bad-tenant");
 	}
 
 	@Test
@@ -171,10 +172,11 @@ class IasClientCredentialsTokenFlowTest {
 	}
 
 	@Test
-	void execute_tenantResolverException_throwsTokenFlowException() throws OAuth2ServiceException {
+	void execute_tenantResolverException_throwsTokenFlowException() throws OAuth2ServiceException, IasTenantHostResolutionException {
 		cut = new IasClientCredentialsTokenFlow(mockTokenService, endpointsProvider, clientIdentity, mockTenantResolver);
-		when(mockTenantResolver.resolve("bad-tenant"))
-				.thenThrow(new OAuth2ServiceException("HTTP 500"));
+		when(mockTenantResolver.resolve("bad-tenant")).thenThrow(new IasTenantHostResolutionException(
+				IasTenantHostResolutionException.ErrorCode.UPSTREAM_MISCONFIGURED, 500,
+				"Failed to resolve IAS subdomain for tenant 'bad-tenant' (HTTP 500)", null));
 
 		assertThatThrownBy(() -> cut.appTid("bad-tenant").execute())
 				.isInstanceOf(TokenFlowException.class)

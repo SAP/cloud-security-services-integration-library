@@ -8,6 +8,7 @@ package com.sap.cloud.security.ias.tokenflows;
 import com.sap.cloud.security.ias.client.IasDefaultEndpoints;
 import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
 import com.sap.cloud.security.ias.client.IasTenantHostResolver;
+import com.sap.cloud.security.ias.client.IasTenantHostResolutionException;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
@@ -140,7 +141,7 @@ class IasJwtBearerTokenFlowTest {
 	}
 
 	@Test
-	void execute_withTenantResolver_resolvesSubscriberEndpoint() throws TokenFlowException, OAuth2ServiceException {
+	void execute_withTenantResolver_resolvesSubscriberEndpoint() throws TokenFlowException, OAuth2ServiceException, IasTenantHostResolutionException {
 		cut = new IasJwtBearerTokenFlow(mockTokenService, endpointsProvider, clientIdentity, mockTenantResolver);
 		when(mockTenantResolver.resolve("sub-tenant")).thenReturn("subscriber");
 		mockAccessToken();

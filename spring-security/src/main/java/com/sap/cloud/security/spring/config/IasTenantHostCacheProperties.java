@@ -1,17 +1,13 @@
 /**
- * SPDX-FileCopyrightText: 2018-2023 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
+ * SPDX-FileCopyrightText: 2018-2026 SAP SE or an SAP affiliate company and Cloud Security Client Java contributors
  * <p>
  * SPDX-License-Identifier: Apache-2.0
  */
 package com.sap.cloud.security.spring.config;
 
-import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
-
 import java.time.Duration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 /**
  * Spring configuration for the IAS tenant host resolver cache.
@@ -25,21 +21,23 @@ import org.springframework.context.annotation.Configuration;
  *     security:
  *       ias:
  *         tenant-host-cache:
- *           enabled: true        # default: true
- *           ttl: 1h              # default: 1 hour (any java.time.Duration string)
- *           max-size: 1000       # default: 1000
+ *           enabled: true               # default: true
+ *           ttl: 15m                    # default: 15 minutes (any java.time.Duration string)
+ *           max-size: 1000              # default: 1000
+ *           local-information-only: false  # default: false
  * }</pre>
  *
- * Exposes a {@link IasTenantHostCacheConfiguration} bean that an
- * {@code IasTenantHostResolver} or auto-configuration can consume.
+ * <p>The {@code IasTokenFlowAutoConfiguration} exposes these values as an
+ * {@link com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration} bean
+ * ({@code @ConditionalOnMissingBean}); provide your own bean to override.
  */
-@Configuration
 @ConfigurationProperties("sap.spring.security.ias.tenant-host-cache")
 public class IasTenantHostCacheProperties {
 
 	private boolean enabled = true;
-	private Duration ttl = Duration.ofHours(1);
+	private Duration ttl = Duration.ofMinutes(15);
 	private long maxSize = 1000L;
+	private boolean localInformationOnly = false;
 
 	public boolean isEnabled() {
 		return enabled;
@@ -65,15 +63,11 @@ public class IasTenantHostCacheProperties {
 		this.maxSize = maxSize;
 	}
 
-	/**
-	 * Exposes the bound properties as an immutable {@link IasTenantHostCacheConfiguration}.
-	 */
-	@Bean
-	public IasTenantHostCacheConfiguration iasTenantHostCacheConfiguration() {
-		return IasTenantHostCacheConfiguration.builder()
-				.enabled(enabled)
-				.ttl(ttl)
-				.maxSize(maxSize)
-				.build();
+	public boolean isLocalInformationOnly() {
+		return localInformationOnly;
+	}
+
+	public void setLocalInformationOnly(final boolean localInformationOnly) {
+		this.localInformationOnly = localInformationOnly;
 	}
 }

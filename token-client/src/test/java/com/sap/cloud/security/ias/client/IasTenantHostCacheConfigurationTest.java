@@ -19,8 +19,9 @@ class IasTenantHostCacheConfigurationTest {
 		IasTenantHostCacheConfiguration config = IasTenantHostCacheConfiguration.defaultConfiguration();
 
 		assertThat(config.enabled()).isTrue();
-		assertThat(config.ttl()).isEqualTo(Duration.ofHours(1));
+		assertThat(config.ttl()).isEqualTo(Duration.ofMinutes(15));
 		assertThat(config.maxSize()).isEqualTo(1000L);
+		assertThat(config.localInformationOnly()).isFalse();
 	}
 
 	@Test
@@ -29,16 +30,18 @@ class IasTenantHostCacheConfigurationTest {
 				.enabled(false)
 				.ttl(Duration.ofMinutes(5))
 				.maxSize(42)
+				.localInformationOnly(true)
 				.build();
 
 		assertThat(config.enabled()).isFalse();
 		assertThat(config.ttl()).isEqualTo(Duration.ofMinutes(5));
 		assertThat(config.maxSize()).isEqualTo(42L);
+		assertThat(config.localInformationOnly()).isTrue();
 	}
 
 	@Test
 	void nullTtl_throws() {
-		assertThatThrownBy(() -> new IasTenantHostCacheConfiguration(true, null, 100))
+		assertThatThrownBy(() -> new IasTenantHostCacheConfiguration(true, null, 100, false))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("ttl");
 	}

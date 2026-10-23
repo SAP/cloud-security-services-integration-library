@@ -8,6 +8,7 @@ package com.sap.cloud.security.ias.tokenflows;
 import com.sap.cloud.security.ias.client.IasDefaultEndpoints;
 import com.sap.cloud.security.ias.client.IasTenantHostCacheConfiguration;
 import com.sap.cloud.security.ias.client.IasTenantHostResolver;
+import com.sap.cloud.security.ias.client.IasTenantHostResolutionException;
 
 import com.sap.cloud.security.config.ClientCredentials;
 import com.sap.cloud.security.config.ClientIdentity;
@@ -93,7 +94,7 @@ class IasRefreshTokenFlowTest {
 	}
 
 	@Test
-	void execute_withTenantResolver_resolvesSubscriberEndpoint() throws TokenFlowException, OAuth2ServiceException {
+	void execute_withTenantResolver_resolvesSubscriberEndpoint() throws TokenFlowException, OAuth2ServiceException, IasTenantHostResolutionException {
 		cut = new IasRefreshTokenFlow(mockTokenService, endpointsProvider, clientIdentity, mockTenantResolver);
 		when(mockTenantResolver.resolve("subscriber-tenant")).thenReturn("subscriber");
 		mockAccessToken();
@@ -127,10 +128,11 @@ class IasRefreshTokenFlowTest {
 	}
 
 	@Test
-	void execute_resolverThrows_isWrappedInTokenFlowException() throws OAuth2ServiceException {
+	void execute_resolverThrows_isWrappedInTokenFlowException() throws OAuth2ServiceException, IasTenantHostResolutionException {
 		cut = new IasRefreshTokenFlow(mockTokenService, endpointsProvider, clientIdentity, mockTenantResolver);
-		when(mockTenantResolver.resolve("subscriber-tenant"))
-				.thenThrow(new OAuth2ServiceException("BTP API failed"));
+		when(mockTenantResolver.resolve("subscriber-tenant")).thenThrow(new IasTenantHostResolutionException(
+				IasTenantHostResolutionException.ErrorCode.UPSTREAM_UNAVAILABLE, 424,
+				"Failed to resolve IAS subdomain for tenant 'subscriber-tenant' (HTTP 424)", null));
 
 		assertThatThrownBy(() -> cut.refreshToken(REFRESH_TOKEN).appTid("subscriber-tenant").execute())
 				.isInstanceOf(TokenFlowException.class)
