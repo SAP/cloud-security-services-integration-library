@@ -50,11 +50,17 @@ Additionally, it offers an API with the [XsuaaTokenFlows](./src/main/java/com/sa
    - [2.2. Client Credentials Token Flow](#client-credentials-token-flow)
    - [2.3. Refresh Token Flow](#refresh-token-flow)
    - [2.4. Password Token Flow](#password-token-flow)
-3. [Retry mechanism](#retry-mechanism)
-   - [3.1. Java EE applications](#java-ee-applications)
-   - [3.2. Spring Boot applications](#spring-boot-applications)
-4. [Troubleshooting](#troubleshooting)
-5. [Samples](#samples)
+3. [IAS Token Flows API usage](#ias-token-flows-api-usage)
+   - [Initialization](#initialization)
+   - [Client Credentials Token Flow](#client-credentials-token-flow-1)
+   - [JWT Bearer Token Flow](#jwt-bearer-token-flow-1)
+   - [Refresh Token Flow](#refresh-token-flow-1)
+   - [Multi-tenant: subscriber host resolution](#multi-tenant-subscriber-host-resolution)
+4. [Retry mechanism](#retry-mechanism)
+   - [4.1. Java EE applications](#java-ee-applications)
+   - [4.2. Spring Boot applications](#spring-boot-applications)
+5. [Troubleshooting](#troubleshooting)
+6. [Samples](#samples)
 
 ## Setup 
 For Spring Boot applications `TokenFlows` come autoconfigured with our `spring-security` or `spring-security-3` libraries and can be easily consumed by autowiring the `XsuaaTokenFlows` Bean. For more details see [1.1. Configuration for Spring Applications](#11-configuration-for-spring-applications) section.
@@ -415,6 +421,177 @@ OAuth2TokenResponse tokenResponse = tokenFlows.passwordTokenFlow()
                                     .disableCache(true)  // optionally disables token cache for request
                                     .execute();
 ```
+
+## IAS Token Flows API usage
+
+The `IasTokenFlows` class (package `com.sap.cloud.security.ias.tokenflows`) provides the same builder-pattern entry point as `XsuaaTokenFlows`, but for tokens issued by SAP Cloud Identity Service (IAS). Three flows are supported:
+
+- **Client Credentials Token Flow** (`grant_type=client_credentials`) — technical-user tokens, i.e. tokens *without* an end-user context. Useful both for plain service-to-service calls and for app-to-app calls when no user identity needs to flow.
+- **JWT Bearer Token Flow** (`grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer`) — exchanges an existing user token for a new token while preserving the user identity. Use this for app-to-app calls that need to carry the user context.
+- **Refresh Token Flow** (`grant_type=refresh_token`) — exchanges a refresh token previously issued by IAS for a new access token.
+
+### Initialization
+
+The simplest path is the `fromConfiguration(...)` factory, which derives the IAS endpoint, the client identity, and (if the binding allows it) the tenant host resolver from a single `OAuth2ServiceConfiguration`:
+
+```java
+OAuth2ServiceConfiguration iasConfig = Environments.getCurrent().getIasConfiguration();
+OAuth2TokenService tokenService = new DefaultOAuth2TokenService();
+
+IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(tokenService, iasConfig);
+```
+
+If you need full control (custom endpoints, custom client identity, no resolver), use the direct constructor:
+
+```java
+IasTokenFlows tokenFlows = new IasTokenFlows(
+        tokenService,
+        new IasDefaultEndpoints(iasConfig),
+        iasConfig.getClientIdentity());
+```
+
+### Client Credentials Token Flow
+
+Use this for technical-user tokens (no end-user context). Set `resource(...)` for an app-to-app call:
+
+```java
+OAuth2TokenResponse response = tokenFlows.clientCredentialsTokenFlow()
+        .resource("target-application")     // optional: target application identifier
+        .appTid(subscriberTenantId)         // optional: triggers subscriber host resolution
+        .tokenFormat("jwt")                 // optional
+        .disableCache(true)                 // optionally disables the token cache for this request
+        .execute();
+```
+
+### JWT Bearer Token Flow
+
+Use this to exchange an incoming user token for a new token while preserving the user identity (app-to-app with user context):
+
+```java
+OAuth2TokenResponse response = tokenFlows.jwtBearerTokenFlow()
+        .token(incomingJwt)                 // required: the user's access token
+        .resource("target-application")     // optional
+        .appTid(subscriberTenantId)         // optional: triggers subscriber host resolution
+        .disableCache(true)
+        .execute();
+```
+
+### Refresh Token Flow
+
+Use this to exchange a refresh token previously issued by IAS for a new access token:
+
+```java
+OAuth2TokenResponse response = tokenFlows.refreshTokenFlow()
+        .refreshToken(refreshTokenValue)    // required
+        .appTid(subscriberTenantId)         // optional: triggers subscriber host resolution
+        .disableCache(true)
+        .execute();
+```
+
+### Multi-tenant: subscriber host resolution
+
+In a multi-tenant IAS application the token endpoint host differs per subscriber subdomain. The `IasTokenFlows` API resolves that subdomain at runtime when:
+
+1. The IAS service binding carries a `btp-tenant-api` property (the BTP tenant API base URI). The `fromConfiguration(...)` factories pick this up automatically.
+2. A flow is invoked with an `appTid(...)` value. Flows without `appTid` keep using the provider host.
+
+Under the hood, `IasTenantHostResolver` calls `GET {btp-tenant-api}/sap/rest/tenantLoginInfo?id={appTid}` and extracts the subscriber subdomain from the returned `token_endpoint`. The configured IAS host is then rewritten to the subscriber host before the token request is sent.
+
+If the binding does not expose `btp-tenant-api`, no resolver is constructed and flows operate against the provider host unchanged. You can also wire a resolver explicitly:
+
+```java
+IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(
+        tokenService,
+        iasConfig,
+        URI.create("https://api.authentication.eu10.hana.ondemand.com"),
+        SecurityHttpClientProvider.createClient(iasConfig.getClientIdentity()));
+```
+
+#### Tenant host cache
+
+Resolved subdomains are cached via the `SecurityCache` SPI in the `tenant-hosts` namespace so repeated
+requests for the same subscriber do not flood the BTP tenant API. Pass a shared cache
+(e.g. the same distributed Redis-backed cache that backs your token requests) to share tenant host
+resolutions across application instances; when no cache is passed, an in-memory Caffeine cache is
+used. The cache entry TTL is applied per entry:
+
+- While the cached value is fresh (within the TTL): returned directly, **no** BTP call
+- After the TTL has elapsed: the next resolve hits the BTP API once and caches the fresh result
+- **Failures are never cached**, so a tenant move (old location stays callable for up to one week)
+  is picked up on the next resolution attempt
+
+Defaults: enabled, **15 minute** TTL, max 1000 entries. Configure via `IasTenantHostCacheConfiguration`:
+
+```java
+IasTenantHostCacheConfiguration cacheConfig = IasTenantHostCacheConfiguration.builder()
+        .enabled(true)
+        .ttl(Duration.ofMinutes(15))
+        .maxSize(500)
+        .localInformationOnly(false)   // read the host from the local table only, no IAS registry lookup
+        .build();
+
+IasTokenFlows tokenFlows = IasTokenFlows.fromConfiguration(tokenService, iasConfig, cacheConfig);
+```
+
+To disable caching entirely (every resolve hits the BTP API): `.enabled(false)`.
+
+The `localInformationOnly` flag maps to the BTP tenant API's `localInformationOnly` query parameter:
+the tenant host is read from the locally known information instead of performing a lookup in the IAS
+registry. Use it when the registry lookup must be avoided (e.g. restricted network paths); the value
+may be stale until the local information is refreshed.
+
+#### Error handling
+
+Every failed resolution is wrapped in an `IasTenantHostResolutionException` carrying a typed
+`ErrorCode` so you can decide on a retry strategy:
+
+| Error code | Source | Transient? |
+|---|---|---|
+| `INVALID_REQUEST` | HTTP 400, or a tenant ID that fails local format validation | no |
+| `AUTHENTICATION_FAILED` | HTTP 401/403 — the IAS service credentials were rejected | no |
+| `TENANT_NOT_FOUND` | HTTP 404 — the tenant is unknown to the BTP tenant API | no |
+| `UPSTREAM_UNAVAILABLE` | HTTP 424, other 5xx, transport error — IAS registry temporarily unreachable | **yes, retry** |
+| `UPSTREAM_MISCONFIGURED` | HTTP 500 — IAS registry misconfigured | no |
+| `TENANT_INACTIVE` | HTTP 200 with status `INACTIVE` | no (until the tenant is activated) |
+| `NOT_TRUSTED` | HTTP 200 with status `NOTRUST` — no trust between provider and subscriber tenant | no (until the trust is established) |
+| `TENANT_INFO_ERROR` | HTTP 200 with status `ERROR` (the API's `error_details` are propagated), a missing/unknown status, or a malformed response | no |
+
+Token flows wrap the exception into a `TokenFlowException` that includes the error code and the
+`app_tid`, so failures are supportable from the log line alone.
+
+#### Security
+
+- The BTP tenant API base URI must use HTTPS (enforced at construction time).
+- The tenant ID is format-validated (`[A-Za-z0-9_-]{1,128}`) before the request and URL-encoded.
+- The subdomain extracted from the response must be a valid DNS label; it is then only used to
+  replace the **first label** of the configured IAS host (the zone is pinned), so client credentials
+  are never sent to a host outside the configured IAS zone.
+- Resolved subdomains are cached under `tenant-hosts:<app_tid>` — the `app_tid` is a tenant
+  identifier, not a credential. Response bodies are not logged at warn level.
+- The resolver's HTTP client must be the one configured with your IAS service credentials (the
+  `fromConfiguration(...)` factories do this for you).
+
+#### Spring Boot configuration
+
+Spring Boot auto-configures `IasTokenFlows` from an IAS service binding
+(`sap.security.services.ias.*` / `sap.security.services.ias[0].*`) — disable with
+`sap.spring.security.ias.flows.auto=false`. When the binding carries the `btp-tenant-api` property,
+dynamic tenant host resolution is active. The cache is configured declaratively:
+
+```yaml
+sap:
+  spring:
+    security:
+      ias:
+        tenant-host-cache:
+          enabled: true         # default: true
+          ttl: 15m              # default: 15m (any java.time.Duration string)
+          max-size: 1000        # default: 1000
+          local-information-only: false  # default: false
+```
+
+If a `SecurityCache` bean is present (e.g. via `sap.security.cache.distributed.enabled=true`), it is
+shared with the tenant host cache; otherwise the in-memory default is used.
 
 ## Retry mechanism
 

@@ -1,6 +1,24 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.3.0
+
+- Add IAS Token Flows API in `token-client` (`com.sap.cloud.security.ias.tokenflows`)
+  - `IasTokenFlows` entry point with builder-style flows:
+    - `IasClientCredentialsTokenFlow` (`grant_type=client_credentials`) — technical-user tokens (no end-user context), also used for app-to-app calls without user identity
+    - `IasJwtBearerTokenFlow` (`grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer`) — exchanges an existing user token while preserving the user identity (app-to-app with user context)
+    - `IasRefreshTokenFlow` (`grant_type=refresh_token`) — exchanges a refresh token issued by IAS for a new access token
+  - `IasDefaultEndpoints` resolves the IAS token endpoint from an `OAuth2ServiceConfiguration`
+  - Convenience factories `IasTokenFlows.fromConfiguration(...)` wire up the flows from a service binding, including tenant host resolution when the binding exposes the `btp-tenant-api` property
+  - Spring Boot: `IasTokenFlows` is auto-configured from an IAS service binding (`sap.spring.security.ias.flows.auto`, enabled by default)
+- Add multi-tenant subscriber host resolution for IAS token flows
+  - `IasTenantHostResolver` queries the BTP tenant API (`/sap/rest/tenantLoginInfo?id={tenantId}`) to discover the subscriber's IAS subdomain and rewrites the configured IAS host before token requests; only the first host label is replaced, the zone of the configured IAS host is pinned
+  - Activated automatically when the IAS service binding carries a `btp-tenant-api` property; without that property the resolver is not constructed and flows continue to use the provider host
+  - Triggered when an `app_tid` is supplied on a flow (`clientCredentialsTokenFlow().appTid(...)` / `jwtBearerTokenFlow().appTid(...)`); flows without `app_tid` are unaffected
+  - Resolved subdomains are cached via the `SecurityCache` SPI in the `tenant-hosts` namespace (in-memory Caffeine by default, distributed backends supported); default TTL 15 minutes, failures are not cached
+  - Typed error codes for BTP tenant API failures (invalid request, upstream unavailable / misconfigured, tenant not found / inactive / not trusted, including the API's `status` and `error_details`) and an opt-in `localInformationOnly` mode that reads the host from the local table without an IAS registry lookup
+  - Cache governed by `IasTenantHostCacheConfiguration` (`enabled` / `ttl` / `maxSize` / `localInformationOnly`). Spring Boot consumers can bind via `sap.spring.security.ias.tenant-host-cache.*` (`IasTenantHostCacheProperties`)
+
 ## 4.2.0
 
 - Distributed cache support for the internal token, JWKS, and OIDC discovery caches
