@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 4.2.0
+## 4.3.0
 
 - Add IAS Token Flows API in `token-client` (`com.sap.cloud.security.ias.tokenflows`)
   - `IasTokenFlows` entry point with builder-style flows:
@@ -18,6 +18,9 @@ All notable changes to this project will be documented in this file.
   - Resolved subdomains are cached via the `SecurityCache` SPI in the `tenant-hosts` namespace (in-memory Caffeine by default, distributed backends supported); default TTL 15 minutes, failures are not cached
   - Typed error codes for BTP tenant API failures (invalid request, upstream unavailable / misconfigured, tenant not found / inactive / not trusted, including the API's `status` and `error_details`) and an opt-in `localInformationOnly` mode that reads the host from the local table without an IAS registry lookup
   - Cache governed by `IasTenantHostCacheConfiguration` (`enabled` / `ttl` / `maxSize` / `localInformationOnly`). Spring Boot consumers can bind via `sap.spring.security.ias.tenant-host-cache.*` (`IasTenantHostCacheProperties`)
+
+## 4.2.0
+
 - Distributed cache support for the internal token, JWKS, and OIDC discovery caches
   - The library's three internal caches previously lived only in the JVM's memory: after every restart or rolling deploy every pod re-fetched signing keys and re-issued its own tokens from XSUAA / IAS, causing cold-start latency and thundering-herd traffic against the identity services
   - New `SecurityCache<String,String>` SPI (`java-api`) behind all three caches; the in-memory Caffeine implementation remains the default, so existing applications see no behavior change
