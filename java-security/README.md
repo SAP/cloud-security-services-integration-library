@@ -71,7 +71,7 @@ Since it requires the Tomcat 10 runtime, it needs to be deployed using the [SAP 
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security</artifactId>
-    <version>4.2.0</version>
+    <version>4.3.0</version>
 </dependency>
 ```
 :bulb: No additional HTTP client dependency is needed — the library uses the Java 11 `HttpClient` by default (see [token-client README](../token-client/README.md) for custom HTTP client integrations).
