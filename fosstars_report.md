@@ -22,8 +22,6 @@ It used the following sub-scores:
             
         1.  **[OWASP Dependency Check score](#owasp-dependency-check-score)**: **0.0** (weight is 1.0)
             
-    1.  **[Fuzzing](#fuzzing)**: **N/A** (weight is 1.0)
-        
     1.  **[Static analysis](#static-analysis)**: **7.41** (weight is 1.0)
         1.  **[How a project uses CodeQL](#how-a-project-uses-codeql)**: **10.0** (weight is 1.0)
             
@@ -37,6 +35,8 @@ It used the following sub-scores:
             
         1.  **[How a project uses MyPy](#how-a-project-uses-mypy)**: **N/A** (weight is 0.2)
             
+    1.  **[Fuzzing](#fuzzing)**: **N/A** (weight is 1.0)
+        
     1.  **[Memory-safety testing](#memory-safety-testing)**: **N/A** (weight is 1.0)
         
     1.  **[nohttp tool](#nohttp-tool)**: **0.0** (weight is 0.2)
@@ -52,8 +52,6 @@ It used the following sub-scores:
                 
             1.  **[OWASP Dependency Check score](#owasp-dependency-check-score)**: **0.0** (weight is 1.0)
                 
-        1.  **[Fuzzing](#fuzzing)**: **N/A** (weight is 1.0)
-            
         1.  **[Static analysis](#static-analysis)**: **7.41** (weight is 1.0)
             1.  **[How a project uses CodeQL](#how-a-project-uses-codeql)**: **10.0** (weight is 1.0)
                 
@@ -67,6 +65,8 @@ It used the following sub-scores:
                 
             1.  **[How a project uses MyPy](#how-a-project-uses-mypy)**: **N/A** (weight is 0.2)
                 
+        1.  **[Fuzzing](#fuzzing)**: **N/A** (weight is 1.0)
+            
         1.  **[Memory-safety testing](#memory-safety-testing)**: **N/A** (weight is 1.0)
             
         1.  **[nohttp tool](#nohttp-tool)**: **0.0** (weight is 0.2)
@@ -154,8 +154,6 @@ This sub-score is based on the following sub-scores:
         
     1.  **[OWASP Dependency Check score](#owasp-dependency-check-score)**: **0.0** (weight is 1.0)
         
-1.  **[Fuzzing](#fuzzing)**: **N/A** (weight is 1.0)
-    
 1.  **[Static analysis](#static-analysis)**: **7.41** (weight is 1.0)
     1.  **[How a project uses CodeQL](#how-a-project-uses-codeql)**: **10.0** (weight is 1.0)
         
@@ -169,6 +167,8 @@ This sub-score is based on the following sub-scores:
         
     1.  **[How a project uses MyPy](#how-a-project-uses-mypy)**: **N/A** (weight is 0.2)
         
+1.  **[Fuzzing](#fuzzing)**: **N/A** (weight is 1.0)
+    
 1.  **[Memory-safety testing](#memory-safety-testing)**: **N/A** (weight is 1.0)
     
 1.  **[nohttp tool](#nohttp-tool)**: **0.0** (weight is 0.2)
@@ -227,8 +227,6 @@ This sub-score is based on the following sub-score:
             
         1.  **[OWASP Dependency Check score](#owasp-dependency-check-score)**: **0.0** (weight is 1.0)
             
-    1.  **[Fuzzing](#fuzzing)**: **N/A** (weight is 1.0)
-        
     1.  **[Static analysis](#static-analysis)**: **7.41** (weight is 1.0)
         1.  **[How a project uses CodeQL](#how-a-project-uses-codeql)**: **10.0** (weight is 1.0)
             
@@ -242,6 +240,8 @@ This sub-score is based on the following sub-score:
             
         1.  **[How a project uses MyPy](#how-a-project-uses-mypy)**: **N/A** (weight is 0.2)
             
+    1.  **[Fuzzing](#fuzzing)**: **N/A** (weight is 1.0)
+        
     1.  **[Memory-safety testing](#memory-safety-testing)**: **N/A** (weight is 1.0)
         
     1.  **[nohttp tool](#nohttp-tool)**: **0.0** (weight is 0.2)
@@ -356,22 +356,6 @@ This sub-score is based on the following sub-scores:
     
 
 
-### Fuzzing
-
-Score: **N/A**, confidence is 10.0 (max), weight is 1.0 (high)
-
-
-
-
-
-This sub-score is based on 2 features:
-
-
-
-1.  **Is it included to OSS-Fuzz?** No
-1.  **Programming languages:** JAVA, OTHER
-
-
 ### Static analysis
 
 Score: **7.41**, confidence is 10.0 (max), weight is 1.0 (high)
@@ -396,6 +380,22 @@ This sub-score is based on the following sub-scores:
     
 1.  **[How a project uses MyPy](#how-a-project-uses-mypy)**: **N/A** (weight is 0.2)
     
+
+
+### Fuzzing
+
+Score: **N/A**, confidence is 10.0 (max), weight is 1.0 (high)
+
+
+
+
+
+This sub-score is based on 2 features:
+
+
+
+1.  **Is it included to OSS-Fuzz?** No
+1.  **Programming languages:** JAVA, OTHER
 
 
 ### Memory-safety testing
