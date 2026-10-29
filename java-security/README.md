@@ -2,22 +2,24 @@
 
 This library provides a Token Validation utility for Jakarta EE applications. Tokens issued by SAP BTP Identity service and Xsuaa services are supported. Moreover, Identity tokens issued by multiple tenants can also be validated.
 
+Since version 4.3.0 this module builds on [`java-security-core`](../java-security-core), which contains the token model and all JWT validators. If you need token validation **without** `jakarta.servlet` or Spring (e.g. `javax.servlet` / Tomcat 9 runtimes or non-servlet code), use [`java-security-core`](../java-security-core) directly — including for [building your own Authenticator](../java-security-core/README.md#building-your-own-authenticator).
+
 To be able to validate tokens it performs the following tasks:
 - Loads Identity Service Configuration from `VCAP_SERVICES` in Cloud Foundry or from secrets in Kubernetes environment into the [`OAuth2ServiceConfiguration`](/java-api/src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java). The [`Environments`](/env/src/main/java/com/sap/cloud/security/config/Environments.java) serves as central entry point to get access to the `OAuth2ServiceConfiguration`.
 - Decodes and parses encoded JSON Web Tokens into [`Token`](/java-api/src/main/java/com/sap/cloud/security/token/Token.java) object which provides convenient getter methods to access token header parameters and claims. `Token` is a Java implementation of JSON Web Token (JWT) - [RFC 7519](https://tools.ietf.org/html/rfc7519). 
 - Validates the decoded token. 
-  - The [`JwtValidatorBuilder`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java) gathers all required Jwt validators for specified security service - `Xsuaa` or `Identity`.
+  - The [`JwtValidatorBuilder`](../java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java) gathers all required Jwt validators for specified security service - `Xsuaa` or `Identity`.
   - The [`TokenAuthenticator`](/java-api/src/main/java/com/sap/cloud/security/servlet/TokenAuthenticator.java) interface serves as a validation entry point for tokens contained in the authorization header of HTTP requests and has 2 implementations provided:
     [IasAuthenticator](src/main/java/com/sap/cloud/security/servlet/IasTokenAuthenticator.java) and [XsuaaAuthenticator](src/main/java/com/sap/cloud/security/servlet/XsuaaTokenAuthenticator.java). These implementations initialize the `JwtValidatorBuilder` for the corresponding security service which returns `CombiningValidator` and then the Token validations is delegated to the Jwt Validators from the `CombiningValidator`:
       - [`JwtTimestampValidator`](
-        src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java) - checks if the JWT is used before the `exp` (expiration) time and if it is used after the `nbf` (not before) time
-      - [`JwtIssuerValidator`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java)(Identity service only) - validates if the JWT is issued by a trustworthy identity service
-      - [`XsuaaJkuValidator`](
-        src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJkuValidator.java)(Xsuaa only) - validates if the JWT provides a valid `jku` token header parameter that points to a JWKS url from a trustworthy identity service. This `jku` needs to match the `uaadomain` from service configuration.
+        ../java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/JwtTimestampValidator.java) - checks if the JWT is used before the `exp` (expiration) time and if it is used after the `nbf` (not before) time
+      - [`JwtIssuerValidator`](../java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/JwtIssuerValidator.java)(Identity service only) - validates if the JWT is issued by a trustworthy identity service
+      - [`XsuaaJwtSignatureValidator`](
+        ../java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/XsuaaJwtSignatureValidator.java)(Xsuaa only) - resolves the JWKS url from the `uaadomain` of the service configuration (and the token's `zid` claim) and validates the JWT signature against the keys fetched from there
       - [`JwtAudienceValidator`](
-        src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java) - checks if the JWT is intended for the OAuth2 client of this application. The `aud` (audience) claim identifies the recipients the JWT is issued for.
+        ../java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java) - checks if the JWT is intended for the OAuth2 client of this application. The `aud` (audience) claim identifies the recipients the JWT is issued for.
       - [`JwtSignatureValidator`](
-        src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java) -  checks if the JWT is signed with the public key of a trustworthy identity service. With that it also makes sure that the payload and the header of the JWT is unchanged.
+        ../java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/JwtSignatureValidator.java) -  checks if the JWT is signed with the public key of a trustworthy identity service. With that it also makes sure that the payload and the header of the JWT is unchanged.
 - Stores the decoded and validated token in thread-local cache [`SecurityContext`](/java-api/src/main/java/com/sap/cloud/security/token/SecurityContext.java).
 
 :bulb: This library is also integrated in the [SAP Java Buildpack](https://help.sap.com/docs/btp/sap-business-technology-platform/developing-java-in-cloud-foundry-environment).
@@ -40,7 +42,7 @@ Since it requires the Tomcat 10 runtime, it needs to be deployed using the [SAP 
 
 ## Requirements
 - Java 17
-- [Apache HttpClient 4.5](https://hc.apache.org/httpcomponents-client-4.5.x/index.html)
+- An HTTP client for JWKS retrieval — by default the Java 11 `HttpClient` (no additional dependency needed); custom integrations (e.g. Apache HttpClient) are supported via `token-client`, see [token-client README](../token-client/README.md)
 - Tomcat 10 or any other servlet that implements specification of the Jakarta EE platform
 
 ## Table of Contents
@@ -71,11 +73,8 @@ Since it requires the Tomcat 10 runtime, it needs to be deployed using the [SAP 
     <artifactId>java-security</artifactId>
     <version>4.2.0</version>
 </dependency>
-<dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpclient</artifactId>
-</dependency>
 ```
+:bulb: No additional HTTP client dependency is needed — the library uses the Java 11 `HttpClient` by default (see [token-client README](../token-client/README.md) for custom HTTP client integrations).
 
 ## Usage
 ### `TokenAuthenticator` usage
@@ -87,13 +86,13 @@ The library provides 3 default implementations of `TokenAuthenticator` interface
 
 `XsuaaTokenAuthenticator`, `HybridTokenAuthenticator` and `IasTokenAuthenticator` takes care of
 * `OAuth2ServiceConfiguration` loading
-* `org.apache.http.HttpClient` initialization (it's required for signature validation)
-* Jwt Validator setup with help of [`JwtValidatorBuilder`](src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java)
+* HTTP client initialization (required for JWKS retrieval)
+* Jwt Validator setup with help of [`JwtValidatorBuilder`](../java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/JwtValidatorBuilder.java)
 
 Once `TokenAuthenticator#validateRequest(ServletRequest, ServletResponse)` is called, it'll extract the token from the incoming `ServletRequest` and delegate it to the default Jwt validators for corresponding security service.
 
 
->:bulb: In case the default authenticators does not fit to your needs it is possible to customize them
+>:bulb: In case the default authenticators does not fit to your needs it is possible to customize them. See [`JwtValidatorBuilder` usage](#jwtvalidatorbuilder-usage) below, or [build your own Authenticator](../java-security-core/README.md#building-your-own-authenticator) on top of the validators in `java-security-core`.
 
 ![](images/xsuaaFilter.png)
 
@@ -144,7 +143,7 @@ The `HybridTokenAuthenticator` is designed for hybrid scenarios where an applica
   `OAuth2ServiceConfiguration`](java-api/src/main/java/com/sap/cloud/security/config/OAuth2ServiceConfiguration.java))
 - HTTP client for token exchange (`SecurityHttpClient` via [
   `SecurityHttpClientProvider`](token-client/src/main/java/com/sap/cloud/security/client/SecurityHttpClientProvider.java))
-- Chosen [`TokenExchangeMode`](java-security/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)
+- Chosen [`TokenExchangeMode`](../java-security-core/src/main/java/com/sap/cloud/security/token/TokenExchangeMode.java)
 
 **Configuration Example**:
 
@@ -295,7 +294,7 @@ CacheConfiguration customCacheConfiguration = new CacheConfiguration(){
 ### `ValidationListener` usage
 You can add validation listener to the validators, which will be invoked whenever a token is validated. 
 This can be useful for tasks such as logging to an audit log service. To receive callbacks for successful or failed validations, 
-the validation listener must implement the [ValidationListener](src/main/java/com/sap/cloud/security/token/validation/ValidationListener.java) interface.
+the validation listener must implement the [ValidationListener](../java-security-core/src/main/java/com/sap/cloud/security/token/validation/ValidationListener.java) interface.
 
 To use validation listeners with `XsuaaTokenAuthenticator` or `IasTokenAuthenticator`, follow the example below:
 
@@ -314,7 +313,7 @@ CombiningValidator<Token> validators = JwtValidatorBuilder
 
 ### ProofOfPossession validation
 #### X509 certificate thumbprint `X5t` validation
-[JwtX5tValidator](src/main/java/com/sap/cloud/security/token/validation/validators/JwtX5tValidator.java) offers JWT Certificate Thumbprint `X5t` confirmation method's validation. See specification [here](https://tools.ietf.org/html/rfc8705#section-3.1).
+[JwtX5tValidator](../java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/JwtX5tValidator.java) offers JWT Certificate Thumbprint `X5t` confirmation method's validation. See specification [here](https://tools.ietf.org/html/rfc8705#section-3.1).
 This validator is not part of the default `CombiningValidator`, it needs to be added manually to `JwtValidatorBuilder` to use it.
 It can be done in the following manner:
 ```java
@@ -379,7 +378,7 @@ You can use [java-security-test](/java-security-test) library for testing the se
 
 ## Caches (since 4.2.0)
 
-This module owns two caches, both going through the `com.sap.cloud.security.cache.SecurityCache` SPI so you can point them at a distributed store.
+The token validation layer (in [`java-security-core`](../java-security-core) since 4.3.0) owns two caches, both going through the `com.sap.cloud.security.cache.SecurityCache` SPI so you can point them at a distributed store.
 
 By default both caches are **in-memory (Caffeine)** — the right choice for small services and local development. For larger deployments with many pods or frequent rolling deploys, we recommend a **distributed cache** (e.g. Redis) so a restarting pod reuses JWKS and OIDC entries already fetched by its peers. See the [main README §2.5](../README.md#25-distributed-caching-since-420) for the full recommendation and the "when do I need it?" criteria.
 

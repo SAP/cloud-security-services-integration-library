@@ -51,7 +51,7 @@ Furthermore, make sure that you do not refer to any other SAP-internal security 
 There is no need to configure `SAP_JWT_TRUST_ACL` within your deployment descriptor such as `manifest.yml`. 
 Instead the Xsuaa service instance adds audiences to the issued JSON Web Token (JWT) as part of the `aud` claim.
 
-Whether the token is issued for your application or not is now validated by the [`JwtAudienceValidator`](/java-security/src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java).
+Whether the token is issued for your application or not is now validated by the [`JwtAudienceValidator`](/java-security-core/src/main/java/com/sap/cloud/security/token/validation/validators/JwtAudienceValidator.java).
 
 This comes with a change regarding scopes. For a business application A that wants to call an application B, it's now mandatory that the application B grants at least one scope to the calling business application A. You can grant scopes with the `xs-security.json` file. For additional information, refer to the [Application Security Descriptor Configuration Syntax](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html), specifically the sections [referencing the application](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html#loio517895a9612241259d6941dbf9ad81cb__section_fm2_wsk_pdb) and [authorities](https://help.sap.com/viewer/65de2977205c403bbc107264b8eccf4b/Cloud/en-US/517895a9612241259d6941dbf9ad81cb.html#loio517895a9612241259d6941dbf9ad81cb__section_d1m_1nq_zy). 
 
