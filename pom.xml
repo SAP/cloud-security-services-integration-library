@@ -468,6 +468,7 @@
 						<extensions>true</extensions>
 						<configuration>
 							<publishingServerId>central</publishingServerId>
+							<deploymentName>cloud-security-services-integration-library-${project.version}</deploymentName>
 						</configuration>
 					</plugin>
 				</plugins>
