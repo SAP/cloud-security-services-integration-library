@@ -41,7 +41,7 @@ their fully qualified names and stay on your classpath transitively via `java-se
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
     <artifactId>java-security-core</artifactId>
-    <version>4.2.0</version>
+    <version>4.3.0</version>
 </dependency>
 ```
 

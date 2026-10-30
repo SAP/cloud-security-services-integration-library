@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>com.sap.cloud.security.xsuaa</groupId>
 		<artifactId>parent</artifactId>
-		<version>4.2.0</version>
+		<version>4.3.0</version>
 	</parent>
 
 	<groupId>com.sap.cloud.security</groupId>
@@ -59,6 +59,7 @@
 		<java.version>17</java.version>
 		<!-- Override parent's Spring Boot 4.x with Spring Boot 3.x for legacy compatibility -->
 		<spring.boot.version>${legacy3.spring.boot.version}</spring.boot.version>
+		<spring.core.version>${legacy3.spring.core.version}</spring.core.version>
 		<spring.security.version>${legacy3.spring.security.version}</spring.security.version>
 		<spring.security.oauth2.version>${legacy3.spring.security.oauth2.version}</spring.security.oauth2.version>
 	</properties>

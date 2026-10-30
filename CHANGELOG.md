@@ -8,6 +8,15 @@ All notable changes to this project will be documented in this file.
   - `java-security-core` has no `jakarta.servlet` and no Spring dependencies, so token validation can be used from javax-based runtimes (e.g. Tomcat 9) without any Jakarta API on the classpath
   - `java-security` keeps the servlet-based authenticators (`HybridTokenAuthenticator`, `IasTokenAuthenticator`, `XsuaaTokenAuthenticator`) and the Spring security context adapter, and now depends on `java-security-core`
   - No API or behavior change for existing `java-security` consumers: all moved classes keep their fully qualified names and stay on the classpath transitively (minor release)
+- Keep the Spring Boot 3 starter's transitive Spring Framework dependencies on 6.x by overriding the parent Framework version
+- Update dependencies:
+  - Spring Boot: 4.1.1 → 4.1.2
+  - Spring Framework: 7.0.9 → 7.0.10
+  - Spring Security: 7.1.1 → 7.1.2
+  - Reactor (core & test): 3.8.7 → 3.8.8
+  - Maven Surefire Plugin: 3.6.0 → 3.6.1
+  - JaCoCo: 0.8.15 → 0.8.16
+  - Spring Boot 3 / Spring Framework 6 / Spring Security 6 compatibility versions remain unchanged for the legacy modules
 
 ## 4.2.0
 
@@ -1696,4 +1705,3 @@ new TokenBrokerResolver(
 ## 1.0.0
 
 * Initial version of the api for SAP Java Buildpack
-
