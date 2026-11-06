@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestOperations;
 
 public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
@@ -98,11 +99,31 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
           .withResponseBody(responseEntity.getBody())
           .build();
     } catch (final HttpStatusCodeException ex) {
+      final int statusCode = ex.getStatusCode().value();
+      if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
+        LOGGER.warn("Request failed with status {} but is retryable. Retrying...", statusCode);
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
+      }
       throw OAuth2ServiceException.builder("Error retrieving token keys.")
           .withUri(tokenKeysEndpointUri)
           .withRequestHeaders(getHeadersAsStringArray(headers))
-          .withStatusCode(ex.getStatusCode().value())
+          .withStatusCode(statusCode)
           .withResponseBody(ex.getResponseBodyAsString())
+          .build();
+    } catch (final ResourceAccessException ex) {
+      if (attemptsLeft > 0) {
+        LOGGER.warn(
+            "Request to {} failed with a network error ({}) but is retryable. Retrying...",
+            LogSanitizer.sanitize(tokenKeysEndpointUri),
+            ex.toString());
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
+      }
+      throw OAuth2ServiceException.builder("Error retrieving token keys.")
+          .withUri(tokenKeysEndpointUri)
+          .withRequestHeaders(getHeadersAsStringArray(headers))
+          .withResponseBody(ex.getMessage())
           .build();
     } catch (final Exception e) {
       if (e instanceof final OAuth2ServiceException oAuth2ServiceException) {

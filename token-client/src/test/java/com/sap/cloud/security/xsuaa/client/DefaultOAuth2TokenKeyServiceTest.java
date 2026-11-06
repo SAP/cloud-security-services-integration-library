@@ -269,6 +269,46 @@ public class DefaultOAuth2TokenKeyServiceTest {
     }
   }
 
+  @Test
+  public void retrieveTokenKeys_networkErrorThenSuccess_executesRetry() throws IOException {
+    when(httpClient.execute(any(SecurityHttpRequest.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE))
+        .thenReturn(HttpClientTestFactory.createHttpResponse(jsonWebKeysAsString, 200));
+    setConfigurationValues(1, Set.of(500));
+
+    final String result = cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
+
+    assertThat(result).isNotEmpty();
+    Mockito.verify(httpClient, times(2)).execute(any(SecurityHttpRequest.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_networkError_retriesUntilMaxAttempts_thenThrows()
+      throws IOException {
+    when(httpClient.execute(any(SecurityHttpRequest.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE));
+    setConfigurationValues(2, Set.of(500));
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Error retrieving token keys");
+    Mockito.verify(httpClient, times(3)).execute(any(SecurityHttpRequest.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_networkError_retryDisabled_executesNoRetry() throws IOException {
+    when(httpClient.execute(any(SecurityHttpRequest.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE));
+    DefaultTokenClientConfiguration.getInstance().setRetryEnabled(false);
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Error retrieving token keys");
+    Mockito.verify(httpClient, times(1)).execute(any(SecurityHttpRequest.class));
+  }
+
   private void mockResponse(final String responseAsString, final Integer... statusCodes) {
     final List<SecurityHttpResponse> responses =
         Arrays.stream(statusCodes)

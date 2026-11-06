@@ -106,21 +106,41 @@ public class XsuaaOAuth2TokenService extends AbstractOAuth2TokenService {
           .withResponseBody(accessTokenMap != null ? accessTokenMap.toString() : null)
           .build();
     } catch (final HttpClientErrorException clientEx) {
+      final int statusCode = clientEx.getStatusCode().value();
+      if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
+        LOGGER.warn("Request failed with status {} but is retryable. Retrying...", statusCode);
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(tokenEndpointUri, headers, parameters, attemptsLeft - 1);
+      }
       throw OAuth2ServiceException.builder(
               "Client error retrieving JWT token. Call to XSUAA was not successful!")
           .withUri(requestUri)
           .withRequestHeaders(getHeadersAsStringArray(springHeaders))
-          .withStatusCode(clientEx.getStatusCode().value())
+          .withStatusCode(statusCode)
           .withResponseBody(clientEx.getResponseBodyAsString())
           .build();
     } catch (final HttpServerErrorException serverEx) {
+      final int statusCode = serverEx.getStatusCode().value();
+      if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
+        LOGGER.warn("Request failed with status {} but is retryable. Retrying...", statusCode);
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(tokenEndpointUri, headers, parameters, attemptsLeft - 1);
+      }
       throw OAuth2ServiceException.builder("Server error while obtaining access token from XSUAA!")
           .withUri(requestUri)
           .withRequestHeaders(getHeadersAsStringArray(springHeaders))
-          .withStatusCode(serverEx.getStatusCode().value())
+          .withStatusCode(statusCode)
           .withResponseBody(serverEx.getResponseBodyAsString())
           .build();
     } catch (final ResourceAccessException resourceEx) {
+      if (attemptsLeft > 0) {
+        LOGGER.warn(
+            "Request to {} failed with a network error ({}) but is retryable. Retrying...",
+            requestUri,
+            resourceEx.toString());
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(tokenEndpointUri, headers, parameters, attemptsLeft - 1);
+      }
       throw OAuth2ServiceException.builder(
               "RestClient isn't configured properly - Error while obtaining access token from XSUAA!")
           .withUri(requestUri)
