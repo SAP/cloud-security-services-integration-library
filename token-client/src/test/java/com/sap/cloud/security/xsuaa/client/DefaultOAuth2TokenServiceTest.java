@@ -290,6 +290,46 @@ public class DefaultOAuth2TokenServiceTest {
     verify(mockHttpClient, times(2)).execute(any(SecurityHttpRequest.class));
   }
 
+  @Test
+  public void requestAccessToken_networkErrorThenSuccess_executesRetry() throws IOException {
+    when(mockHttpClient.execute(any(SecurityHttpRequest.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE))
+        .thenReturn(HttpClientTestFactory.createHttpResponse(VALID_JSON_RESPONSE, 200));
+    setConfigurationValues(1, Set.of(500));
+
+    final OAuth2TokenResponse result = requestAccessToken(TOKEN_URI, emptyMap());
+
+    assertThat(result.getAccessToken()).isEqualTo(ACCESS_TOKEN);
+    verify(mockHttpClient, times(2)).execute(any(SecurityHttpRequest.class));
+  }
+
+  @Test
+  public void requestAccessToken_networkError_retriesUntilMaxAttempts_thenThrows()
+      throws IOException {
+    when(mockHttpClient.execute(any(SecurityHttpRequest.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE));
+    setConfigurationValues(2, Set.of(500));
+
+    assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, emptyMap()))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Error requesting access token!");
+    verify(mockHttpClient, times(3)).execute(any(SecurityHttpRequest.class));
+  }
+
+  @Test
+  public void requestAccessToken_networkError_retryDisabled_executesNoRetry() throws IOException {
+    when(mockHttpClient.execute(any(SecurityHttpRequest.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE));
+    DefaultTokenClientConfiguration.getInstance().setRetryEnabled(false);
+
+    assertThatThrownBy(() -> requestAccessToken(TOKEN_URI, emptyMap()))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Error requesting access token!");
+    verify(mockHttpClient, times(1)).execute(any(SecurityHttpRequest.class));
+  }
+
   private OAuth2TokenResponse requestAccessToken(
       final URI uri, final Map<String, String> optionalParameters) throws OAuth2ServiceException {
     final HttpHeaders withoutAuthorizationHeader =

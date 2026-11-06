@@ -35,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestOperations;
 
 public class SpringOidcConfigurationServiceTest {
@@ -223,6 +224,35 @@ public class SpringOidcConfigurationServiceTest {
         .contains("Thread.sleep has been interrupted. Retry starts now.");
     logger.detachAppender(listAppender);
     Mockito.verify(restOperationsMock, times(2))
+        .exchange(eq(CONFIG_ENDPOINT_URI), eq(HttpMethod.GET), any(), eq(String.class));
+  }
+
+  @Test
+  public void retrieveEndpoints_networkErrorThenSuccess_executesRetry()
+      throws OAuth2ServiceException {
+    when(restOperationsMock.exchange(any(URI.class), eq(HttpMethod.GET), any(), eq(String.class)))
+        .thenThrow(new ResourceAccessException("Connection reset"))
+        .thenReturn(new ResponseEntity<>(jsonOidcConfiguration, HttpStatusCode.valueOf(200)));
+    setConfigurationValues(1, Set.of(500));
+
+    final OAuth2ServiceEndpointsProvider result = retrieveEndpoints();
+
+    assertThat(result).isNotNull();
+    Mockito.verify(restOperationsMock, times(2))
+        .exchange(eq(CONFIG_ENDPOINT_URI), eq(HttpMethod.GET), any(), eq(String.class));
+  }
+
+  @Test
+  public void retrieveEndpoints_networkError_retriesUntilMaxAttempts_thenThrows() {
+    when(restOperationsMock.exchange(any(URI.class), eq(HttpMethod.GET), any(), eq(String.class)))
+        .thenThrow(new ResourceAccessException("Connection reset"));
+    setConfigurationValues(2, Set.of(500));
+
+    assertThatThrownBy(this::retrieveEndpoints)
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining("Connection reset")
+        .hasMessageContaining("Error retrieving configured oidc endpoints");
+    Mockito.verify(restOperationsMock, times(3))
         .exchange(eq(CONFIG_ENDPOINT_URI), eq(HttpMethod.GET), any(), eq(String.class));
   }
 

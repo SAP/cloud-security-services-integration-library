@@ -124,13 +124,20 @@ public class DefaultOAuth2TokenKeyService implements OAuth2TokenKeyService {
     } catch (final IOException e) {
       if (e instanceof final OAuth2ServiceException oAuth2Exception) {
         throw oAuth2Exception;
-      } else {
-        throw OAuth2ServiceException.builder("Error retrieving token keys: " + e.getMessage())
-            .withUri(tokenKeysEndpointUri)
-            .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
-            .withResponseBody(e.getMessage())
-            .build();
       }
+      if (attemptsLeft > 0) {
+        LOGGER.warn(
+            "Request to {} failed with a network error ({}) but is retryable. Retrying...",
+            LogSanitizer.sanitize(tokenKeysEndpointUri),
+            e.toString());
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
+      }
+      throw OAuth2ServiceException.builder("Error retrieving token keys: " + e.getMessage())
+          .withUri(tokenKeysEndpointUri)
+          .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
+          .withResponseBody(e.getMessage())
+          .build();
     }
   }
 

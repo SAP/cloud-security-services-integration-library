@@ -164,13 +164,20 @@ public class DefaultOAuth2TokenService extends AbstractOAuth2TokenService {
     } catch (final IOException e) {
       if (e instanceof final OAuth2ServiceException oAuth2Exception) {
         throw oAuth2Exception;
-      } else {
-        throw OAuth2ServiceException.builder("Error requesting access token!")
-            .withUri(tokenUri)
-            .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
-            .withResponseBody(e.getMessage())
-            .build();
       }
+      if (attemptsLeft > 0) {
+        LOGGER.warn(
+            "Request to {} failed with a network error ({}) but is retryable. Retrying...",
+            LogSanitizer.sanitize(tokenUri),
+            e.toString());
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(tokenUri, headers, parameters, attemptsLeft - 1);
+      }
+      throw OAuth2ServiceException.builder("Error requesting access token!")
+          .withUri(tokenUri)
+          .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
+          .withResponseBody(e.getMessage())
+          .build();
     }
   }
 

@@ -250,6 +250,33 @@ public class DefaultOidcConfigurationServiceTest {
         .execute(any(SecurityHttpRequest.class));
   }
 
+  @Test
+  public void retrieveEndpoints_networkErrorThenSuccess_executesRetry() throws IOException {
+    when(httpClientMock.execute(any(SecurityHttpRequest.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE))
+        .thenReturn(HttpClientTestFactory.createHttpResponse(jsonOidcConfiguration, 200));
+    setConfigurationValues(1, Set.of(500));
+
+    final OAuth2ServiceEndpointsProvider result = retrieveEndpoints();
+
+    assertThat(result).isNotNull();
+    Mockito.verify(httpClientMock, times(2)).execute(any(SecurityHttpRequest.class));
+  }
+
+  @Test
+  public void retrieveEndpoints_networkError_retriesUntilMaxAttempts_thenThrows()
+      throws IOException {
+    when(httpClientMock.execute(any(SecurityHttpRequest.class)))
+        .thenThrow(new IOException(ERROR_MESSAGE));
+    setConfigurationValues(2, Set.of(500));
+
+    assertThatThrownBy(this::retrieveEndpoints)
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining(ERROR_MESSAGE)
+        .hasMessageContaining("Error retrieving configured oidc endpoints");
+    Mockito.verify(httpClientMock, times(3)).execute(any(SecurityHttpRequest.class));
+  }
+
   private void mockResponse() throws IOException {
     final SecurityHttpResponse response =
         HttpClientTestFactory.createHttpResponse(jsonOidcConfiguration);

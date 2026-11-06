@@ -35,6 +35,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestOperations;
 
 public class SpringOAuth2TokenKeyServiceTest {
@@ -275,6 +276,39 @@ public class SpringOAuth2TokenKeyServiceTest {
         .contains("Thread.sleep has been interrupted. Retry starts now.");
     logger.detachAppender(listAppender);
     Mockito.verify(restOperationsMock, times(2))
+        .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_networkErrorThenSuccess_executesRetry()
+      throws OAuth2ServiceException {
+    final MultiValueMap<String, String> responseHeaders = new LinkedMultiValueMap<>();
+    responseHeaders.add("Content-Type", "application/json");
+    when(restOperationsMock.exchange(
+            eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
+        .thenThrow(new ResourceAccessException("Connection reset"))
+        .thenReturn(new ResponseEntity<>(jsonWebKeysAsString, responseHeaders, HttpStatus.OK));
+    setConfigurationValues(1, Set.of(500));
+
+    final String result = cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS);
+
+    assertThat(result).isNotEmpty();
+    Mockito.verify(restOperationsMock, times(2))
+        .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
+  }
+
+  @Test
+  public void retrieveTokenKeys_networkError_retriesUntilMaxAttempts_thenThrows() {
+    when(restOperationsMock.exchange(
+            eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(HttpEntity.class), eq(String.class)))
+        .thenThrow(new ResourceAccessException("Connection reset"));
+    setConfigurationValues(2, Set.of(500));
+
+    assertThatThrownBy(() -> cut.retrieveTokenKeys(TOKEN_KEYS_ENDPOINT_URI, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining("Connection reset")
+        .hasMessageContaining("Error retrieving token keys");
+    Mockito.verify(restOperationsMock, times(3))
         .exchange(eq(TOKEN_KEYS_ENDPOINT_URI), eq(GET), any(), eq(String.class));
   }
 

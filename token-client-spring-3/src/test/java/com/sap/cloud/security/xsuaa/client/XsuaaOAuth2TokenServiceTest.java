@@ -331,6 +331,39 @@ class XsuaaOAuth2TokenServiceTest {
         .postForEntity(eq(TOKEN_KEYS_ENDPOINT_URI), any(), eq(Map.class));
   }
 
+  @Test
+  void requestAccessToken_networkErrorThenSuccess_executesRetry() throws OAuth2ServiceException {
+    final MultiValueMap<String, String> responseHeaders = new LinkedMultiValueMap<>();
+    responseHeaders.add("Content-Type", "application/json");
+    when(restOperationsMock.postForEntity(
+            eq(TOKEN_KEYS_ENDPOINT_URI), any(HttpEntity.class), eq(Map.class)))
+        .thenThrow(new ResourceAccessException("Connection reset"))
+        .thenReturn(new ResponseEntity<>(responseBody, responseHeaders, HttpStatus.OK));
+    setConfigurationValues(1, Set.of(500));
+
+    final OAuth2TokenResponse result =
+        cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS);
+
+    assertThat(result).isNotNull();
+    Mockito.verify(restOperationsMock, times(2))
+        .postForEntity(eq(TOKEN_KEYS_ENDPOINT_URI), any(), eq(Map.class));
+  }
+
+  @Test
+  void requestAccessToken_networkError_retriesUntilMaxAttempts_thenThrows() {
+    when(restOperationsMock.postForEntity(
+            eq(TOKEN_KEYS_ENDPOINT_URI), any(HttpEntity.class), eq(Map.class)))
+        .thenThrow(new ResourceAccessException("Connection reset"));
+    setConfigurationValues(2, Set.of(500));
+
+    assertThatThrownBy(() -> cut.requestAccessToken(TOKEN_KEYS_ENDPOINT_URI, headers, PARAMS))
+        .isInstanceOf(OAuth2ServiceException.class)
+        .hasMessageContaining("Connection reset")
+        .hasMessageContaining("RestClient isn't configured properly");
+    Mockito.verify(restOperationsMock, times(3))
+        .postForEntity(eq(TOKEN_KEYS_ENDPOINT_URI), any(), eq(Map.class));
+  }
+
   private void mockResponse(final Map<String, String> responseMap, final Integer... statusCodes) {
     final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
     headers.add("Content-Type", "application/json");
