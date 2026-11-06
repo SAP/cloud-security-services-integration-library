@@ -115,7 +115,7 @@ public class SpringOAuth2TokenKeyService implements OAuth2TokenKeyService {
       if (attemptsLeft > 0) {
         LOGGER.warn(
             "Request to {} failed with a network error ({}) but is retryable. Retrying...",
-            tokenKeysEndpointUri,
+            LogSanitizer.sanitize(tokenKeysEndpointUri),
             ex.toString());
         pauseBeforeNextAttempt(config.getRetryDelayTime());
         return executeRequest(tokenKeysEndpointUri, params, attemptsLeft - 1);
