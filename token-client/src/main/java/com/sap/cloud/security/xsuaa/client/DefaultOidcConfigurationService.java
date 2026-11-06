@@ -120,14 +120,21 @@ public class DefaultOidcConfigurationService implements OidcConfigurationService
     } catch (final IOException e) {
       if (e instanceof final OAuth2ServiceException oAuth2Exception) {
         throw oAuth2Exception;
-      } else {
-        throw OAuth2ServiceException.builder(
-                "Error retrieving configured oidc endpoints: " + e.getMessage())
-            .withUri(discoveryEndpointUri)
-            .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
-            .withResponseBody(e.getMessage())
-            .build();
       }
+      if (attemptsLeft > 0) {
+        LOGGER.warn(
+            "Request to {} failed with a network error ({}) but is retryable. Retrying...",
+            discoveryEndpointUri,
+            e.toString());
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(discoveryEndpointUri, attemptsLeft - 1);
+      }
+      throw OAuth2ServiceException.builder(
+              "Error retrieving configured oidc endpoints: " + e.getMessage())
+          .withUri(discoveryEndpointUri)
+          .withRequestHeaders(getHeadersAsStringArray(request.getHeaders()))
+          .withResponseBody(e.getMessage())
+          .build();
     }
   }
 

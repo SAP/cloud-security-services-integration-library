@@ -3,9 +3,13 @@ All notable changes to this project will be documented in this file.
 
 ## 4.3.1
 
-- Retry token and token-key requests on network errors
-  - `DefaultOAuth2TokenService` and `DefaultOAuth2TokenKeyService` previously retried only on the configured HTTP status codes. An `IOException` from the HTTP client (connection reset, read timeout, TLS handshake error) was caught and rethrown immediately, so transient network failures during access-token or JWKS retrieval were never retried — even with retry enabled and `maxRetryAttempts` configured. This also surfaced as `Error retrieving token keys: null` during short identity-service blips.
-  - When retry is enabled, these requests are now also retried on `IOException`, bounded by the existing `maxRetryAttempts` and `retryDelayTime`. An `OAuth2ServiceException` (an already-decided HTTP outcome) is still never retried.
+- Retry token, token-key, and OIDC-discovery requests on network errors (token-client, token-client-spring, token-client-spring-3)
+  - The retry feature previously only acted on configured HTTP status codes. A network error (connection reset, read timeout, TLS handshake error) was rethrown immediately, so transient network failures during access-token, JWKS, or OIDC-discovery retrieval were never retried — even with retry enabled and `maxRetryAttempts` configured. In the plain client this surfaced as `Error retrieving token keys: null` during short identity-service blips.
+  - Affected classes now retry on network errors as well, bounded by the existing `maxRetryAttempts` and `retryDelayTime`:
+    - `DefaultOAuth2TokenService`, `DefaultOAuth2TokenKeyService`, `DefaultOidcConfigurationService` (retry on `IOException`)
+    - `XsuaaOAuth2TokenService`, `SpringOAuth2TokenKeyService`, `SpringOidcConfigurationService` (retry on `ResourceAccessException`)
+  - The Spring variants additionally route retryable HTTP status codes (`HttpStatusCodeException`) through the same retry handling, so the configured `retryStatusCodes` now take effect even though `RestTemplate` surfaces non-2xx responses as exceptions.
+  - An already-decided HTTP outcome (`OAuth2ServiceException`) is still never retried.
   - This aligns the behavior with the documented retry feature, which states that requests failing due to "network issues, such as timeouts or connection errors" are retried.
 
 ## 4.3.0

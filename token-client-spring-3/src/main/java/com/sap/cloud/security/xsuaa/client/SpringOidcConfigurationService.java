@@ -14,7 +14,8 @@ import java.net.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestOperations;
 
 public class SpringOidcConfigurationService implements OidcConfigurationService {
@@ -68,12 +69,32 @@ public class SpringOidcConfigurationService implements OidcConfigurationService 
           .withStatusCode(statusCode)
           .withResponseBody(responseEntity.getBody())
           .build();
-    } catch (final HttpClientErrorException ex) {
+    } catch (final HttpStatusCodeException ex) {
+      final int statusCode = ex.getStatusCode().value();
+      if (attemptsLeft > 0 && config.getRetryStatusCodes().contains(statusCode)) {
+        LOGGER.warn("Request failed with status {} but is retryable. Retrying...", statusCode);
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(discoveryEndpointUri, attemptsLeft - 1);
+      }
       throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
           .withUri(discoveryEndpointUri)
           .withRequestHeaders(getHeadersAsStringArray(headers))
           .withResponseBody(ex.getResponseBodyAsString())
-          .withStatusCode(ex.getStatusCode().value())
+          .withStatusCode(statusCode)
+          .build();
+    } catch (final ResourceAccessException ex) {
+      if (attemptsLeft > 0) {
+        LOGGER.warn(
+            "Request to {} failed with a network error ({}) but is retryable. Retrying...",
+            discoveryEndpointUri,
+            ex.toString());
+        pauseBeforeNextAttempt(config.getRetryDelayTime());
+        return executeRequest(discoveryEndpointUri, attemptsLeft - 1);
+      }
+      throw OAuth2ServiceException.builder("Error retrieving configured oidc endpoints")
+          .withUri(discoveryEndpointUri)
+          .withRequestHeaders(getHeadersAsStringArray(headers))
+          .withResponseBody(ex.getMessage())
           .build();
     }
   }
