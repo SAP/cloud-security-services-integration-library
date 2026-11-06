@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 4.3.1
+
+- Retry token and token-key requests on network errors
+  - `DefaultOAuth2TokenService` and `DefaultOAuth2TokenKeyService` previously retried only on the configured HTTP status codes. An `IOException` from the HTTP client (connection reset, read timeout, TLS handshake error) was caught and rethrown immediately, so transient network failures during access-token or JWKS retrieval were never retried — even with retry enabled and `maxRetryAttempts` configured. This also surfaced as `Error retrieving token keys: null` during short identity-service blips.
+  - When retry is enabled, these requests are now also retried on `IOException`, bounded by the existing `maxRetryAttempts` and `retryDelayTime`. An `OAuth2ServiceException` (an already-decided HTTP outcome) is still never retried.
+  - This aligns the behavior with the documented retry feature, which states that requests failing due to "network issues, such as timeouts or connection errors" are retried.
+
 ## 4.3.0
 
 - Split `java-security` into a new `java-security-core` module for Jakarta-free token validation
