@@ -61,7 +61,7 @@
 		<spring.boot.version>${legacy3.spring.boot.version}</spring.boot.version>
 		<spring.core.version>${legacy3.spring.core.version}</spring.core.version>
 		<spring.security.version>${legacy3.spring.security.version}</spring.security.version>
-		<spring.security.oauth2.version>${legacy3.spring.security.oauth2.version}</spring.security.oauth2.version>
+		<spring.security.oauth2.version>7.2.0</spring.security.oauth2.version>
 	</properties>
 
 	<dependencies>
