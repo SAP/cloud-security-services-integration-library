@@ -1,5 +1,7 @@
 package com.sap.cloud.security.token.validation;
 
+import java.net.URI;
+
 /**
  * LocalhostIssuerValidator brings backward-compatibility for test credentials in consumer applications written before
  * 2.17.0 that are used to validate java-security-test tokens. This is necessary for successful validation of localhost
@@ -10,6 +12,6 @@ public class LocalhostIssuerValidator implements TestIssuerValidator {
 
 	@Override
 	public boolean isValidIssuer(String issuer) {
-		return issuer.startsWith("http://localhost") || issuer.startsWith("https://localhost");
+		return LocalhostUrlValidator.isLocalhostUrl(issuer) && URI.create(issuer).getRawQuery() == null;
 	}
 }

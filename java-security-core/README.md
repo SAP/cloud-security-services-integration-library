@@ -67,6 +67,14 @@ This is exactly what `HybridTokenAuthenticator` does internally in the `java-sec
 module; with `java-security-core` you drive the same validators directly and extract the
 Authorization header yourself from your (javax) servlet request.
 
+## XSUAA verification-key endpoint
+
+XSUAA signing keys are retrieved from the endpoint derived from the service configuration
+(`uaadomain`, or the configured service URL in legacy mode). The token's `jku` header and
+classpath `XsuaaJkuFactory` providers cannot override this trust anchor. Test configurations
+must supply the complete mock-server base URL, including its scheme and port.
+See [design and migration notes](../docs/Xsuaa_Jwks_Trust_Anchor.md).
+
 ## Building your own Authenticator
 
 The ready-made `*TokenAuthenticator` classes in `java-security` are thin wrappers around the

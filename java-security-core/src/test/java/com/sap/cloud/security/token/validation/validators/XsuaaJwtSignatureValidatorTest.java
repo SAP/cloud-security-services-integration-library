@@ -12,21 +12,31 @@ import com.sap.cloud.security.config.Service;
 import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.XsuaaToken;
 import com.sap.cloud.security.token.validation.ValidationResult;
+import com.sap.cloud.security.token.validation.XsuaaJkuFactory;
 import com.sap.cloud.security.xsuaa.client.OAuth2ServiceException;
 import com.sap.cloud.security.xsuaa.client.OAuth2TokenKeyService;
 import com.sap.cloud.security.xsuaa.client.OidcConfigurationService;
 import com.sap.cloud.security.xsuaa.http.HttpHeaders;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.sap.cloud.security.config.ServiceConstants.XSUAA.UAA_DOMAIN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 public class XsuaaJwtSignatureValidatorTest {
@@ -69,6 +79,42 @@ public class XsuaaJwtSignatureValidatorTest {
 				OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
 				OidcConfigurationServiceWithCache.getInstance()
 						.withOidcConfigurationService(Mockito.mock(OidcConfigurationService.class)));
+	}
+
+	@Test
+	public void classpathProviderCannotOverrideConfiguredTrustAnchor(@TempDir Path directory) throws Exception {
+		Path descriptor = directory.resolve("META-INF/services/" + XsuaaJkuFactory.class.getName());
+		Files.createDirectories(descriptor.getParent());
+		Files.writeString(descriptor, UntrustedJkuFactory.class.getName());
+		UntrustedJkuFactory.calls.set(0);
+		when(tokenKeyServiceMock.retrieveTokenKeys(eq(URI.create(UntrustedJkuFactory.JWKS)), anyMap()))
+				.thenReturn(IOUtils.resourceToString("/jsonWebTokenKeys.json", UTF_8));
+
+		ClassLoader previous = Thread.currentThread().getContextClassLoader();
+		try (URLClassLoader loader = new URLClassLoader(new URL[] { directory.toUri().toURL() }, previous)) {
+			Thread.currentThread().setContextClassLoader(loader);
+			assertThat(ServiceLoader.load(XsuaaJkuFactory.class).iterator().hasNext()).isTrue();
+			JwtSignatureValidator validator = new XsuaaJwtSignatureValidator(mockConfiguration,
+					OAuth2TokenKeyServiceWithCache.getInstance().withTokenKeyService(tokenKeyServiceMock),
+					OidcConfigurationServiceWithCache.getInstance()
+							.withOidcConfigurationService(Mockito.mock(OidcConfigurationService.class)));
+			assertThat(validator.validate(xsuaaToken).isValid()).isTrue();
+			assertThat(UntrustedJkuFactory.calls.get()).isZero();
+		} finally {
+			Thread.currentThread().setContextClassLoader(previous);
+		}
+	}
+
+	/** Models a legacy provider supplied by an older test-support artifact. */
+	public static class UntrustedJkuFactory implements XsuaaJkuFactory {
+		private static final String JWKS = "https://attacker.example.invalid/jwks?marker=localhost";
+		private static final AtomicInteger calls = new AtomicInteger();
+
+		@Override
+		public String create(String token) {
+			calls.incrementAndGet();
+			return JWKS;
+		}
 	}
 
 	@Test

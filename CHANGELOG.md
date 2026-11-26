@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## Unreleased
+
+- Keep the XSUAA JWKS trust anchor bound to the configured service endpoint, even when test-support providers are present on the runtime classpath
+  - Remove automatic `XsuaaJkuFactory` discovery and invocation from production signature validation
+  - Stop registering the legacy XSUAA localhost factory in `java-security-test`; retain the internal API/helper as deprecated types for compatibility
+  - Restrict retained localhost test helpers to parsed HTTP(S) URLs with exact localhost/loopback hosts
+  - Older localhost tests must configure the actual mock-server base URL, including its port, as `uaadomain`; see [migration notes](docs/Xsuaa_Jwks_Trust_Anchor.md)
+
 ## 4.3.1
 
 - Retry token, token-key, and OIDC-discovery requests on network errors (token-client, token-client-spring, token-client-spring-3)

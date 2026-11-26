@@ -4,11 +4,12 @@ import com.sap.cloud.security.token.Token;
 import com.sap.cloud.security.token.TokenHeader;
 
 /**
- * XsuaaLocalhostJkuFactory brings backward-compatibility for test credentials in consumer applications written before
- * 2.17.0 that are used to validate java-security-test tokens. This is necessary for successful JKU construction when
- * 'localhost' is defined as uaadomain in the service credentials. This class MUST NOT be loaded outside test scope and
- * MUST be the ONLY implementation of {@link XsuaaJkuFactory}.
+ * Legacy helper for test credentials using a localhost JWKS endpoint. This class MUST NOT be used outside test scope.
+ *
+ * @deprecated No longer registered as a ServiceLoader provider. Configure the complete mock-server base URL as
+ *             uaadomain instead. Retained for compatibility with direct callers only.
  */
+@Deprecated
 public class XsuaaLocalhostJkuFactory implements XsuaaJkuFactory {
 
 	@Override
@@ -16,7 +17,7 @@ public class XsuaaLocalhostJkuFactory implements XsuaaJkuFactory {
 		Token token = Token.create(jwt);
 		String tokenJku = (String) token.getHeaders().get(TokenHeader.JWKS_URL);
 
-		if (tokenJku.contains("localhost") || tokenJku.contains("127.0.0.1")) {
+		if (LocalhostUrlValidator.isLocalhostUrl(tokenJku)) {
 			return tokenJku;
 		}
 

@@ -36,6 +36,12 @@ It is pre-configured with a security filter that only accepts valid tokens. Furt
 ## Setup
 
 ### Maven Dependencies
+
+> **Test scope only:** Do not package this artifact in production applications or include it
+> on their runtime classpath. XSUAA validation no longer loads the legacy `XsuaaJkuFactory`
+> provider. Configure the complete mock-server base URL, including its port, as `uaadomain`.
+> See [migration notes](../docs/Xsuaa_Jwks_Trust_Anchor.md).
+
 ```xml
 <dependency>
     <groupId>com.sap.cloud.security</groupId>
@@ -62,15 +68,26 @@ The following example uses TestPropertySource to configure `java-security` for a
 
 ```java
 import static com.sap.cloud.security.test.SecurityTest.*;
+import com.sap.cloud.security.config.Service;
+import com.sap.cloud.security.test.extension.SecurityTestExtension;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = { 
-		"xsuaa.uaadomain=" + DEFAULT_UAA_DOMAIN, 
 		"xsuaa.xsappname=" + DEFAULT_APP_ID,
 		"xsuaa.clientid=" + DEFAULT_CLIENT_ID })
-@ExtendWith(XsuaaExtension.class)
 public class HelloSpringTest {
+
+	@RegisterExtension
+	static SecurityTestExtension extension = SecurityTestExtension.forService(Service.XSUAA);
+
+	@DynamicPropertySource
+	static void mockServiceProperties(DynamicPropertyRegistry registry) {
+		registry.add("xsuaa.uaadomain", () -> extension.getContext().getWireMockServer().baseUrl());
+	}
 
 	@Test
 	public void sayHello(SecurityTestContext context) {
