@@ -29,6 +29,16 @@ updates:
       - "NiklasHerrmann21"
     open-pull-requests-limit: 10
 
+    # Keep both Spring generations intact: a 6.x legacy-module property must
+    # never be replaced by 7.x while updating the main branch's 7.x baseline.
+    ignore:
+      - dependency-name: "org.springframework.boot:*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.springframework:*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.springframework.security:*"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: maven
     directory: "/"
     target-branch: "main-3.x"

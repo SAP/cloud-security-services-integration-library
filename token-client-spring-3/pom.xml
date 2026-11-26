@@ -48,7 +48,13 @@
 
 	<properties>
 		<!-- Override parent's Spring Boot 4.x with Spring Boot 3.x for legacy compatibility -->
+		<spring.boot.version>${legacy3.spring.boot.version}</spring.boot.version>
 		<spring.core.version>${legacy3.spring.core.version}</spring.core.version>
+		<spring.security.version>${legacy3.spring.security.version}</spring.security.version>
+		<spring.security.oauth2.version>${legacy3.spring.security.oauth2.version}</spring.security.oauth2.version>
+		<reactor.version>${legacy3.reactor.version}</reactor.version>
+		<reactor.test.version>${legacy3.reactor.version}</reactor.test.version>
+		<tomcat.version>${legacy3.tomcat.version}</tomcat.version>
 	</properties>
 
 	<dependencies>
@@ -114,13 +120,13 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.4.14</version>
+			<version>${logback.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
-			<version>1.5.34</version>
+			<version>${logback.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
