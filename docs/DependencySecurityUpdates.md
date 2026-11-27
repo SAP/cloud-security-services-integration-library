@@ -93,3 +93,21 @@ No major-version update is included.
 
 These counts include unused dependency-management entries. They are not a
 runtime exploitability assessment or a binary scan of shaded JARs/buildpacks.
+
+## Full workflow build snapshot (2026-11-27)
+
+All **11 Maven steps** from the workflow pass locally with Java 17 and
+Enterprise-enabled settings, without CLI skip flags: the reactor `install`,
+both integration-test projects and all eight samples. This executes **1,097
+tests with zero failures/errors and three skips**, including Javadoc and the
+configured analysis goals.
+
+The hybrid sample had an unavailable Jakarta logging dependency, 3.7.3. Its
+pin is corrected to the published **3.8.6** release within the same major line.
+
+GitHub-hosted builds still need separate Enterprise repository configuration;
+the local organization's Maven settings are not present on those runners.
+Adding credentials alone is not sufficient: the workflow must generate Maven
+settings for both Maven and CodeQL. The existing branch filters also omit
+`main-3.x`. These workflow changes require a CI-access decision and are not
+included in the sample dependency fix.
