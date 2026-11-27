@@ -50,7 +50,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
-		<sap.cloud.security.version>3.6.12</sap.cloud.security.version>
+		<sap.cloud.security.version>3.7.7</sap.cloud.security.version>
 		<spring.boot.version>3.5.3</spring.boot.version>
 	</properties>
 
@@ -109,6 +109,12 @@
 			<groupId>com.sap.cloud.security</groupId>
 			<artifactId>java-security-test</artifactId>
 			<version>3.7.7</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sap.cloud.security.xsuaa</groupId>
+			<artifactId>token-client-spring</artifactId>
+			<version>${sap.cloud.security.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

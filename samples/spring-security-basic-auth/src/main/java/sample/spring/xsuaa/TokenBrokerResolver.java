@@ -48,7 +48,7 @@ public class TokenBrokerResolver implements BearerTokenResolver {
 	public String resolve(HttpServletRequest request) {
 		try {
 			return fetchToken(request);
-		} catch (TokenFlowException e) {
+		} catch (TokenFlowException | IllegalArgumentException e) {
 			LOGGER.warn("Error obtaining token: " + e.getMessage(), e);
 			return null;
 		}
