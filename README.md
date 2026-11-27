@@ -213,6 +213,11 @@ Common issues and solutions:
 | Exchange returns 401              | IAS binding missing `xsuaa-cross-consumption`  | Add parameter to IAS service binding             |
 
 ## Installation
+> **Enterprise repository required:** this branch uses the patched Spring Boot
+> 3.5.18 / Spring Framework 6.2.21 / Spring Security 6.5.13 baseline. These
+> releases are not on Maven Central. See [repository access and security update
+> notes](docs/DependencySecurityUpdates.md) before building or consuming it.
+
 The SAP Cloud Security Services Integration is published to maven central: https://search.maven.org/search?q=com.sap.cloud.security and is available as a Maven dependency. Add the following BOM to your dependency management in your `pom.xml`:
 ```xml
 <dependencyManagement>
