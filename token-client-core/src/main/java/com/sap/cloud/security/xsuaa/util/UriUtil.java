@@ -14,10 +14,12 @@ import javax.annotation.Nullable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 public class UriUtil {
 
 	private static final Logger logger = LoggerFactory.getLogger(UriUtil.class);
+	private static final Pattern SUBDOMAIN_PATTERN = Pattern.compile("[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?");
 
 	private UriUtil() {
 		// use static methods
@@ -29,11 +31,17 @@ public class UriUtil {
 	 * @param uri
 	 * 		the URI to be replaced.
 	 * @param subdomain
-	 * 		of the tenant.
+	 * 		of the tenant, as a single RFC 1123 DNS label (1-63 ASCII letters, digits or hyphens,
+	 * 		with no leading or trailing hyphen). Null, empty and blank values leave the URI unchanged.
 	 * @return the URI with the replaced subdomain or the passed URI in case a replacement was not possible.
+	 * @throws IllegalArgumentException
+	 * 		if a nonblank subdomain is not a single RFC 1123 DNS label.
 	 */
 	public static URI replaceSubdomain(@Nonnull URI uri, @Nullable String subdomain) {
 		Assertions.assertNotNull(uri, "the uri parameter must not be null");
+		if (hasText(subdomain) && !SUBDOMAIN_PATTERN.matcher(subdomain).matches()) {
+			throw new IllegalArgumentException("Subdomain must be a single RFC 1123 DNS label");
+		}
 		if (hasText(subdomain) && hasSubdomain(uri)) {
 			String newHost = subdomain + uri.getHost().substring(uri.getHost().indexOf('.'));
 			try {
@@ -49,7 +57,7 @@ public class UriUtil {
 	}
 
 	private static boolean hasSubdomain(URI uri) {
-		return uri.isAbsolute() && uri.getHost().contains(".");
+		return uri.isAbsolute() && uri.getHost() != null && uri.getHost().contains(".");
 	}
 
 	private static boolean hasText(String string) {
